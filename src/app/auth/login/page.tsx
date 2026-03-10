@@ -9,12 +9,14 @@ export default function LoginPage() {
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-12">
-            <Image src="/logos/condor.png" alt="Cóndor Salud" width={40} height={40} className="rounded-full" />
-            <div className="leading-none">
+            <Link href="/">
+              <Image src="/logos/condor.png" alt="Cóndor Salud" width={40} height={40} className="rounded-full" />
+            </Link>
+            <Link href="/" className="leading-none">
               <span className="text-[13px] font-bold tracking-[0.5px]">CÓNDOR</span>
               <br />
               <span className="text-[9px] font-medium tracking-[4px] text-celeste-light">S A L U D</span>
-            </div>
+            </Link>
           </div>
           <h1 className="text-3xl font-bold leading-tight mb-4">
             Inteligencia financiera para<br />
@@ -41,14 +43,14 @@ export default function LoginPage() {
       {/* Right - Login form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-[400px]">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
+          <Link href="/" className="lg:hidden flex items-center gap-2 mb-8">
             <Image src="/logos/condor.png" alt="Cóndor Salud" width={36} height={36} className="rounded-full" />
             <div className="leading-none">
               <span className="text-[12px] font-bold tracking-[0.5px] text-ink">CÓNDOR</span>
               <br />
               <span className="text-[8px] font-medium tracking-[4px] text-celeste-dark">S A L U D</span>
             </div>
-          </div>
+          </Link>
 
           <h2 className="text-2xl font-bold text-ink mb-1">Iniciar sesión</h2>
           <p className="text-sm text-ink-muted mb-8">Ingresá a tu cuenta para acceder al panel</p>

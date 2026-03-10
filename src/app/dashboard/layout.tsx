@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className="w-60 bg-ink flex flex-col shrink-0">
         {/* Brand */}
         <div className="px-5 py-5 border-b border-white/10">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <img src="/logos/condor.png" alt="Cóndor Salud" className="w-9 h-9 object-contain" />
             <div>
               <div className="font-bold text-sm text-celeste-light tracking-[2px] leading-none">
@@ -115,6 +115,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="text-[10px] text-ink-muted/60 truncate">Clínica San Martín · Growth</div>
             </div>
           </Link>
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/10">
+            <Link href="/" className="text-[10px] text-ink-muted/60 hover:text-white transition">← Volver al sitio</Link>
+            <Link href="/auth/login" className="text-[10px] text-ink-muted/60 hover:text-white transition ml-auto">Cerrar sesión</Link>
+          </div>
         </div>
       </aside>
 

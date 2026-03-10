@@ -54,6 +54,12 @@ export default function Navbar() {
           >
             Probá gratis
           </Link>
+          <Link
+            href="/dashboard"
+            className="px-5 py-2 text-xs font-semibold text-white bg-gold hover:bg-gold-dark rounded-[4px] transition"
+          >
+            Demo →
+          </Link>
         </div>
 
         {/* Mobile hamburger */}
