@@ -63,6 +63,7 @@ interface Turno {
   tipo: string;
   estado: "Confirmado" | "Pendiente" | "En espera" | "Atendido" | "Cancelado";
   financiador: string;
+  recordatorio?: "Enviado" | "Confirmado" | "Sin enviar" | "Sin respuesta";
 }
 
 const turnosMock: Turno[] = [
@@ -76,6 +77,7 @@ const turnosMock: Turno[] = [
     tipo: "Control",
     estado: "Confirmado",
     financiador: "PAMI",
+    recordatorio: "Confirmado",
   },
   {
     id: 2,
@@ -87,6 +89,7 @@ const turnosMock: Turno[] = [
     tipo: "Consulta",
     estado: "Confirmado",
     financiador: "OSDE 310",
+    recordatorio: "Confirmado",
   },
   {
     id: 3,
@@ -98,6 +101,7 @@ const turnosMock: Turno[] = [
     tipo: "Primera vez",
     estado: "Pendiente",
     financiador: "Swiss Medical",
+    recordatorio: "Sin respuesta",
   },
   {
     id: 4,
@@ -109,6 +113,7 @@ const turnosMock: Turno[] = [
     tipo: "Ecografía",
     estado: "En espera",
     financiador: "PAMI",
+    recordatorio: "Enviado",
   },
   {
     id: 5,
@@ -120,6 +125,7 @@ const turnosMock: Turno[] = [
     tipo: "Laboratorio",
     estado: "Confirmado",
     financiador: "Galeno",
+    recordatorio: "Confirmado",
   },
   {
     id: 6,
@@ -131,6 +137,7 @@ const turnosMock: Turno[] = [
     tipo: "Control",
     estado: "Confirmado",
     financiador: "PAMI",
+    recordatorio: "Confirmado",
   },
   {
     id: 7,
@@ -142,6 +149,7 @@ const turnosMock: Turno[] = [
     tipo: "Consulta",
     estado: "Pendiente",
     financiador: "Medifé",
+    recordatorio: "Enviado",
   },
   {
     id: 8,
@@ -153,6 +161,7 @@ const turnosMock: Turno[] = [
     tipo: "Ecografía",
     estado: "Confirmado",
     financiador: "OSDE 210",
+    recordatorio: "Confirmado",
   },
   {
     id: 9,
@@ -164,6 +173,7 @@ const turnosMock: Turno[] = [
     tipo: "Control",
     estado: "Confirmado",
     financiador: "PAMI",
+    recordatorio: "Enviado",
   },
   {
     id: 10,
@@ -175,6 +185,7 @@ const turnosMock: Turno[] = [
     tipo: "Consulta",
     estado: "Pendiente",
     financiador: "IOMA",
+    recordatorio: "Sin respuesta",
   },
   {
     id: 11,
@@ -186,6 +197,7 @@ const turnosMock: Turno[] = [
     tipo: "Laboratorio",
     estado: "Confirmado",
     financiador: "Swiss Medical",
+    recordatorio: "Confirmado",
   },
   {
     id: 12,
@@ -197,6 +209,7 @@ const turnosMock: Turno[] = [
     tipo: "Primera vez",
     estado: "Pendiente",
     financiador: "Sancor Salud",
+    recordatorio: "Sin enviar",
   },
   {
     id: 13,
@@ -208,6 +221,7 @@ const turnosMock: Turno[] = [
     tipo: "Control",
     estado: "Confirmado",
     financiador: "PAMI",
+    recordatorio: "Sin enviar",
   },
   {
     id: 14,
@@ -219,6 +233,7 @@ const turnosMock: Turno[] = [
     tipo: "Consulta",
     estado: "Confirmado",
     financiador: "OSDE 310",
+    recordatorio: "Sin enviar",
   },
   {
     id: 15,
@@ -230,6 +245,7 @@ const turnosMock: Turno[] = [
     tipo: "Ecografía",
     estado: "Pendiente",
     financiador: "Swiss Medical",
+    recordatorio: "Sin enviar",
   },
   {
     id: 16,
@@ -241,6 +257,7 @@ const turnosMock: Turno[] = [
     tipo: "Consulta",
     estado: "Pendiente",
     financiador: "PAMI",
+    recordatorio: "Sin enviar",
   },
 ];
 
@@ -251,6 +268,15 @@ const estadoColor: Record<string, string> = {
   Atendido: "bg-border-light text-ink-muted",
   Cancelado: "bg-red-50 text-red-600",
 };
+
+const recordatorioColor: Record<string, string> = {
+  Confirmado: "text-green-600",
+  Enviado: "text-celeste-dark",
+  "Sin respuesta": "text-amber-600",
+  "Sin enviar": "text-gray-300",
+};
+
+const CLINIC_GMAPS = "https://maps.google.com/?q=Av+San+Martin+1520+CABA+Argentina";
 
 export default function AgendaPage() {
   const { showToast } = useToast();
@@ -331,6 +357,32 @@ export default function AgendaPage() {
         ))}
       </div>
 
+      {/* WhatsApp reminders bar */}
+      <div className="bg-white border border-border rounded-lg p-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[#25D366]/10 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#25D366]" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-ink">Recordatorios WhatsApp activos</p>
+            <p className="text-[10px] text-ink-muted">
+              24hs antes · Con link a Google Maps ·{" "}
+              {filtered.filter((t) => t.recordatorio === "Confirmado").length} confirmados,{" "}
+              {filtered.filter((t) => t.recordatorio === "Enviado").length} enviados,{" "}
+              {filtered.filter((t) => t.recordatorio === "Sin respuesta").length} sin respuesta
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/dashboard/configuracion/whatsapp"
+          className="px-3 py-1.5 text-[10px] font-semibold text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition"
+        >
+          Configurar recordatorios
+        </Link>
+      </div>
+
       {/* Prof filter */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
@@ -386,12 +438,26 @@ export default function AgendaPage() {
                       <td key={di} className="px-1 py-1">
                         <Link
                           href={`/dashboard/pacientes/${turno.pacienteId}`}
-                          className={`block p-1.5 rounded text-[10px] border-l-2 ${prof?.color || ""} hover:shadow-sm transition`}
+                          className={`block p-1.5 rounded text-[10px] border-l-2 ${prof?.color || ""} hover:shadow-sm transition relative`}
                         >
                           <div className="font-semibold truncate">{turno.paciente}</div>
                           <div className="text-ink-muted truncate">
                             {turno.tipo} · {turno.financiador}
                           </div>
+                          {turno.recordatorio && turno.recordatorio !== "Sin enviar" && (
+                            <span
+                              className={`absolute top-1 right-1 ${recordatorioColor[turno.recordatorio]}`}
+                              title={`WA: ${turno.recordatorio}`}
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                className="w-3 h-3 fill-current"
+                                aria-hidden="true"
+                              >
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                              </svg>
+                            </span>
+                          )}
                         </Link>
                       </td>
                     );
@@ -414,6 +480,8 @@ export default function AgendaPage() {
                 <th className="text-left px-5 py-2.5">Tipo</th>
                 <th className="text-left px-5 py-2.5">Financiador</th>
                 <th className="text-center px-5 py-2.5">Estado</th>
+                <th className="text-center px-5 py-2.5">WA</th>
+                <th className="text-center px-5 py-2.5">Maps</th>
               </tr>
             </thead>
             <tbody>
@@ -447,6 +515,36 @@ export default function AgendaPage() {
                       >
                         {t.estado}
                       </span>
+                    </td>
+                    <td className="px-5 py-3 text-center">
+                      <span
+                        className={`inline-flex items-center gap-1 ${recordatorioColor[t.recordatorio || "Sin enviar"]}`}
+                        title={t.recordatorio || "Sin enviar"}
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="w-3.5 h-3.5 fill-current"
+                          aria-hidden="true"
+                        >
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                        </svg>
+                        <span className="text-[9px] font-semibold">
+                          {t.recordatorio === "Sin enviar" ? "—" : t.recordatorio?.charAt(0)}
+                        </span>
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 text-center">
+                      <a
+                        href={CLINIC_GMAPS}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-red-500 hover:text-red-600 transition"
+                        title="Abrir Google Maps"
+                      >
+                        <svg className="w-4 h-4 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                        </svg>
+                      </a>
                     </td>
                   </tr>
                 ))}

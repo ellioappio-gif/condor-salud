@@ -25,6 +25,7 @@ import {
   Bell,
   Settings,
   BookOpen,
+  Wallet,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -43,6 +44,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/alertas": Bell,
   "/dashboard/configuracion": Settings,
   "/dashboard/wizard": BookOpen,
+  "/dashboard/pagos": Wallet,
 };
 
 const navSections = [
@@ -63,6 +65,7 @@ const navSections = [
       { label: "Rechazos", href: "/dashboard/rechazos" },
       { label: "Financiadores", href: "/dashboard/financiadores" },
       { label: "Inflacion", href: "/dashboard/inflacion" },
+      { label: "Pagos", href: "/dashboard/pagos" },
     ],
   },
   {

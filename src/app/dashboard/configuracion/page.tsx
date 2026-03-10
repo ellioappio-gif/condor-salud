@@ -1,6 +1,15 @@
 "use client";
 import Link from "next/link";
-import { Building, Users, Link2, CreditCard, ClipboardList, Bell } from "lucide-react";
+import {
+  Building,
+  Users,
+  Link2,
+  CreditCard,
+  ClipboardList,
+  Bell,
+  MessageSquare,
+  Wallet,
+} from "lucide-react";
 
 const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "Mi Clinica": Building,
@@ -9,6 +18,8 @@ const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "Facturacion & Plan": CreditCard,
   Nomenclador: ClipboardList,
   Notificaciones: Bell,
+  "WhatsApp Turnos": MessageSquare,
+  "Pagos y Cobros": Wallet,
 };
 
 const sections = [
@@ -47,6 +58,18 @@ const sections = [
     desc: "Preferencias de alertas por email, push y frecuencia de reportes.",
     href: "/dashboard/configuracion/notificaciones",
     badge: null,
+  },
+  {
+    title: "WhatsApp Turnos",
+    desc: "Recordatorios automáticos 24hs antes, confirmaciones y Google Maps integrado.",
+    href: "/dashboard/configuracion/whatsapp",
+    badge: "Conectado",
+  },
+  {
+    title: "Pagos y Cobros",
+    desc: "MercadoPago, métodos de pago guardados, cobro automático de copagos.",
+    href: "/dashboard/configuracion/pagos",
+    badge: "MercadoPago",
   },
 ];
 
