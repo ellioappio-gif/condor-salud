@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { useAuth } from "@/lib/auth/context";
@@ -107,7 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Brand */}
         <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5" aria-label="Ir al inicio — Cóndor Salud">
-            <img src="/logos/condor.png" alt="" className="w-9 h-9 object-contain" />
+            <Image src="/logos/condor.png" alt="Cóndor Salud" width={36} height={36} className="w-9 h-9 object-contain" />
             <div>
               <div className="font-bold text-sm text-celeste-light tracking-[2px] leading-none">CÓNDOR</div>
               <div className="text-[8px] font-bold text-gold tracking-[0.2em] leading-none">S A L U D</div>

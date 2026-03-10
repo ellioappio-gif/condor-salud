@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad",
@@ -13,7 +14,7 @@ export default function PrivacidadPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="Ir al inicio">
-            <img src="/logos/condor.png" alt="" className="w-8 h-8 object-contain" />
+            <Image src="/logos/condor.png" alt="Cóndor Salud" width={32} height={32} className="w-8 h-8 object-contain" />
             <span className="font-bold text-sm text-celeste-dark tracking-[2px]">CÓNDOR SALUD</span>
           </Link>
           <Link href="/" className="text-xs text-celeste-dark hover:underline">← Volver al inicio</Link>

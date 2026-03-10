@@ -12,9 +12,20 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html"],
-      include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/__tests__/**", "src/**/*.d.ts"],
+      reporter: ["text", "json", "html", "lcov"],
+      include: ["src/lib/**/*.{ts,tsx}", "src/components/ui/**/*.{ts,tsx}"],
+      exclude: [
+        "src/__tests__/**",
+        "src/**/*.d.ts",
+        "src/lib/supabase/**",
+        "src/**/*.stories.{ts,tsx}",
+      ],
+      thresholds: {
+        statements: 60,
+        branches: 50,
+        functions: 55,
+        lines: 60,
+      },
     },
   },
   resolve: {

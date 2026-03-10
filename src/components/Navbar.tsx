@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -16,9 +17,11 @@ export default function Navbar() {
 
       <nav className="sticky top-1 z-[99] bg-white border-b border-border px-6 lg:px-10 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <img
+          <Image
             src="/logos/condor.png"
             alt="Cóndor Salud"
+            width={36}
+            height={36}
             className="w-9 h-9 object-contain"
           />
           <div className="leading-none">

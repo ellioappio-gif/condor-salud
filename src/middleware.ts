@@ -9,10 +9,12 @@ export async function middleware(request: NextRequest) {
 
   // Check if Supabase is configured
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const isSupabaseConfigured =
-    supabaseUrl && supabaseUrl !== "https://your-project.supabase.co";
+  const isSupabaseReady =
+    supabaseUrl &&
+    supabaseUrl !== "https://your-project.supabase.co" &&
+    supabaseUrl !== "https://placeholder.supabase.co";
 
-  if (isSupabaseConfigured) {
+  if (isSupabaseReady) {
     // Real auth check via Supabase middleware client
     const { createClient } = await import("@/lib/supabase/middleware");
     const { supabase, response } = createClient(request);

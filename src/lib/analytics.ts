@@ -1,6 +1,10 @@
 // ─── Analytics Skeleton ──────────────────────────────────────
 // Replace with PostHog, Plausible, or Vercel Analytics when ready.
 
+import { createClientLogger } from "@/lib/logger";
+
+const log = createClientLogger("analytics");
+
 type EventName =
   | "page_view"
   | "login"
@@ -35,7 +39,7 @@ class Analytics {
 
     if (!this.enabled) {
       if (process.env.NODE_ENV === "development") {
-        console.debug("[Analytics]", name, properties);
+        log.debug({ event: name, ...properties }, "Track event");
       }
       return;
     }
@@ -46,7 +50,7 @@ class Analytics {
 
   identify(userId: string, traits?: Record<string, string>) {
     if (process.env.NODE_ENV === "development") {
-      console.debug("[Analytics] identify", userId, traits);
+      log.debug({ userId, ...traits }, "Identify user");
     }
     // TODO: Wire to PostHog/Plausible
   }

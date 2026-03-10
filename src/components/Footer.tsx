@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 mb-8">
           {/* Brand */}
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <img src="/logos/condor.png" alt="Cóndor Salud" className="w-8 h-8 rounded-full" />
+            <Image src="/logos/condor.png" alt="Cóndor Salud" width={32} height={32} className="w-8 h-8 rounded-full" />
             <div className="leading-none">
               <span className="font-bold text-sm text-celeste-dark tracking-[2px] group-hover:text-celeste transition">CÓNDOR</span>{" "}
               <span className="text-[9px] font-bold text-gold tracking-[4px]">S A L U D</span>

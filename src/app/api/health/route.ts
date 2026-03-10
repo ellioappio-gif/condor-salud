@@ -11,6 +11,7 @@ export const runtime = "edge";
  * - 503: Service is degraded
  */
 export async function GET() {
+  const start = Date.now();
   const now = new Date().toISOString();
 
   const health = {
@@ -21,10 +22,14 @@ export async function GET() {
     checks: {
       app: { status: "pass" as const },
       uptime: { status: "pass" as const },
+      sentry: {
+        status: process.env.SENTRY_DSN ? ("pass" as const) : ("warn" as const),
+        message: process.env.SENTRY_DSN ? "configured" : "not configured",
+      },
     },
   };
 
-  return NextResponse.json(health, {
+  return NextResponse.json({ ...health, responseTimeMs: Date.now() - start }, {
     status: 200,
     headers: {
       "Cache-Control": "no-cache, no-store, must-revalidate",

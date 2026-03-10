@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
@@ -37,4 +39,24 @@ const nextConfig = {
     ];
   },
 };
-export default nextConfig;
+
+// Wrap with Sentry only if DSN is configured
+const sentryConfig = {
+  // Suppresses source map upload logs during build
+  silent: true,
+  // Upload source maps for production builds
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  // Only upload source maps when auth token is available
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Hides source maps from generated client bundles
+  hideSourceMaps: true,
+  // Automatically tree-shake Sentry logger statements
+  disableLogger: true,
+  // Prevents Sentry from erroring during build when DSN is not set
+  widenClientFileUpload: true,
+};
+
+export default process.env.SENTRY_DSN
+  ? withSentryConfig(nextConfig, sentryConfig)
+  : nextConfig;
