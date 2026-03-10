@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { Rechazo, RechazoMotivo } from "@/lib/types";
+import { useToast } from "@/components/Toast";
 
 const motivoLabels: Record<RechazoMotivo, string> = {
   codigo_invalido: "Código inválido",
@@ -24,7 +25,7 @@ const rechazos: Rechazo[] = [
 ];
 
 const estadoConfig: Record<string, { label: string; bg: string; text: string }> = {
-  pendiente: { label: "Pendiente", bg: "bg-gold-pale", text: "text-yellow-700" },
+  pendiente: { label: "Pendiente", bg: "bg-gold-pale", text: "text-gold-dark" },
   reprocesado: { label: "Reprocesado", bg: "bg-green-100", text: "text-green-700" },
   descartado: { label: "Descartado", bg: "bg-red-100", text: "text-red-700" },
 };
@@ -34,6 +35,7 @@ function formatMonto(n: number): string {
 }
 
 export default function RechazosPage() {
+  const { showToast } = useToast();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -55,33 +57,33 @@ export default function RechazosPage() {
   }, {});
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Gestión de Rechazos</h1>
+        <h1 className="text-2xl font-bold text-ink">Gestión de Rechazos</h1>
         <p className="text-sm text-ink-muted mt-1">Auditoría y reprocesamiento de facturas rechazadas</p>
       </div>
 
       {/* KPI summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
           <div className="text-xs text-ink-muted mb-1">Total rechazado</div>
-          <div className="text-2xl font-display font-bold text-red-600">{formatMonto(totalRechazado)}</div>
+          <div className="text-2xl font-bold text-red-600">{formatMonto(totalRechazado)}</div>
           <div className="text-xs mt-1 text-ink-muted">{rechazos.length} rechazos</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-gold">
           <div className="text-xs text-ink-muted mb-1">Pendientes de gestión</div>
-          <div className="text-2xl font-display font-bold text-gold">{pendientes.length}</div>
+          <div className="text-2xl font-bold text-gold">{pendientes.length}</div>
           <div className="text-xs mt-1 text-ink-muted">{formatMonto(pendientes.reduce((s, r) => s + r.monto, 0))}</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
           <div className="text-xs text-ink-muted mb-1">Reprocesables</div>
-          <div className="text-2xl font-display font-bold text-celeste-dark">{reprocesables.length}</div>
+          <div className="text-2xl font-bold text-celeste-dark">{reprocesables.length}</div>
           <div className="text-xs mt-1 text-green-600">Recuperables: {formatMonto(reprocesables.reduce((s, r) => s + r.monto, 0))}</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-green-400">
           <div className="text-xs text-ink-muted mb-1">Tasa de recupero</div>
-          <div className="text-2xl font-display font-bold text-celeste-dark">
+          <div className="text-2xl font-bold text-celeste-dark">
             {Math.round((rechazos.filter((r) => r.estado === "reprocesado").reduce((s, r) => s + r.monto, 0) / totalRechazado) * 100)}%
           </div>
           <div className="text-xs mt-1 text-green-600">{rechazos.filter((r) => r.estado === "reprocesado").length} reprocesados</div>
@@ -130,7 +132,7 @@ export default function RechazosPage() {
                     <span className="text-sm font-semibold text-ink">{fin}</span>
                     <span className="text-xs font-semibold text-red-600">{finRechazos.length} rechazos</span>
                   </div>
-                  <div className="text-xl font-display font-bold text-ink mb-1">{formatMonto(finMonto)}</div>
+                  <div className="text-xl font-bold text-ink mb-1">{formatMonto(finMonto)}</div>
                   <div className="text-xs text-ink-muted">
                     {finPendientes.length} pendientes · {finRechazos.filter((r) => r.reprocesable).length} reprocesables
                   </div>
@@ -148,7 +150,7 @@ export default function RechazosPage() {
           <select
             value={filtroFinanciador}
             onChange={(e) => setFiltroFinanciador(e.target.value)}
-            className="px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste"
+            className="px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
           >
             <option value="Todos">Todos</option>
             <option value="PAMI">PAMI</option>
@@ -160,7 +162,7 @@ export default function RechazosPage() {
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
-            className="px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste"
+            className="px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
           >
             <option value="todos">Todos</option>
             <option value="pendiente">Pendiente</option>
@@ -222,11 +224,11 @@ export default function RechazosPage() {
                   {r.estado === "pendiente" && (
                     <div className="flex gap-2 mt-4">
                       {r.reprocesable && (
-                        <button className="px-4 py-2 text-xs font-semibold text-white bg-celeste-dark hover:bg-celeste rounded transition">
+                        <button onClick={() => showToast("Reprocesar factura — Próximamente")} className="px-4 py-2 text-xs font-semibold text-white bg-celeste-dark hover:bg-celeste rounded transition">
                           Reprocesar
                         </button>
                       )}
-                      <button className="px-4 py-2 text-xs font-semibold text-ink-light border border-border hover:border-celeste-dark hover:text-celeste-dark rounded transition">
+                      <button onClick={() => showToast("Descartar rechazo — Próximamente")} className="px-4 py-2 text-xs font-semibold text-ink-light border border-border hover:border-celeste-dark hover:text-celeste-dark rounded transition">
                         Descartar
                       </button>
                     </div>

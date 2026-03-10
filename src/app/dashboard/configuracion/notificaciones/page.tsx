@@ -1,8 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useToast } from "@/components/Toast";
 
 export default function NotificacionesConfigPage() {
+  const { showToast } = useToast();
   const [prefs, setPrefs] = useState({
     emailPagos: true, emailRechazos: true, emailAranceles: true, emailInventario: false, emailSistema: false,
     pushPagos: true, pushRechazos: true, pushAranceles: false, pushInventario: true, pushSistema: false,
@@ -92,8 +94,8 @@ export default function NotificacionesConfigPage() {
       </div>
 
       <div className="flex gap-3">
-        <button className="px-5 py-2.5 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">Guardar cambios</button>
-        <button className="px-5 py-2.5 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-ink transition">Restablecer</button>
+        <button onClick={() => showToast("Guardar cambios — Próximamente")} className="px-5 py-2.5 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">Guardar cambios</button>
+        <button onClick={() => showToast("Restablecer configuración — Próximamente")} className="px-5 py-2.5 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-ink transition">Restablecer</button>
       </div>
     </div>
   );

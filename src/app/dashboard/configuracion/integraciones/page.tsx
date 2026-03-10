@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 interface Integracion {
   id: string;
@@ -25,11 +26,12 @@ const integraciones: Integracion[] = [
 const estadoColors: Record<string, string> = {
   Conectado: "bg-green-50 text-green-700 border-green-200",
   Error: "bg-red-50 text-red-600 border-red-200",
-  Desconectado: "bg-gray-100 text-ink-muted border-gray-200",
+  Desconectado: "bg-border-light text-ink-muted border-border",
   Pendiente: "bg-gold-pale text-[#B8860B] border-gold",
 };
 
 export default function IntegracionesPage() {
+  const { showToast } = useToast();
   const activas = integraciones.filter((i) => i.estado === "Conectado").length;
   const errores = integraciones.filter((i) => i.estado === "Error").length;
 
@@ -46,7 +48,7 @@ export default function IntegracionesPage() {
           <h1 className="text-2xl font-bold text-ink">Integraciones</h1>
           <p className="text-sm text-ink-muted mt-0.5">{activas} activas · {errores} con error</p>
         </div>
-        <button className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">+ Nueva integración</button>
+        <button onClick={() => showToast("Nueva integración — Próximamente")} className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">+ Nueva integración</button>
       </div>
 
       {/* Status summary */}
@@ -92,15 +94,15 @@ export default function IntegracionesPage() {
               </div>
               <div className="flex flex-col gap-1.5">
                 {int.estado === "Conectado" && (
-                  <button className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Sincronizar</button>
+                  <button onClick={() => showToast(`Sincronizar ${int.nombre} — Próximamente`)} className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Sincronizar</button>
                 )}
                 {int.estado === "Error" && (
-                  <button className="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-[4px] hover:bg-red-700 transition">Reintentar</button>
+                  <button onClick={() => showToast(`Reintentar ${int.nombre} — Próximamente`)} className="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-[4px] hover:bg-red-700 transition">Reintentar</button>
                 )}
                 {(int.estado === "Desconectado" || int.estado === "Pendiente") && (
-                  <button className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">Configurar</button>
+                  <button onClick={() => showToast(`Configurar ${int.nombre} — Próximamente`)} className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">Configurar</button>
                 )}
-                <button className="px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink transition">Ajustes</button>
+                <button onClick={() => showToast(`Ajustes de ${int.nombre} — Próximamente`)} className="px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink transition">Ajustes</button>
               </div>
             </div>
           </div>

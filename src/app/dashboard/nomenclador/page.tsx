@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useToast } from "@/components/Toast";
 
 interface Prestacion {
   codigo: string;
@@ -37,6 +38,7 @@ const nomenclador: Prestacion[] = [
 const capitulos = ["Todos", ...Array.from(new Set(nomenclador.map((p) => p.capitulo)))];
 
 export default function NomencladorPage() {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [capFilter, setCapFilter] = useState("Todos");
   const [comparar, setComparar] = useState(false);
@@ -58,7 +60,7 @@ export default function NomencladorPage() {
           <button onClick={() => setComparar(!comparar)} className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${comparar ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}>
             {comparar ? "✓ Comparar financiadores" : "Comparar financiadores"}
           </button>
-          <button className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Exportar Excel</button>
+          <button onClick={() => showToast("Exportar Excel — Próximamente")} className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Exportar Excel</button>
         </div>
       </div>
 
@@ -68,7 +70,7 @@ export default function NomencladorPage() {
           { label: "Total prestaciones", value: nomenclador.length, color: "border-celeste" },
           { label: "Capítulos", value: capitulos.length - 1, color: "border-gold" },
           { label: "Valor medio SSS", value: `$${Math.round(nomenclador.reduce((s, p) => s + parseInt(p.valorSSS.replace(/[$.]/g, "")), 0) / nomenclador.length / 100) / 10}K`, color: "border-green-400" },
-          { label: "Última actualización", value: "01/03/2026", color: "border-purple-400" },
+          { label: "Última actualización", value: "01/03/2026", color: "border-celeste" },
         ].map((k) => (
           <div key={k.label} className={`bg-white border border-border rounded-lg p-4 border-l-[3px] ${k.color}`}>
             <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">{k.label}</p>

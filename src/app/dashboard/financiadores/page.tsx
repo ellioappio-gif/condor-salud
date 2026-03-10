@@ -12,7 +12,7 @@ const financiadores: (Financiador & { contacto: string; ultimaLiquidacion: strin
 
 const typeLabels: Record<FinanciadorType, { label: string; bg: string; text: string }> = {
   pami: { label: "PAMI", bg: "bg-celeste-pale", text: "text-celeste-dark" },
-  os: { label: "Obra Social", bg: "bg-gold-pale", text: "text-yellow-700" },
+  os: { label: "Obra Social", bg: "bg-gold-pale", text: "text-gold-dark" },
   prepaga: { label: "Prepaga", bg: "bg-green-100", text: "text-green-700" },
 };
 
@@ -31,33 +31,33 @@ export default function FinanciadoresPage() {
   const promedioDias = Math.round(financiadores.reduce((s, f) => s + f.diasPromedioPago, 0) / financiadores.length);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Financiadores</h1>
+        <h1 className="text-2xl font-bold text-ink">Financiadores</h1>
         <p className="text-sm text-ink-muted mt-1">Rendimiento y análisis comparativo por financiador</p>
       </div>
 
       {/* Global KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
           <div className="text-xs text-ink-muted mb-1">Total facturado</div>
-          <div className="text-2xl font-display font-bold text-celeste-dark">{formatMonto(totalFacturado)}</div>
+          <div className="text-2xl font-bold text-celeste-dark">{formatMonto(totalFacturado)}</div>
           <div className="text-xs mt-1 text-ink-muted">{financiadores.length} financiadores activos</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-green-400">
           <div className="text-xs text-ink-muted mb-1">Total cobrado</div>
-          <div className="text-2xl font-display font-bold text-green-600">{formatMonto(totalCobrado)}</div>
+          <div className="text-2xl font-bold text-green-600">{formatMonto(totalCobrado)}</div>
           <div className="text-xs mt-1 text-green-600">{formatPorcentaje(totalFacturado, totalCobrado)}% del facturado</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-gold">
           <div className="text-xs text-ink-muted mb-1">Rechazo promedio</div>
-          <div className={`text-2xl font-display font-bold ${promedioRechazo > 10 ? "text-red-600" : promedioRechazo > 5 ? "text-gold" : "text-green-600"}`}>{promedioRechazo}%</div>
+          <div className={`text-2xl font-bold ${promedioRechazo > 10 ? "text-red-600" : promedioRechazo > 5 ? "text-gold" : "text-green-600"}`}>{promedioRechazo}%</div>
           <div className="text-xs mt-1 text-ink-muted">Promedio ponderado</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
           <div className="text-xs text-ink-muted mb-1">Días pago promedio</div>
-          <div className={`text-2xl font-display font-bold ${promedioDias > 60 ? "text-red-600" : "text-celeste-dark"}`}>{promedioDias}</div>
+          <div className={`text-2xl font-bold ${promedioDias > 60 ? "text-red-600" : "text-celeste-dark"}`}>{promedioDias}</div>
           <div className="text-xs mt-1 text-ink-muted">Promedio entre financiadores</div>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function FinanciadoresPage() {
                     </span>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-display font-bold text-celeste-dark">{formatMonto(f.facturado)}</div>
+                    <div className="text-lg font-bold text-celeste-dark">{formatMonto(f.facturado)}</div>
                     <div className="text-[10px] text-ink-muted">facturado</div>
                   </div>
                 </div>
@@ -130,16 +130,16 @@ export default function FinanciadoresPage() {
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-              <th className="text-left font-medium px-5 py-3">Financiador</th>
-              <th className="text-left font-medium px-5 py-3">Tipo</th>
-              <th className="text-right font-medium px-5 py-3">Facturado</th>
-              <th className="text-right font-medium px-5 py-3">Cobrado</th>
-              <th className="text-right font-medium px-5 py-3">% Cobro</th>
-              <th className="text-right font-medium px-5 py-3">Rechazo</th>
-              <th className="text-right font-medium px-5 py-3">Días pago</th>
-              <th className="text-right font-medium px-5 py-3">Pendientes</th>
-              <th className="text-left font-medium px-5 py-3">Últ. liquidación</th>
+            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <th className="text-left px-5 py-2.5">Financiador</th>
+              <th className="text-left px-5 py-2.5">Tipo</th>
+              <th className="text-right px-5 py-2.5">Facturado</th>
+              <th className="text-right px-5 py-2.5">Cobrado</th>
+              <th className="text-right px-5 py-2.5">% Cobro</th>
+              <th className="text-right px-5 py-2.5">Rechazo</th>
+              <th className="text-right px-5 py-2.5">Días pago</th>
+              <th className="text-right px-5 py-2.5">Pendientes</th>
+              <th className="text-left px-5 py-2.5">Últ. liquidación</th>
             </tr>
           </thead>
           <tbody>

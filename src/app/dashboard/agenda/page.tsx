@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const horas = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
@@ -8,7 +9,7 @@ const horas = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "1
 const profesionales = [
   { id: 1, nombre: "Dr. Martín Rodríguez", especialidad: "Cardiología", color: "bg-celeste-pale text-celeste-dark border-celeste" },
   { id: 2, nombre: "Dra. Laura Pérez", especialidad: "Clínica Médica", color: "bg-gold-pale text-[#B8860B] border-gold" },
-  { id: 3, nombre: "Dr. Carlos Martínez", especialidad: "Ecografía", color: "bg-purple-50 text-purple-700 border-purple-300" },
+  { id: 3, nombre: "Dr. Carlos Martínez", especialidad: "Ecografía", color: "bg-celeste-pale text-celeste-dark border-celeste" },
   { id: 4, nombre: "Dra. Ana Fernández", especialidad: "Laboratorio", color: "bg-green-50 text-green-700 border-green-300" },
 ];
 
@@ -47,11 +48,12 @@ const estadoColor: Record<string, string> = {
   Confirmado: "bg-green-50 text-green-700",
   Pendiente: "bg-gold-pale text-[#B8860B]",
   "En espera": "bg-celeste-pale text-celeste-dark",
-  Atendido: "bg-gray-100 text-ink-muted",
+  Atendido: "bg-border-light text-ink-muted",
   Cancelado: "bg-red-50 text-red-600",
 };
 
 export default function AgendaPage() {
+  const { showToast } = useToast();
   const [vista, setVista] = useState<"semana" | "lista">("semana");
   const [profFilter, setProfFilter] = useState(0);
 
@@ -82,7 +84,7 @@ export default function AgendaPage() {
         <div className="flex gap-2">
           <button onClick={() => setVista("semana")} className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "semana" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}>Semana</button>
           <button onClick={() => setVista("lista")} className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "lista" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}>Lista</button>
-          <button className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-[#d9a00d] transition">+ Nuevo turno</button>
+          <button onClick={() => showToast("Nuevo turno — Próximamente")} className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-gold-dark transition">+ Nuevo turno</button>
         </div>
       </div>
 
@@ -92,7 +94,7 @@ export default function AgendaPage() {
           { label: "Turnos esta semana", value: total, color: "border-celeste" },
           { label: "Confirmados", value: confirmados, color: "border-green-400" },
           { label: "Pendientes", value: pendientes, color: "border-gold" },
-          { label: "Disponibilidad", value: `${Math.round((1 - total / (horas.length * 6)) * 100)}%`, color: "border-purple-400" },
+          { label: "Disponibilidad", value: `${Math.round((1 - total / (horas.length * 6)) * 100)}%`, color: "border-celeste" },
         ].map((k) => (
           <div key={k.label} className={`bg-white border border-border rounded-lg p-4 border-l-[3px] ${k.color}`}>
             <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">{k.label}</p>

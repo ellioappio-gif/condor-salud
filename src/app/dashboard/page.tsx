@@ -1,9 +1,9 @@
 import Link from "next/link";
 const kpis = [
-  { label: "Facturado este mes", value: "$4.2M", change: "+12%", up: true, color: "text-celeste-dark", href: "/dashboard/facturacion" },
-  { label: "Cobrado", value: "$3.1M", change: "74% del facturado", up: true, color: "text-celeste-dark", href: "/dashboard/financiadores" },
-  { label: "Rechazos PAMI", value: "8.2%", change: "-3.1% vs. mes ant.", up: false, color: "text-gold", href: "/dashboard/rechazos" },
-  { label: "Pérdida por inflación", value: "$320K", change: "7.6% del cobrado", up: false, color: "text-gold", href: "/dashboard/inflacion" },
+  { label: "Facturado este mes", value: "$4.2M", change: "+12%", up: true, color: "text-celeste-dark", accent: "border-l-celeste", href: "/dashboard/facturacion" },
+  { label: "Cobrado", value: "$3.1M", change: "74% del facturado", up: true, color: "text-celeste-dark", accent: "border-l-green-400", href: "/dashboard/financiadores" },
+  { label: "Rechazos PAMI", value: "8.2%", change: "-3.1% vs. mes ant.", up: false, color: "text-gold", accent: "border-l-gold", href: "/dashboard/rechazos" },
+  { label: "Pérdida por inflación", value: "$320K", change: "7.6% del cobrado", up: false, color: "text-gold", accent: "border-l-red-400", href: "/dashboard/inflacion" },
 ];
 
 const financiadores = [
@@ -41,7 +41,7 @@ export default function DashboardPage() {
       {/* KPI cards — clickable */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi) => (
-          <Link key={kpi.label} href={kpi.href} className="bg-white border border-border rounded-lg p-5 hover:shadow-md hover:-translate-y-0.5 transition group block">
+          <Link key={kpi.label} href={kpi.href} className={`bg-white border border-border rounded-lg p-5 border-l-[3px] ${kpi.accent} hover:shadow-md hover:-translate-y-0.5 transition group block`}>
             <div className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1">{kpi.label}</div>
             <div className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</div>
             <div className={`text-xs mt-1 ${kpi.up ? "text-green-600" : "text-ink-muted"}`}>
@@ -133,8 +133,10 @@ export default function DashboardPage() {
           </thead>
           <tbody>
             {financiadores.map((f) => (
-              <tr key={f.name} className="border-t border-border-light hover:bg-celeste-pale/30 transition cursor-pointer">
-                <td className="px-5 py-3 font-semibold text-ink">{f.name}</td>
+              <tr key={f.name} className="border-t border-border-light hover:bg-celeste-pale/30 transition">
+                <td className="px-5 py-3 font-semibold text-ink">
+                  <Link href="/dashboard/financiadores" className="hover:text-celeste-dark">{f.name}</Link>
+                </td>
                 <td className="px-5 py-3 text-right text-ink-light">{f.facturado}</td>
                 <td className="px-5 py-3 text-right text-ink-light">{f.cobrado}</td>
                 <td className={`px-5 py-3 text-right font-semibold ${

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 interface AuditItem {
   id: string;
@@ -39,10 +40,11 @@ const estadoColors: Record<string, string> = {
   Pendiente: "bg-gold-pale text-[#B8860B]",
   Corregido: "bg-green-50 text-green-700",
   Aprobado: "bg-celeste-pale text-celeste-dark",
-  Ignorado: "bg-gray-100 text-ink-muted",
+  Ignorado: "bg-border-light text-ink-muted",
 };
 
 export default function AuditoriaPage() {
+  const { showToast } = useToast();
   const [sevFilter, setSevFilter] = useState("Todos");
   const [estadoFilter, setEstadoFilter] = useState("Todos");
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -66,8 +68,8 @@ export default function AuditoriaPage() {
           <p className="text-sm text-ink-muted mt-0.5">Pre-auditoría automática de facturas antes de presentación</p>
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Ejecutar auditoría</button>
-          <button className="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition">✓ Aprobar seleccionados</button>
+          <button onClick={() => showToast("Ejecutar auditoría — Próximamente")} className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Ejecutar auditoría</button>
+          <button onClick={() => showToast("Aprobar seleccionados — Próximamente")} className="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition">✓ Aprobar seleccionados</button>
         </div>
       </div>
 
@@ -137,8 +139,8 @@ export default function AuditoriaPage() {
                   <div className="ml-auto flex gap-2">
                     {a.estado === "Pendiente" && (
                       <>
-                        <button className="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition">✓ Marcar corregido</button>
-                        <button className="px-3 py-1.5 text-xs font-medium border border-border text-ink-muted rounded-[4px] hover:border-red-300 hover:text-red-600 transition">Ignorar</button>
+                        <button onClick={() => showToast("Marcar corregido — Próximamente")} className="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition">✓ Marcar corregido</button>
+                        <button onClick={() => showToast("Ignorar observación — Próximamente")} className="px-3 py-1.5 text-xs font-medium border border-border text-ink-muted rounded-[4px] hover:border-red-300 hover:text-red-600 transition">Ignorar</button>
                       </>
                     )}
                   </div>

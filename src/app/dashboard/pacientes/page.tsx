@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 const pacientes = [
   { id: "P001", nombre: "María Elena", apellido: "González", dni: "27.845.332", edad: 67, sexo: "F", financiador: "PAMI", plan: "Básico", telefono: "11-4523-8891", email: "maria.gonzalez@gmail.com", ultimaVisita: "07/03/2026", estado: "activo", turnos: 3 },
@@ -20,6 +21,7 @@ const pacientes = [
 const financiadores = ["Todos", "PAMI", "OSDE 310", "OSDE 210", "Swiss Medical", "Galeno", "IOMA", "Medifé", "Sancor Salud"];
 
 export default function PacientesPage() {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("Todos");
@@ -32,13 +34,13 @@ export default function PacientesPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-ink">Pacientes</h1>
           <p className="text-sm text-ink-muted mt-1">{pacientes.length} pacientes registrados</p>
         </div>
-        <button className="px-4 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded-[4px] hover:bg-celeste transition">
+        <button onClick={() => showToast("Nuevo paciente — Próximamente")} className="px-4 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded-[4px] hover:bg-celeste transition">
           + Nuevo paciente
         </button>
       </div>
@@ -50,12 +52,12 @@ export default function PacientesPage() {
           placeholder="Buscar por nombre o DNI..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2 border border-border rounded-[4px] text-sm w-72 focus:outline-none focus:border-celeste"
+          className="px-4 py-2 border border-border rounded-[4px] text-sm w-72 focus:outline-none focus:border-celeste-dark"
         />
-        <select value={filtroFinanciador} onChange={(e) => setFiltroFinanciador(e.target.value)} className="px-3 py-2 border border-border rounded-[4px] text-sm text-ink-light focus:outline-none focus:border-celeste">
+        <select value={filtroFinanciador} onChange={(e) => setFiltroFinanciador(e.target.value)} className="px-3 py-2 border border-border rounded-[4px] text-sm text-ink-light focus:outline-none focus:border-celeste-dark">
           {financiadores.map((f) => <option key={f}>{f}</option>)}
         </select>
-        <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)} className="px-3 py-2 border border-border rounded-[4px] text-sm text-ink-light focus:outline-none focus:border-celeste">
+        <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)} className="px-3 py-2 border border-border rounded-[4px] text-sm text-ink-light focus:outline-none focus:border-celeste-dark">
           <option>Todos</option>
           <option value="activo">Activo</option>
           <option value="inactivo">Inactivo</option>
@@ -64,19 +66,19 @@ export default function PacientesPage() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-border rounded-lg p-4">
+        <div className="bg-white border border-border rounded-lg p-4 border-l-[3px] border-l-celeste">
           <div className="text-xs text-ink-muted">Total pacientes</div>
           <div className="text-2xl font-bold text-celeste-dark mt-1">{pacientes.length}</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-4">
+        <div className="bg-white border border-border rounded-lg p-4 border-l-[3px] border-l-green-400">
           <div className="text-xs text-ink-muted">Activos</div>
           <div className="text-2xl font-bold text-green-600 mt-1">{pacientes.filter(p => p.estado === "activo").length}</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-4">
+        <div className="bg-white border border-border rounded-lg p-4 border-l-[3px] border-l-celeste-dark">
           <div className="text-xs text-ink-muted">PAMI</div>
           <div className="text-2xl font-bold text-ink mt-1">{pacientes.filter(p => p.financiador === "PAMI").length}</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-4">
+        <div className="bg-white border border-border rounded-lg p-4 border-l-[3px] border-l-gold">
           <div className="text-xs text-ink-muted">Con turnos pendientes</div>
           <div className="text-2xl font-bold text-gold mt-1">{pacientes.filter(p => p.turnos > 0).length}</div>
         </div>
@@ -112,7 +114,7 @@ export default function PacientesPage() {
                     <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded ${
                       p.financiador === "PAMI" ? "bg-celeste-pale text-celeste-dark" :
                       p.financiador.startsWith("OSDE") ? "bg-gold-pale text-[#B8860B]" :
-                      "bg-[#F0F0F0] text-ink-light"
+                      "bg-border-light text-ink-light"
                     }`}>
                       {p.financiador}
                     </span>

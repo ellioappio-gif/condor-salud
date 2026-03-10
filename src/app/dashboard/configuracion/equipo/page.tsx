@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 const miembros = [
   { id: 1, nombre: "Dr. Martín Rodríguez", email: "m.rodriguez@centrosanmartin.com", rol: "Administrador", especialidad: "Cardiología", matricula: "MN 45.231", estado: "Activo", ultimoAcceso: "07/03/2026 15:30" },
@@ -20,6 +21,8 @@ const invitaciones = [
 ];
 
 export default function EquipoPage() {
+  const { showToast } = useToast();
+
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2 text-sm text-ink-muted">
@@ -33,7 +36,7 @@ export default function EquipoPage() {
           <h1 className="text-2xl font-bold text-ink">Equipo</h1>
           <p className="text-sm text-ink-muted mt-0.5">{miembros.length} miembros activos · {invitaciones.length} invitación pendiente</p>
         </div>
-        <button className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">+ Invitar miembro</button>
+        <button onClick={() => showToast("Invitar miembro — Próximamente")} className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">+ Invitar miembro</button>
       </div>
 
       {/* Team table */}
@@ -87,8 +90,8 @@ export default function EquipoPage() {
                 <p className="text-[10px] text-ink-muted">Rol: {inv.rol} · Enviada: {inv.enviada}</p>
               </div>
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition">Reenviar</button>
-                <button className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-[4px] hover:bg-red-50 transition">Cancelar</button>
+                <button onClick={() => showToast("Reenviar invitación — Próximamente")} className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition">Reenviar</button>
+                <button onClick={() => showToast("Cancelar invitación — Próximamente")} className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-[4px] hover:bg-red-50 transition">Cancelar</button>
               </div>
             </div>
           ))}

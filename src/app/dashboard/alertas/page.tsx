@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 interface Alerta {
   id: string;
@@ -35,10 +36,11 @@ const prioridadColors: Record<string, string> = {
   Urgente: "bg-red-50 text-red-600 border-red-200",
   Alta: "bg-gold-pale text-[#B8860B] border-gold",
   Media: "bg-celeste-pale text-celeste-dark border-celeste",
-  Baja: "bg-gray-100 text-ink-muted border-gray-200",
+  Baja: "bg-border-light text-ink-muted border-border",
 };
 
 export default function AlertasPage() {
+  const { showToast } = useToast();
   const [catFilter, setCatFilter] = useState("Todas");
   const [soloNoLeidas, setSoloNoLeidas] = useState(false);
 
@@ -65,7 +67,7 @@ export default function AlertasPage() {
             className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${soloNoLeidas ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}>
             {soloNoLeidas ? "✓ Solo no leídas" : "Solo no leídas"}
           </button>
-          <button className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Marcar todas leídas</button>
+          <button onClick={() => showToast("Marcar todas leídas — Próximamente")} className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Marcar todas leídas</button>
         </div>
       </div>
 
@@ -104,7 +106,7 @@ export default function AlertasPage() {
                   )}
                 </div>
               </div>
-              <button className="text-ink-muted hover:text-ink text-xs p-1">✕</button>
+              <button onClick={() => showToast("Descartar alerta — Próximamente")} className="text-ink-muted hover:text-ink text-xs p-1">✕</button>
             </div>
           </div>
         ))}

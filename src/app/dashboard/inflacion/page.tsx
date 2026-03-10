@@ -30,33 +30,33 @@ export default function InflacionPage() {
   const maxPerdida = Math.max(...meses.map((m) => m.perdidaReal));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Tracker de Inflación</h1>
+        <h1 className="text-2xl font-bold text-ink">Tracker de Inflación</h1>
         <p className="text-sm text-ink-muted mt-1">Impacto real de la inflación en tus cobros por demora de pago</p>
       </div>
 
       {/* KPI summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
           <div className="text-xs text-ink-muted mb-1">Pérdida total (6 meses)</div>
-          <div className="text-2xl font-display font-bold text-red-600">{formatMonto(totalPerdida)}</div>
+          <div className="text-2xl font-bold text-red-600">{formatMonto(totalPerdida)}</div>
           <div className="text-xs mt-1 text-red-600">{Math.round((totalPerdida / totalCobrado) * 100 * 10) / 10}% del cobrado</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-gold">
           <div className="text-xs text-ink-muted mb-1">IPC promedio mensual</div>
-          <div className="text-2xl font-display font-bold text-gold">{ipcPromedio}%</div>
+          <div className="text-2xl font-bold text-gold">{ipcPromedio}%</div>
           <div className="text-xs mt-1 text-ink-muted">Últimos 6 meses</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
           <div className="text-xs text-ink-muted mb-1">Días demora promedio</div>
-          <div className="text-2xl font-display font-bold text-celeste-dark">{diasPromedio}</div>
+          <div className="text-2xl font-bold text-celeste-dark">{diasPromedio}</div>
           <div className="text-xs mt-1 text-ink-muted">Promedio todos los financiadores</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-gold">
           <div className="text-xs text-ink-muted mb-1">Pérdida por día de demora</div>
-          <div className="text-2xl font-display font-bold text-gold">0.11%</div>
+          <div className="text-2xl font-bold text-gold">0.11%</div>
           <div className="text-xs mt-1 text-ink-muted">Valor estimado actual</div>
         </div>
       </div>
@@ -119,14 +119,14 @@ export default function InflacionPage() {
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-              <th className="text-left font-medium px-5 py-3">Mes</th>
-              <th className="text-right font-medium px-5 py-3">IPC</th>
-              <th className="text-right font-medium px-5 py-3">Facturado</th>
-              <th className="text-right font-medium px-5 py-3">Cobrado</th>
-              <th className="text-right font-medium px-5 py-3">Días demora</th>
-              <th className="text-right font-medium px-5 py-3">Pérdida real</th>
-              <th className="text-right font-medium px-5 py-3">% Pérdida</th>
+            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <th className="text-left px-5 py-2.5">Mes</th>
+              <th className="text-right px-5 py-2.5">IPC</th>
+              <th className="text-right px-5 py-2.5">Facturado</th>
+              <th className="text-right px-5 py-2.5">Cobrado</th>
+              <th className="text-right px-5 py-2.5">Días demora</th>
+              <th className="text-right px-5 py-2.5">Pérdida real</th>
+              <th className="text-right px-5 py-2.5">% Pérdida</th>
             </tr>
           </thead>
           <tbody>
@@ -158,13 +158,13 @@ export default function InflacionPage() {
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-              <th className="text-left font-medium px-5 py-3">Financiador</th>
-              <th className="text-right font-medium px-5 py-3">Días promedio</th>
-              <th className="text-right font-medium px-5 py-3">Pérdida/día</th>
-              <th className="text-right font-medium px-5 py-3">Pérdida total</th>
-              <th className="text-right font-medium px-5 py-3">Monto afectado</th>
-              <th className="text-right font-medium px-5 py-3">Pérdida estimada</th>
+            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <th className="text-left px-5 py-2.5">Financiador</th>
+              <th className="text-right px-5 py-2.5">Días promedio</th>
+              <th className="text-right px-5 py-2.5">Pérdida/día</th>
+              <th className="text-right px-5 py-2.5">Pérdida total</th>
+              <th className="text-right px-5 py-2.5">Monto afectado</th>
+              <th className="text-right px-5 py-2.5">Pérdida estimada</th>
             </tr>
           </thead>
           <tbody>

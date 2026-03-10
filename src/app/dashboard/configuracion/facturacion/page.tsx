@@ -1,7 +1,10 @@
 "use client";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 export default function FacturacionConfigPage() {
+  const { showToast } = useToast();
+
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2 text-sm text-ink-muted">
@@ -34,9 +37,9 @@ export default function FacturacionConfigPage() {
           </div>
         </div>
         <div className="flex gap-2 mt-4 pt-4 border-t border-border">
-          <button className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-[#d9a00d] transition">Upgrade a Enterprise</button>
-          <button className="px-4 py-2 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition">Cambiar plan</button>
-          <button className="px-4 py-2 text-sm font-medium text-red-600 hover:underline">Cancelar suscripción</button>
+          <button onClick={() => showToast("Upgrade a Enterprise — Próximamente")} className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-gold-dark transition">Upgrade a Enterprise</button>
+          <button onClick={() => showToast("Cambiar plan — Próximamente")} className="px-4 py-2 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition">Cambiar plan</button>
+          <button onClick={() => showToast("Cancelar suscripción — Próximamente")} className="px-4 py-2 text-sm font-medium text-red-600 hover:underline">Cancelar suscripción</button>
         </div>
       </div>
 
@@ -127,7 +130,7 @@ export default function FacturacionConfigPage() {
                 <td className="px-5 py-3 text-xs font-semibold text-ink">{p.concepto}</td>
                 <td className="px-5 py-3 text-right text-xs font-bold text-ink">{p.monto}</td>
                 <td className="px-5 py-3 text-center"><span className="px-2 py-0.5 text-[10px] font-bold rounded bg-green-50 text-green-700">{p.estado}</span></td>
-                <td className="px-5 py-3 text-right"><button className="text-xs text-celeste-dark font-medium hover:underline">Descargar</button></td>
+                <td className="px-5 py-3 text-right"><button onClick={() => showToast("Descargar comprobante — Próximamente")} className="text-xs text-celeste-dark font-medium hover:underline">Descargar</button></td>
               </tr>
             ))}
           </tbody>
@@ -145,7 +148,7 @@ export default function FacturacionConfigPage() {
               <p className="text-[10px] text-ink-muted">Vence 08/2027 · Dr. Martín Rodríguez</p>
             </div>
           </div>
-          <button className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Cambiar tarjeta</button>
+          <button onClick={() => showToast("Cambiar tarjeta — Próximamente")} className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Cambiar tarjeta</button>
         </div>
       </div>
 
@@ -158,7 +161,7 @@ export default function FacturacionConfigPage() {
           <div><span className="text-ink-muted text-xs">Condición IVA:</span> <span className="text-ink text-xs"> Responsable Inscripto</span></div>
           <div><span className="text-ink-muted text-xs">Domicilio fiscal:</span> <span className="text-ink text-xs"> Av. San Martín 1520, CABA</span></div>
         </div>
-        <button className="mt-3 text-xs text-celeste-dark font-medium hover:underline">Editar datos fiscales</button>
+        <button onClick={() => showToast("Editar datos fiscales — Próximamente")} className="mt-3 text-xs text-celeste-dark font-medium hover:underline">Editar datos fiscales</button>
       </div>
     </div>
   );

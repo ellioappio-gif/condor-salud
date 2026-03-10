@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 interface Item {
   id: string;
@@ -37,7 +38,7 @@ const estadoColors: Record<string, string> = {
   OK: "bg-green-50 text-green-700",
   Bajo: "bg-gold-pale text-[#B8860B]",
   Crítico: "bg-red-50 text-red-600",
-  Vencido: "bg-gray-100 text-ink-muted",
+  Vencido: "bg-border-light text-ink-muted",
 };
 
 const movimientos = [
@@ -49,6 +50,7 @@ const movimientos = [
 ];
 
 export default function InventarioPage() {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("Todos");
   const [estadoFilter, setEstadoFilter] = useState("Todos");
@@ -72,8 +74,8 @@ export default function InventarioPage() {
           <p className="text-sm text-ink-muted mt-0.5">Gestión de medicamentos, insumos y descartables</p>
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Exportar</button>
-          <button className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">+ Registrar ingreso</button>
+          <button onClick={() => showToast("Exportar inventario — Próximamente")} className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition">Exportar</button>
+          <button onClick={() => showToast("Registrar ingreso — Próximamente")} className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">+ Registrar ingreso</button>
         </div>
       </div>
 

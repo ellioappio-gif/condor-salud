@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { Factura, FacturaEstado } from "@/lib/types";
+import { useToast } from "@/components/Toast";
 
 const facturas: Factura[] = [
   { id: "1", numero: "A-0001-00004521", fecha: "2026-03-08", financiador: "PAMI", paciente: "María González", prestacion: "Consulta clínica", codigoNomenclador: "420101", monto: 18500, estado: "cobrada", fechaPresentacion: "2026-02-10", fechaCobro: "2026-03-05", cae: "74281930472819" },
@@ -19,8 +20,8 @@ const estadoConfig: Record<FacturaEstado, { label: string; bg: string; text: str
   presentada: { label: "Presentada", bg: "bg-celeste-pale", text: "text-celeste-dark" },
   cobrada: { label: "Cobrada", bg: "bg-green-100", text: "text-green-700" },
   rechazada: { label: "Rechazada", bg: "bg-red-100", text: "text-red-700" },
-  pendiente: { label: "Pendiente", bg: "bg-gold-pale", text: "text-yellow-700" },
-  en_observacion: { label: "En observación", bg: "bg-gold-pale", text: "text-yellow-700" },
+  pendiente: { label: "Pendiente", bg: "bg-gold-pale", text: "text-gold-dark" },
+  en_observacion: { label: "En observación", bg: "bg-gold-pale", text: "text-gold-dark" },
 };
 
 const financiadoresFilter = ["Todos", "PAMI", "OSDE", "Swiss Medical", "IOMA", "Galeno"];
@@ -31,6 +32,7 @@ function formatMonto(n: number): string {
 }
 
 export default function FacturacionPage() {
+  const { showToast } = useToast();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState<"todos" | FacturaEstado>("todos");
 
@@ -46,38 +48,38 @@ export default function FacturacionPage() {
   const totalPendiente = facturas.filter((f) => f.estado === "presentada" || f.estado === "pendiente" || f.estado === "en_observacion").reduce((s, f) => s + f.monto, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Facturación</h1>
+          <h1 className="text-2xl font-bold text-ink">Facturación</h1>
           <p className="text-sm text-ink-muted mt-1">Gestión de facturas por financiador</p>
         </div>
-        <button className="px-6 py-3 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste rounded transition">
+        <button onClick={() => showToast("Nueva factura — Próximamente")} className="px-6 py-3 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste rounded transition">
           Nueva factura
         </button>
       </div>
 
       {/* KPI summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
           <div className="text-xs text-ink-muted mb-1">Total facturado</div>
-          <div className="text-2xl font-display font-bold text-celeste-dark">{formatMonto(totalFacturado)}</div>
+          <div className="text-2xl font-bold text-celeste-dark">{formatMonto(totalFacturado)}</div>
           <div className="text-xs mt-1 text-ink-muted">{facturas.length} facturas</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-green-400">
           <div className="text-xs text-ink-muted mb-1">Cobrado</div>
-          <div className="text-2xl font-display font-bold text-green-600">{formatMonto(totalCobrado)}</div>
+          <div className="text-2xl font-bold text-green-600">{formatMonto(totalCobrado)}</div>
           <div className="text-xs mt-1 text-green-600">{Math.round((totalCobrado / totalFacturado) * 100)}% del total</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-gold">
           <div className="text-xs text-ink-muted mb-1">Pendiente de cobro</div>
-          <div className="text-2xl font-display font-bold text-gold">{formatMonto(totalPendiente)}</div>
+          <div className="text-2xl font-bold text-gold">{formatMonto(totalPendiente)}</div>
           <div className="text-xs mt-1 text-ink-muted">{facturas.filter((f) => ["presentada", "pendiente", "en_observacion"].includes(f.estado)).length} facturas</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
           <div className="text-xs text-ink-muted mb-1">Rechazado</div>
-          <div className="text-2xl font-display font-bold text-red-600">{formatMonto(totalRechazado)}</div>
+          <div className="text-2xl font-bold text-red-600">{formatMonto(totalRechazado)}</div>
           <div className="text-xs mt-1 text-red-600">{Math.round((totalRechazado / totalFacturado) * 100)}% del total</div>
         </div>
       </div>
@@ -89,7 +91,7 @@ export default function FacturacionPage() {
           <select
             value={filtroFinanciador}
             onChange={(e) => setFiltroFinanciador(e.target.value)}
-            className="px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste"
+            className="px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
           >
             {financiadoresFilter.map((f) => (
               <option key={f} value={f}>{f}</option>
@@ -101,7 +103,7 @@ export default function FacturacionPage() {
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value as "todos" | FacturaEstado)}
-            className="px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste"
+            className="px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
           >
             {estadosFilter.map((e) => (
               <option key={e} value={e}>
@@ -119,14 +121,14 @@ export default function FacturacionPage() {
       <div className="bg-white border border-border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-              <th className="text-left font-medium px-5 py-3">Número</th>
-              <th className="text-left font-medium px-5 py-3">Fecha</th>
-              <th className="text-left font-medium px-5 py-3">Financiador</th>
-              <th className="text-left font-medium px-5 py-3">Paciente</th>
-              <th className="text-left font-medium px-5 py-3">Prestación</th>
-              <th className="text-right font-medium px-5 py-3">Monto</th>
-              <th className="text-center font-medium px-5 py-3">Estado</th>
+            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <th className="text-left px-5 py-2.5">Número</th>
+              <th className="text-left px-5 py-2.5">Fecha</th>
+              <th className="text-left px-5 py-2.5">Financiador</th>
+              <th className="text-left px-5 py-2.5">Paciente</th>
+              <th className="text-left px-5 py-2.5">Prestación</th>
+              <th className="text-right px-5 py-2.5">Monto</th>
+              <th className="text-center px-5 py-2.5">Estado</th>
             </tr>
           </thead>
           <tbody>

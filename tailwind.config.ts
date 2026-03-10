@@ -5,7 +5,8 @@ const config: Config = {
     extend: {
       colors: {
         celeste: { DEFAULT: "#75AADB", dark: "#4A7FAF", light: "#A8CCE8", pale: "#E4F0F9" },
-        gold: { DEFAULT: "#F6B40E", pale: "#FEF5DC" },
+        gold: { DEFAULT: "#F6B40E", dark: "#B8860B", pale: "#FEF5DC" },
+        surface: "#F8FAFB",
         ink: { DEFAULT: "#1A1A1A", light: "#666666", muted: "#999999" },
         border: { DEFAULT: "#D4E4F0", light: "#E8F0F6" },
       },

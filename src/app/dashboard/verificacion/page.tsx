@@ -34,9 +34,9 @@ export default function VerificacionPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Verificación de Cobertura</h1>
+        <h1 className="text-2xl font-bold text-ink">Verificación de Cobertura</h1>
         <p className="text-sm text-ink-muted mt-1">Consultá cobertura en tiempo real por DNI o CUIL</p>
       </div>
 
@@ -48,12 +48,12 @@ export default function VerificacionPage() {
             placeholder="DNI o CUIL del paciente"
             value={dni}
             onChange={(e) => setDni(e.target.value)}
-            className="flex-1 px-4 py-3 border border-border rounded text-sm focus:outline-none focus:border-celeste"
+            className="flex-1 px-4 py-3 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition disabled:opacity-50"
+            className="px-6 py-3 bg-celeste-dark text-white text-sm font-semibold rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
           >
             {loading ? "Consultando..." : "Verificar"}
           </button>
@@ -109,12 +109,12 @@ export default function VerificacionPage() {
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-              <th className="text-left font-medium px-5 py-3">Paciente</th>
-              <th className="text-left font-medium px-5 py-3">DNI</th>
-              <th className="text-left font-medium px-5 py-3">Financiador</th>
-              <th className="text-left font-medium px-5 py-3">Estado</th>
-              <th className="text-right font-medium px-5 py-3">Hora</th>
+            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <th className="text-left px-5 py-2.5">Paciente</th>
+              <th className="text-left px-5 py-2.5">DNI</th>
+              <th className="text-left px-5 py-2.5">Financiador</th>
+              <th className="text-left px-5 py-2.5">Estado</th>
+              <th className="text-right px-5 py-2.5">Hora</th>
             </tr>
           </thead>
           <tbody>

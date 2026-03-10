@@ -1,7 +1,10 @@
 "use client";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 
 export default function ClinicaConfigPage() {
+  const { showToast } = useToast();
+
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2 text-sm text-ink-muted">
@@ -32,7 +35,7 @@ export default function ClinicaConfigPage() {
               <span className={`text-xs font-semibold text-ink ${f.mono ? "font-mono" : ""}`}>{f.value}</span>
             </div>
           ))}
-          <button className="text-xs text-celeste-dark font-medium hover:underline mt-2">Editar información</button>
+          <button onClick={() => showToast("Editar información — Próximamente")} className="text-xs text-celeste-dark font-medium hover:underline mt-2">Editar información</button>
         </div>
 
         {/* Contact */}
@@ -51,7 +54,7 @@ export default function ClinicaConfigPage() {
               <span className="text-xs font-semibold text-ink text-right">{f.value}</span>
             </div>
           ))}
-          <button className="text-xs text-celeste-dark font-medium hover:underline mt-2">Editar contacto</button>
+          <button onClick={() => showToast("Editar contacto — Próximamente")} className="text-xs text-celeste-dark font-medium hover:underline mt-2">Editar contacto</button>
         </div>
 
         {/* Specialties */}
@@ -62,7 +65,7 @@ export default function ClinicaConfigPage() {
               <span key={e} className="px-3 py-1.5 text-xs font-medium bg-celeste-pale text-celeste-dark rounded-[4px]">{e}</span>
             ))}
           </div>
-          <button className="text-xs text-celeste-dark font-medium hover:underline mt-3 block">+ Agregar especialidad</button>
+          <button onClick={() => showToast("Agregar especialidad — Próximamente")} className="text-xs text-celeste-dark font-medium hover:underline mt-3 block">+ Agregar especialidad</button>
         </div>
 
         {/* Financiadores habilitados */}
