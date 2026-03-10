@@ -6,18 +6,39 @@
     </linearGradient>
   </defs>
   <circle cx="60" cy="60" r="58" fill="url(#bg)"/>
-  <g transform="translate(60,58) scale(1.1)" fill="#FFFFFF">
-    <ellipse cx="0" cy="2" rx="10" ry="6"/>
-    <path d="M-6,-2 Q-20,-18 -38,-16 Q-34,-10 -24,-8 Q-18,-6 -8,0 Z"/>
-    <path d="M6,-2 Q20,-18 38,-16 Q34,-10 24,-8 Q18,-6 8,0 Z"/>
-    <path d="M-24,-8 Q-30,-14 -40,-13 Q-36,-8 -26,-6 Z" opacity="0.85"/>
-    <path d="M-18,-6 Q-26,-12 -36,-12 Q-32,-7 -22,-4 Z" opacity="0.7"/>
-    <path d="M24,-8 Q30,-14 40,-13 Q36,-8 26,-6 Z" opacity="0.85"/>
-    <path d="M18,-6 Q26,-12 36,-12 Q32,-7 22,-4 Z" opacity="0.7"/>
-    <ellipse cx="0" cy="-7" rx="4.5" ry="5"/>
-    <path d="M0,-9 L3,-12 L0,-10.5 L-3,-12 Z"/>
-    <ellipse cx="0" cy="-3" rx="6" ry="2.5" opacity="0.9"/>
-    <path d="M-4,7 Q0,16 4,7 Q0,10 -4,7 Z"/>
+  <!-- Andean Condor soaring — based on real Vultur gryphus reference -->
+  <g transform="translate(60,60) scale(1.05)" fill="#FFFFFF">
+    <!-- Body core -->
+    <path d="M-5,6 C-5.5,1 -5.5,-4 -4,-7 C-2,-9 2,-9 4,-7 C5.5,-4 5.5,1 5,6 Z"/>
+    <!-- Head -->
+    <ellipse cx="0" cy="-12" rx="2.5" ry="2.8"/>
+    <!-- Hooked beak -->
+    <path d="M0,-14.5 L1.2,-18 C0.3,-17.2 -0.3,-17.2 -1.2,-18 Z"/>
+    <!-- Neck ruff / white collar — distinctive Andean Condor feature -->
+    <ellipse cx="0" cy="-8.5" rx="5.5" ry="2"/>
+    <!-- LEFT WING — broad soaring wing -->
+    <path d="M-5,-3 C-14,-5.5 -24,-8.5 -34,-9 C-37,-9 -40,-8 -42,-6.5 C-34,-3 -20,0 -5,1 Z"/>
+    <!-- Left primary feathers — 5 spread "fingers" at wingtip -->
+    <path d="M-37,-9.5 L-43,-15.5 C-42,-11.5 -40,-9 -38,-8.5 Z"/>
+    <path d="M-39,-9 L-48,-12.5 C-46,-9 -43,-7.5 -40.5,-7 Z"/>
+    <path d="M-41,-8 L-50.5,-9 C-48.5,-6.5 -45,-5.5 -42,-5.5 Z"/>
+    <path d="M-42,-7 L-50.5,-5 C-48,-4.5 -45,-4.5 -42.5,-5 Z"/>
+    <path d="M-42,-6 L-48.5,-2 C-47,-3.5 -44.5,-4 -42,-4.5 Z"/>
+    <!-- Left secondary feather patch (lighter inner wing) -->
+    <path d="M-8,-2 C-14,-4 -24,-6 -30,-5.5 C-24,-3 -16,-1 -8,-0.5 Z" opacity="0.8"/>
+    <!-- RIGHT WING — mirror -->
+    <path d="M5,-3 C14,-5.5 24,-8.5 34,-9 C37,-9 40,-8 42,-6.5 C34,-3 20,0 5,1 Z"/>
+    <!-- Right primary feathers -->
+    <path d="M37,-9.5 L43,-15.5 C42,-11.5 40,-9 38,-8.5 Z"/>
+    <path d="M39,-9 L48,-12.5 C46,-9 43,-7.5 40.5,-7 Z"/>
+    <path d="M41,-8 L50.5,-9 C48.5,-6.5 45,-5.5 42,-5.5 Z"/>
+    <path d="M42,-7 L50.5,-5 C48,-4.5 45,-4.5 42.5,-5 Z"/>
+    <path d="M42,-6 L48.5,-2 C47,-3.5 44.5,-4 42,-4.5 Z"/>
+    <!-- Right secondary feather patch -->
+    <path d="M8,-2 C14,-4 24,-6 30,-5.5 C24,-3 16,-1 8,-0.5 Z" opacity="0.8"/>
+    <!-- Tail fan -->
+    <path d="M-4,6 L-8,15.5 L-3,12.5 L0,16.5 L3,12.5 L8,15.5 L4,6 Z"/>
   </g>
-  <circle cx="60" cy="52.5" r="1.2" fill="#3A6FA0"/>
+  <!-- Eye -->
+  <circle cx="60" cy="47.4" r="1" fill="#3A6FA0"/>
 </svg>
