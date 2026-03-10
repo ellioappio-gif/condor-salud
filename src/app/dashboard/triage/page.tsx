@@ -2,124 +2,14 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
-
-/* ─── body systems & symptoms ─── */
-const bodySystems: Record<string, string[]> = {
-  Cabeza: ["Dolor de cabeza", "Mareos", "Visión borrosa", "Zumbido en oídos", "Congestión nasal"],
-  "Pecho / Corazón": ["Dolor de pecho", "Palpitaciones", "Falta de aire", "Opresión torácica"],
-  Abdomen: [
-    "Dolor abdominal",
-    "Náuseas",
-    "Vómitos",
-    "Diarrea",
-    "Estreñimiento",
-    "Acidez",
-    "Hinchazón",
-  ],
-  "Músculos / Huesos": [
-    "Dolor de espalda",
-    "Dolor de rodilla",
-    "Dolor cervical",
-    "Dolor articular",
-    "Rigidez muscular",
-  ],
-  Piel: ["Erupciones", "Picazón", "Manchas", "Heridas", "Enrojecimiento"],
-  "Sistema nervioso": [
-    "Hormigueo",
-    "Entumecimiento",
-    "Debilidad muscular",
-    "Temblores",
-    "Problemas de memoria",
-  ],
-  "Vías urinarias": ["Dolor al orinar", "Frecuencia urinaria", "Sangre en orina", "Incontinencia"],
-  General: ["Fiebre", "Fatiga", "Pérdida de peso", "Insomnio", "Sudoración nocturna"],
-};
-
-const severityLabels: Record<number, string> = {
-  1: "Mínimo",
-  2: "Leve",
-  3: "Leve",
-  4: "Moderado",
-  5: "Moderado",
-  6: "Moderado-alto",
-  7: "Alto",
-  8: "Alto",
-  9: "Severo",
-  10: "Insoportable",
-};
-
-const frequencyOptions = ["Primera vez", "Ocasional", "Frecuente", "Diario", "Constante"];
-
-const symptomToSpecialty: Record<string, string> = {
-  "Dolor de cabeza": "Neurología",
-  Mareos: "Neurología",
-  "Visión borrosa": "Oftalmología",
-  "Dolor de pecho": "Cardiología",
-  Palpitaciones: "Cardiología",
-  "Falta de aire": "Neumonología",
-  "Dolor abdominal": "Gastroenterología",
-  Náuseas: "Gastroenterología",
-  "Dolor de espalda": "Traumatología",
-  "Dolor de rodilla": "Traumatología",
-  Erupciones: "Dermatología",
-  Picazón: "Dermatología",
-  Hormigueo: "Neurología",
-  "Dolor al orinar": "Urología",
-  Fiebre: "Clínica médica",
-  Fatiga: "Clínica médica",
-};
-
-const icd10Codes = [
-  { code: "I10", description: "Hipertensión esencial" },
-  { code: "E11", description: "Diabetes mellitus tipo 2" },
-  { code: "M54.5", description: "Dolor lumbar" },
-  { code: "J06.9", description: "Infección respiratoria aguda" },
-  { code: "R51", description: "Cefalea" },
-  { code: "K21", description: "Reflujo gastroesofágico" },
-  { code: "G43", description: "Migraña" },
-  { code: "L30.9", description: "Dermatitis, no especificada" },
-  { code: "N39.0", description: "Infección urinaria" },
-  { code: "R10.4", description: "Dolor abdominal" },
-];
-
-const intakeHistory = [
-  {
-    id: "TRI-0341",
-    patient: "Carlos Méndez",
-    date: "10/03/2026 09:45",
-    symptoms: ["Dolor de pecho", "Falta de aire"],
-    severity: 7,
-    routedTo: "Cardiología — Dra. Fernández",
-    status: "Completado",
-  },
-  {
-    id: "TRI-0340",
-    patient: "Ana Rodríguez",
-    date: "10/03/2026 08:30",
-    symptoms: ["Dolor de espalda", "Rigidez muscular"],
-    severity: 5,
-    routedTo: "Traumatología — Dra. Sánchez",
-    status: "En consulta",
-  },
-  {
-    id: "TRI-0339",
-    patient: "Pedro Silva",
-    date: "09/03/2026 16:20",
-    symptoms: ["Erupciones", "Picazón"],
-    severity: 4,
-    routedTo: "Dermatología — Dr. García",
-    status: "Completado",
-  },
-  {
-    id: "TRI-0338",
-    patient: "Marta Gutiérrez",
-    date: "09/03/2026 14:10",
-    symptoms: ["Dolor abdominal", "Náuseas", "Acidez"],
-    severity: 6,
-    routedTo: "Gastroenterología — Dr. Rossi",
-    status: "Completado",
-  },
-];
+import { useTriages, useTriageKPIs } from "@/lib/hooks/useModules";
+import {
+  bodySystems,
+  severityLabels,
+  frequencyOptions,
+  symptomToSpecialty,
+  icd10Codes,
+} from "@/lib/services/triage";
 
 type Tab = "sintomas" | "detalle" | "notas" | "intake" | "clinicas" | "routing";
 
@@ -135,6 +25,22 @@ export default function TriagePage() {
   const [clinicalNotes, setClinicalNotes] = useState("");
   const [selectedICD, setSelectedICD] = useState<string[]>([]);
   const [treatmentPlan, setTreatmentPlan] = useState("");
+
+  // ─── SWR data hooks ─────────────────────────────────────────
+  const { data: triages = [] } = useTriages();
+  const { data: kpis } = useTriageKPIs();
+
+  const intakeHistory = (triages as any[]).map((t: any) => ({
+    id: t.code || t.id,
+    patient: t.patientName,
+    date: t.date,
+    symptoms: t.symptoms || [],
+    severity: t.severity,
+    routedTo: t.routedSpecialty
+      ? `${t.routedSpecialty}${t.routedDoctor ? ` — ${t.routedDoctor}` : ""}`
+      : "Pendiente",
+    status: t.status,
+  }));
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "sintomas", label: "Síntomas" },
@@ -161,6 +67,45 @@ export default function TriagePage() {
     new Set(selectedSymptoms.map((s) => symptomToSpecialty[s]).filter(Boolean)),
   );
 
+  const kpiCards = kpis
+    ? [
+        {
+          label: "Triages hoy",
+          value: String(kpis.todayCount),
+          change: "Registrados",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "En espera",
+          value: String(kpis.pending),
+          change: "Pendientes",
+          color: "text-gold",
+        },
+        {
+          label: "Derivados",
+          value: String(kpis.routed),
+          change: "Con especialidad",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Alta severidad",
+          value: String(kpis.highSeverity),
+          change: "Severidad >= 7",
+          color: "text-green-600",
+        },
+      ]
+    : [
+        { label: "Triages hoy", value: "18", change: "5 urgentes", color: "text-celeste-dark" },
+        { label: "En espera", value: "4", change: "2 alta severidad", color: "text-gold" },
+        { label: "Derivados", value: "14", change: "6 especialidades", color: "text-celeste-dark" },
+        {
+          label: "Notas clínicas",
+          value: "11",
+          change: "Hoy completadas",
+          color: "text-green-600",
+        },
+      ];
+
   return (
     <div id="main-content" className="p-6 space-y-6">
       {/* Header */}
@@ -181,22 +126,7 @@ export default function TriagePage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Triages hoy", value: "18", change: "5 urgentes", color: "text-celeste-dark" },
-          { label: "En espera", value: "4", change: "2 alta severidad", color: "text-gold" },
-          {
-            label: "Derivados",
-            value: "14",
-            change: "6 especialidades",
-            color: "text-celeste-dark",
-          },
-          {
-            label: "Notas clínicas",
-            value: "11",
-            change: "Hoy completadas",
-            color: "text-green-600",
-          },
-        ].map((kpi) => (
+        {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-lg p-5">
             <p className="text-xs text-ink-muted">{kpi.label}</p>
             <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
@@ -535,7 +465,7 @@ export default function TriagePage() {
                 </tr>
               </thead>
               <tbody>
-                {intakeHistory.map((h) => (
+                {intakeHistory.map((h: any) => (
                   <tr
                     key={h.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -544,7 +474,7 @@ export default function TriagePage() {
                     <td className="px-5 py-3 font-medium text-ink">{h.patient}</td>
                     <td className="px-5 py-3">
                       <div className="flex flex-wrap gap-1">
-                        {h.symptoms.map((s) => (
+                        {(h.symptoms || []).map((s: string) => (
                           <span
                             key={s}
                             className="text-[10px] bg-[#F8FAFB] px-1.5 py-0.5 rounded text-ink-light"

@@ -34,6 +34,25 @@ const serverSchema = z.object({
   SWISS_MEDICAL_CLIENT_ID: z.string().optional(),
   SWISS_MEDICAL_CLIENT_SECRET: z.string().optional(),
 
+  // ── Twilio (WhatsApp) ───────────────────────────────────────
+  TWILIO_ACCOUNT_SID: z.string().optional(),
+  TWILIO_AUTH_TOKEN: z.string().optional(),
+  TWILIO_WHATSAPP_NUMBER: z.string().optional(),
+
+  // ── Daily.co (Video) ───────────────────────────────────────
+  DAILY_API_KEY: z.string().optional(),
+
+  // ── MercadoPago ─────────────────────────────────────────────
+  MP_ACCESS_TOKEN: z.string().optional(),
+  NEXT_PUBLIC_MP_PUBLIC_KEY: z.string().optional(),
+
+  // ── Resend (Email) ──────────────────────────────────────────
+  RESEND_API_KEY: z.string().optional(),
+
+  // ── Upstash Redis ───────────────────────────────────────────
+  UPSTASH_REDIS_URL: z.string().url().optional(),
+  UPSTASH_REDIS_TOKEN: z.string().optional(),
+
   // ── App ─────────────────────────────────────────────────────
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
@@ -45,6 +64,8 @@ const clientSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().default("https://placeholder.supabase.co"),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).default("placeholder-key"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_MP_PUBLIC_KEY: z.string().optional(),
+  NEXT_PUBLIC_GOOGLE_MAPS_KEY: z.string().optional(),
 });
 
 // ─── Type exports ────────────────────────────────────────────
@@ -83,11 +104,15 @@ function validateClientEnv(): ClientEnv {
     clientVars.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
     clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     clientVars.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+    clientVars.NEXT_PUBLIC_MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
+    clientVars.NEXT_PUBLIC_GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   } else {
     // On server: can read directly
     clientVars.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
     clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     clientVars.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+    clientVars.NEXT_PUBLIC_MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
+    clientVars.NEXT_PUBLIC_GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   }
 
   const result = clientSchema.safeParse(clientVars);

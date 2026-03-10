@@ -2,141 +2,24 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
-
-/* ─── mock data ─── */
-const waitingRoom = [
-  {
-    id: "TC-0812",
-    patient: "Elena Martínez",
-    age: 45,
-    reason: "Control cardiológico",
-    queuePosition: 1,
-    waitTime: "2 min",
-    intakeComplete: true,
-    financiador: "OSDE",
-    joinedAt: "10:15",
-  },
-  {
-    id: "TC-0813",
-    patient: "Raúl Gómez",
-    age: 62,
-    reason: "Dolor lumbar persistente",
-    queuePosition: 2,
-    waitTime: "8 min",
-    intakeComplete: true,
-    financiador: "PAMI",
-    joinedAt: "10:20",
-  },
-  {
-    id: "TC-0814",
-    patient: "Carolina López",
-    age: 31,
-    reason: "Seguimiento embarazo",
-    queuePosition: 3,
-    waitTime: "15 min",
-    intakeComplete: false,
-    financiador: "Swiss Medical",
-    joinedAt: "10:28",
-  },
-];
-
-const recentConsultations = [
-  {
-    id: "TC-0811",
-    patient: "Jorge Álvarez",
-    doctor: "Dra. Fernández",
-    specialty: "Clínica médica",
-    date: "10/03/2026",
-    time: "09:30",
-    duration: "22 min",
-    status: "Completada",
-    billed: true,
-    billCode: "420101",
-    prescriptionSent: true,
-    summarySent: true,
-  },
-  {
-    id: "TC-0810",
-    patient: "Marta Sosa",
-    doctor: "Dr. García",
-    specialty: "Dermatología",
-    date: "10/03/2026",
-    time: "09:00",
-    duration: "18 min",
-    status: "Completada",
-    billed: true,
-    billCode: "420101",
-    prescriptionSent: false,
-    summarySent: true,
-  },
-  {
-    id: "TC-0809",
-    patient: "Luis Herrera",
-    doctor: "Dra. Moreno",
-    specialty: "Pediatría",
-    date: "09/03/2026",
-    time: "16:45",
-    duration: "15 min",
-    status: "Completada",
-    billed: false,
-    billCode: null,
-    prescriptionSent: true,
-    summarySent: false,
-  },
-  {
-    id: "TC-0808",
-    patient: "Ana Colombo",
-    doctor: "Dr. Pérez",
-    specialty: "Endocrinología",
-    date: "09/03/2026",
-    time: "15:30",
-    duration: "25 min",
-    status: "No show",
-    billed: false,
-    billCode: null,
-    prescriptionSent: false,
-    summarySent: false,
-  },
-];
-
-const scheduledConsultations = [
-  {
-    id: "TC-0815",
-    patient: "Roberto Díaz",
-    doctor: "Dra. Fernández",
-    specialty: "Clínica médica",
-    date: "10/03/2026",
-    time: "11:00",
-    financiador: "IOMA",
-    link: "https://meet.condorsalud.com/tc-0815",
-  },
-  {
-    id: "TC-0816",
-    patient: "Silvia Peralta",
-    doctor: "Dr. García",
-    specialty: "Dermatología",
-    date: "10/03/2026",
-    time: "11:30",
-    financiador: "OSDE",
-    link: "https://meet.condorsalud.com/tc-0816",
-  },
-  {
-    id: "TC-0817",
-    patient: "Marcos Iglesias",
-    doctor: "Dra. Moreno",
-    specialty: "Traumatología",
-    date: "10/03/2026",
-    time: "14:00",
-    financiador: "Swiss Medical",
-    link: "https://meet.condorsalud.com/tc-0817",
-  },
-];
+import {
+  useWaitingRoom,
+  useConsultations,
+  useScheduledConsultations,
+  useTelemedichinaKPIs,
+} from "@/lib/hooks/useModules";
 
 type Tab = "sala" | "consultas" | "facturacion" | "recetas" | "resumen";
 
 export default function TelemedichinaPage() {
   const { showDemo } = useDemoAction();
   const [tab, setTab] = useState<Tab>("sala");
+
+  // ─── SWR data hooks ─────────────────────────────────────────
+  const { data: waitingRoom = [] } = useWaitingRoom();
+  const { data: recentConsultations = [] } = useConsultations();
+  const { data: scheduledConsultations = [] } = useScheduledConsultations();
+  const { data: kpis } = useTelemedichinaKPIs();
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "sala", label: "Sala de espera" },
@@ -145,6 +28,54 @@ export default function TelemedichinaPage() {
     { key: "recetas", label: "Receta digital" },
     { key: "resumen", label: "Resumen WhatsApp" },
   ];
+
+  const kpiCards = kpis
+    ? [
+        {
+          label: "En sala de espera",
+          value: String(kpis.inWaitingRoom),
+          change: "Conectados",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Consultas hoy",
+          value: String(kpis.todayConsultations),
+          change: "Completadas",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Facturadas auto",
+          value: String(kpis.billed),
+          change: "Facturación auto",
+          color: "text-green-600",
+        },
+        {
+          label: "Recetas enviadas",
+          value: String(kpis.prescriptionsSent),
+          change: "Con farmacia",
+          color: "text-gold",
+        },
+      ]
+    : [
+        {
+          label: "En sala de espera",
+          value: "3",
+          change: "1 sin intake",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Consultas hoy",
+          value: "11",
+          change: "8 completadas",
+          color: "text-celeste-dark",
+        },
+        { label: "Facturadas auto", value: "8", change: "$186.400 total", color: "text-green-600" },
+        { label: "Recetas enviadas", value: "6", change: "4 con farmacia", color: "text-gold" },
+      ];
+
+  const wr = waitingRoom as any[];
+  const rc = recentConsultations as any[];
+  const sc = scheduledConsultations as any[];
 
   return (
     <div id="main-content" className="p-6 space-y-6">
@@ -166,27 +97,7 @@ export default function TelemedichinaPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: "En sala de espera",
-            value: "3",
-            change: "1 sin intake",
-            color: "text-celeste-dark",
-          },
-          {
-            label: "Consultas hoy",
-            value: "11",
-            change: "8 completadas",
-            color: "text-celeste-dark",
-          },
-          {
-            label: "Facturadas auto",
-            value: "8",
-            change: "$186.400 total",
-            color: "text-green-600",
-          },
-          { label: "Recetas enviadas", value: "6", change: "4 con farmacia", color: "text-gold" },
-        ].map((kpi) => (
+        {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-lg p-5">
             <p className="text-xs text-ink-muted">{kpi.label}</p>
             <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
@@ -221,7 +132,7 @@ export default function TelemedichinaPage() {
           </p>
 
           <div className="space-y-3">
-            {waitingRoom.map((p) => (
+            {wr.map((p: any) => (
               <div
                 key={p.id}
                 className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -290,7 +201,7 @@ export default function TelemedichinaPage() {
                 </tr>
               </thead>
               <tbody>
-                {scheduledConsultations.map((c) => (
+                {sc.map((c: any) => (
                   <tr
                     key={c.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -376,7 +287,7 @@ export default function TelemedichinaPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentConsultations.map((c) => (
+                {rc.map((c: any) => (
                   <tr
                     key={c.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -437,9 +348,9 @@ export default function TelemedichinaPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentConsultations
-                  .filter((c) => c.status === "Completada")
-                  .map((c) => (
+                {rc
+                  .filter((c: any) => c.status === "Completada")
+                  .map((c: any) => (
                     <tr
                       key={c.id}
                       className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -500,9 +411,9 @@ export default function TelemedichinaPage() {
           </p>
 
           <div className="space-y-3">
-            {recentConsultations
-              .filter((c) => c.status === "Completada")
-              .map((c) => (
+            {rc
+              .filter((c: any) => c.status === "Completada")
+              .map((c: any) => (
                 <div
                   key={c.id}
                   className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -596,9 +507,9 @@ export default function TelemedichinaPage() {
           </p>
 
           <div className="space-y-3">
-            {recentConsultations
-              .filter((c) => c.status === "Completada")
-              .map((c) => (
+            {rc
+              .filter((c: any) => c.status === "Completada")
+              .map((c: any) => (
                 <div
                   key={c.id}
                   className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"

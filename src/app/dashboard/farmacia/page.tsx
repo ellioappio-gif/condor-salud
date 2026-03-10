@@ -2,199 +2,13 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
-
-/* ─── mock data ─── */
-const medications = [
-  {
-    id: 1,
-    name: "Losartán 50mg",
-    lab: "Roemmers",
-    category: "Antihipertensivo",
-    price: 12400,
-    pamiCoverage: 80,
-    osCoverage: 70,
-    prepagaCoverage: 60,
-    stock: "Disponible",
-    requiresPrescription: true,
-  },
-  {
-    id: 2,
-    name: "Metformina 850mg",
-    lab: "Bago",
-    category: "Antidiabético",
-    price: 8900,
-    pamiCoverage: 100,
-    osCoverage: 80,
-    prepagaCoverage: 70,
-    stock: "Disponible",
-    requiresPrescription: true,
-  },
-  {
-    id: 3,
-    name: "Omeprazol 20mg",
-    lab: "Elea",
-    category: "Protector gástrico",
-    price: 6200,
-    pamiCoverage: 70,
-    osCoverage: 50,
-    prepagaCoverage: 40,
-    stock: "Últimas unidades",
-    requiresPrescription: true,
-  },
-  {
-    id: 4,
-    name: "Enalapril 10mg",
-    lab: "Bernabó",
-    category: "Antihipertensivo",
-    price: 9800,
-    pamiCoverage: 80,
-    osCoverage: 70,
-    prepagaCoverage: 55,
-    stock: "Disponible",
-    requiresPrescription: true,
-  },
-  {
-    id: 5,
-    name: "Ibuprofeno 400mg",
-    lab: "Raffo",
-    category: "Antiinflamatorio",
-    price: 3100,
-    pamiCoverage: 50,
-    osCoverage: 40,
-    prepagaCoverage: 30,
-    stock: "Disponible",
-    requiresPrescription: false,
-  },
-  {
-    id: 6,
-    name: "Levotiroxina 100mcg",
-    lab: "Montpellier",
-    category: "Tiroides",
-    price: 7500,
-    pamiCoverage: 80,
-    osCoverage: 70,
-    prepagaCoverage: 60,
-    stock: "Disponible",
-    requiresPrescription: true,
-  },
-  {
-    id: 7,
-    name: "Atorvastatina 20mg",
-    lab: "Gador",
-    category: "Hipolipemiante",
-    price: 11200,
-    pamiCoverage: 70,
-    osCoverage: 60,
-    prepagaCoverage: 50,
-    stock: "Sin stock",
-    requiresPrescription: true,
-  },
-  {
-    id: 8,
-    name: "Amlodipina 5mg",
-    lab: "Roemmers",
-    category: "Antihipertensivo",
-    price: 8100,
-    pamiCoverage: 80,
-    osCoverage: 65,
-    prepagaCoverage: 50,
-    stock: "Disponible",
-    requiresPrescription: true,
-  },
-];
-
-const prescriptions = [
-  {
-    id: "RX-2026-0891",
-    patient: "Carlos Méndez",
-    doctor: "Dra. Fernández",
-    date: "10/03/2026",
-    items: ["Losartán 50mg x30", "Enalapril 10mg x30"],
-    status: "Pendiente",
-    financiador: "PAMI",
-  },
-  {
-    id: "RX-2026-0890",
-    patient: "Marta Gutiérrez",
-    doctor: "Dr. López",
-    date: "09/03/2026",
-    items: ["Metformina 850mg x60", "Levotiroxina 100mcg x30"],
-    status: "En carrito",
-    financiador: "OSDE",
-  },
-  {
-    id: "RX-2026-0888",
-    patient: "Jorge Ramírez",
-    doctor: "Dra. Sánchez",
-    date: "08/03/2026",
-    items: ["Atorvastatina 20mg x30"],
-    status: "Entregado",
-    financiador: "Swiss Medical",
-  },
-];
-
-const deliveries = [
-  {
-    id: "DEL-4521",
-    patient: "Ana Rodríguez",
-    address: "Av. Corrientes 3200, CABA",
-    items: 3,
-    status: "En camino",
-    eta: "14:30",
-    courier: "Rappi Farma",
-    progress: 65,
-  },
-  {
-    id: "DEL-4520",
-    patient: "Pedro Silva",
-    address: "Calle 48 #720, La Plata",
-    items: 2,
-    status: "Preparando",
-    eta: "16:00",
-    courier: "PedidosYa",
-    progress: 25,
-  },
-  {
-    id: "DEL-4519",
-    patient: "Lucía Torres",
-    address: "San Martín 1450, Rosario",
-    items: 1,
-    status: "Entregado",
-    eta: "-",
-    courier: "Rappi Farma",
-    progress: 100,
-  },
-];
-
-const recurringOrders = [
-  {
-    id: "REC-091",
-    patient: "María García",
-    medications: ["Losartán 50mg", "Metformina 850mg"],
-    frequency: "Mensual",
-    nextDelivery: "15/03/2026",
-    financiador: "PAMI",
-    status: "Activo",
-  },
-  {
-    id: "REC-088",
-    patient: "Roberto Díaz",
-    medications: ["Levotiroxina 100mcg"],
-    frequency: "Mensual",
-    nextDelivery: "18/03/2026",
-    financiador: "IOMA",
-    status: "Activo",
-  },
-  {
-    id: "REC-085",
-    patient: "Susana Flores",
-    medications: ["Enalapril 10mg", "Amlodipina 5mg", "Atorvastatina 20mg"],
-    frequency: "Mensual",
-    nextDelivery: "20/03/2026",
-    financiador: "OSDE",
-    status: "Pausado",
-  },
-];
+import {
+  useMedications,
+  usePrescriptions,
+  useDeliveries,
+  useRecurringOrders,
+  useFarmaciaKPIs,
+} from "@/lib/hooks/useModules";
 
 type Tab = "catalogo" | "recetas" | "delivery" | "copago" | "recurrentes";
 
@@ -205,6 +19,13 @@ export default function FarmaciaPage() {
   const [categoryFilter, setCategoryFilter] = useState("Todas");
   const [copagoFinanciador, setCopagoFinanciador] = useState("PAMI");
 
+  // ─── SWR data hooks ─────────────────────────────────────────
+  const { data: medications = [] } = useMedications();
+  const { data: prescriptions = [] } = usePrescriptions();
+  const { data: deliveries = [] } = useDeliveries();
+  const { data: recurringOrders = [] } = useRecurringOrders();
+  const { data: kpis } = useFarmaciaKPIs();
+
   const tabs: { key: Tab; label: string }[] = [
     { key: "catalogo", label: "Catálogo" },
     { key: "recetas", label: "Recetas" },
@@ -213,8 +34,9 @@ export default function FarmaciaPage() {
     { key: "recurrentes", label: "Recurrentes" },
   ];
 
-  const categories = ["Todas", ...Array.from(new Set(medications.map((m) => m.category)))];
-  const filtered = medications.filter((m) => {
+  const meds = medications as any[];
+  const categories = ["Todas", ...Array.from(new Set(meds.map((m: any) => m.category)))];
+  const filtered = meds.filter((m: any) => {
     const matchesSearch =
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.lab.toLowerCase().includes(search.toLowerCase());
@@ -222,11 +44,50 @@ export default function FarmaciaPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const getCoverageForFinanciador = (med: (typeof medications)[0]) => {
+  const getCoverageForFinanciador = (med: any) => {
     if (copagoFinanciador === "PAMI") return med.pamiCoverage;
     if (copagoFinanciador === "Obra Social") return med.osCoverage;
     return med.prepagaCoverage;
   };
+
+  const kpiCards = kpis
+    ? [
+        {
+          label: "Pedidos hoy",
+          value: String(kpis.todayOrders),
+          change: "Desde servicio",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "En camino",
+          value: String(kpis.inTransit),
+          change: "Rappi + PedidosYa",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Recetas pendientes",
+          value: String(kpis.pendingRx),
+          change: "Pendientes",
+          color: "text-gold",
+        },
+        {
+          label: "Recurrentes activos",
+          value: String(kpis.activeRecurring),
+          change: "Activos",
+          color: "text-green-600",
+        },
+      ]
+    : [
+        { label: "Pedidos hoy", value: "23", change: "+8 vs ayer", color: "text-celeste-dark" },
+        { label: "En camino", value: "5", change: "Rappi + PedidosYa", color: "text-celeste-dark" },
+        { label: "Recetas pendientes", value: "12", change: "4 urgentes", color: "text-gold" },
+        {
+          label: "Recurrentes activos",
+          value: "47",
+          change: "8 este mes",
+          color: "text-green-600",
+        },
+      ];
 
   return (
     <div id="main-content" className="p-6 space-y-6">
@@ -248,27 +109,7 @@ export default function FarmaciaPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Pedidos hoy", value: "23", change: "+8 vs ayer", color: "text-celeste-dark" },
-          {
-            label: "En camino",
-            value: "5",
-            change: "Rappi + PedidosYa",
-            color: "text-celeste-dark",
-          },
-          {
-            label: "Recetas pendientes",
-            value: "12",
-            change: "4 urgentes",
-            color: "text-gold",
-          },
-          {
-            label: "Recurrentes activos",
-            value: "47",
-            change: "8 este mes",
-            color: "text-green-600",
-          },
-        ].map((kpi) => (
+        {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-lg p-5">
             <p className="text-xs text-ink-muted">{kpi.label}</p>
             <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
@@ -332,7 +173,7 @@ export default function FarmaciaPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((med) => (
+                {filtered.map((med: any) => (
                   <tr
                     key={med.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -397,7 +238,7 @@ export default function FarmaciaPage() {
             pre-cargado.
           </p>
           <div className="space-y-3">
-            {prescriptions.map((rx) => (
+            {(prescriptions as any[]).map((rx: any) => (
               <div
                 key={rx.id}
                 className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -422,7 +263,7 @@ export default function FarmaciaPage() {
                     {rx.doctor} - {rx.date} - {rx.financiador}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
-                    {rx.items.map((item) => (
+                    {(rx.items || []).map((item: string) => (
                       <span
                         key={item}
                         className="text-[11px] bg-[#F8FAFB] border border-border-light px-2 py-0.5 rounded text-ink-light"
@@ -475,7 +316,7 @@ export default function FarmaciaPage() {
             Seguimiento en tiempo real de entregas via Rappi Farma y PedidosYa.
           </p>
           <div className="space-y-3">
-            {deliveries.map((del) => (
+            {(deliveries as any[]).map((del: any) => (
               <div key={del.id} className="bg-white border border-border rounded-lg p-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -509,7 +350,6 @@ export default function FarmaciaPage() {
                     Ver tracking
                   </button>
                 </div>
-                {/* Progress bar */}
                 <div className="mt-3">
                   <div className="w-full bg-border-light rounded-full h-1.5">
                     <div
@@ -561,7 +401,7 @@ export default function FarmaciaPage() {
                 </tr>
               </thead>
               <tbody>
-                {medications.slice(0, 6).map((med) => {
+                {meds.slice(0, 6).map((med: any) => {
                   const coverage = getCoverageForFinanciador(med);
                   const discount = Math.round(med.price * (coverage / 100));
                   const copago = med.price - discount;
@@ -617,7 +457,7 @@ export default function FarmaciaPage() {
           </div>
 
           <div className="space-y-3">
-            {recurringOrders.map((order) => (
+            {(recurringOrders as any[]).map((order: any) => (
               <div
                 key={order.id}
                 className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -641,7 +481,7 @@ export default function FarmaciaPage() {
                     {order.financiador} - Próxima entrega: {order.nextDelivery}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
-                    {order.medications.map((m) => (
+                    {(order.medications || []).map((m: string) => (
                       <span
                         key={m}
                         className="text-[11px] bg-celeste-pale text-celeste-dark px-2 py-0.5 rounded"

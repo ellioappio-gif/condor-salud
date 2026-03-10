@@ -2,161 +2,17 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
+import {
+  specialties as specialtiesData,
+  financiadoresOptions,
+  locationOptions,
+  symptomToSpecialty,
+} from "@/lib/services/directorio";
 
-/* ─── mock data ─── */
-const specialties = [
-  "Todas",
-  "Cardiología",
-  "Clínica médica",
-  "Dermatología",
-  "Endocrinología",
-  "Gastroenterología",
-  "Ginecología",
-  "Neurología",
-  "Oftalmología",
-  "Pediatría",
-  "Traumatología",
-  "Urología",
-];
-
-const financiadores = ["Todos", "PAMI", "OSDE", "Swiss Medical", "IOMA", "Galeno", "Medifé"];
-const locations = ["Todas", "CABA", "La Plata", "Rosario", "Córdoba", "Mendoza"];
-
-const doctors = [
-  {
-    id: 1,
-    name: "Dra. Laura Fernández",
-    specialty: "Cardiología",
-    location: "CABA",
-    address: "Av. Santa Fe 2100, Piso 3",
-    financiadores: ["OSDE", "Swiss Medical", "Galeno"],
-    rating: 4.9,
-    reviews: 127,
-    nextSlot: "Hoy 14:30",
-    available: true,
-    teleconsulta: true,
-    experience: "18 años",
-    languages: ["Español", "Inglés"],
-  },
-  {
-    id: 2,
-    name: "Dr. Martín García",
-    specialty: "Dermatología",
-    location: "CABA",
-    address: "Callao 850, Piso 8",
-    financiadores: ["OSDE", "PAMI", "IOMA"],
-    rating: 4.7,
-    reviews: 89,
-    nextSlot: "Mañana 09:00",
-    available: true,
-    teleconsulta: true,
-    experience: "12 años",
-    languages: ["Español"],
-  },
-  {
-    id: 3,
-    name: "Dra. Patricia Moreno",
-    specialty: "Pediatría",
-    location: "La Plata",
-    address: "Calle 7 #1230",
-    financiadores: ["IOMA", "OSDE", "Swiss Medical"],
-    rating: 4.8,
-    reviews: 203,
-    nextSlot: "Hoy 16:00",
-    available: true,
-    teleconsulta: false,
-    experience: "22 años",
-    languages: ["Español"],
-  },
-  {
-    id: 4,
-    name: "Dr. Alejandro Pérez",
-    specialty: "Endocrinología",
-    location: "CABA",
-    address: "Av. Córdoba 1500",
-    financiadores: ["PAMI", "Galeno", "Medifé"],
-    rating: 4.6,
-    reviews: 64,
-    nextSlot: "Jue 11:00",
-    available: true,
-    teleconsulta: true,
-    experience: "15 años",
-    languages: ["Español", "Portugués"],
-  },
-  {
-    id: 5,
-    name: "Dra. Claudia Sánchez",
-    specialty: "Traumatología",
-    location: "Rosario",
-    address: "San Martín 920",
-    financiadores: ["OSDE", "Swiss Medical"],
-    rating: 4.5,
-    reviews: 51,
-    nextSlot: "Vie 10:00",
-    available: true,
-    teleconsulta: false,
-    experience: "10 años",
-    languages: ["Español"],
-  },
-  {
-    id: 6,
-    name: "Dr. Roberto López",
-    specialty: "Clínica médica",
-    location: "CABA",
-    address: "Av. Rivadavia 4500",
-    financiadores: ["PAMI", "IOMA", "Galeno", "Medifé"],
-    rating: 4.4,
-    reviews: 178,
-    nextSlot: "Hoy 17:30",
-    available: true,
-    teleconsulta: true,
-    experience: "25 años",
-    languages: ["Español"],
-  },
-  {
-    id: 7,
-    name: "Dra. Mariana Vega",
-    specialty: "Ginecología",
-    location: "Córdoba",
-    address: "Bv. San Juan 800",
-    financiadores: ["OSDE", "Swiss Medical", "Galeno"],
-    rating: 4.8,
-    reviews: 95,
-    nextSlot: "Lun 08:30",
-    available: false,
-    teleconsulta: true,
-    experience: "14 años",
-    languages: ["Español", "Inglés"],
-  },
-  {
-    id: 8,
-    name: "Dr. Federico Ruiz",
-    specialty: "Neurología",
-    location: "Mendoza",
-    address: "Las Heras 450",
-    financiadores: ["OSDE", "PAMI"],
-    rating: 4.7,
-    reviews: 42,
-    nextSlot: "Mar 14:00",
-    available: true,
-    teleconsulta: true,
-    experience: "20 años",
-    languages: ["Español"],
-  },
-];
-
-const symptomToSpecialty: Record<string, string[]> = {
-  "Dolor de espalda": ["Traumatología", "Clínica médica"],
-  "Dolor de cabeza": ["Neurología", "Clínica médica"],
-  "Problemas de piel": ["Dermatología"],
-  "Dolor de pecho": ["Cardiología", "Clínica médica"],
-  "Problemas digestivos": ["Gastroenterología", "Clínica médica"],
-  "Problemas hormonales": ["Endocrinología"],
-  "Control pediátrico": ["Pediatría"],
-  "Problemas de visión": ["Oftalmología"],
-  "Problemas urinarios": ["Urología"],
-  "Control ginecológico": ["Ginecología"],
-};
+const specialties = ["Todas", ...specialtiesData];
+const financiadores = ["Todos", ...financiadoresOptions];
+const locations = ["Todas", ...locationOptions];
 
 type Tab = "busqueda" | "disponibilidad" | "perfiles" | "cobertura" | "recomendaciones";
 
@@ -168,7 +24,13 @@ export default function DirectorioPage() {
   const [locationFilter, setLocationFilter] = useState("Todas");
   const [financiadorFilter, setFinanciadorFilter] = useState("Todos");
   const [selectedSymptom, setSelectedSymptom] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState<(typeof doctors)[0] | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null);
+
+  // ─── SWR data hooks ─────────────────────────────────────────
+  const { data: doctors = [] } = useDoctors();
+  const { data: kpis } = useDirectorioKPIs();
+
+  const docs = doctors as any[];
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "busqueda", label: "Búsqueda" },
@@ -178,19 +40,19 @@ export default function DirectorioPage() {
     { key: "recomendaciones", label: "Recomendaciones" },
   ];
 
-  const filtered = doctors.filter((d) => {
+  const filtered = docs.filter((d: any) => {
     const matchesSearch =
       d.name.toLowerCase().includes(search.toLowerCase()) ||
       d.specialty.toLowerCase().includes(search.toLowerCase());
     const matchesSpecialty = specialtyFilter === "Todas" || d.specialty === specialtyFilter;
     const matchesLocation = locationFilter === "Todas" || d.location === locationFilter;
     const matchesFinanciador =
-      financiadorFilter === "Todos" || d.financiadores.includes(financiadorFilter);
+      financiadorFilter === "Todos" || (d.financiadores || []).includes(financiadorFilter);
     return matchesSearch && matchesSpecialty && matchesLocation && matchesFinanciador;
   });
 
   const recommendedDoctors = selectedSymptom
-    ? doctors.filter((d) => (symptomToSpecialty[selectedSymptom] || []).includes(d.specialty))
+    ? docs.filter((d: any) => (symptomToSpecialty[selectedSymptom] || []).includes(d.specialty))
     : [];
 
   const renderStars = (rating: number) => {
@@ -204,6 +66,50 @@ export default function DirectorioPage() {
       </span>
     );
   };
+
+  const kpiCards = kpis
+    ? [
+        {
+          label: "Médicos activos",
+          value: String(kpis.totalDoctors),
+          change: "En directorio",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Especialidades",
+          value: String(kpis.totalSpecialties),
+          change: "Cobertura total",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Turnos hoy",
+          value: String(kpis.availableToday),
+          change: "Disponibles",
+          color: "text-green-600",
+        },
+        {
+          label: "Rating promedio",
+          value: String(kpis.avgRating),
+          change: "Reviews",
+          color: "text-gold",
+        },
+      ]
+    : [
+        {
+          label: "Médicos activos",
+          value: "148",
+          change: "+6 este mes",
+          color: "text-celeste-dark",
+        },
+        {
+          label: "Especialidades",
+          value: "23",
+          change: "Cobertura total",
+          color: "text-celeste-dark",
+        },
+        { label: "Turnos hoy", value: "89", change: "12 teleconsulta", color: "text-green-600" },
+        { label: "Rating promedio", value: "4.7", change: "849 reviews", color: "text-gold" },
+      ];
 
   return (
     <div id="main-content" className="p-6 space-y-6">
@@ -225,22 +131,7 @@ export default function DirectorioPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: "Médicos activos",
-            value: "148",
-            change: "+6 este mes",
-            color: "text-celeste-dark",
-          },
-          {
-            label: "Especialidades",
-            value: "23",
-            change: "Cobertura total",
-            color: "text-celeste-dark",
-          },
-          { label: "Turnos hoy", value: "89", change: "12 teleconsulta", color: "text-green-600" },
-          { label: "Rating promedio", value: "4.7", change: "849 reviews", color: "text-gold" },
-        ].map((kpi) => (
+        {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-lg p-5">
             <p className="text-xs text-ink-muted">{kpi.label}</p>
             <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
@@ -309,7 +200,7 @@ export default function DirectorioPage() {
           <p className="text-xs text-ink-muted">{filtered.length} resultados</p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {filtered.map((doc) => (
+            {filtered.map((doc: any) => (
               <div
                 key={doc.id}
                 className="bg-white border border-border rounded-lg p-5 hover:border-celeste-dark/30 transition"
@@ -331,7 +222,7 @@ export default function DirectorioPage() {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-3">
-                  {doc.financiadores.map((f) => (
+                  {(doc.financiadores || []).map((f: string) => (
                     <span
                       key={f}
                       className="text-[10px] bg-[#F8FAFB] border border-border-light px-2 py-0.5 rounded text-ink-light"
@@ -406,7 +297,7 @@ export default function DirectorioPage() {
                 </tr>
               </thead>
               <tbody>
-                {doctors.slice(0, 5).map((doc) => (
+                {docs.slice(0, 5).map((doc: any) => (
                   <tr
                     key={doc.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -451,7 +342,7 @@ export default function DirectorioPage() {
 
           {!selectedDoctor ? (
             <div className="space-y-3">
-              {doctors.map((doc) => (
+              {docs.map((doc: any) => (
                 <button
                   key={doc.id}
                   onClick={() => setSelectedDoctor(doc)}
@@ -461,7 +352,7 @@ export default function DirectorioPage() {
                     {doc.name
                       .split(" ")
                       .slice(1)
-                      .map((n) => n[0])
+                      .map((n: string) => n[0])
                       .join("")}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -495,7 +386,7 @@ export default function DirectorioPage() {
                     {selectedDoctor.name
                       .split(" ")
                       .slice(1)
-                      .map((n) => n[0])
+                      .map((n: string) => n[0])
                       .join("")}
                   </div>
                   <div className="flex-1">
@@ -526,7 +417,7 @@ export default function DirectorioPage() {
                   <div>
                     <p className="text-[10px] text-ink-muted">Idiomas</p>
                     <p className="text-sm font-medium text-ink">
-                      {selectedDoctor.languages.join(", ")}
+                      {(selectedDoctor.languages || []).join(", ")}
                     </p>
                   </div>
                   <div>
@@ -544,7 +435,7 @@ export default function DirectorioPage() {
                 <div className="mt-4">
                   <p className="text-[10px] text-ink-muted mb-1.5">Financiadores aceptados</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {selectedDoctor.financiadores.map((f) => (
+                    {(selectedDoctor.financiadores || []).map((f: string) => (
                       <span
                         key={f}
                         className="text-[11px] bg-celeste-pale text-celeste-dark px-2 py-0.5 rounded"
@@ -766,7 +657,7 @@ export default function DirectorioPage() {
               <h3 className="text-sm font-semibold text-ink">
                 Médicos recomendados para &quot;{selectedSymptom}&quot;
               </h3>
-              {recommendedDoctors.map((doc) => (
+              {recommendedDoctors.map((doc: any) => (
                 <div
                   key={doc.id}
                   className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
