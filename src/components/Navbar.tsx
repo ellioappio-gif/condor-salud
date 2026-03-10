@@ -42,12 +42,18 @@ export default function Navbar() {
           <a href="#pricing" className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition">
             Pricing
           </a>
-          <a
-            href="#waitlist"
+          <Link
+            href="/auth/login"
+            className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste-dark hover:bg-celeste-pale rounded-[4px] transition"
+          >
+            Iniciar sesión
+          </Link>
+          <Link
+            href="/auth/registro"
             className="px-5 py-2 text-xs font-semibold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
           >
-            Sumate al waitlist
-          </a>
+            Probá gratis
+          </Link>
         </div>
 
         {/* Mobile hamburger */}
@@ -68,6 +74,12 @@ export default function Navbar() {
             <a href="#waitlist" onClick={() => setOpen(false)} className="px-5 py-2 text-xs font-semibold text-white bg-celeste-dark rounded-[4px] text-center">
               Sumate al waitlist
             </a>
+            <Link href="/auth/login" onClick={() => setOpen(false)} className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste-dark rounded-[4px] text-center">
+              Iniciar sesión
+            </Link>
+            <Link href="/dashboard" onClick={() => setOpen(false)} className="px-5 py-2 text-xs font-semibold text-white bg-gold rounded-[4px] text-center">
+              Demo →
+            </Link>
           </div>
         )}
       </nav>
