@@ -1,7 +1,11 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useMemo } from "react";
+import type { Metadata } from "next";
 import type { Factura, FacturaEstado } from "@/lib/types";
 import { useToast } from "@/components/Toast";
+import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
+import { formatCurrency } from "@/lib/utils";
 
 const facturas: Factura[] = [
   { id: "1", numero: "A-0001-00004521", fecha: "2026-03-08", financiador: "PAMI", paciente: "María González", prestacion: "Consulta clínica", codigoNomenclador: "420101", monto: 18500, estado: "cobrada", fechaPresentacion: "2026-02-10", fechaCobro: "2026-03-05", cae: "74281930472819" },
@@ -16,151 +20,160 @@ const facturas: Factura[] = [
   { id: "10", numero: "A-0001-00004530", fecha: "2026-02-27", financiador: "IOMA", paciente: "Pablo Sánchez", prestacion: "Tomografía", codigoNomenclador: "440401", monto: 85600, estado: "rechazada", fechaPresentacion: "2026-02-01" },
 ];
 
-const estadoConfig: Record<FacturaEstado, { label: string; bg: string; text: string }> = {
-  presentada: { label: "Presentada", bg: "bg-celeste-pale", text: "text-celeste-dark" },
-  cobrada: { label: "Cobrada", bg: "bg-green-100", text: "text-green-700" },
-  rechazada: { label: "Rechazada", bg: "bg-red-100", text: "text-red-700" },
-  pendiente: { label: "Pendiente", bg: "bg-gold-pale", text: "text-gold-dark" },
-  en_observacion: { label: "En observación", bg: "bg-gold-pale", text: "text-gold-dark" },
+const estadoConfig: Record<FacturaEstado, string> = {
+  presentada: "Presentada",
+  cobrada: "Cobrada",
+  rechazada: "Rechazada",
+  pendiente: "Pendiente",
+  en_observacion: "En observación",
 };
 
-const financiadoresFilter = ["Todos", "PAMI", "OSDE", "Swiss Medical", "IOMA", "Galeno"];
-const estadosFilter: ("todos" | FacturaEstado)[] = ["todos", "presentada", "cobrada", "rechazada", "pendiente", "en_observacion"];
+const financiadoresFilter = [
+  { value: "Todos", label: "Todos" },
+  { value: "PAMI", label: "PAMI" },
+  { value: "OSDE", label: "OSDE" },
+  { value: "Swiss Medical", label: "Swiss Medical" },
+  { value: "IOMA", label: "IOMA" },
+  { value: "Galeno", label: "Galeno" },
+];
 
-function formatMonto(n: number): string {
-  return "$" + n.toLocaleString("es-AR");
-}
+const estadosFilter = [
+  { value: "todos", label: "Todos" },
+  { value: "presentada", label: "Presentada" },
+  { value: "cobrada", label: "Cobrada" },
+  { value: "rechazada", label: "Rechazada" },
+  { value: "pendiente", label: "Pendiente" },
+  { value: "en_observacion", label: "En observación" },
+];
 
 export default function FacturacionPage() {
   const { showToast } = useToast();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
-  const [filtroEstado, setFiltroEstado] = useState<"todos" | FacturaEstado>("todos");
+  const [filtroEstado, setFiltroEstado] = useState("todos");
 
-  const filtered = facturas.filter((f) => {
-    if (filtroFinanciador !== "Todos" && f.financiador !== filtroFinanciador) return false;
-    if (filtroEstado !== "todos" && f.estado !== filtroEstado) return false;
-    return true;
-  });
+  const filtered = useMemo(() => {
+    return facturas.filter((f) => {
+      if (filtroFinanciador !== "Todos" && f.financiador !== filtroFinanciador) return false;
+      if (filtroEstado !== "todos" && f.estado !== filtroEstado) return false;
+      return true;
+    });
+  }, [filtroFinanciador, filtroEstado]);
 
-  const totalFacturado = facturas.reduce((s, f) => s + f.monto, 0);
-  const totalCobrado = facturas.filter((f) => f.estado === "cobrada").reduce((s, f) => s + f.monto, 0);
-  const totalRechazado = facturas.filter((f) => f.estado === "rechazada").reduce((s, f) => s + f.monto, 0);
-  const totalPendiente = facturas.filter((f) => f.estado === "presentada" || f.estado === "pendiente" || f.estado === "en_observacion").reduce((s, f) => s + f.monto, 0);
+  const totals = useMemo(() => {
+    const totalFacturado = facturas.reduce((s, f) => s + f.monto, 0);
+    const totalCobrado = facturas.filter((f) => f.estado === "cobrada").reduce((s, f) => s + f.monto, 0);
+    const totalRechazado = facturas.filter((f) => f.estado === "rechazada").reduce((s, f) => s + f.monto, 0);
+    const totalPendiente = facturas.filter((f) => ["presentada", "pendiente", "en_observacion"].includes(f.estado)).reduce((s, f) => s + f.monto, 0);
+    return { totalFacturado, totalCobrado, totalRechazado, totalPendiente };
+  }, []);
+
+  const kpis = [
+    { label: "Total facturado", value: formatCurrency(totals.totalFacturado), sub: `${facturas.length} facturas`, accent: "border-l-celeste" },
+    { label: "Cobrado", value: formatCurrency(totals.totalCobrado), sub: `${Math.round((totals.totalCobrado / totals.totalFacturado) * 100)}% del total`, accent: "border-l-green-400", subColor: "text-green-600" },
+    { label: "Pendiente de cobro", value: formatCurrency(totals.totalPendiente), sub: `${facturas.filter((f) => ["presentada", "pendiente", "en_observacion"].includes(f.estado)).length} facturas`, accent: "border-l-gold" },
+    { label: "Rechazado", value: formatCurrency(totals.totalRechazado), sub: `${Math.round((totals.totalRechazado / totals.totalFacturado) * 100)}% del total`, accent: "border-l-red-400", subColor: "text-red-600" },
+  ];
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-ink">Facturación</h1>
-          <p className="text-sm text-ink-muted mt-1">Gestión de facturas por financiador</p>
-        </div>
-        <button onClick={() => showToast("Nueva factura — Próximamente")} className="px-6 py-3 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste rounded transition">
-          Nueva factura
-        </button>
-      </div>
+      <PageHeader
+        title="Facturación"
+        description="Gestión de facturas por financiador"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Facturación" },
+        ]}
+        actions={
+          <Button onClick={() => showToast("Nueva factura — Próximamente")}>
+            Nueva factura
+          </Button>
+        }
+      />
 
       {/* KPI summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
-          <div className="text-xs text-ink-muted mb-1">Total facturado</div>
-          <div className="text-2xl font-bold text-celeste-dark">{formatMonto(totalFacturado)}</div>
-          <div className="text-xs mt-1 text-ink-muted">{facturas.length} facturas</div>
-        </div>
-        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-green-400">
-          <div className="text-xs text-ink-muted mb-1">Cobrado</div>
-          <div className="text-2xl font-bold text-green-600">{formatMonto(totalCobrado)}</div>
-          <div className="text-xs mt-1 text-green-600">{Math.round((totalCobrado / totalFacturado) * 100)}% del total</div>
-        </div>
-        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-gold">
-          <div className="text-xs text-ink-muted mb-1">Pendiente de cobro</div>
-          <div className="text-2xl font-bold text-gold">{formatMonto(totalPendiente)}</div>
-          <div className="text-xs mt-1 text-ink-muted">{facturas.filter((f) => ["presentada", "pendiente", "en_observacion"].includes(f.estado)).length} facturas</div>
-        </div>
-        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
-          <div className="text-xs text-ink-muted mb-1">Rechazado</div>
-          <div className="text-2xl font-bold text-red-600">{formatMonto(totalRechazado)}</div>
-          <div className="text-xs mt-1 text-red-600">{Math.round((totalRechazado / totalFacturado) * 100)}% del total</div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Resumen de facturación">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className={`bg-white border border-border rounded-lg p-5 border-l-[3px] ${kpi.accent}`}>
+            <div className="text-xs text-ink-muted mb-1">{kpi.label}</div>
+            <div className="text-2xl font-bold text-celeste-dark">{kpi.value}</div>
+            <div className={`text-xs mt-1 ${kpi.subColor || "text-ink-muted"}`}>{kpi.sub}</div>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-border rounded-lg p-4 flex flex-wrap gap-4 items-center">
-        <div>
-          <label className="text-xs text-ink-muted block mb-1">Financiador</label>
-          <select
-            value={filtroFinanciador}
-            onChange={(e) => setFiltroFinanciador(e.target.value)}
-            className="px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
-          >
-            {financiadoresFilter.map((f) => (
-              <option key={f} value={f}>{f}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-xs text-ink-muted block mb-1">Estado</label>
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value as "todos" | FacturaEstado)}
-            className="px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
-          >
-            {estadosFilter.map((e) => (
-              <option key={e} value={e}>
-                {e === "todos" ? "Todos" : estadoConfig[e].label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="ml-auto text-xs text-ink-muted">
-          Mostrando {filtered.length} de {facturas.length} facturas
-        </div>
-      </div>
+      <Card>
+        <CardContent className="pt-4 pb-4">
+          <div className="flex flex-wrap gap-4 items-end" role="search" aria-label="Filtros de facturación">
+            <Select
+              label="Financiador"
+              options={financiadoresFilter}
+              value={filtroFinanciador}
+              onChange={(e) => setFiltroFinanciador(e.target.value)}
+            />
+            <Select
+              label="Estado"
+              options={estadosFilter}
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+            />
+            <div className="ml-auto text-xs text-ink-muted self-center">
+              Mostrando {filtered.length} de {facturas.length} facturas
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Table */}
-      <div className="bg-white border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              <th className="text-left px-5 py-2.5">Número</th>
-              <th className="text-left px-5 py-2.5">Fecha</th>
-              <th className="text-left px-5 py-2.5">Financiador</th>
-              <th className="text-left px-5 py-2.5">Paciente</th>
-              <th className="text-left px-5 py-2.5">Prestación</th>
-              <th className="text-right px-5 py-2.5">Monto</th>
-              <th className="text-center px-5 py-2.5">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((f) => {
-              const est = estadoConfig[f.estado];
-              return (
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" aria-label="Facturas">
+            <thead>
+              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <th className="text-left px-5 py-3" scope="col">Número</th>
+                <th className="text-left px-5 py-3" scope="col">Fecha</th>
+                <th className="text-left px-5 py-3" scope="col">Financiador</th>
+                <th className="text-left px-5 py-3" scope="col">Paciente</th>
+                <th className="text-left px-5 py-3" scope="col">Prestación</th>
+                <th className="text-right px-5 py-3" scope="col">Monto</th>
+                <th className="text-center px-5 py-3" scope="col">Estado</th>
+                <th className="text-center px-5 py-3" scope="col">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((f) => (
                 <tr key={f.id} className="border-t border-border-light hover:bg-celeste-pale/30 transition">
-                  <td className="px-5 py-3 font-semibold text-ink font-mono text-xs">{f.numero}</td>
+                  <td className="px-5 py-3 font-mono text-xs text-celeste-dark font-semibold">{f.numero}</td>
                   <td className="px-5 py-3 text-ink-light">{f.fecha}</td>
-                  <td className="px-5 py-3 text-ink-light">{f.financiador}</td>
-                  <td className="px-5 py-3 text-ink">{f.paciente}</td>
-                  <td className="px-5 py-3 text-ink-light">
-                    <div>{f.prestacion}</div>
-                    <div className="text-[10px] text-ink-muted">Cód. {f.codigoNomenclador}</div>
-                  </td>
-                  <td className="px-5 py-3 text-right font-semibold text-ink">{formatMonto(f.monto)}</td>
+                  <td className="px-5 py-3 text-ink font-medium">{f.financiador}</td>
+                  <td className="px-5 py-3 text-ink-light">{f.paciente}</td>
+                  <td className="px-5 py-3 text-ink-light">{f.prestacion}</td>
+                  <td className="px-5 py-3 text-right font-semibold text-ink">{formatCurrency(f.monto)}</td>
                   <td className="px-5 py-3 text-center">
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded ${est.bg} ${est.text}`}>
-                      {est.label}
-                    </span>
+                    <StatusBadge variant={f.estado} label={estadoConfig[f.estado]} />
+                  </td>
+                  <td className="px-5 py-3 text-center">
+                    <button
+                      onClick={() => showToast(`Detalle de ${f.numero} — Próximamente`)}
+                      className="text-[10px] text-celeste-dark font-medium hover:underline"
+                      aria-label={`Ver detalle de factura ${f.numero}`}
+                    >
+                      Ver
+                    </button>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {filtered.length === 0 && (
-          <div className="text-center py-12 text-ink-muted text-sm">
-            No se encontraron facturas con los filtros seleccionados.
-          </div>
-        )}
-      </div>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-ink-muted">
+                    No se encontraron facturas con los filtros seleccionados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }

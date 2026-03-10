@@ -1,0 +1,61 @@
+import { cn } from "@/lib/utils";
+import type { KPI } from "@/lib/types";
+
+interface KPICardProps {
+  kpi: KPI;
+  className?: string;
+}
+
+const colorMap: Record<string, string> = {
+  celeste: "border-l-celeste-dark",
+  gold: "border-l-gold",
+  red: "border-l-red-500",
+  green: "border-l-emerald-500",
+};
+
+export function KPICard({ kpi, className }: KPICardProps) {
+  return (
+    <article
+      className={cn(
+        "bg-white p-4 rounded-[4px] border border-border border-l-4 shadow-sm",
+        colorMap[kpi.color] || colorMap.celeste,
+        className,
+      )}
+      role="group"
+      aria-label={`${kpi.label}: ${kpi.value}`}
+    >
+      <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wide">
+        {kpi.label}
+      </p>
+      <p className="text-2xl font-bold text-ink mt-1">{kpi.value}</p>
+      <p
+        className={cn(
+          "text-xs font-medium mt-1",
+          kpi.up ? "text-emerald-600" : "text-gold-dark",
+        )}
+        aria-label={`Cambio: ${kpi.change}`}
+      >
+        {kpi.up ? "↑" : "↓"} {kpi.change}
+      </p>
+    </article>
+  );
+}
+
+interface KPIGridProps {
+  kpis: KPI[];
+  className?: string;
+}
+
+export function KPIGrid({ kpis, className }: KPIGridProps) {
+  return (
+    <div
+      className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}
+      role="region"
+      aria-label="Indicadores clave"
+    >
+      {kpis.map((kpi) => (
+        <KPICard key={kpi.label} kpi={kpi} />
+      ))}
+    </div>
+  );
+}
