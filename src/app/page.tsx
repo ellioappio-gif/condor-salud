@@ -7,6 +7,7 @@ import Pricing from "@/components/Pricing";
 import Waitlist from "@/components/Waitlist";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import Chatbot from "@/components/Chatbot";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppFloat />
+      <Chatbot />
     </>
   );
 }
