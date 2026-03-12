@@ -10,6 +10,8 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Chatbot from "@/components/Chatbot";
 import { SWRProvider } from "@/lib/swr";
 import { useAuth } from "@/lib/auth/context";
+import { usePlanSafe } from "@/lib/plan-context";
+import type { ModuleId } from "@/lib/plan-config";
 import {
   LayoutDashboard,
   Users,
@@ -104,11 +106,42 @@ const navSections = [
   },
 ];
 
+const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
+  "/dashboard/pacientes": "pacientes",
+  "/dashboard/agenda": "agenda",
+  "/dashboard/verificacion": "verificacion",
+  "/dashboard/inventario": "inventario",
+  "/dashboard/facturacion": "facturacion",
+  "/dashboard/rechazos": "rechazos",
+  "/dashboard/financiadores": "financiadores",
+  "/dashboard/inflacion": "inflacion",
+  "/dashboard/pagos": "pagos",
+  "/dashboard/auditoria": "auditoria",
+  "/dashboard/nomenclador": "nomenclador",
+  "/dashboard/reportes": "reportes",
+  "/dashboard/alertas": "alertas",
+  "/dashboard/wizard": "wizard",
+  "/dashboard/farmacia": "farmacia",
+  "/dashboard/telemedicina": "telemedicina",
+  "/dashboard/directorio": "directorio",
+  "/dashboard/triage": "triage",
+};
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
+  const plan = usePlanSafe();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const isNavVisible = (href: string): boolean => {
+    // Always show: dashboard home, configuracion and sub-pages
+    if (href === "/dashboard") return true;
+    if (href.startsWith("/dashboard/configuracion")) return true;
+    const moduleId = ROUTE_MODULE_MAP[href];
+    if (!moduleId) return true; // Unknown routes always visible
+    return plan.isModuleSelected(moduleId);
+  };
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
@@ -209,56 +242,78 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Nav */}
         <nav className="flex-1 py-3 px-3 overflow-y-auto" aria-label="Menú del dashboard">
-          {navSections.map((section, si) => (
-            <div
-              key={si}
-              className={si > 0 ? "mt-5" : ""}
-              role="group"
-              aria-label={section.title || "Principal"}
-            >
-              {section.title && (
-                <div
-                  className="px-3 mb-2 text-[9px] font-bold tracking-[0.16em] text-gray-400 uppercase"
-                  aria-hidden="true"
-                >
-                  {section.title}
+          {navSections.map((section, si) => {
+            const visibleItems = section.items.filter((item) => isNavVisible(item.href));
+            if (visibleItems.length === 0) return null;
+            return (
+              <div
+                key={si}
+                className={si > 0 ? "mt-5" : ""}
+                role="group"
+                aria-label={section.title || "Principal"}
+              >
+                {section.title && (
+                  <div
+                    className="px-3 mb-2 text-[9px] font-bold tracking-[0.16em] text-gray-400 uppercase"
+                    aria-hidden="true"
+                  >
+                    {section.title}
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const active =
+                      pathname === item.href ||
+                      (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition ${
+                          active
+                            ? "bg-celeste-50 text-celeste-dark font-semibold"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        }`}
+                      >
+                        {(() => {
+                          const IconComp = navIcons[item.href];
+                          return IconComp ? <IconComp className="w-4 h-4" /> : null;
+                        })()}
+                        <span className="flex-1">{item.label}</span>
+                        {"badge" in item && (item as { badge?: number }).badge ? (
+                          <span
+                            className="bg-red-100 text-red-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none"
+                            aria-label={`${(item as { badge?: number }).badge} notificaciones`}
+                          >
+                            {(item as { badge?: number }).badge}
+                          </span>
+                        ) : null}
+                      </Link>
+                    );
+                  })}
                 </div>
-              )}
-              <div className="space-y-0.5">
-                {section.items.map((item) => {
-                  const active =
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition ${
-                        active
-                          ? "bg-celeste-50 text-celeste-dark font-semibold"
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
-                    >
-                      {(() => {
-                        const IconComp = navIcons[item.href];
-                        return IconComp ? <IconComp className="w-4 h-4" /> : null;
-                      })()}
-                      <span className="flex-1">{item.label}</span>
-                      {"badge" in item && item.badge ? (
-                        <span
-                          className="bg-red-100 text-red-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none"
-                          aria-label={`${item.badge} notificaciones`}
-                        >
-                          {item.badge}
-                        </span>
-                      ) : null}
-                    </Link>
-                  );
-                })}
               </div>
-            </div>
-          ))}
+            );
+          })}
+          {/* Modificar plan link */}
+          <div className="mt-5 px-3">
+            <Link
+              href="/planes"
+              className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-celeste-dark hover:bg-celeste-pale rounded-lg transition"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Modificar plan
+            </Link>
+          </div>
         </nav>
 
         {/* Bottom user section */}

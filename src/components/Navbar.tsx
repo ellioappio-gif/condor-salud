@@ -51,6 +51,12 @@ export default function Navbar() {
             Pricing
           </a>
           <Link
+            href="/planes"
+            className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
+          >
+            Planes
+          </Link>
+          <Link
             href="/auth/login"
             className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste-dark hover:bg-celeste-pale rounded-[4px] transition"
           >
@@ -126,6 +132,13 @@ export default function Navbar() {
             >
               Pricing
             </a>
+            <Link
+              href="/planes"
+              onClick={() => setOpen(false)}
+              className="text-[13px] font-medium text-ink-light"
+            >
+              Planes
+            </Link>
             <a
               href="#waitlist"
               onClick={() => setOpen(false)}

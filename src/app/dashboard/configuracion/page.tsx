@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Wallet,
   AlarmClock,
+  LayoutGrid,
 } from "lucide-react";
 
 const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -22,6 +23,7 @@ const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "WhatsApp Turnos": MessageSquare,
   "Pagos y Cobros": Wallet,
   Recordatorios: AlarmClock,
+  "Tu Plan": LayoutGrid,
 };
 
 const sections = [
@@ -77,6 +79,12 @@ const sections = [
     title: "Recordatorios",
     desc: "Configuración de recordatorios automáticos para pacientes y equipo médico.",
     href: "/dashboard/configuracion/recordatorios",
+    badge: null,
+  },
+  {
+    title: "Tu Plan",
+    desc: "Modificá los módulos activos o cambiá de plan.",
+    href: "/planes",
     badge: null,
   },
 ];

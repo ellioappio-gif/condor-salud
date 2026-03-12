@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/context";
+import { usePlanSafe } from "@/lib/plan-context";
+import { PRESETS, formatARS } from "@/lib/plan-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { StatusBadge } from "@/components/ui";
 import { Users, Calendar, Shield, Package, Tag, ClipboardList, BookOpen } from "lucide-react";
@@ -84,10 +86,30 @@ const pendingAudit = [
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const plan = usePlanSafe();
   const [showWizardBanner, setShowWizardBanner] = useState(true);
+
+  const activePresetDef = plan.activePreset
+    ? PRESETS.find((p) => p.id === plan.activePreset)
+    : null;
 
   return (
     <div className="space-y-5">
+      {/* Plan info bar */}
+      <div className="flex items-center justify-between bg-celeste-pale/40 border border-celeste-100 rounded-lg px-4 py-2.5">
+        <p className="text-xs text-ink">
+          <span className="font-semibold">
+            {activePresetDef ? `Plan ${activePresetDef.name}` : "Plan personalizado"}
+          </span>
+          {" — "}
+          {plan.selectedModules.length} módulos activos
+          {plan.total > 0 && <span className="text-ink-muted"> · {formatARS(plan.total)}/mes</span>}
+        </p>
+        <Link href="/planes" className="text-xs font-semibold text-celeste-dark hover:underline">
+          Modificar
+        </Link>
+      </div>
+
       {/* Wizard onboarding banner */}
       {showWizardBanner && (
         <div className="relative bg-celeste-50 border border-celeste-200 rounded-xl p-5 overflow-hidden">
