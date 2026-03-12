@@ -188,7 +188,7 @@ export default function RecordatoriosConfigPage() {
         <div className="flex-1">
           <p className="text-sm font-semibold text-green-800">WhatsApp Business conectado</p>
           <p className="text-xs text-green-700 mt-0.5">
-            Número: +54 9 11 1234-5678 · API activa · Última sincronización: hace 5 minutos
+            Número: +1 202 695 0244 · API activa · Última sincronización: hace 5 minutos
           </p>
         </div>
         <span className="px-2 py-0.5 text-[9px] font-bold tracking-wider bg-green-100 text-green-700 rounded">

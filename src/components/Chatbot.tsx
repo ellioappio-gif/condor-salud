@@ -9,7 +9,11 @@ import { getWelcomeMessage } from "@/lib/chatbot-engine";
 
 function TypingIndicator() {
   return (
-    <div className="flex items-end gap-2 animate-chatMsg">
+    <div
+      className="flex items-end gap-2 animate-chatMsg"
+      role="status"
+      aria-label="Cora está escribiendo"
+    >
       <div className="w-7 h-7 rounded-full bg-celeste flex items-center justify-center flex-shrink-0">
         <Image
           src="/condor.png"
@@ -88,7 +92,11 @@ function QuickReplies({
   onSelect: (value: string) => void;
 }) {
   return (
-    <div className="pl-9 flex flex-wrap gap-1.5 animate-chatMsg">
+    <div
+      className="pl-9 flex flex-wrap gap-1.5 animate-chatMsg"
+      role="group"
+      aria-label="Respuestas rápidas"
+    >
       {replies.map((r, i) => (
         <button
           key={i}
@@ -195,6 +203,9 @@ export default function Chatbot() {
       {/* ── Chat Window ─────────────────────────────────────── */}
       {isOpen && (
         <div
+          role="dialog"
+          aria-label="Chat con Cora, asistente virtual de Cóndor Salud"
+          aria-modal="false"
           className="fixed bottom-24 right-6 z-[95] w-[380px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-2xl border border-border flex flex-col animate-chatOpen overflow-hidden"
           style={{ height: "min(580px, calc(100vh - 140px))" }}
         >
@@ -224,6 +235,9 @@ export default function Chatbot() {
           {/* Messages */}
           <div
             ref={scrollRef}
+            role="log"
+            aria-live="polite"
+            aria-label="Historial de mensajes"
             className="flex-1 overflow-y-auto px-4 py-4 space-y-3 scrollbar-thin"
           >
             {messages.map((msg) => (
@@ -245,6 +259,7 @@ export default function Chatbot() {
           {/* Input */}
           <form
             onSubmit={handleSubmit}
+            aria-label="Enviar mensaje a Cora"
             className="border-t border-border px-4 py-3 flex gap-2 flex-shrink-0 bg-white"
           >
             <input
@@ -253,6 +268,7 @@ export default function Chatbot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Escribí tu consulta..."
+              aria-label="Escribí tu consulta al asistente virtual"
               className="flex-1 text-[13px] bg-surface rounded-full px-4 py-2.5 outline-none focus:ring-2 focus:ring-celeste/30 border border-border placeholder:text-ink-muted"
               disabled={isTyping}
             />
@@ -294,6 +310,8 @@ export default function Chatbot() {
             ? "bg-ink-700 hover:bg-ink-600 rotate-0"
             : "bg-celeste-dark hover:bg-celeste hover:scale-105"
         }`}
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
         aria-label={isOpen ? "Cerrar chat" : "Abrir asistente virtual"}
       >
         {isOpen ? (

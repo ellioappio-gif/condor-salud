@@ -972,7 +972,7 @@ function generateRegisterResponse(): Partial<ChatMessage> {
 
 function generateContactHumanResponse(): Partial<ChatMessage> {
   return {
-    text: "¡Claro! Te conecto con una persona de nuestro equipo:\n\n• WhatsApp: +54 9 11 1234-5678 (te responden en minutos)\n• Email: soporte@condorsalud.com.ar\n• Teléfono: 0800-333-SALUD (lunes a viernes 9 a 18hs)\n\n¿Querés que te pasemos a WhatsApp?",
+    text: "¡Claro! Te conecto con una persona de nuestro equipo:\n\n• WhatsApp: +1 202 695 0244 (te responden en minutos)\n• Email: soporte@condorsalud.com.ar\n• Teléfono: 0800-333-SALUD (lunes a viernes 9 a 18hs)\n\n¿Querés que te pasemos a WhatsApp?",
     quickReplies: [
       { label: "Ir a WhatsApp", value: "Sí, derivame a WhatsApp" },
       { label: "Sigo por acá", value: "Prefiero seguir por acá" },
@@ -984,7 +984,7 @@ function generateContactHumanResponse(): Partial<ChatMessage> {
         icon: "message-circle",
         action: {
           label: "Abrir WhatsApp",
-          url: "https://wa.me/5491112345678?text=Hola%2C%20necesito%20ayuda%20con%20C%C3%B3ndor%20Salud",
+          url: "https://wa.me/12026950244?text=Hola%2C%20necesito%20ayuda%20con%20C%C3%B3ndor%20Salud",
         },
       },
     ],

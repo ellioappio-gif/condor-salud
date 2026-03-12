@@ -17,7 +17,7 @@ export function useDemoAction() {
   return useContext(DemoModalContext);
 }
 
-const WA_NUMBER = "5491112345678";
+const WA_NUMBER = "12026950244";
 
 export function DemoModalProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);

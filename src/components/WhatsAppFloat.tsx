@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const WA_NUMBER = "5491112345678"; // Replace with real number
+const WA_NUMBER = "12026950244";
 const WA_MESSAGE = encodeURIComponent(
   "Hola, me interesa una demo de Cóndor Salud para mi clínica. ¿Podemos coordinar?",
 );

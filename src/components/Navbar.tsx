@@ -75,7 +75,7 @@ export default function Navbar() {
             Demo
           </Link>
           <a
-            href="https://wa.me/5491112345678?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F"
+            href="https://wa.me/12026950244?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F"
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2 text-xs font-semibold text-white bg-[#25D366] hover:bg-[#20BD5A] rounded-[4px] transition flex items-center gap-1.5"
@@ -155,7 +155,7 @@ export default function Navbar() {
               Demo
             </Link>
             <a
-              href="https://wa.me/5491112345678?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F"
+              href="https://wa.me/12026950244?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
