@@ -5,9 +5,8 @@ export default function Footer() {
   return (
     <footer className="border-t border-border pt-10 pb-8">
       <div className="max-w-6xl mx-auto px-6 lg:px-10">
-        {/* Top row: brand + nav columns */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 mb-8">
-          {/* Brand */}
+        {/* Brand — centered */}
+        <div className="flex justify-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 group">
             <Image
               src="/condor.png"
@@ -21,81 +20,81 @@ export default function Footer() {
               <span className="text-gold">SALUD</span>
             </div>
           </Link>
+        </div>
 
-          {/* Nav columns */}
-          <div className="flex flex-wrap gap-12 text-[13px]">
-            <div className="space-y-2">
-              <p className="font-semibold text-ink text-xs uppercase tracking-wider">Producto</p>
-              <Link
-                href="/#problema"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Problema
-              </Link>
-              <Link
-                href="/#producto"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Solución
-              </Link>
-              <Link
-                href="/planes"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Planes
-              </Link>
-            </div>
-            <div className="space-y-2">
-              <p className="font-semibold text-ink text-xs uppercase tracking-wider">Plataforma</p>
-              <Link
-                href="/dashboard"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Demo
-              </Link>
-              <Link
-                href="/paciente"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Portal Paciente
-              </Link>
-              <Link
-                href="/#waitlist"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Waitlist
-              </Link>
-            </div>
-            <div className="space-y-2">
-              <p className="font-semibold text-ink text-xs uppercase tracking-wider">Cuenta</p>
-              <Link
-                href="/auth/login"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Iniciar sesión
-              </Link>
-              <Link
-                href="/auth/registro"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Registrarse
-              </Link>
-            </div>
-            <div className="space-y-2">
-              <p className="font-semibold text-ink text-xs uppercase tracking-wider">Legal</p>
-              <Link
-                href="/privacidad"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Privacidad
-              </Link>
-              <Link
-                href="/terminos"
-                className="block text-ink-light hover:text-celeste-dark transition"
-              >
-                Términos
-              </Link>
-            </div>
+        {/* Nav columns — centered */}
+        <div className="flex flex-wrap justify-center gap-12 text-[13px] mb-8">
+          <div className="space-y-2">
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Producto</p>
+            <Link
+              href="/#problema"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Problema
+            </Link>
+            <Link
+              href="/#producto"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Solución
+            </Link>
+            <Link
+              href="/planes"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Planes
+            </Link>
+          </div>
+          <div className="space-y-2">
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Plataforma</p>
+            <Link
+              href="/dashboard"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Demo
+            </Link>
+            <Link
+              href="/paciente"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Portal Paciente
+            </Link>
+            <Link
+              href="/#waitlist"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Waitlist
+            </Link>
+          </div>
+          <div className="space-y-2">
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Cuenta</p>
+            <Link
+              href="/auth/login"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Iniciar sesión
+            </Link>
+            <Link
+              href="/auth/registro"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Registrarse
+            </Link>
+          </div>
+          <div className="space-y-2">
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Legal</p>
+            <Link
+              href="/privacidad"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Privacidad
+            </Link>
+            <Link
+              href="/terminos"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              Términos
+            </Link>
           </div>
         </div>
 
