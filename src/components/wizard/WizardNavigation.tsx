@@ -38,7 +38,7 @@ export function WizardNavigation() {
             />
           </svg>
           <span className="hidden sm:inline">
-            {canPrev ? WIZARD_STEPS[currentStep - 1].title : "Anterior"}
+            {canPrev ? WIZARD_STEPS[currentStep - 1]?.title : "Anterior"}
           </span>
         </button>
 
@@ -86,7 +86,7 @@ export function WizardNavigation() {
             className="flex items-center gap-2 rounded-[4px] bg-celeste-dark px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-celeste-700 active:bg-celeste-800"
             aria-label="Siguiente paso"
           >
-            <span className="hidden sm:inline">{WIZARD_STEPS[currentStep + 1].title}</span>
+            <span className="hidden sm:inline">{WIZARD_STEPS[currentStep + 1]?.title}</span>
             <span className="sm:hidden">Siguiente</span>
             <svg
               className="h-4 w-4"

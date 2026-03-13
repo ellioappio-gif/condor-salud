@@ -30,28 +30,41 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
 export function canAccessRoute(role: UserRole, path: string): boolean {
   const ROLE_PERMISSIONS_MAP: Record<UserRole, Permission[]> = {
     admin: [
-      "pacientes:read", "pacientes:write",
-      "facturacion:read", "facturacion:write",
-      "agenda:read", "agenda:write",
-      "inventario:read", "inventario:write",
-      "reportes:read", "auditoria:read",
-      "configuracion:read", "configuracion:write",
+      "pacientes:read",
+      "pacientes:write",
+      "facturacion:read",
+      "facturacion:write",
+      "agenda:read",
+      "agenda:write",
+      "inventario:read",
+      "inventario:write",
+      "reportes:read",
+      "auditoria:read",
+      "configuracion:read",
+      "configuracion:write",
       "equipo:manage",
     ],
     medico: [
-      "pacientes:read", "pacientes:write",
-      "agenda:read", "agenda:write",
-      "reportes:read", "auditoria:read",
+      "pacientes:read",
+      "pacientes:write",
+      "agenda:read",
+      "agenda:write",
+      "reportes:read",
+      "auditoria:read",
     ],
     facturacion: [
       "pacientes:read",
-      "facturacion:read", "facturacion:write",
-      "reportes:read", "auditoria:read",
+      "facturacion:read",
+      "facturacion:write",
+      "reportes:read",
+      "auditoria:read",
       "inventario:read",
     ],
     recepcion: [
-      "pacientes:read", "pacientes:write",
-      "agenda:read", "agenda:write",
+      "pacientes:read",
+      "pacientes:write",
+      "agenda:read",
+      "agenda:write",
       "inventario:read",
     ],
   };
@@ -64,5 +77,6 @@ export function canAccessRoute(role: UserRole, path: string): boolean {
   if (!matchingRoute) return true; // No permission required (e.g., /dashboard home)
 
   const requiredPermission = ROUTE_PERMISSIONS[matchingRoute];
-  return ROLE_PERMISSIONS_MAP[role].includes(requiredPermission);
+  if (!requiredPermission) return true;
+  return (ROLE_PERMISSIONS_MAP[role] ?? []).includes(requiredPermission);
 }

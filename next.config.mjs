@@ -24,17 +24,20 @@ const nextConfig = {
           },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+            value: "camera=(self), microphone=(self), geolocation=(), interest-cohort=()",
           },
           {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o4507.ingest.sentry.io",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o4507.ingest.sentry.io https://*.daily.co wss://*.daily.co https://api.mercadopago.com https://*.upstash.io",
+              "frame-src 'self' https://*.daily.co",
+              "media-src 'self' blob:",
+              "worker-src 'self' blob:",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

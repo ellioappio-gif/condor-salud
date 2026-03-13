@@ -40,9 +40,9 @@ function TierCard({
 
   // Modules ONLY in this tier (not in the tier below)
   const presetIdx = PRESETS.findIndex((p) => p.id === presetId);
-  const prevModules = presetIdx > 0 ? PRESETS[presetIdx - 1].modules : [];
+  const prevModules = presetIdx > 0 ? (PRESETS[presetIdx - 1]?.modules ?? []) : [];
   const ownModules = preset.modules.filter((m) => !prevModules.includes(m));
-  const inheritedLabel = presetIdx > 0 ? `Todo en ${PRESETS[presetIdx - 1].name}` : null;
+  const inheritedLabel = presetIdx > 0 ? `Todo en ${PRESETS[presetIdx - 1]?.name ?? ""}` : null;
 
   return (
     <div

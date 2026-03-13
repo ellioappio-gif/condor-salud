@@ -361,7 +361,7 @@ export default function SintomasPage() {
                 ].map(([value, label]) => (
                   <button
                     key={value}
-                    onClick={() => setDuration(value)}
+                    onClick={() => setDuration(value ?? "")}
                     className={`text-sm px-3 py-1.5 rounded-full border transition ${
                       duration === value
                         ? "border-celeste-dark bg-celeste-50 text-celeste-dark font-medium"

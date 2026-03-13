@@ -5,6 +5,7 @@ import {
   getScheduledConsultations,
   getTelemedichinaKPIs,
 } from "@/lib/services/telemedicina";
+import { logger } from "@/lib/security/api-guard";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -23,7 +24,8 @@ export async function GET(req: NextRequest) {
       default:
         return NextResponse.json({ error: "Unknown resource" }, { status: 400 });
     }
-  } catch (error) {
+  } catch (err) {
+    logger.error({ err, route: "telemedicina", resource }, "Telemedicina GET error");
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,8 +1,19 @@
 import type { Metadata, Viewport } from "next";
+import { DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/auth/context";
 import { PlanProvider } from "@/lib/plan-context";
+import { SWRProvider } from "@/lib/swr";
 import Chatbot from "@/components/Chatbot";
 import "./globals.css";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-dm-sans",
+});
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://condor-salud.vercel.app";
 
 export const metadata: Metadata = {
   title: {
@@ -11,7 +22,7 @@ export const metadata: Metadata = {
   },
   description:
     "Plataforma unificada de inteligencia para el sistema de salud argentino. PAMI, obras sociales, prepagas en un solo dashboard.",
-  metadataBase: new URL("https://condor-salud.vercel.app"),
+  metadataBase: new URL(baseUrl),
   icons: {
     icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
     apple: "/apple-touch-icon.png",
@@ -22,11 +33,13 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Cóndor Salud",
     locale: "es_AR",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Cóndor Salud" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Cóndor Salud — Volá más alto",
     description: "Conectamos PAMI, obras sociales, prepagas y AFIP en una plataforma unificada.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -42,14 +55,16 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" dir="ltr">
+    <html lang="es" dir="ltr" className={dmSans.variable}>
       <body className="bg-white text-ink font-body antialiased">
-        <PlanProvider>
-          <AuthProvider>
-            {children}
-            <Chatbot />
-          </AuthProvider>
-        </PlanProvider>
+        <SWRProvider>
+          <PlanProvider>
+            <AuthProvider>
+              {children}
+              <Chatbot />
+            </AuthProvider>
+          </PlanProvider>
+        </SWRProvider>
       </body>
     </html>
   );

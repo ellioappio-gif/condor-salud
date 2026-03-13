@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listCalendarEvents, createCalendarEvent } from "@/lib/google";
+import { logger } from "@/lib/security/api-guard";
 
 /* ── GET: Fetch upcoming calendar events ─────────────────── */
 export async function GET(req: NextRequest) {
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ events: mappedEvents });
   } catch (err) {
-    console.error("Calendar sync error:", err);
+    logger.error({ err, route: "google/calendar" }, "Calendar sync error");
     return NextResponse.json({ error: "Failed to fetch calendar events" }, { status: 500 });
   }
 }
@@ -96,13 +97,15 @@ export async function POST(req: NextRequest) {
       meetLink: event.hangoutLink,
     });
   } catch (err) {
-    console.error("Calendar create error:", err);
+    logger.error({ err, route: "google/calendar" }, "Calendar create error");
     return NextResponse.json({ error: "Failed to create calendar event" }, { status: 500 });
   }
 }
 
 function incrementTime(time: string, minutes: number): string {
-  const [h, m] = time.split(":").map(Number);
+  const parts = time.split(":").map(Number);
+  const h = parts[0] ?? 0;
+  const m = parts[1] ?? 0;
   const total = h * 60 + m + minutes;
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }

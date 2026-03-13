@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 
 export async function POST(req: NextRequest) {
+  // ── Rate limit: 5 req / 60s per IP ──
+  const limited = checkRateLimit(req, "telemedicina-room", { limit: 5, windowSec: 60 });
+  if (limited) return limited;
+
   try {
-    const body = await req.json();
+    const rawBody = await req.json();
+    const body = sanitizeBody(rawBody);
     const { patientName, consultationId } = body;
 
     // Daily.co video room creation
@@ -37,13 +43,14 @@ export async function POST(req: NextRequest) {
     }
 
     const room = await res.json();
+    logger.info({ roomName: room.name, patientName, consultationId }, "Video room created");
     return NextResponse.json({
       url: room.url,
       name: room.name,
       mock: false,
     });
-  } catch (error) {
-    console.error("Video room creation error:", error);
+  } catch (err) {
+    logger.error({ err, route: "telemedicina/room" }, "Video room creation error");
     return NextResponse.json({ error: "Failed to create video room" }, { status: 500 });
   }
 }

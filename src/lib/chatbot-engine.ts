@@ -1091,7 +1091,7 @@ export function processMessage(userMessage: string): Partial<ChatMessage> {
   const { intent, entities } = detectIntent(userMessage);
 
   // Check if it's a triage-mapped intent
-  if (intent in TRIAGE) {
+  if (intent in TRIAGE && TRIAGE[intent]) {
     return buildTriageResponse(TRIAGE[intent]);
   }
 

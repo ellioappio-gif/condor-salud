@@ -809,7 +809,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
 
   const totalSteps = WIZARD_STEPS.length;
-  const step = WIZARD_STEPS[currentStep];
+  const step = WIZARD_STEPS[currentStep] ?? WIZARD_STEPS[0]!;
   const canNext = currentStep < totalSteps - 1;
   const canPrev = currentStep > 0;
   const progress = ((currentStep + 1) / totalSteps) * 100;

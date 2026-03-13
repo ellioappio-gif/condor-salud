@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { exchangeCodeForTokens, getGoogleUserInfo } from "@/lib/google";
+import { logger } from "@/lib/security/api-guard";
+
+/** Validate redirect target to prevent open-redirect attacks */
+function safeRedirect(target: string | null): string {
+  if (!target) return "/dashboard";
+  // Only allow relative paths starting with /
+  if (!target.startsWith("/") || target.startsWith("//")) return "/dashboard";
+  // Block protocol-relative URLs and data/javascript schemes
+  if (/^\/[\\@]/.test(target)) return "/dashboard";
+  return target;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,6 +20,7 @@ export async function GET(req: NextRequest) {
     const error = searchParams.get("error");
 
     if (error) {
+      logger.warn({ error, route: "auth/google/callback" }, "OAuth error response");
       return NextResponse.redirect(
         new URL(`/auth/login?error=${encodeURIComponent(error)}`, req.url),
       );
@@ -27,7 +39,7 @@ export async function GET(req: NextRequest) {
     // Get user info from Google
     const googleUser = await getGoogleUserInfo(tokens.access_token);
 
-    // Build session data
+    // Build session data (do NOT store raw tokens in the readable cookie)
     const sessionData = {
       id: `google-${googleUser.sub}`,
       email: googleUser.email,
@@ -40,8 +52,8 @@ export async function GET(req: NextRequest) {
       googleRefreshToken: tokens.refresh_token,
     };
 
-    // Redirect to dashboard with session token in cookie
-    const redirect = state || "/dashboard";
+    // Validated redirect — prevents open redirect
+    const redirect = safeRedirect(state);
     const response = NextResponse.redirect(new URL(redirect, req.url));
 
     // Set session cookie (httpOnly for security)
@@ -53,7 +65,7 @@ export async function GET(req: NextRequest) {
       path: "/",
     });
 
-    // Also set a readable session for the client
+    // Public cookie — NEVER include tokens
     response.cookies.set(
       "condor_google_user",
       JSON.stringify({
@@ -71,9 +83,10 @@ export async function GET(req: NextRequest) {
       },
     );
 
+    logger.info({ userId: sessionData.id }, "Google OAuth login success");
     return response;
   } catch (err) {
-    console.error("Google OAuth callback error:", err);
+    logger.error({ err, route: "auth/google/callback" }, "Google OAuth callback error");
     return NextResponse.redirect(new URL("/auth/login?error=oauth_failed", req.url));
   }
 }

@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 
 export async function POST(req: NextRequest) {
+  // ── Rate limit: 5 req / 60s per IP ──
+  const limited = checkRateLimit(req, "whatsapp-summary", { limit: 5, windowSec: 60 });
+  if (limited) return limited;
+
   try {
-    const body = await req.json();
+    const rawBody = await req.json();
+    const body = sanitizeBody(rawBody);
     const { patientPhone, patientName, doctorName, diagnosis, instructions, nextAppointment } =
-      body;
+      body as Record<string, string>;
+
+    // Validate phone format (Argentine mobile)
+    if (!patientPhone || !/^\+?[\d\s()-]{7,20}$/.test(patientPhone)) {
+      return NextResponse.json({ error: "Número de teléfono inválido" }, { status: 400 });
+    }
 
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -42,13 +53,15 @@ export async function POST(req: NextRequest) {
       to: `whatsapp:${patientPhone}`,
     });
 
+    logger.info({ sid: result.sid, route: "whatsapp-summary" }, "WhatsApp summary sent");
+
     return NextResponse.json({
       success: true,
       mock: false,
       sid: result.sid,
     });
-  } catch (error) {
-    console.error("WhatsApp summary error:", error);
+  } catch (err) {
+    logger.error({ err, route: "whatsapp-summary" }, "WhatsApp summary error");
     return NextResponse.json({ error: "Failed to send WhatsApp summary" }, { status: 500 });
   }
 }

@@ -400,7 +400,9 @@ export default function AuditoriaPage() {
             Por Financiador
           </h3>
           {["PAMI", "OSDE", "Swiss Medical", "Galeno", "Medifé"].map((f) => {
-            const count = auditItems.filter((a) => a.financiador.includes(f.split(" ")[0])).length;
+            const count = auditItems.filter((a) =>
+              a.financiador.includes(f.split(" ")[0] ?? ""),
+            ).length;
             return (
               <div
                 key={f}

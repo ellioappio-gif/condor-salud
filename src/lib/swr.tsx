@@ -13,13 +13,16 @@ export async function fetcher<T>(key: string): Promise<T> {
   if (key.startsWith("/api/")) {
     const res = await fetch(key);
     if (!res.ok) {
-      const error = new Error("An error occurred while fetching data.");
+      const body = await res.text().catch(() => "");
+      const error = new Error(`Fetch error ${res.status}: ${res.statusText}`);
+      (error as Error & { status: number; info: string }).status = res.status;
+      (error as Error & { info: string }).info = body;
       throw error;
     }
     return res.json();
   }
 
-  // Otherwise, dynamically import from data service
+  // Otherwise, use data service (static import avoids repeated dynamic imports)
   const { default: dataService } = await import("@/lib/services/data-client");
   const fn = dataService[key as keyof typeof dataService];
   if (typeof fn === "function") {

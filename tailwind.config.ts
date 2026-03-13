@@ -68,7 +68,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["Georgia", "'Times New Roman'", "serif"],
-        body: ['"DM Sans"', "sans-serif"],
+        body: ["var(--font-dm-sans)", '"DM Sans"', "sans-serif"],
       },
     },
   },
