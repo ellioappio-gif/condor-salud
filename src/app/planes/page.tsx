@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { usePlan } from "@/lib/plan-context";
@@ -264,9 +265,19 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function PlanesPage() {
   const plan = usePlan();
+  const searchParams = useSearchParams();
   const customRef = useRef<HTMLDivElement>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
   const [mobileBar, setMobileBar] = useState(false);
+
+  // Auto-select tier from URL query param (?tier=esencial|profesional|enterprise)
+  useEffect(() => {
+    const tier = searchParams.get("tier") as PresetId | null;
+    if (tier && PRESETS.find((p) => p.id === tier)) {
+      plan.applyPreset(tier);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelectPreset = (id: PresetId) => {
     plan.applyPreset(id);

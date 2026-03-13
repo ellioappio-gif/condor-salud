@@ -27,9 +27,10 @@ export default function Pricing() {
             // Show first 5 module labels
             const moduleLabels = preset.modules.slice(0, 5).map((id) => getModule(id).label);
             return (
-              <div
+              <Link
                 key={preset.id}
-                className={`relative flex flex-col p-7 transition hover:-translate-y-0.5 rounded-xl ${
+                href={`/planes?tier=${preset.id}`}
+                className={`relative flex flex-col p-7 transition hover:-translate-y-0.5 hover:shadow-lg cursor-pointer rounded-xl ${
                   isPro ? "border-2 border-celeste bg-celeste-pale/40" : "border border-border"
                 }`}
               >
@@ -71,8 +72,7 @@ export default function Pricing() {
                     </p>
                   )}
                 </div>
-                <Link
-                  href="/planes"
+                <span
                   className={`block w-full py-2.5 text-center text-xs font-semibold rounded-[4px] transition ${
                     isPro
                       ? "bg-celeste-dark text-white hover:bg-celeste"
@@ -80,11 +80,11 @@ export default function Pricing() {
                   }`}
                 >
                   Elegir plan
-                </Link>
+                </span>
                 <p className="text-center text-[10px] text-ink-muted mt-2">
                   {preset.modules.length} módulos incluidos
                 </p>
-              </div>
+              </Link>
             );
           })}
         </div>
