@@ -20,8 +20,7 @@ export default function FinalCTA() {
           <em className="not-italic text-celeste-light">Sin rechazos. Sin demoras.</em>
         </h2>
         <p className="text-[15px] text-ink-muted leading-[1.7] max-w-[560px] mx-auto mb-8">
-          Más de 120 clínicas en Argentina ya protegen sus ingresos con Cóndor Salud. Probá gratis y
-          empezá a facturar sin errores desde el primer día.
+          Probá gratis durante 14 días y empezá a facturar sin errores desde el primer día.
         </p>
 
         {/* Highlights */}

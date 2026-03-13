@@ -3,12 +3,6 @@ import { ArrowRight } from "lucide-react";
 
 const trustLogos = ["PAMI", "OSDE", "Swiss Medical", "Galeno", "Medifé", "IOMA"];
 
-const heroStats = [
-  { value: "120+", label: "Clínicas activas" },
-  { value: "14", label: "Provincias" },
-  { value: "$2.4M", label: "Recuperados/mes" },
-];
-
 export default function Hero() {
   return (
     <section className="px-6 pt-16 pb-20 max-w-[1000px] mx-auto">
@@ -29,13 +23,9 @@ export default function Hero() {
           <br />
           <em className="not-italic text-celeste-dark">Una sola vista.</em>
         </h1>
-        <p className="text-lg text-ink-light leading-[1.7] max-w-[660px] mx-auto mb-4">
+        <p className="text-lg text-ink-light leading-[1.7] max-w-[660px] mx-auto mb-8">
           Conectamos PAMI, obras sociales, prepagas y AFIP en una plataforma unificada. Verificá
           cobertura, facturá automáticamente, y dejá de perder plata por inflación.
-        </p>
-        <p className="text-sm text-ink-muted max-w-[500px] mx-auto mb-8">
-          Más de 120 establecimientos en 14 provincias ya usan Cóndor Salud para proteger sus
-          ingresos y reducir rechazos hasta un 62%.
         </p>
 
         {/* CTA buttons */}
@@ -57,16 +47,6 @@ export default function Hero() {
         <p className="text-[11px] text-ink-muted mb-10">
           Sin tarjeta de crédito · Setup en 2 minutos · Cancelá cuando quieras
         </p>
-
-        {/* Mini stats row */}
-        <div className="flex justify-center gap-8 mb-10">
-          {heroStats.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-xl font-bold text-celeste-dark">{s.value}</div>
-              <div className="text-[10px] text-ink-muted mt-0.5">{s.label}</div>
-            </div>
-          ))}
-        </div>
 
         {/* Dashboard preview */}
         <div className="relative max-w-[800px] mx-auto mb-10">

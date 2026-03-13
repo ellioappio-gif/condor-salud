@@ -9,14 +9,6 @@ const benefits = [
   { icon: Users, text: "Onboarding personalizado incluido" },
 ];
 
-const socialProof = [
-  "Centro Médico Palermo — CABA",
-  "Clínica San Martín — Córdoba",
-  "Instituto del Sur — Bahía Blanca",
-  "Sanatorio del Norte — Tucumán",
-  "Centro Integral — Mendoza",
-];
-
 export default function Waitlist() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -120,21 +112,6 @@ export default function Waitlist() {
             </p>
           </form>
         )}
-
-        {/* Counter + social proof */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-ink-muted mb-3">
-            <strong className="text-celeste-light font-semibold text-lg">127</strong>{" "}
-            <span className="text-ink-muted">profesionales ya están en la lista</span>
-          </p>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-            {socialProof.map((clinic) => (
-              <span key={clinic} className="text-[10px] text-ink-muted/60">
-                {clinic}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );
