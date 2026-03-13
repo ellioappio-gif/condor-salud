@@ -66,7 +66,7 @@ const INTENTS: {
   {
     intent: "pain_head",
     patterns: [
-      /(?:dolor|me\s+duele)\s+(?:la\s+)?cabeza/i,
+      /(?:dolor|me\s+duele)\s+(?:(?:de|en)\s+)?(?:la\s+)?cabeza/i,
       /(?:jaqueca|migraña|puntada.+cabeza)/i,
       /cabeza.+(?:duele|dolor|explota|molest|pesa)/i,
     ],
@@ -74,7 +74,7 @@ const INTENTS: {
   {
     intent: "pain_chest",
     patterns: [
-      /(?:dolor|me\s+duele|presión|aprieta|oprime)\s+(?:el\s+)?(?:pecho|torax|tórax)/i,
+      /(?:dolor|me\s+duele|presión|aprieta|oprime)\s+(?:(?:de|en)\s+)?(?:el\s+)?(?:pecho|torax|tórax)/i,
       /pecho.+(?:duele|dolor|aprieta|presión)/i,
       /(?:me\s+cuesta\s+respirar|no\s+puedo\s+respirar|falta\s+(?:de\s+)?aire)/i,
     ],
@@ -82,7 +82,7 @@ const INTENTS: {
   {
     intent: "pain_belly",
     patterns: [
-      /(?:dolor|me\s+duele)\s+(?:la\s+)?(?:panza|barriga|estómago|est[oó]mago|abdomen|tripa)/i,
+      /(?:dolor|me\s+duele)\s+(?:(?:de|en)\s+)?(?:la\s+)?(?:panza|barriga|estómago|est[oó]mago|abdomen|tripa)/i,
       /(?:panza|barriga|estómago|est[oó]mago).+(?:duele|dolor|hinch|inflam)/i,
       /(?:acidez|reflujo|gastritis|n[aá]usea|v[oó]mito|vomit)/i,
       /(?:diarrea|estre[nñ]imiento|no\s+puedo\s+ir\s+al\s+baño|indigesti)/i,
@@ -91,7 +91,7 @@ const INTENTS: {
   {
     intent: "pain_throat",
     patterns: [
-      /(?:dolor|me\s+duele)\s+(?:la\s+)?garganta/i,
+      /(?:dolor|me\s+duele)\s+(?:(?:de|en)\s+)?(?:la\s+)?garganta/i,
       /garganta.+(?:duele|dolor|irrit|rasp|inflam)/i,
       /(?:angina|no\s+puedo\s+tragar|tragar.+duele)/i,
     ],
@@ -99,7 +99,7 @@ const INTENTS: {
   {
     intent: "pain_back",
     patterns: [
-      /(?:dolor|me\s+duele)\s+(?:la\s+)?(?:espalda|cintura|columna|lumbares?)/i,
+      /(?:dolor|me\s+duele)\s+(?:(?:de|en)\s+)?(?:la\s+)?(?:espalda|cintura|columna|lumbares?)/i,
       /(?:espalda|cintura|columna).+(?:duele|dolor|trabar?|contractur)/i,
       /(?:ciática|ci[aá]tica|lumbago|contractura)/i,
     ],
@@ -107,7 +107,7 @@ const INTENTS: {
   {
     intent: "pain_joints",
     patterns: [
-      /(?:dolor|me\s+duele)\s+(?:la\s+|el\s+)?(?:rodilla|tobillo|muñeca|codo|hombro|cadera)/i,
+      /(?:dolor|me\s+duele)\s+(?:(?:de|en)\s+)?(?:la\s+|el\s+)?(?:rodilla|tobillo|muñeca|codo|hombro|cadera)/i,
       /(?:rodilla|tobillo|muñeca|codo|hombro|cadera).+(?:duele|dolor|inflam|hinch)/i,
       /(?:articulaci|hueso|me\s+duelen\s+los\s+huesos)/i,
       /(?:esguince|torced|me\s+dobl[eé]|me\s+golp[eé])/i,
