@@ -5,4 +5,4 @@ Disallow: /dashboard/
 Disallow: /auth/
 Disallow: /api/
 
-Sitemap: https://condor-salud.vercel.app/sitemap.xml
+Sitemap: https://condorsalud.com/sitemap.xml

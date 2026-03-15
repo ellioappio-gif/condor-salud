@@ -63,7 +63,7 @@ export default function Hero() {
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="px-4 py-1 bg-surface rounded text-[11px] text-ink-muted">
-                  condor-salud.vercel.app/dashboard
+                  condorsalud.com/dashboard
                 </div>
               </div>
             </div>

@@ -13,7 +13,7 @@ const dmSans = DM_Sans({
   variable: "--font-dm-sans",
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://condor-salud.vercel.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://condorsalud.com";
 
 export const metadata: Metadata = {
   title: {
