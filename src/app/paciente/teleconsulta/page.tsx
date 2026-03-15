@@ -137,6 +137,7 @@ export default function TeleconsultaPage() {
         <div className="bg-ink-900/90 backdrop-blur px-6 py-5 flex items-center justify-center gap-4">
           <button
             onClick={() => setMicOn(!micOn)}
+            aria-label={micOn ? "Silenciar micrófono" : "Activar micrófono"}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition ${
               micOn ? "bg-white/10 text-white hover:bg-white/20" : "bg-red-500 text-white"
             }`}
@@ -145,6 +146,7 @@ export default function TeleconsultaPage() {
           </button>
           <button
             onClick={() => setCamOn(!camOn)}
+            aria-label={camOn ? "Desactivar cámara" : "Activar cámara"}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition ${
               camOn ? "bg-white/10 text-white hover:bg-white/20" : "bg-red-500 text-white"
             }`}
@@ -158,6 +160,7 @@ export default function TeleconsultaPage() {
               ) as HTMLButtonElement;
               if (chatBtn) chatBtn.click();
             }}
+            aria-label="Abrir chat"
             className="w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition"
           >
             <MessageSquare className="w-5 h-5" />
@@ -167,6 +170,7 @@ export default function TeleconsultaPage() {
               setView("list");
               setSelectedApt(null);
             }}
+            aria-label="Finalizar llamada"
             className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition"
           >
             <Phone className="w-6 h-6 rotate-[135deg]" />

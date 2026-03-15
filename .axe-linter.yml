@@ -6,3 +6,6 @@ rules:
   # like aria-expanded={isOpen} which are valid at runtime but
   # unresolvable at static analysis time.
   aria-valid-attr-value: false
+  # Static linter cannot resolve dynamic children rendered by .map()
+  # inside role="list" containers — valid at runtime.
+  aria-required-children: false

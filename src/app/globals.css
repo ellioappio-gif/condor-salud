@@ -86,10 +86,12 @@ button {
   animation: chat-msg 0.2s ease-out forwards;
 }
 
-/* Thin scrollbar for chat messages */
+/* Thin scrollbar for chat messages
+   scrollbar-width/color: Firefox 64+, Chrome 121+
+   -webkit-scrollbar fallback below covers Safari & older Chrome */
 .scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #d4e4f0 transparent;
+  scrollbar-width: thin; /* stylelint-disable-line */
+  scrollbar-color: #d4e4f0 transparent; /* stylelint-disable-line */
 }
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;

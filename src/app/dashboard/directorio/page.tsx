@@ -190,6 +190,7 @@ export default function DirectorioPage() {
             <select
               value={specialtyFilter}
               onChange={(e) => setSpecialtyFilter(e.target.value)}
+              aria-label="Filtrar por especialidad"
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {specialties.map((s) => (
@@ -199,6 +200,7 @@ export default function DirectorioPage() {
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
+              aria-label="Filtrar por ubicación"
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {locations.map((l) => (
@@ -208,6 +210,7 @@ export default function DirectorioPage() {
             <select
               value={financiadorFilter}
               onChange={(e) => setFinanciadorFilter(e.target.value)}
+              aria-label="Filtrar por financiador"
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {financiadores.map((f) => (
@@ -551,16 +554,26 @@ export default function DirectorioPage() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-ink-muted block mb-1">Paciente</label>
-                <select className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark">
+                <label className="text-xs text-ink-muted block mb-1" id="lbl-paciente-sim">
+                  Paciente
+                </label>
+                <select
+                  aria-labelledby="lbl-paciente-sim"
+                  className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+                >
                   <option>Carlos Méndez — PAMI</option>
                   <option>Ana Rodríguez — OSDE</option>
                   <option>Marta Gutiérrez — Swiss Medical</option>
                 </select>
               </div>
               <div>
-                <label className="text-xs text-ink-muted block mb-1">Médico</label>
-                <select className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark">
+                <label className="text-xs text-ink-muted block mb-1" id="lbl-medico-sim">
+                  Médico
+                </label>
+                <select
+                  aria-labelledby="lbl-medico-sim"
+                  className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+                >
                   <option>Dra. Fernández — Cardiología</option>
                   <option>Dr. García — Dermatología</option>
                   <option>Dr. López — Clínica médica</option>
@@ -675,6 +688,7 @@ export default function DirectorioPage() {
             <select
               value={selectedSymptom}
               onChange={(e) => setSelectedSymptom(e.target.value)}
+              aria-label="Seleccionar síntoma del paciente"
               className="w-full sm:w-auto px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               <option value="">Seleccionar síntoma...</option>

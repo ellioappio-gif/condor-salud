@@ -386,6 +386,7 @@ export default function SintomasPage() {
                 max={10}
                 value={intensity}
                 onChange={(e) => setIntensity(Number(e.target.value))}
+                aria-label={`Intensidad: ${intensity} de 10`}
                 className="w-full accent-celeste-dark"
               />
               <div className="flex justify-between text-[11px] text-ink-muted">

@@ -270,6 +270,7 @@ export default function TriagePage() {
                   max={10}
                   value={severity}
                   onChange={(e) => setSeverity(Number(e.target.value))}
+                  aria-label={`Severidad: ${severity} de 10`}
                   className="w-full accent-celeste-dark"
                 />
                 <div className="flex justify-between text-[10px] text-ink-muted">
@@ -575,9 +576,14 @@ export default function TriagePage() {
 
             {/* Referrals */}
             <div>
-              <label className="text-xs text-ink-muted block mb-1">Derivaciones</label>
+              <label className="text-xs text-ink-muted block mb-1" id="lbl-derivaciones">
+                Derivaciones
+              </label>
               <div className="flex gap-2">
-                <select className="flex-1 px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark">
+                <select
+                  aria-labelledby="lbl-derivaciones"
+                  className="flex-1 px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+                >
                   <option value="">Sin derivación</option>
                   <option>Cardiología</option>
                   <option>Neurología</option>

@@ -430,6 +430,8 @@ export default function PagosConfigPage() {
                   </div>
                   <button
                     onClick={() => opt.set(!opt.value)}
+                    aria-label={opt.label}
+                    aria-pressed={opt.value}
                     className={`w-10 h-5 rounded-full transition relative ${opt.value ? "bg-celeste-dark" : "bg-border"}`}
                   >
                     <span
