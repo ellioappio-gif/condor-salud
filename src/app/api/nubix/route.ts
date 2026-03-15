@@ -12,9 +12,13 @@ import {
   getNubixKPIs,
 } from "@/lib/services/nubix";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
 import type { NubixStudyFilters, NubixAppointmentFilters } from "@/lib/nubix/types";
 
 export async function GET(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   const { searchParams } = new URL(req.url);
   const resource = searchParams.get("resource") || "studies";
 
@@ -91,6 +95,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   // ── Rate limit: 10 req / 60s per IP ──
   const limited = checkRateLimit(req, "nubix", { limit: 10, windowSec: 60 });
   if (limited) return limited;

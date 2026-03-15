@@ -213,11 +213,21 @@ export default function Chatbot() {
       setIsTyping(true);
 
       try {
+        // Build conversation history for Claude AI context
+        const history = messages
+          .filter((m) => m.role === "user" || m.role === "bot")
+          .slice(-10)
+          .map((m) => ({
+            role: (m.role === "bot" ? "assistant" : "user") as "user" | "assistant",
+            content: m.text,
+          }));
+
         const res = await fetch("/api/chatbot", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: text.trim(),
+            history,
             ...(coordsRef.current
               ? { lat: coordsRef.current.latitude, lng: coordsRef.current.longitude }
               : {}),
@@ -240,7 +250,7 @@ export default function Chatbot() {
         setIsTyping(false);
       }
     },
-    [isTyping],
+    [isTyping, messages],
   );
 
   // When geolocation resolves after user requested it, send confirmation to Cora

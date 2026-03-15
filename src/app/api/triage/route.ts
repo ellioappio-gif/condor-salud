@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTriages, createTriage, saveClinicalNote, getTriageKPIs } from "@/lib/services/triage";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
 
 export async function GET(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   const { searchParams } = new URL(req.url);
   const resource = searchParams.get("resource") || "triages";
 
@@ -22,6 +26,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   // ── Rate limit: 15 req / 60s per IP ──
   const limited = checkRateLimit(req, "triage", { limit: 15, windowSec: 60 });
   if (limited) return limited;

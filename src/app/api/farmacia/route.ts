@@ -9,8 +9,12 @@ import {
   getFarmaciaKPIs,
 } from "@/lib/services/farmacia";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
 
 export async function GET(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   const { searchParams } = new URL(req.url);
   const resource = searchParams.get("resource") || "medications";
 
@@ -36,6 +40,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   // ── Rate limit: 10 req / 60s per IP ──
   const limited = checkRateLimit(req, "farmacia", { limit: 10, windowSec: 60 });
   if (limited) return limited;

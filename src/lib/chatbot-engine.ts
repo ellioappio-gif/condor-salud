@@ -860,7 +860,7 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
             title: `Buscá un ${entry.doctorLabel}`,
             body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
             icon: "search",
-            action: { label: "Ver profesionales", url: "/dashboard/directorio" },
+            action: { label: "Ver profesionales", url: "/paciente/medicos" },
           },
           ...(entry.otcMeds.length > 0
             ? [
@@ -969,7 +969,7 @@ function generateAppointmentBooking(specialty: string): Partial<ChatMessage> {
         title: "Directorio de Profesionales",
         body: "Buscá por especialidad, zona y obra social. Turnos disponibles las 24hs.",
         icon: "search",
-        action: { label: "Buscar turnos", url: "/dashboard/directorio" },
+        action: { label: "Buscar turnos", url: "/paciente/medicos" },
       },
     ],
   };
@@ -1076,7 +1076,7 @@ function generateTelemedicineResponse(): Partial<ChatMessage> {
         title: "Teleconsulta",
         body: "Hablá con un médico en minutos. Desde tu casa.",
         icon: "video",
-        action: { label: "Iniciar teleconsulta", url: "/dashboard/telemedicina" },
+        action: { label: "Iniciar teleconsulta", url: "/paciente/teleconsulta" },
       },
     ],
   };
@@ -1350,7 +1350,7 @@ function generateNearbyDoctorResponse(
     title: `${doc.name} — ${doc.specialty}`,
     body: `${doc.address} • a ${formatDist(doc.distKm)}`,
     icon: "map-pin",
-    action: { label: "Sacar turno", url: "/dashboard/directorio" },
+    action: { label: "Sacar turno", url: "/paciente/medicos" },
     directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
     mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
   }));
@@ -1577,15 +1577,74 @@ function generateFallback(): Partial<ChatMessage> {
 
 // ─── Intent Detection ────────────────────────────────────────
 
+// ─── Intent Priority ─────────────────────────────────────────
+// Higher number = higher priority.  When two intents match with
+// equal confidence, the one with higher priority wins.
+// This ensures "hola me duele el pecho" → pain_chest (emergency)
+// instead of greeting.
+const INTENT_PRIORITY: Record<string, number> = {
+  // Low priority — conversational
+  greeting: 1,
+  farewell: 1,
+  thanks: 1,
+  // Medium priority — service / navigation
+  appointment: 5,
+  coverage: 5,
+  medication: 5,
+  delivery: 5,
+  telemedicine: 5,
+  pricing: 5,
+  how_it_works: 5,
+  register: 5,
+  contact_human: 5,
+  location: 5,
+  nearby_doctor: 5,
+  nearby_pharmacy: 5,
+  nearby_guardia: 5,
+  directions: 5,
+  shared_location: 5,
+  // High priority — medical / triage (symptoms must never be swallowed)
+  triage_generic: 8,
+  pain_head: 10,
+  pain_chest: 10,
+  pain_belly: 10,
+  pain_throat: 10,
+  pain_back: 10,
+  pain_joints: 10,
+  skin_issue: 10,
+  eye_issue: 10,
+  ear_issue: 10,
+  fever: 10,
+  cold_flu: 10,
+  allergy: 10,
+  anxiety_stress: 10,
+  blood_pressure: 10,
+  kids: 10,
+  women_health: 10,
+  dental: 10,
+};
+
 function detectIntent(message: string): IntentMatch {
   const lower = message.toLowerCase().trim();
-  let bestMatch: IntentMatch = { intent: "unknown", confidence: 0, entities: {} };
+  let bestMatch: IntentMatch & { _priority: number } = {
+    intent: "unknown",
+    confidence: 0,
+    entities: {},
+    _priority: 0,
+  };
 
   for (const { intent, patterns, entities: entityDefs } of INTENTS) {
     for (const pattern of patterns) {
       if (pattern.test(lower)) {
         const confidence = lower.length < 6 ? 0.7 : 0.9;
-        if (confidence > bestMatch.confidence) {
+        const priority = INTENT_PRIORITY[intent] ?? 5;
+
+        // Prefer higher confidence; at equal confidence prefer higher priority
+        const dominated =
+          confidence > bestMatch.confidence ||
+          (confidence === bestMatch.confidence && priority > bestMatch._priority);
+
+        if (dominated) {
           const entities: Record<string, string> = {};
           if (entityDefs) {
             for (const { key, pattern: ep } of entityDefs) {
@@ -1595,13 +1654,15 @@ function detectIntent(message: string): IntentMatch {
               }
             }
           }
-          bestMatch = { intent, confidence, entities };
+          bestMatch = { intent, confidence, entities, _priority: priority };
         }
       }
     }
   }
 
-  return bestMatch;
+  // Strip internal bookkeeping before returning
+  const { _priority: _, ...result } = bestMatch;
+  return result;
 }
 
 // ─── Specialty Extraction for Appointment Booking ────────────
@@ -1743,4 +1804,30 @@ export function getWelcomeMessage(): ChatMessage {
       { label: "¿Cómo funciona?", value: "¿Cómo funciona Cóndor Salud?" },
     ],
   };
+}
+
+/**
+ * Detect if a message contains emergency symptoms that must NEVER
+ * be delegated to AI.  Returns true if the rule-based engine should
+ * handle the message directly (pain_chest / emergencia severity).
+ *
+ * This is the safety layer used by the chatbot API route before
+ * sending messages to Claude.
+ */
+export function detectEmergency(message: string): boolean {
+  const { intent } = detectIntent(message);
+  if (intent in TRIAGE && TRIAGE[intent]?.severity === "emergencia") {
+    return true;
+  }
+  // Also catch explicit emergency language
+  const lower = message.toLowerCase();
+  const emergencyPatterns = [
+    /(?:infarto|paro\s+card[ií]aco|ataque\s+(?:al\s+)?coraz[oó]n)/,
+    /(?:no\s+(?:puedo|puede)\s+respirar|se\s+(?:desmay[oó]|desplom[oó]))/,
+    /(?:convulsi[oó]n|convulsiona|inconsciente|no\s+reacciona)/,
+    /(?:acv|derrame\s+cerebral|no\s+(?:puede|puedo)\s+(?:hablar|mover))/,
+    /(?:se\s+est[aá]\s+muriendo|se\s+muere|me\s+muero)/,
+    /(?:sobredosis|intoxicaci[oó]n\s+grave|envenenamiento)/,
+  ];
+  return emergencyPatterns.some((p) => p.test(lower));
 }

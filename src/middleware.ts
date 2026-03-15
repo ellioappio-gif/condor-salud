@@ -39,6 +39,19 @@ export async function middleware(request: NextRequest) {
 
   // Demo mode: check localStorage-based session via cookie bridge
   // In demo mode, allow all access (auth is handled client-side)
+  // ── S-03: In production, demo mode must NOT grant free access ──
+  if (process.env.NODE_ENV === "production") {
+    // Supabase is NOT configured in prod → block protected routes
+    if (PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
+      const loginUrl = new URL("/auth/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      loginUrl.searchParams.set("reason", "no_auth_backend");
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
+  // Development / test: allow demo access (client-side auth via httpOnly cookie)
   return NextResponse.next();
 }
 
@@ -50,8 +63,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (images, logos, etc.)
-     * - API routes
+     * - Public API routes (health, chatbot, waitlist, auth)
      */
-    "/((?!_next/static|_next/image|favicon.ico|logos/|api/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|logos/|api/health|api/chatbot|api/waitlist|api/auth).*)",
   ],
 };

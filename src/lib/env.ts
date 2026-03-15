@@ -58,6 +58,9 @@ const serverSchema = z.object({
   NUBIX_API_KEY: z.string().optional(),
   NUBIX_TENANT_ID: z.string().optional(),
 
+  // ── Anthropic (Claude AI for Cora chatbot) ─────────────────
+  ANTHROPIC_API_KEY: z.string().optional(),
+
   // ── App ─────────────────────────────────────────────────────
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),

@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
 import { logger } from "@/lib/logger";
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -202,6 +203,9 @@ function estimateLocality(lat: number, lng: number): string | null {
 // ─── GET handler ─────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   // Rate limit: 30 requests per 60 seconds
   const limited = checkRateLimit(req, "geolocation", { limit: 30, windowSec: 60 });
   if (limited) return limited;

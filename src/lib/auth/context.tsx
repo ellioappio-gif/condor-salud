@@ -57,49 +57,50 @@ export type Permission =
 
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   admin: [
-    "pacientes:read", "pacientes:write",
-    "facturacion:read", "facturacion:write",
-    "agenda:read", "agenda:write",
-    "inventario:read", "inventario:write",
-    "reportes:read", "auditoria:read",
-    "configuracion:read", "configuracion:write",
+    "pacientes:read",
+    "pacientes:write",
+    "facturacion:read",
+    "facturacion:write",
+    "agenda:read",
+    "agenda:write",
+    "inventario:read",
+    "inventario:write",
+    "reportes:read",
+    "auditoria:read",
+    "configuracion:read",
+    "configuracion:write",
     "equipo:manage",
   ],
   medico: [
-    "pacientes:read", "pacientes:write",
-    "agenda:read", "agenda:write",
-    "reportes:read", "auditoria:read",
+    "pacientes:read",
+    "pacientes:write",
+    "agenda:read",
+    "agenda:write",
+    "reportes:read",
+    "auditoria:read",
   ],
   facturacion: [
     "pacientes:read",
-    "facturacion:read", "facturacion:write",
-    "reportes:read", "auditoria:read",
+    "facturacion:read",
+    "facturacion:write",
+    "reportes:read",
+    "auditoria:read",
     "inventario:read",
   ],
   recepcion: [
-    "pacientes:read", "pacientes:write",
-    "agenda:read", "agenda:write",
+    "pacientes:read",
+    "pacientes:write",
+    "agenda:read",
+    "agenda:write",
     "inventario:read",
   ],
 };
 
 // ─── Demo user ───────────────────────────────────────────────
-const DEMO_USER: User = {
-  id: "demo-001",
-  email: "demo@condorsalud.com",
-  name: "Dr. Martín Rodríguez",
-  role: "admin",
-  clinicId: "clinic-001",
-  clinicName: "Centro Médico Sur",
-};
+// Removed — demo user is now managed server-side in /api/auth/session
 
 // ─── Context ─────────────────────────────────────────────────
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const isSupabaseConfigured = () =>
-  typeof window !== "undefined" &&
-  !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
-  process.env.NEXT_PUBLIC_SUPABASE_URL !== "https://your-project.supabase.co";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -108,52 +109,94 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  // Check session on mount
+  // ── Check session on mount (reads httpOnly cookie via API) ──
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("condor_session") : null;
-    if (stored) {
+    let cancelled = false;
+    (async () => {
       try {
-        const user = JSON.parse(stored) as User;
-        setState({ user, isLoading: false, isAuthenticated: true });
+        const res = await fetch("/api/auth/session", { credentials: "include" });
+        if (!res.ok) throw new Error("Session fetch failed");
+        const { user } = await res.json();
+        if (!cancelled) {
+          setState({
+            user: user ?? null,
+            isLoading: false,
+            isAuthenticated: !!user,
+          });
+        }
       } catch {
-        setState({ user: null, isLoading: false, isAuthenticated: false });
+        if (!cancelled) {
+          setState({ user: null, isLoading: false, isAuthenticated: false });
+        }
       }
-    } else {
-      setState({ user: null, isLoading: false, isAuthenticated: false });
-    }
-  }, []);
-
-  const login = useCallback(async (email: string, _password: string) => {
-    if (isSupabaseConfigured()) {
-      // TODO: Wire to Supabase Auth when credentials available
-      // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    }
-
-    // Demo mode: accept any valid-looking credentials
-    const demoUser: User = { ...DEMO_USER, email };
-    localStorage.setItem("condor_session", JSON.stringify(demoUser));
-    setState({ user: demoUser, isLoading: false, isAuthenticated: true });
-    return { success: true };
-  }, []);
-
-  const register = useCallback(async (data: RegisterData) => {
-    if (isSupabaseConfigured()) {
-      // TODO: Wire to Supabase Auth
-    }
-
-    const newUser: User = {
-      ...DEMO_USER,
-      email: data.email,
-      name: data.name,
-      clinicName: data.clinicName,
+    })();
+    return () => {
+      cancelled = true;
     };
-    localStorage.setItem("condor_session", JSON.stringify(newUser));
-    setState({ user: newUser, isLoading: false, isAuthenticated: true });
-    return { success: true };
   }, []);
 
+  // ── Login via server-side session ──
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password, action: "login" }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.user) {
+        return { success: false, error: data.error ?? "Error al iniciar sesión" };
+      }
+
+      setState({ user: data.user, isLoading: false, isAuthenticated: true });
+      return { success: true };
+    } catch {
+      return { success: false, error: "Error de conexión" };
+    }
+  }, []);
+
+  // ── Register via server-side session ──
+  const register = useCallback(async (data: RegisterData) => {
+    try {
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          clinicName: data.clinicName,
+          action: "register",
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.user) {
+        return { success: false, error: result.error ?? "Error al registrarse" };
+      }
+
+      setState({ user: result.user, isLoading: false, isAuthenticated: true });
+      return { success: true };
+    } catch {
+      return { success: false, error: "Error de conexión" };
+    }
+  }, []);
+
+  // ── Logout (server clears httpOnly cookie) ──
   const logout = useCallback(async () => {
-    localStorage.removeItem("condor_session");
+    try {
+      await fetch("/api/auth/session", {
+        method: "DELETE",
+        credentials: "include",
+      });
+    } catch {
+      // Best-effort; clear local state regardless
+    }
     setState({ user: null, isLoading: false, isAuthenticated: false });
   }, []);
 

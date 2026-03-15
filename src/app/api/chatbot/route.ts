@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { processMessage } from "@/lib/chatbot-engine";
+import { processMessage, detectEmergency } from "@/lib/chatbot-engine";
+import { askClaude, isClaudeConfigured } from "@/lib/ai/claude";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
 
 export async function POST(req: NextRequest) {
@@ -9,7 +10,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { message, lat, lng } = body as { message?: string; lat?: number; lng?: number };
+    const { message, lat, lng, history } = body as {
+      message?: string;
+      lat?: number;
+      lng?: number;
+      history?: { role: "user" | "assistant"; content: string }[];
+    };
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -29,6 +35,39 @@ export async function POST(req: NextRequest) {
         ? { lat, lng }
         : null;
 
+    // ── SAFETY LAYER: Check for emergencies first (rule-based) ──
+    // Emergency detection must NEVER be delegated to AI.
+    const emergency = detectEmergency(cleanMessage);
+    if (emergency) {
+      return NextResponse.json({
+        id: `bot-${Date.now()}`,
+        role: "bot",
+        timestamp: Date.now(),
+        ...processMessage(cleanMessage, coords),
+      });
+    }
+
+    // ── CLAUDE AI: Use AI for non-emergency conversations ──
+    if (isClaudeConfigured()) {
+      // Truncate history to last 10 messages to control token usage
+      const trimmedHistory = (history ?? []).slice(-10);
+
+      const aiResponse = await askClaude(cleanMessage, trimmedHistory, coords);
+
+      if (aiResponse) {
+        return NextResponse.json({
+          id: `bot-${Date.now()}`,
+          role: "bot",
+          timestamp: Date.now(),
+          ...aiResponse,
+        });
+      }
+
+      // If Claude fails, fall through to rule-based engine
+      logger.warn("Claude unavailable, falling back to rule-based engine");
+    }
+
+    // ── FALLBACK: Rule-based engine ──
     // Simulate a brief thinking delay (200-600ms) for natural feel
     const delay = 200 + Math.random() * 400;
     await new Promise((resolve) => setTimeout(resolve, delay));

@@ -6,8 +6,12 @@ import {
   getTelemedichinaKPIs,
 } from "@/lib/services/telemedicina";
 import { logger } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
 
 export async function GET(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   const { searchParams } = new URL(req.url);
   const resource = searchParams.get("resource") || "waiting-room";
 

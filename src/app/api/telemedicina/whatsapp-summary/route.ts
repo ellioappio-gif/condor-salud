@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
 
 export async function POST(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (auth.error) return auth.error;
+
   // ── Rate limit: 5 req / 60s per IP ──
   const limited = checkRateLimit(req, "whatsapp-summary", { limit: 5, windowSec: 60 });
   if (limited) return limited;
