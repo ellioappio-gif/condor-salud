@@ -7,7 +7,11 @@ import { useLocale } from "@/lib/i18n/context";
 const trustLogos = ["PAMI", "OSDE", "Swiss Medical", "Galeno", "Medifé", "IOMA"];
 
 export default function Hero() {
-  const { t } = useLocale();
+  const { t, segment } = useLocale();
+
+  // Tourist CTA links go to patient-facing pages
+  const cta1Href = segment === "tourist" ? "/paciente/medicos" : "/auth/registro";
+  const cta2Href = segment === "tourist" ? "/paciente" : "/dashboard";
 
   return (
     <section className="px-6 pt-16 pb-20 max-w-[1000px] mx-auto">
@@ -36,14 +40,14 @@ export default function Hero() {
         {/* CTA buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <Link
-            href="/auth/registro"
+            href={cta1Href}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
           >
             {t("hero.cta1")}
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
-            href="/dashboard"
+            href={cta2Href}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold text-ink-light border-[1.5px] border-border hover:border-celeste-dark hover:text-celeste-dark rounded-[4px] transition"
           >
             {t("hero.cta2")}

@@ -503,6 +503,343 @@ const translations: Dict = {
   // ── Chatbot (card UI labels) ────────────────────────────────
   "chat.directions": { es: "Cómo llegar", en: "Get directions" },
   "chat.viewMap": { es: "Ver en mapa", en: "View on map" },
+
+  // ═══════════════════════════════════════════════════════════
+  // ── SEGMENT OVERRIDES ──────────────────────────────────────
+  // Keys use the pattern "baseKey@segment".
+  // The i18n context tries "{key}@{segment}" first, then "{key}".
+  // Only overrides need to be defined here; everything else falls
+  // back to the default (clinic-focused) copy above.
+  // ═══════════════════════════════════════════════════════════
+
+  // ── PROVIDER (healthcare clinics) ──────────────────────────
+  // These are the SAME as defaults — but we include a few tweaks
+  // that lean even harder into clinic-owner language.
+
+  "hero.badge@provider": {
+    es: "Nuevo: Integración con PAMI, receta digital y TopDoctors",
+    en: "New: PAMI integration, digital prescriptions & TopDoctors",
+  },
+  "hero.title1@provider": {
+    es: "Gestioná tu clínica.",
+    en: "Run your clinic.",
+  },
+  "hero.title2@provider": {
+    es: "Sin perder un peso.",
+    en: "Without losing a dime.",
+  },
+  "hero.subtitle@provider": {
+    es: "Conectamos PAMI, obras sociales, prepagas y AFIP en una plataforma unificada. Verificá cobertura, facturá automáticamente, y dejá de perder plata por inflación.",
+    en: "We connect PAMI, social health plans, private insurers and AFIP in one unified platform. Verify coverage, bill automatically, and stop losing money to inflation.",
+  },
+  "hero.cta1@provider": {
+    es: "Empezar gratis — 14 días",
+    en: "Start free — 14 days",
+  },
+  "hero.cta2@provider": {
+    es: "Ver demo del dashboard",
+    en: "Watch dashboard demo",
+  },
+  "hero.fine@provider": {
+    es: "Sin tarjeta de crédito · Setup en 2 minutos · Cancelá cuando quieras",
+    en: "No credit card · 2-minute setup · Cancel anytime",
+  },
+
+  "problem.label@provider": { es: "El problema", en: "The problem" },
+  "problem.title@provider": {
+    es: "Tu clínica pierde plata ",
+    en: "Your clinic loses money ",
+  },
+  "problem.titleEm@provider": {
+    es: "todos los días",
+    en: "every single day",
+  },
+  "problem.subtitle@provider": {
+    es: "Rechazos de facturación, demoras de pago que se comen la inflación, y horas de trabajo manual verificando padrones por teléfono. Cóndor Salud automatiza todo.",
+    en: "Billing rejections, payment delays eaten by inflation, and hours of manual work verifying enrollment by phone. Cóndor Salud automates it all.",
+  },
+
+  "features.title@provider": {
+    es: "Todo lo que tu clínica necesita. ",
+    en: "Everything your clinic needs. ",
+  },
+  "features.titleEm@provider": {
+    es: "Facturación, rechazos, inflación.",
+    en: "Billing, rejections, inflation.",
+  },
+
+  "how.title@provider": { es: "Empezá a facturar ", en: "Start billing " },
+  "how.titleEm@provider": { es: "el mismo día", en: "the same day" },
+  "how.subtitle@provider": {
+    es: "Registrate, conectá tus financiadores y empezá a verificar cobertura y facturar sin errores. Todo en el primer día.",
+    en: "Sign up, connect your payers and start verifying coverage and billing without errors. All on day one.",
+  },
+
+  "cta.title1@provider": {
+    es: "Tu clínica merece cobrar lo que le corresponde.",
+    en: "Your clinic deserves to get paid what it's owed.",
+  },
+  "cta.title2@provider": { es: "Sin rechazos. Sin demoras.", en: "No rejections. No delays." },
+  "cta.subtitle@provider": {
+    es: "Probá gratis durante 14 días y empezá a facturar sin errores desde el primer día.",
+    en: "Try free for 14 days and start billing without errors from day one.",
+  },
+
+  "wl.title@provider": {
+    es: "Unite al waitlist para tu clínica",
+    en: "Join the waitlist for your clinic",
+  },
+  "wl.subtitle@provider": {
+    es: "Dejá el email institucional de tu clínica y te contactamos para el onboarding. Los primeros 50 arrancan con 30 días gratis.",
+    en: "Leave your clinic's business email and we'll contact you for onboarding. First 50 start with 30 days free.",
+  },
+
+  // ── TOURIST (individuals / patients) ───────────────────────
+
+  "hero.badge@tourist": {
+    es: "Nuevo: Buscá médicos, farmacias y guardias cerca tuyo 📍",
+    en: "New: Find doctors, pharmacies & ERs near you 📍",
+  },
+  "hero.title1@tourist": {
+    es: "Tu salud en Argentina.",
+    en: "Your health in Argentina.",
+  },
+  "hero.title2@tourist": {
+    es: "Resuelta en minutos.",
+    en: "Sorted in minutes.",
+  },
+  "hero.subtitle@tourist": {
+    es: "¿Necesitás un médico, una farmacia o una guardia? Cóndor Salud te conecta al instante con profesionales, te verifica la cobertura y te permite pedir remedios a domicilio. Todo desde tu celular.",
+    en: "Need a doctor, pharmacy or ER? Cóndor Salud connects you instantly with professionals, verifies your coverage and lets you order medicine to your door. All from your phone.",
+  },
+  "hero.cta1@tourist": {
+    es: "Buscar médico cerca mío",
+    en: "Find a doctor near me",
+  },
+  "hero.cta2@tourist": {
+    es: "Hablar con Cora (asistente)",
+    en: "Talk to Cora (assistant)",
+  },
+  "hero.fine@tourist": {
+    es: "Gratis · Sin registro · Funciona con tu obra social o prepaga",
+    en: "Free · No signup · Works with your health plan",
+  },
+  "hero.trust@tourist": {
+    es: "Funciona con las principales obras sociales y prepagas",
+    en: "Works with Argentina's major health plans",
+  },
+
+  "hero.mockBilled@tourist": { es: "Turnos", en: "Appointments" },
+  "hero.mockCollected@tourist": { es: "Teleconsultas", en: "Teleconsults" },
+  "hero.mockRejections@tourist": { es: "Farmacias", en: "Pharmacies" },
+  "hero.mockDelay@tourist": { es: "Respuesta", en: "Response" },
+  "hero.mockChartTitle@tourist": {
+    es: "Consultas y Teleconsultas — Mar 2026",
+    en: "Visits & Teleconsults — Mar 2026",
+  },
+
+  "problem.label@tourist": { es: "El problema", en: "The problem" },
+  "problem.title@tourist": {
+    es: "Necesitás atención médica ",
+    en: "You need medical care ",
+  },
+  "problem.titleEm@tourist": {
+    es: "y no sabés por dónde empezar",
+    en: "and don't know where to start",
+  },
+  "problem.subtitle@tourist": {
+    es: "Estás en Argentina — sea como turista, residente o visitante — y te sentís mal. No conocés el sistema de salud, no sabés qué te cubre, y cada hospital tiene reglas diferentes.",
+    en: "You're in Argentina — as a tourist, resident or visitor — and you're not feeling well. You don't know the health system, your coverage, or each hospital's rules.",
+  },
+
+  "problem.card0.title@tourist": { es: "No conocés el sistema", en: "Unfamiliar system" },
+  "problem.card0.desc@tourist": {
+    es: "Obras sociales, prepagas, PAMI, hospitales públicos — Argentina tiene un sistema de salud fragmentado que confunde incluso a los locales.",
+    en: "Social plans, private insurers, PAMI, public hospitals — Argentina has a fragmented health system that confuses even locals.",
+  },
+  "problem.card0.stats@tourist": {
+    es: "300+ financiadores · Reglas distintas · Sin guía clara",
+    en: "300+ payers · Different rules · No clear guide",
+  },
+  "problem.card1.title@tourist": { es: "Barrera del idioma", en: "Language barrier" },
+  "problem.card1.desc@tourist": {
+    es: "Muchos médicos y sistemas solo hablan español. Los formularios de admisión, recetas y autorizaciones son complicados si no dominás el idioma.",
+    en: "Many doctors and systems only speak Spanish. Admission forms, prescriptions and authorizations are complicated if you don't speak the language.",
+  },
+  "problem.card1.stats@tourist": {
+    es: "Formularios en español · Recetas médicas · Autorizaciones",
+    en: "Spanish-only forms · Prescriptions · Authorizations",
+  },
+  "problem.card2.title@tourist": { es: "No sabés qué te cubre", en: "Coverage confusion" },
+  "problem.card2.desc@tourist": {
+    es: "¿Tu seguro de viaje cubre esa consulta? ¿Cuánto vas a pagar de copago? ¿Necesitás autorización previa? Sin Cóndor, estás a ciegas.",
+    en: "Does your travel insurance cover that visit? How much is the copay? Do you need prior authorization? Without Cóndor, you're flying blind.",
+  },
+  "problem.card2.stats@tourist": {
+    es: "Copagos variables · Autorizaciones · Topes de cobertura",
+    en: "Variable copays · Authorizations · Coverage limits",
+  },
+  "problem.card3.title@tourist": { es: "Emergencias sin GPS", en: "Emergencies without GPS" },
+  "problem.card3.desc@tourist": {
+    es: "Necesitás una guardia YA y no sabés dónde queda la más cercana ni si acepta tu cobertura. Cada minuto cuenta.",
+    en: "You need an ER NOW and don't know where the closest one is or if it accepts your insurance. Every minute counts.",
+  },
+  "problem.card3.stats@tourist": {
+    es: "Guardias · Farmacias 24h · Ubicación GPS",
+    en: "Emergency rooms · 24h pharmacies · GPS location",
+  },
+
+  "problem.consequence.title@tourist": {
+    es: "¿El resultado? Perdés tiempo cuando más necesitás ayuda:",
+    en: "The result? You waste time when you need help most:",
+  },
+  "problem.cons0@tourist": {
+    es: "Horas buscando qué hospital acepta tu cobertura",
+    en: "Hours searching which hospital accepts your insurance",
+  },
+  "problem.cons1@tourist": {
+    es: "Pagás de más porque no verificaste el copago antes",
+    en: "Overpaying because you didn't verify copay first",
+  },
+  "problem.cons2@tourist": {
+    es: "Recetas que no sabés dónde comprar ni cuánto cuestan",
+    en: "Prescriptions you don't know where to buy or how much they cost",
+  },
+  "problem.cons3@tourist": {
+    es: "Guardias lejos o que no aceptan tu seguro de viaje",
+    en: "ERs far away or that don't accept your travel insurance",
+  },
+  "problem.cons4@tourist": {
+    es: "Médicos que no hablan tu idioma, sin traductor",
+    en: "Doctors who don't speak your language, no translator",
+  },
+  "problem.cons5@tourist": {
+    es: "Síntomas que no sabés si son urgentes o pueden esperar",
+    en: "Symptoms you're not sure are urgent or can wait",
+  },
+
+  "features.label@tourist": { es: "Tu solución", en: "Your solution" },
+  "features.title@tourist": {
+    es: "Todo para cuidar tu salud. ",
+    en: "Everything for your health. ",
+  },
+  "features.titleEm@tourist": {
+    es: "Desde tu celular.",
+    en: "From your phone.",
+  },
+  "features.subtitle@tourist": {
+    es: "Buscá médicos, verificá cobertura, hacé teleconsultas, pedí remedios a domicilio y encontrá guardias cerca. Todo gratis, todo en español e inglés.",
+    en: "Find doctors, verify coverage, do teleconsults, order meds to your door and find ERs nearby. All free, all in Spanish & English.",
+  },
+  "features.core0.title@tourist": { es: "Buscá médicos cerca tuyo", en: "Find nearby doctors" },
+  "features.core0.desc@tourist": {
+    es: "Médicos verificados con turnos disponibles hoy. Filtrá por especialidad, idioma, obra social y distancia. Con indicaciones de Google Maps.",
+    en: "Verified doctors with appointments available today. Filter by specialty, language, health plan and distance. With Google Maps directions.",
+  },
+  "features.core0.hl@tourist": { es: "Con GPS y Google Maps", en: "GPS + Google Maps" },
+  "features.core1.title@tourist": {
+    es: "Verificá tu cobertura al instante",
+    en: "Verify coverage instantly",
+  },
+  "features.core1.desc@tourist": {
+    es: "Ingresá tu obra social o seguro de viaje y sabé al toque qué te cubre, cuánto vas a pagar de copago y si necesitás autorización.",
+    en: "Enter your health plan or travel insurance and instantly know what's covered, your copay, and if you need prior authorization.",
+  },
+  "features.core1.hl@tourist": { es: "Respuesta en segundos", en: "Answers in seconds" },
+  "features.core2.title@tourist": { es: "Teleconsulta por video", en: "Video teleconsult" },
+  "features.core2.desc@tourist": {
+    es: "Hablá con un médico desde tu hotel, depto o donde estés. En español o inglés. Sin esperas, sin ir a ningún lado.",
+    en: "Talk to a doctor from your hotel, apartment or wherever you are. In Spanish or English. No waiting, no travel.",
+  },
+  "features.core2.hl@tourist": { es: "Desde donde estés", en: "From anywhere" },
+  "features.core3.title@tourist": { es: "Remedios a domicilio", en: "Meds to your door" },
+  "features.core3.desc@tourist": {
+    es: "Pedí medicamentos por Rappi o PedidosYa directo a tu puerta. Buscá precios, compará farmacias y ahorrá con genéricos.",
+    en: "Order medication via Rappi or PedidosYa straight to your door. Compare prices, pharmacies and save with generics.",
+  },
+  "features.core3.hl@tourist": { es: "Rappi · PedidosYa", en: "Rappi · PedidosYa" },
+  "features.core4.title@tourist": { es: "Guardias y farmacias 24h", en: "ERs & 24h pharmacies" },
+  "features.core4.desc@tourist": {
+    es: "Encontrá la guardia o farmacia más cercana en tiempo real. Con dirección, teléfono y cómo llegar en Google Maps.",
+    en: "Find the nearest ER or pharmacy in real time. With address, phone and Google Maps directions.",
+  },
+  "features.core4.hl@tourist": { es: "GPS en tiempo real", en: "Real-time GPS" },
+  "features.core5.title@tourist": {
+    es: "Cora — Tu enfermera virtual",
+    en: "Cora — Your virtual nurse",
+  },
+  "features.core5.desc@tourist": {
+    es: "Contale a Cora qué te pasa y te orienta al médico indicado, te recomienda qué tomar y te busca atención cerca. Como hablar con una enfermera.",
+    en: "Tell Cora what's wrong and she'll guide you to the right doctor, recommend what to take, and find care nearby. Like talking to a nurse.",
+  },
+  "features.core5.hl@tourist": { es: "Chat 24/7 en ES + EN", en: "24/7 chat in ES + EN" },
+  "features.cta@tourist": { es: "Probá el chatbot ahora", en: "Try the chatbot now" },
+
+  "how.label@tourist": { es: "Cómo funciona", en: "How it works" },
+  "how.title@tourist": { es: "Conseguí atención ", en: "Get care " },
+  "how.titleEm@tourist": { es: "en 3 pasos", en: "in 3 steps" },
+  "how.subtitle@tourist": {
+    es: "No necesitás registro, no necesitás entender el sistema de salud argentino. Cóndor te guía.",
+    en: "No signup needed, no need to understand Argentina's health system. Cóndor guides you.",
+  },
+  "how.step0.title@tourist": { es: "Contanos qué te pasa", en: "Tell us what's wrong" },
+  "how.step0.desc@tourist": {
+    es: "Hablale a Cora (nuestro chatbot) o buscá directamente un médico por especialidad. Funciona en español e inglés.",
+    en: "Talk to Cora (our chatbot) or search for a doctor by specialty. Works in Spanish and English.",
+  },
+  "how.step1.title@tourist": { es: "Te conectamos con atención", en: "We connect you with care" },
+  "how.step1.desc@tourist": {
+    es: "Cora te orienta al médico indicado, verifica tu cobertura y te muestra opciones cerca tuyo con Google Maps.",
+    en: "Cora guides you to the right doctor, verifies your coverage and shows options near you with Google Maps.",
+  },
+  "how.step2.title@tourist": { es: "Resolvé y sentite mejor", en: "Resolve it & feel better" },
+  "how.step2.desc@tourist": {
+    es: "Sacá turno, hacé una teleconsulta o pedí remedios a tu puerta. Todo sin moverte de donde estés.",
+    en: "Book an appointment, do a teleconsult or order meds to your door. All without leaving where you are.",
+  },
+
+  "pricing.title@tourist": {
+    es: "Gratis para pacientes. Siempre.",
+    en: "Free for patients. Always.",
+  },
+
+  "cta.label@tourist": { es: "Empezá ahora", en: "Start now" },
+  "cta.title1@tourist": {
+    es: "No dejes tu salud para después.",
+    en: "Don't put your health on hold.",
+  },
+  "cta.title2@tourist": {
+    es: "Encontrá atención en minutos.",
+    en: "Find care in minutes.",
+  },
+  "cta.subtitle@tourist": {
+    es: "Hablá con Cora, buscá un médico cerca o hacé una teleconsulta. Todo gratis, todo ahora.",
+    en: "Talk to Cora, find a doctor nearby or do a teleconsult. All free, all now.",
+  },
+  "cta.hl0@tourist": { es: "Médicos cerca tuyo 📍", en: "Doctors near you 📍" },
+  "cta.hl1@tourist": { es: "Teleconsulta sin espera", en: "Teleconsult, no wait" },
+  "cta.hl2@tourist": { es: "Remedios a domicilio 🛵", en: "Meds delivered 🛵" },
+  "cta.primary@tourist": { es: "Hablar con Cora", en: "Talk to Cora" },
+  "cta.secondary@tourist": { es: "Buscar médico cerca", en: "Find doctor nearby" },
+  "cta.bottom@tourist": {
+    es: "Gratis · Sin registro · En español e inglés · 24/7",
+    en: "Free · No signup · In Spanish & English · 24/7",
+  },
+
+  "wl.label@tourist": { es: "Acceso directo", en: "Direct access" },
+  "wl.title@tourist": {
+    es: "Dejanos tu email y te mandamos un link directo",
+    en: "Leave your email and we'll send a direct link",
+  },
+  "wl.subtitle@tourist": {
+    es: "Te mandamos acceso al portal de pacientes y al chatbot de Cora. Si necesitás algo urgente, usá el botón de arriba.",
+    en: "We'll send you access to the patient portal and Cora's chatbot. If you need something urgent, use the button above.",
+  },
+
+  // ── Segment switcher labels ────────────────────────────────
+  "seg.label": { es: "Estoy buscando como:", en: "I'm looking as a:" },
+  "seg.provider": { es: "Clínica / Profesional", en: "Clinic / Provider" },
+  "seg.tourist": { es: "Paciente / Turista", en: "Patient / Tourist" },
 };
 
 export default translations;

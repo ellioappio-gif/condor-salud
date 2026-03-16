@@ -13,7 +13,7 @@ export default function Waitlist() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false); // U-01
   const [error, setError] = useState<string | null>(null); // D-02
-  const { t } = useLocale();
+  const { t, detectFromEmail } = useLocale();
 
   const benefits = [
     { icon: Clock, text: t("wl.benefit0") },
@@ -30,6 +30,9 @@ export default function Waitlist() {
       setError(t("wl.emailError"));
       return;
     }
+
+    // Auto-detect segment from email domain (sets cookie)
+    detectFromEmail(email);
 
     setLoading(true); // U-01
     try {

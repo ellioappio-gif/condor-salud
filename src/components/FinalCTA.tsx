@@ -7,7 +7,10 @@ import { useLocale } from "@/lib/i18n/context";
 const hlIcons = [TrendingDown, Clock, Shield];
 
 export default function FinalCTA() {
-  const { t } = useLocale();
+  const { t, segment } = useLocale();
+
+  const primaryHref = segment === "tourist" ? "/paciente" : "/auth/registro";
+  const secondaryHref = segment === "tourist" ? "/paciente/medicos" : "/dashboard";
 
   const highlights = hlIcons.map((Icon, i) => ({
     icon: Icon,
@@ -42,14 +45,14 @@ export default function FinalCTA() {
         {/* CTA buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            href="/auth/registro"
+            href={primaryHref}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
           >
             {t("cta.primary")}
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
-            href="/dashboard"
+            href={secondaryHref}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold text-ink border-[1.5px] border-border hover:border-celeste-dark hover:text-celeste-dark rounded-[4px] transition"
           >
             {t("cta.secondary")}
