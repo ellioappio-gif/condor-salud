@@ -81,6 +81,32 @@ const translations: Dict = {
     en: "Source: Argentine health market data. Superintendency of Health Services.",
   },
 
+  // ── Patient Stats (tourist segment) ─────────────────────────
+  "pstats.label0": { es: "Médicos en la red", en: "Doctors in the network" },
+  "pstats.detail0": {
+    es: "Profesionales disponibles para turnos, teleconsulta y guardia en toda Argentina.",
+    en: "Professionals available for appointments, teleconsults and ER across Argentina.",
+  },
+  "pstats.label1": { es: "Tiempo de respuesta", en: "Response time" },
+  "pstats.detail1": {
+    es: "Desde que escribís a Cora hasta que tenés un turno confirmado o teleconsulta.",
+    en: "From messaging Cora to having a confirmed appointment or teleconsult.",
+  },
+  "pstats.label2": { es: "Farmacias con delivery", en: "Pharmacies with delivery" },
+  "pstats.detail2": {
+    es: "Farmacias habilitadas que envían medicamentos a tu domicilio en CABA y GBA.",
+    en: "Licensed pharmacies delivering medications to your door in Buenos Aires metro.",
+  },
+  "pstats.label3": { es: "Idiomas disponibles", en: "Languages available" },
+  "pstats.detail3": {
+    es: "Todo el sistema funciona en español e inglés. Cora atiende 24/7 en ambos idiomas.",
+    en: "The entire system works in Spanish and English. Cora is available 24/7 in both.",
+  },
+  "pstats.source": {
+    es: "Red Cóndor Salud · Datos actualizados a 2025",
+    en: "Cóndor Salud network · Data updated to 2025",
+  },
+
   // ── Problem ─────────────────────────────────────────────────
   "problem.label": { es: "El problema", en: "The problem" },
   "problem.title": {
@@ -411,6 +437,55 @@ const translations: Dict = {
   "faq.a7": {
     es: "Todos los planes incluyen soporte por WhatsApp en horario extendido (8–22h). Los planes Profesional y Enterprise incluyen onboarding personalizado, capacitación del equipo y un Customer Success Manager dedicado.",
     en: "All plans include WhatsApp support during extended hours (8am–10pm). Professional and Enterprise plans include personalized onboarding, team training and a dedicated Customer Success Manager.",
+  },
+
+  // ── FAQ (patient / tourist overrides) ────────────────────────
+  "faq.title@tourist": { es: "Preguntas de pacientes", en: "Patient questions" },
+  "faq.q0@tourist": { es: "¿Es gratis para pacientes?", en: "Is it free for patients?" },
+  "faq.a0@tourist": {
+    es: "Sí, 100% gratis. Cóndor Salud cobra a las clínicas, no a los pacientes. Podés buscar médicos, hacer teleconsultas y pedir remedios sin costo alguno.",
+    en: "Yes, 100% free. Cóndor Salud charges clinics, not patients. You can search doctors, do teleconsults and order meds at no cost.",
+  },
+  "faq.q1@tourist": {
+    es: "¿Cómo encuentro un médico cerca?",
+    en: "How do I find a doctor nearby?",
+  },
+  "faq.a1@tourist": {
+    es: "Usá el buscador con GPS o hablá con Cora (nuestro chatbot). Te mostramos médicos disponibles por especialidad, distancia y horario, con mapa y cómo llegar.",
+    en: "Use the GPS-powered search or talk to Cora (our chatbot). We show available doctors by specialty, distance and schedule, with a map and directions.",
+  },
+  "faq.q2@tourist": { es: "¿Cómo funciona la teleconsulta?", en: "How does teleconsult work?" },
+  "faq.a2@tourist": {
+    es: "Elegís un médico, seleccionás un horario y te conectás por videollamada desde el navegador. No necesitás instalar nada. El médico puede darte recetas digitales.",
+    en: "Pick a doctor, choose a time slot and connect via video call from your browser. No app install needed. The doctor can issue digital prescriptions.",
+  },
+  "faq.q3@tourist": { es: "¿Puedo pedir remedios a domicilio?", en: "Can I get meds delivered?" },
+  "faq.a3@tourist": {
+    es: "Sí. Después de tu consulta, podés enviar la receta a una farmacia con delivery (Rappi, PedidosYa o retiro en sucursal). Todo integrado.",
+    en: "Yes. After your consultation, send the prescription to a pharmacy with delivery (Rappi, PedidosYa or in-store pickup). All integrated.",
+  },
+  "faq.q4@tourist": { es: "¿Mis datos médicos están seguros?", en: "Is my medical data safe?" },
+  "faq.a4@tourist": {
+    es: "Sí. Cumplimos con la Ley 25.326 de Protección de Datos. Todo se encripta con TLS 1.3 y AES-256. Tus datos son tuyos y nunca se comparten sin tu consentimiento.",
+    en: "Yes. We comply with Data Protection Law 25.326. Everything is encrypted with TLS 1.3 and AES-256. Your data is yours and never shared without consent.",
+  },
+  "faq.q5@tourist": { es: "¿Necesito registrarme?", en: "Do I need to sign up?" },
+  "faq.a5@tourist": {
+    es: "Para buscar médicos y hablar con Cora, no. Para guardar historial, hacer teleconsultas o pedir remedios, creás una cuenta gratuita en 30 segundos.",
+    en: "To search doctors and talk to Cora, no. To save history, do teleconsults or order meds, create a free account in 30 seconds.",
+  },
+  "faq.q6@tourist": {
+    es: "¿Funciona fuera de Buenos Aires?",
+    en: "Does it work outside Buenos Aires?",
+  },
+  "faq.a6@tourist": {
+    es: "Sí. Tenemos médicos en toda Argentina. La teleconsulta funciona desde cualquier lugar con internet. El delivery de medicamentos se expande continuamente.",
+    en: "Yes. We have doctors across Argentina. Teleconsult works from anywhere with internet. Medication delivery is continuously expanding.",
+  },
+  "faq.q7@tourist": { es: "¿Hablan inglés?", en: "Do you speak English?" },
+  "faq.a7@tourist": {
+    es: "Sí. Todo el sistema funciona en español e inglés. Cora (nuestro chatbot de enfermería) atiende 24/7 en ambos idiomas. Muchos médicos de la red también hablan inglés.",
+    en: "Yes. The entire system works in Spanish and English. Cora (our nursing chatbot) is available 24/7 in both languages. Many network doctors also speak English.",
   },
 
   // ── Waitlist ────────────────────────────────────────────────
