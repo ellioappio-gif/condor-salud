@@ -786,7 +786,7 @@ const TRIAGE: Record<string, TriageEntry> = {
 
 function generateGreeting(): Partial<ChatMessage> {
   return {
-    text: "¡Hola! Soy Cora, tu asistente de salud de Cóndor Salud.\n\nContame qué te está pasando y te voy a orientar con el médico que necesitás y qué podés tomar de la farmacia para sentirte mejor mientras tanto.\n\nTambién puedo ayudarte con turnos, cobertura y teleconsultas.",
+    text: "¡Hola! Soy Cora, tu enfermera virtual 👩‍⚕️\n\nQué bueno que me escribiste. Contame con confianza qué te está pasando — te voy a hacer algunas preguntas como haría una enfermera para entender bien tu situación y orientarte con el médico que necesitás.\n\nSi te duele algo o no te sentís bien, arrancá por ahí. Sin apuro.",
     quickReplies: [
       { label: "No me siento bien", value: "No me siento bien" },
       { label: "Necesito un turno", value: "Quiero sacar un turno" },
@@ -798,13 +798,13 @@ function generateGreeting(): Partial<ChatMessage> {
 
 function generateFarewell(): Partial<ChatMessage> {
   return {
-    text: "¡Cuidate mucho! Acordate: si los síntomas empeoran o no mejoran, consultá con un médico. Acá estoy siempre que me necesites.",
+    text: "¡Cuidate mucho! 💛 Acordate: si los síntomas empeoran o no mejoran en 24-48 horas, no dudes en consultar con un médico. Acá estoy las 24 horas, los 7 días — volvé cuando quieras, aunque sea solo para preguntarme algo chiquito.",
   };
 }
 
 function generateThanks(): Partial<ChatMessage> {
   return {
-    text: "¡De nada! Espero que te sirva. ¿Necesitás algo más?",
+    text: "¡Me alegra poder ayudarte! 😊 ¿Hay algo más que te preocupe o que quieras preguntarme? No me molesta para nada.",
     quickReplies: [
       { label: "Sí, otra cosa", value: "Tengo otra consulta" },
       { label: "No, chau!", value: "Chau, gracias" },
@@ -843,7 +843,14 @@ function generateCovidResponse(): Partial<ChatMessage> {
 
 // ── Build triage response from TriageEntry ──────────────────
 function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
-  let text = entry.advice;
+  // Nurse-like empathetic prefix based on severity
+  const empathyPrefix =
+    entry.severity === "emergencia"
+      ? "Entiendo que esto puede asustar, pero es importante actuar rápido.\n\n"
+      : entry.severity === "serio"
+        ? "Te escucho. Vamos a tomarnos esto con seriedad.\n\n"
+        : "Te entiendo, vamos a ver cómo te ayudo.\n\n";
+  let text = empathyPrefix + entry.advice;
 
   // OTC Medicine recommendations
   if (entry.otcMeds.length > 0) {
@@ -864,8 +871,14 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
   // Doctor routing
   text += `\n\nEl profesional indicado para vos: ${entry.doctorLabel}.`;
 
+  // Nurse follow-up
+  if (entry.severity !== "emergencia") {
+    text +=
+      "\n\n¿Hace cuánto te sentís así? ¿Es la primera vez o te pasó antes? Eso me ayuda a orientarte mejor.";
+  }
+
   // Disclaimer
-  text += "\n\nEsto es orientación general — no reemplaza una consulta médica.";
+  text += "\n\n⚕️ Esto es orientación general — no reemplaza una consulta médica.";
 
   const quickReplies: QuickReply[] =
     entry.severity === "emergencia"
@@ -953,7 +966,7 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
 // ── Symptom picker (body-part based, plain language) ────────
 function generateSymptomPicker(): Partial<ChatMessage> {
   return {
-    text: "Dale, contame: ¿qué te está molestando? Elegí la zona del cuerpo o el tipo de problema y te oriento:",
+    text: "Bueno, vamos a ver qué te pasa. Como haría una enfermera, te voy a ir preguntando para entender bien.\n\n¿En qué parte del cuerpo sentís la molestia? Tocá la que más se acerque:",
     quickReplies: [
       { label: "Me duele la cabeza", value: "Me duele la cabeza" },
       { label: "Me duele la garganta", value: "Me duele la garganta" },
@@ -1003,7 +1016,7 @@ function generateCoverageResponse(entities: Record<string, string>): Partial<Cha
 
 function generateAppointmentResponse(): Partial<ChatMessage> {
   return {
-    text: "¡Dale! ¿Qué tipo de médico necesitás? Si no estás seguro/a, contame qué te pasa y te digo a cuál ir.",
+    text: "¡Perfecto! Vamos a buscarte un turno. ¿Sabés qué tipo de médico necesitás, o preferís contarme qué te pasa y yo te oriento? No te preocupes si no sabés, para eso estoy 😊",
     quickReplies: [
       { label: "Médico general", value: "Turno con médico clínico" },
       { label: "Del corazón", value: "Turno con cardiólogo" },
@@ -1626,7 +1639,7 @@ function generateSharedLocationResponse(
 
 function generateFallback(): Partial<ChatMessage> {
   return {
-    text: "Perdón, no entendí bien. ¿Podrías decirme con otras palabras? O elegí una de estas opciones:",
+    text: "Perdón, no te entendí del todo 🤔 Pero quedate tranqui que te quiero ayudar. ¿Podés contarme con otras palabras qué te pasa o qué necesitás? O si preferís, elegí una de estas opciones:",
     quickReplies: [
       { label: "No me siento bien", value: "No me siento bien" },
       { label: "Necesito un turno", value: "Quiero sacar un turno" },
@@ -1858,7 +1871,7 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
       id: "welcome",
       role: "bot",
       timestamp: Date.now(),
-      text: "Hi! I'm Cora, your health assistant.\n\nTell me what's going on and I'll help you find the right doctor and what you can get at the pharmacy to feel better.\n\nIf you share your location (📍 below), I'll find doctors, pharmacies, and emergency rooms near you with directions.\n\nHow can I help you?",
+      text: "Hi! I'm Cora, your virtual nurse at Cóndor Salud 👩‍⚕️\n\nI'm here to listen and help you just like a nurse would in person. Take your time and tell me what's going on — no question is too small.\n\nI can help you:\n• Understand your symptoms and find the right doctor\n• Recommend over-the-counter medicine from the pharmacy\n• Find doctors, pharmacies & ERs near you (📍)\n• Order meds to your door via Rappi or PedidosYa\n\nHow are you feeling today?",
       quickReplies: [
         { label: "I'm not feeling well", value: "I'm not feeling well" },
         { label: "Book an appointment", value: "I want to book an appointment" },
@@ -1874,7 +1887,7 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
     id: "welcome",
     role: "bot",
     timestamp: Date.now(),
-    text: "¡Hola! Soy Cora, tu asistente de salud.\n\nContame qué te pasa y te digo qué médico necesitás y qué podés comprar en la farmacia para sentirte mejor.\n\nSi compartís tu ubicación (📍 abajo), te busco médicos, farmacias y guardias cerca tuyo con indicaciones para llegar.\n\n¿En qué te puedo ayudar?",
+    text: "¡Hola! Soy Cora, tu enfermera virtual de Cóndor Salud 👩‍⚕️\n\nEstoy acá para escucharte y ayudarte como lo haría una enfermera en persona. Contame con tranquilidad qué te está pasando — no te apures, preguntame lo que necesites.\n\nPuedo ayudarte a:\n• Entender tus síntomas y orientarte al médico indicado\n• Recomendarte qué podés tomar de la farmacia\n• Buscar médicos, farmacias y guardias cerca tuyo (📍)\n• Pedir remedios a tu casa con Rappi o PedidosYa\n\n¿Cómo te sentís hoy?",
     quickReplies: [
       { label: "No me siento bien", value: "No me siento bien" },
       { label: "Necesito un turno", value: "Quiero sacar un turno" },
