@@ -431,7 +431,7 @@ export default function PagosConfigPage() {
                   <button
                     onClick={() => opt.set(!opt.value)}
                     role="switch"
-                    aria-checked={opt.value}
+                    aria-checked={opt.value ? "true" : "false"}
                     aria-label={opt.label}
                     className={`w-10 h-5 rounded-full transition relative ${opt.value ? "bg-celeste-dark" : "bg-border"}`}
                   >

@@ -360,7 +360,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-2 -ml-2 text-ink-light hover:text-ink transition"
             aria-label="Abrir menú de navegación"
-            aria-expanded={sidebarOpen}
+            aria-expanded={sidebarOpen ? "true" : "false"}
             aria-controls="sidebar"
           >
             <svg

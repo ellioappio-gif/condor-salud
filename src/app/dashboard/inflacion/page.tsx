@@ -311,6 +311,7 @@ export default function InflacionPage() {
             <select
               value={finFilter}
               onChange={(e) => setFinFilter(e.target.value)}
+              aria-label="Filtrar por financiador"
               className="text-xs border border-border rounded-[4px] px-2 py-1 outline-none focus:border-celeste-dark bg-white text-ink"
             >
               <option>Todos</option>

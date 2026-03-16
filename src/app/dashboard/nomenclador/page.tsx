@@ -293,6 +293,7 @@ export default function NomencladorPage() {
         <select
           value={capFilter}
           onChange={(e) => setCapFilter(e.target.value)}
+          aria-label="Filtrar por capítulo"
           className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
         >
           {capitulos.map((c) => (

@@ -84,7 +84,7 @@ export default function NotificacionesConfigPage() {
               <button
                 onClick={() => toggle(n.key)}
                 role="switch"
-                aria-checked={prefs[n.key as keyof typeof prefs]}
+                aria-checked={prefs[n.key as keyof typeof prefs] ? "true" : "false"}
                 aria-label={n.label}
                 className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
@@ -118,7 +118,7 @@ export default function NotificacionesConfigPage() {
               <button
                 onClick={() => toggle(n.key)}
                 role="switch"
-                aria-checked={prefs[n.key as keyof typeof prefs]}
+                aria-checked={prefs[n.key as keyof typeof prefs] ? "true" : "false"}
                 aria-label={n.label}
                 className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
@@ -161,7 +161,7 @@ export default function NotificacionesConfigPage() {
               <button
                 onClick={() => toggle(n.key)}
                 role="switch"
-                aria-checked={prefs[n.key as keyof typeof prefs]}
+                aria-checked={prefs[n.key as keyof typeof prefs] ? "true" : "false"}
                 aria-label={n.label}
                 className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >

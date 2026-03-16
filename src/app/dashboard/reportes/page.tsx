@@ -189,6 +189,7 @@ export default function ReportesPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
+            aria-label="Seleccionar período"
             className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
           >
             <option>Marzo 2026</option>

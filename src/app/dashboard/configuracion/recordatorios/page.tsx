@@ -260,7 +260,7 @@ export default function RecordatoriosConfigPage() {
                 <button
                   onClick={() => toggleTemplate(t.id)}
                   role="switch"
-                  aria-checked={activeTemplates[t.id]}
+                  aria-checked={activeTemplates[t.id] ? "true" : "false"}
                   aria-label={`${activeTemplates[t.id] ? "Desactivar" : "Activar"} ${t.nombre}`}
                   className={`mt-0.5 w-10 h-5 rounded-full transition relative shrink-0 ${activeTemplates[t.id] ? "bg-green-500" : "bg-gray-200"}`}
                 >

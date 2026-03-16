@@ -520,7 +520,7 @@ export default function Chatbot() {
             ? "bg-ink-700 hover:bg-ink-600 rotate-0"
             : "bg-celeste-dark hover:bg-celeste hover:scale-105"
         }`}
-        aria-expanded={isOpen}
+        aria-expanded={isOpen ? "true" : "false"}
         aria-haspopup="dialog"
         aria-label={
           isOpen

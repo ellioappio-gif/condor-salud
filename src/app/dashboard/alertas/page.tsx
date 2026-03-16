@@ -273,6 +273,7 @@ export default function AlertasPage() {
               <button
                 onClick={() => showDemo("Descartar alerta")}
                 className="text-ink-muted hover:text-ink text-xs p-1"
+                aria-label="Descartar alerta"
               >
                 <svg
                   className="w-3.5 h-3.5"

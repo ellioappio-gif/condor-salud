@@ -358,6 +358,7 @@ export default function InventarioPage() {
         <select
           value={catFilter}
           onChange={(e) => setCatFilter(e.target.value)}
+          aria-label="Filtrar por categoría"
           className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
         >
           {categorias.map((c) => (
@@ -369,6 +370,7 @@ export default function InventarioPage() {
         <select
           value={estadoFilter}
           onChange={(e) => setEstadoFilter(e.target.value)}
+          aria-label="Filtrar por estado"
           className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
         >
           <option value="Todos">Todos los estados</option>

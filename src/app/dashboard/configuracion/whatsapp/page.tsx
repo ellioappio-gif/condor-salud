@@ -308,7 +308,7 @@ export default function WhatsAppConfigPage() {
                 <button
                   onClick={() => toggle("enabled")}
                   role="switch"
-                  aria-checked={config.enabled}
+                  aria-checked={config.enabled ? "true" : "false"}
                   aria-label="Recordatorios activos"
                   className={`w-10 h-5 rounded-full transition relative ${config.enabled ? "bg-[#25D366]" : "bg-border"}`}
                 >
@@ -377,7 +377,7 @@ export default function WhatsAppConfigPage() {
                 <button
                   onClick={() => toggle("includeGoogleMaps")}
                   role="switch"
-                  aria-checked={config.includeGoogleMaps}
+                  aria-checked={config.includeGoogleMaps ? "true" : "false"}
                   aria-label="Incluir Google Maps"
                   className={`w-10 h-5 rounded-full transition relative ${config.includeGoogleMaps ? "bg-[#25D366]" : "bg-border"}`}
                 >
@@ -442,7 +442,7 @@ export default function WhatsAppConfigPage() {
                   <button
                     onClick={() => toggle(opt.key)}
                     role="switch"
-                    aria-checked={config[opt.key]}
+                    aria-checked={config[opt.key] ? "true" : "false"}
                     aria-label={opt.label}
                     className={`w-10 h-5 rounded-full transition relative ${config[opt.key] ? "bg-celeste-dark" : "bg-border"}`}
                   >

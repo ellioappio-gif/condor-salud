@@ -146,7 +146,7 @@ function CategoryAccordion({
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-5 py-3.5 bg-white hover:bg-surface/50 transition"
-        aria-expanded={open}
+        aria-expanded={open ? "true" : "false"}
       >
         <div className="flex items-center gap-3">
           <span className="text-sm font-bold text-ink">{cat.label}</span>
@@ -245,7 +245,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-4 text-left group"
-        aria-expanded={open}
+        aria-expanded={open ? "true" : "false"}
       >
         <span className="text-sm font-medium text-ink group-hover:text-celeste-dark transition pr-4">
           {q}

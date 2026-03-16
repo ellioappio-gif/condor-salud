@@ -199,12 +199,12 @@ export default function RechazosPage() {
       {/* Rechazos list */}
       <div className="space-y-3" role="list" aria-label="Lista de rechazos">
         {filtered.map((r) => (
-          <Card key={r.id}>
+          <Card key={r.id} role="listitem">
             <CardContent className="pt-4 pb-4">
               <button
                 onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
                 className="w-full text-left"
-                aria-expanded={expandedId === r.id}
+                aria-expanded={expandedId === r.id ? "true" : "false"}
                 aria-controls={`rechazo-detail-${r.id}`}
               >
                 <div className="flex flex-wrap items-center gap-3">

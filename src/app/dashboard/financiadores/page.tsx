@@ -182,6 +182,7 @@ export default function FinanciadoresPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+            aria-label="Filtrar por tipo de financiador"
             className="text-xs border border-border rounded-[4px] px-2 py-1.5 outline-none focus:border-celeste-dark bg-white text-ink"
           >
             <option value="Todos">Todos los tipos</option>

@@ -199,6 +199,7 @@ export default function PerfilPage() {
                   {editing ? (
                     <input
                       type="text"
+                      aria-label={item.label}
                       value={
                         item.label === "Nombre completo"
                           ? editProfile.name
@@ -431,7 +432,7 @@ export default function PerfilPage() {
                   <button
                     onClick={() => setNotifications((prev) => ({ ...prev, [key]: !prev[key] }))}
                     role="switch"
-                    aria-checked={notifications[key]}
+                    aria-checked={notifications[key] ? "true" : "false"}
                     aria-label={`${notifications[key] ? "Desactivar" : "Activar"} ${label}`}
                     className={`w-10 h-6 rounded-full transition relative ${
                       notifications[key] ? "bg-celeste-dark" : "bg-ink-200"

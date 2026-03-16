@@ -115,7 +115,7 @@ export default function Navbar() {
           onClick={() => setOpen(!open)}
           className="md:hidden p-2"
           aria-label={t("nav.menuAria")}
-          aria-expanded={open ? true : undefined}
+          aria-expanded={open ? "true" : "false"}
         >
           <div className="space-y-1.5">
             <span

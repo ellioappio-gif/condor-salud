@@ -253,7 +253,7 @@ export default function RegistroPage() {
                     type="button"
                     onClick={() => toggleFin(f)}
                     className={`px-2.5 py-1.5 border rounded-[4px] text-xs transition ${selectedFin?.includes(f) ? "border-celeste-dark bg-celeste-pale text-celeste-dark font-semibold" : "border-border text-ink-light hover:border-celeste-dark"}`}
-                    aria-pressed={selectedFin?.includes(f)}
+                    aria-pressed={selectedFin?.includes(f) ? "true" : "false"}
                   >
                     {f}
                   </button>

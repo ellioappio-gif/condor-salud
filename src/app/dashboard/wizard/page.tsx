@@ -48,7 +48,7 @@ function MobileTocToggle() {
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center gap-2 border-b border-gray-100 px-4 py-2 text-xs font-medium text-gray-500 hover:bg-gray-50"
-        aria-expanded={open}
+        aria-expanded={open ? "true" : "false"}
         aria-controls="mobile-wizard-toc"
       >
         <svg
