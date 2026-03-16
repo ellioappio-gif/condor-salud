@@ -14,5 +14,15 @@ if (SENTRY_DSN) {
 
     environment: process.env.NODE_ENV || "development",
     release: process.env.VERCEL_GIT_COMMIT_SHA || "local",
+
+    // L-25: PII filtering to match client/server configs
+    beforeSend(event) {
+      if (event.request?.cookies) delete event.request.cookies;
+      if (event.request?.headers) {
+        delete event.request.headers["authorization"];
+        delete event.request.headers["cookie"];
+      }
+      return event;
+    },
   });
 }

@@ -1,10 +1,21 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Demo Modal — replaces all "Próximamente" dead-end toasts          */
 /*  Shows a friendly message + WhatsApp CTA when a demo button fires  */
+/*  A-02: role="dialog", focus trap, Escape key, aria-* attributes    */
+/*  UM-02: Scroll lock when open                                      */
+/*  QM-04: WhatsApp number extracted to constant                      */
 /* ------------------------------------------------------------------ */
 
 interface DemoModalContextType {
@@ -17,16 +28,74 @@ export function useDemoAction() {
   return useContext(DemoModalContext);
 }
 
-const WA_NUMBER = "12026950244";
+/** QM-04: Single source of truth for WhatsApp number */
+export const WA_NUMBER = "12026950244";
 
 export function DemoModalProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("");
+  const panelRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const showDemo = useCallback((act: string) => {
     setAction(act);
+    previousFocusRef.current = document.activeElement as HTMLElement;
     setOpen(true);
   }, []);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    // Restore focus to trigger element
+    previousFocusRef.current?.focus();
+  }, []);
+
+  // UM-02: Lock body scroll when modal is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  // A-02: Escape key closes modal
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+      // A-02: Focus trap
+      if (e.key === "Tab" && panelRef.current) {
+        const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0]!;
+        const last = focusable[focusable.length - 1]!;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, close]);
+
+  // A-02: Auto-focus first focusable element
+  useEffect(() => {
+    if (open && panelRef.current) {
+      const firstFocusable = panelRef.current.querySelector<HTMLElement>(
+        "a[href], button:not([disabled])",
+      );
+      firstFocusable?.focus();
+    }
+  }, [open]);
 
   const waMsg = encodeURIComponent(
     `Hola, probé la demo de Cóndor Salud y me interesa activar: ${action}. ¿Podemos coordinar?`,
@@ -36,20 +105,27 @@ export function DemoModalProvider({ children }: { children: ReactNode }) {
     <DemoModalContext.Provider value={{ showDemo }}>
       {children}
 
-      {/* Backdrop + Modal */}
+      {/* A-02: Proper dialog with role, aria-label, aria-modal */}
       {open && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
+            onClick={close}
+            aria-hidden="true"
           />
 
-          {/* Panel */}
-          <div className="relative bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-scaleIn">
+          {/* Panel — A-02: role="dialog" */}
+          <div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Demo: ${action}`}
+            className="relative bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-scaleIn"
+          >
             {/* Close */}
             <button
-              onClick={() => setOpen(false)}
+              onClick={close}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
               aria-label="Cerrar"
             >
@@ -72,6 +148,7 @@ export function DemoModalProvider({ children }: { children: ReactNode }) {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 strokeWidth={1.5}
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -105,7 +182,7 @@ export function DemoModalProvider({ children }: { children: ReactNode }) {
                 Solicitar demo por WhatsApp
               </a>
               <button
-                onClick={() => setOpen(false)}
+                onClick={close}
                 className="w-full py-2.5 text-sm font-medium text-ink-light border border-border rounded-lg hover:border-ink hover:text-ink transition"
               >
                 Seguir explorando

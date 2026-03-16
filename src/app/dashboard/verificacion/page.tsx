@@ -17,7 +17,7 @@ export default function VerificacionPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dni) return;
+    if (!dni.trim() || dni.trim().length < 6) return;
     setLoading(true);
 
     // TODO: Replace with real PAMI/Swiss Medical API call
@@ -48,8 +48,9 @@ export default function VerificacionPage() {
           <input
             type="text"
             placeholder="DNI o CUIL del paciente"
+            aria-label="DNI o CUIL del paciente"
             value={dni}
-            onChange={(e) => setDni(e.target.value)}
+            onChange={(e) => setDni(e.target.value.replace(/[^\d.-]/g, ""))}
             className="flex-1 px-4 py-3 border border-border rounded-[4px] text-sm focus:outline-none focus:border-celeste-dark"
           />
           <button
@@ -138,11 +139,21 @@ export default function VerificacionPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              <th className="text-left px-5 py-2.5">Paciente</th>
-              <th className="text-left px-5 py-2.5">DNI</th>
-              <th className="text-left px-5 py-2.5">Financiador</th>
-              <th className="text-left px-5 py-2.5">Estado</th>
-              <th className="text-right px-5 py-2.5">Hora</th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Paciente
+              </th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                DNI
+              </th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Financiador
+              </th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Estado
+              </th>
+              <th scope="col" className="text-right px-5 py-2.5">
+                Hora
+              </th>
             </tr>
           </thead>
           <tbody>

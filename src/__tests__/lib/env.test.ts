@@ -8,8 +8,8 @@ describe("env validation", () => {
   it("exports clientEnv with defaults", async () => {
     const { clientEnv } = await import("@/lib/env");
     expect(clientEnv).toBeDefined();
-    expect(clientEnv.NEXT_PUBLIC_SUPABASE_URL).toBeDefined();
-    expect(typeof clientEnv.NEXT_PUBLIC_SUPABASE_URL).toBe("string");
+    // NEXT_PUBLIC_SUPABASE_URL is optional — may be undefined in test env
+    expect(typeof clientEnv.NEXT_PUBLIC_APP_URL).toBe("string");
   });
 
   it("isSupabaseConfigured returns false for placeholder", async () => {

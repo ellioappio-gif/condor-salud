@@ -83,6 +83,9 @@ export default function NotificacionesConfigPage() {
               </div>
               <button
                 onClick={() => toggle(n.key)}
+                role="switch"
+                aria-checked={prefs[n.key as keyof typeof prefs]}
+                aria-label={n.label}
                 className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
                 <span
@@ -114,6 +117,9 @@ export default function NotificacionesConfigPage() {
               <p className="text-xs font-semibold text-ink">{n.label}</p>
               <button
                 onClick={() => toggle(n.key)}
+                role="switch"
+                aria-checked={prefs[n.key as keyof typeof prefs]}
+                aria-label={n.label}
                 className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
                 <span
@@ -154,6 +160,9 @@ export default function NotificacionesConfigPage() {
               </div>
               <button
                 onClick={() => toggle(n.key)}
+                role="switch"
+                aria-checked={prefs[n.key as keyof typeof prefs]}
+                aria-label={n.label}
                 className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
                 <span

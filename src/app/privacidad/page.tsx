@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
+import { LegalHeader, LegalFooter } from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
   title: "Política de Privacidad",
@@ -10,27 +9,7 @@ export const metadata: Metadata = {
 export default function PrivacidadPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2" aria-label="Ir al inicio">
-            <Image
-              src="/condor.png"
-              alt="Cóndor Salud"
-              width={32}
-              height={32}
-              className="h-8 w-auto object-contain"
-            />
-            <span className="font-display font-bold text-lg">
-              <span className="text-celeste-dark">CÓNDOR </span>
-              <span className="text-gold">SALUD</span>
-            </span>
-          </Link>
-          <Link href="/" className="text-xs text-celeste-dark hover:underline">
-            Volver al inicio
-          </Link>
-        </div>
-      </header>
+      <LegalHeader />
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-ink mb-2">Política de Privacidad</h1>
@@ -168,19 +147,7 @@ export default function PrivacidadPage() {
         </div>
       </main>
 
-      <footer className="border-t border-border mt-12">
-        <div className="max-w-4xl mx-auto px-6 py-6 flex items-center justify-between text-xs text-ink-muted">
-          <span>© {new Date().getFullYear()} Cóndor Salud. Todos los derechos reservados.</span>
-          <div className="flex gap-4">
-            <Link href="/terminos" className="hover:text-celeste-dark">
-              Términos de Servicio
-            </Link>
-            <Link href="/" className="hover:text-celeste-dark">
-              Inicio
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <LegalFooter links={[{ href: "/terminos", label: "Términos de Servicio" }]} />
     </div>
   );
 }

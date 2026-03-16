@@ -188,6 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Logout (server clears httpOnly cookie) ──
+  // SM-03: Also clear Google OAuth cookies
   const logout = useCallback(async () => {
     try {
       await fetch("/api/auth/session", {
@@ -197,6 +198,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Best-effort; clear local state regardless
     }
+    // SM-03: Clear Google cookies (non-httpOnly ones clearable from client)
+    document.cookie = "condor_google_user=; path=/; max-age=0";
+    document.cookie = "condor_google_session=; path=/; max-age=0";
     setState({ user: null, isLoading: false, isAuthenticated: false });
   }, []);
 

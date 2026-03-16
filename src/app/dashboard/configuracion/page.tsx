@@ -104,7 +104,7 @@ export default function ConfiguracionPage() {
           <Link
             key={s.title}
             href={s.href}
-            className="bg-white border border-border rounded-lg p-5 hover:shadow-md hover:-translate-y-0.5 transition group block"
+            className="bg-white border border-border rounded-lg p-5 hover:shadow-md transition group block"
           >
             <div className="flex items-start justify-between mb-3">
               {(() => {
@@ -112,7 +112,7 @@ export default function ConfiguracionPage() {
                 return I ? <I className="w-6 h-6 text-celeste-dark" /> : null;
               })()}
               {s.badge && (
-                <span className="px-2 py-0.5 text-[9px] font-bold tracking-wider rounded bg-celeste-pale text-celeste-dark">
+                <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider rounded bg-celeste-pale text-celeste-dark">
                   {s.badge}
                 </span>
               )}

@@ -1,69 +1,85 @@
 // ─── SWR Hooks for Modules 11-14 ─────────────────────────────
 // Each hook maps to a data-client key or API route.
 // Works with mock data fallback when Supabase is not configured.
+// Q-02: All hooks are typed with explicit SWR generics.
 
 "use client";
 
 import useSWR from "swr";
+import type {
+  Medication,
+  Prescription,
+  Delivery,
+  RecurringOrder,
+  KPI,
+  WaitingRoomEntry,
+  Consultation,
+  Doctor,
+  Triage,
+  FarmaciaKPIs,
+  TelemedicinaKPIs,
+  DirectorioKPIs,
+  TriageKPIs,
+} from "@/lib/types";
 
 // ─── Module 11: Farmacia ─────────────────────────────────────
 
 export function useMedications() {
-  return useSWR("medications");
+  return useSWR<Medication[]>("medications");
 }
 
 export function usePrescriptions() {
-  return useSWR("prescriptions");
+  return useSWR<Prescription[]>("prescriptions");
 }
 
 export function useDeliveries() {
-  return useSWR("deliveries");
+  return useSWR<Delivery[]>("deliveries");
 }
 
 export function useRecurringOrders() {
-  return useSWR("recurringOrders");
+  return useSWR<RecurringOrder[]>("recurringOrders");
 }
 
 export function useFarmaciaKPIs() {
-  return useSWR("farmaciaKPIs");
+  return useSWR<FarmaciaKPIs>("farmaciaKPIs");
 }
 
 // ─── Module 12: Telemedicina ─────────────────────────────────
 
 export function useWaitingRoom() {
-  return useSWR("waitingRoom");
+  return useSWR<WaitingRoomEntry[]>("waitingRoom");
 }
 
 export function useConsultations() {
-  return useSWR("consultations");
+  return useSWR<Consultation[]>("consultations");
 }
 
 export function useScheduledConsultations() {
-  return useSWR("scheduledConsultations");
+  return useSWR<Consultation[]>("scheduledConsultations");
 }
 
-export function useTelemedichinaKPIs() {
-  return useSWR("telemedichinaKPIs");
+export function useTelemedicinaKPIs() {
+  return useSWR<TelemedicinaKPIs>("telemedicinaKPIs");
 }
 
 // ─── Module 13: Directorio ───────────────────────────────────
 
 export function useDoctors() {
-  return useSWR("doctors");
+  return useSWR<Doctor[]>("doctors");
 }
 
 export function useDirectorioKPIs() {
-  return useSWR("directorioKPIs");
+  return useSWR<DirectorioKPIs>("directorioKPIs");
 }
 
 // ─── Module 14: Triage ───────────────────────────────────────
 
 export function useTriages() {
-  return useSWR("triages");
+  return useSWR<Triage[]>("triages");
 }
 
 export function useTriageKPIs() {
-  return useSWR("triageKPIs");
+  return useSWR<TriageKPIs>("triageKPIs");
 }
 
 // ─── Nubix Cloud (RIS/PACS) ─────────────────────────────────

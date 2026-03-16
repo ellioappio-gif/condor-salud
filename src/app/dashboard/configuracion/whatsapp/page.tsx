@@ -307,6 +307,9 @@ export default function WhatsAppConfigPage() {
                 </div>
                 <button
                   onClick={() => toggle("enabled")}
+                  role="switch"
+                  aria-checked={config.enabled}
+                  aria-label="Recordatorios activos"
                   className={`w-10 h-5 rounded-full transition relative ${config.enabled ? "bg-[#25D366]" : "bg-border"}`}
                 >
                   <span
@@ -326,6 +329,7 @@ export default function WhatsAppConfigPage() {
                   onChange={(e) =>
                     setConfig({ ...config, hoursBeforeFirst: Number(e.target.value) })
                   }
+                  aria-label="Primer recordatorio — horas antes"
                   className="text-xs border border-border rounded px-2 py-1.5 text-ink"
                 >
                   <option value={48}>48 horas</option>
@@ -344,6 +348,7 @@ export default function WhatsAppConfigPage() {
                   onChange={(e) =>
                     setConfig({ ...config, hoursBeforeSecond: Number(e.target.value) })
                   }
+                  aria-label="Segundo recordatorio — horas antes"
                   className="text-xs border border-border rounded px-2 py-1.5 text-ink"
                 >
                   <option value={4}>4 horas</option>
@@ -371,6 +376,9 @@ export default function WhatsAppConfigPage() {
                 </div>
                 <button
                   onClick={() => toggle("includeGoogleMaps")}
+                  role="switch"
+                  aria-checked={config.includeGoogleMaps}
+                  aria-label="Incluir Google Maps"
                   className={`w-10 h-5 rounded-full transition relative ${config.includeGoogleMaps ? "bg-[#25D366]" : "bg-border"}`}
                 >
                   <span
@@ -433,6 +441,9 @@ export default function WhatsAppConfigPage() {
                   </div>
                   <button
                     onClick={() => toggle(opt.key)}
+                    role="switch"
+                    aria-checked={config[opt.key]}
+                    aria-label={opt.label}
                     className={`w-10 h-5 rounded-full transition relative ${config[opt.key] ? "bg-celeste-dark" : "bg-border"}`}
                   >
                     <span
@@ -514,13 +525,13 @@ export default function WhatsAppConfigPage() {
                 <pre className="text-xs text-ink whitespace-pre-wrap font-sans leading-relaxed">
                   {previewText}
                 </pre>
-                <p className="text-[9px] text-ink-muted text-right mt-1.5">08:00</p>
+                <p className="text-[10px] text-ink-muted text-right mt-1.5">08:00</p>
               </div>
               {/* Patient reply */}
               <div className="flex justify-end mt-2">
                 <div className="bg-[#DCF8C6] rounded-lg px-3 py-2 shadow-sm max-w-[70%]">
                   <p className="text-xs text-ink">1</p>
-                  <p className="text-[9px] text-ink-muted text-right mt-0.5">08:02</p>
+                  <p className="text-[10px] text-ink-muted text-right mt-0.5">08:02</p>
                 </div>
               </div>
               {/* Auto-reply */}
@@ -529,7 +540,7 @@ export default function WhatsAppConfigPage() {
                   Perfecto María Elena, tu turno del *Martes 11/03* a las *08:00* queda confirmado.
                   Te esperamos!
                 </p>
-                <p className="text-[9px] text-ink-muted text-right mt-1.5">08:02</p>
+                <p className="text-[10px] text-ink-muted text-right mt-1.5">08:02</p>
               </div>
             </div>
             <p className="text-[10px] text-ink-muted text-center mt-3">

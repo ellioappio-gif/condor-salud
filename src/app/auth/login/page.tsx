@@ -11,13 +11,20 @@ import { useAuth } from "@/lib/auth/context";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { GOOGLE_CLIENT_ID } from "@/lib/google";
+import { useToast } from "@/components/Toast";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/dashboard";
+  // SM-01: Validate redirect param client-side
+  const rawRedirect = searchParams.get("redirect") || "/dashboard";
+  const redirect =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") && !rawRedirect.includes(":")
+      ? rawRedirect
+      : "/dashboard";
   const { login } = useAuth();
   const [serverError, setServerError] = useState("");
+  const { showToast } = useToast();
 
   const {
     register,
@@ -149,8 +156,8 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() =>
-                  alert(
-                    "Enviamos un email de recuperación a tu casilla. Revisá tu bandeja de entrada y spam.",
+                  showToast(
+                    "Funcionalidad próximamente. Contactá a soporte por WhatsApp para recuperar tu contraseña.",
                   )
                 }
                 className="text-xs text-celeste-dark font-medium hover:underline"

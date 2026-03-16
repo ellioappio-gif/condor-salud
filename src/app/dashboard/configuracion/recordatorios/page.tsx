@@ -3,6 +3,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
 
+/** Mask phone number for display: "11-4523-8891" → "11-••••-8891" */
+function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 6) return "••••";
+  return phone.replace(/(\d{2}-)(\d{4})(-.*)/, "$1••••$3");
+}
+
 const templates = [
   {
     id: "reminder-24h",
@@ -191,7 +198,7 @@ export default function RecordatoriosConfigPage() {
             Número: +1 202 695 0244 · API activa · Última sincronización: hace 5 minutos
           </p>
         </div>
-        <span className="px-2 py-0.5 text-[9px] font-bold tracking-wider bg-green-100 text-green-700 rounded">
+        <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider bg-green-100 text-green-700 rounded">
           ACTIVO
         </span>
       </div>
@@ -215,7 +222,7 @@ export default function RecordatoriosConfigPage() {
             key={k.label}
             className={`bg-white border border-border rounded-lg p-3 border-l-[3px] ${k.color}`}
           >
-            <p className="text-[9px] font-bold tracking-wider text-ink-muted uppercase">
+            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
               {k.label}
             </p>
             <p className="text-lg font-bold text-ink mt-0.5">{k.value}</p>
@@ -252,6 +259,9 @@ export default function RecordatoriosConfigPage() {
               <div className="flex items-start gap-3">
                 <button
                   onClick={() => toggleTemplate(t.id)}
+                  role="switch"
+                  aria-checked={activeTemplates[t.id]}
+                  aria-label={`${activeTemplates[t.id] ? "Desactivar" : "Activar"} ${t.nombre}`}
                   className={`mt-0.5 w-10 h-5 rounded-full transition relative shrink-0 ${activeTemplates[t.id] ? "bg-green-500" : "bg-gray-200"}`}
                 >
                   <span
@@ -262,7 +272,7 @@ export default function RecordatoriosConfigPage() {
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-sm font-bold text-ink">{t.nombre}</span>
                     <span
-                      className={`px-1.5 py-0.5 text-[9px] font-bold rounded ${
+                      className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${
                         t.tipo === "recordatorio"
                           ? "bg-celeste-pale text-celeste-dark"
                           : t.tipo === "confirmacion"
@@ -348,7 +358,9 @@ export default function RecordatoriosConfigPage() {
                 >
                   <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{h.fecha}</td>
                   <td className="px-5 py-3 text-xs font-semibold text-ink">{h.paciente}</td>
-                  <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{h.telefono}</td>
+                  <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">
+                    {maskPhone(h.telefono)}
+                  </td>
                   <td className="px-5 py-3 text-xs text-ink-light">{h.template}</td>
                   <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{h.turnoFecha}</td>
                   <td className="px-5 py-3 text-center">

@@ -430,8 +430,9 @@ export default function PagosConfigPage() {
                   </div>
                   <button
                     onClick={() => opt.set(!opt.value)}
+                    role="switch"
+                    aria-checked={opt.value}
                     aria-label={opt.label}
-                    aria-pressed={opt.value}
                     className={`w-10 h-5 rounded-full transition relative ${opt.value ? "bg-celeste-dark" : "bg-border"}`}
                   >
                     <span
@@ -528,7 +529,7 @@ export default function PagosConfigPage() {
                 <p className="text-xs text-ink leading-relaxed whitespace-pre-wrap">
                   {`Hola María Elena, tu copago por la consulta de *Cardiología* con *Dr. Rodríguez* es de *$4.500*.\n\nPodés pagarlo con este link:\nhttps://mpago.la/2gH8kMx\n\nMétodos aceptados: tarjeta, MercadoPago, transferencia.\n\nSi ya realizaste el pago, ignorá este mensaje.`}
                 </p>
-                <p className="text-[9px] text-ink-muted text-right mt-1.5">10:15</p>
+                <p className="text-[10px] text-ink-muted text-right mt-1.5">10:15</p>
               </div>
             </div>
           </div>

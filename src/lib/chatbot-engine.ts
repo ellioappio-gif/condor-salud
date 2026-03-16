@@ -59,12 +59,23 @@ const INTENTS: {
     intent: "farewell",
     patterns: [
       /^(chau|adi[oó]s|hasta\s+luego|nos\s+vemos|gracias.*chau)/i,
-      /^(bye|gracia[s]?\s*$)/i,
+      /^(bye|goodbye|see\s+you)/i,
     ],
   },
   {
     intent: "thanks",
     patterns: [/^(gracias|muchas\s+gracias|genial|perfecto|excelente|buenísimo)/i],
+  },
+  // UM-10/UM-11: COVID intent
+  {
+    intent: "covid",
+    patterns: [
+      /covid/i,
+      /coronavirus/i,
+      /(?:creo|puede|tengo).*(?:covid|corona)/i,
+      /(?:test|hisopado|pcr).*covid/i,
+      /(?:tos|fiebre|perdida.+(?:olfato|gusto)).*covid/i,
+    ],
   },
   // ── Body-part / symptom intents (plain language) ──────────
   {
@@ -801,6 +812,35 @@ function generateThanks(): Partial<ChatMessage> {
   };
 }
 
+// UM-10/UM-11: COVID/Coronavirus response
+function generateCovidResponse(): Partial<ChatMessage> {
+  return {
+    text: "Entiendo tu preocupación por COVID-19. Estos son los pasos recomendados:\n\n1. Si tenés fiebre, tos, dolor de garganta, o pérdida de olfato/gusto, aislate y contactá a tu médico.\n2. Podés hacerte un test rápido de antígenos (en farmacias) o un PCR.\n3. Si tenés dificultad para respirar, llamá al 107 (SAME) inmediatamente.\n\nTe dejo información útil:",
+    cards: [
+      {
+        title: "🏥 SAME (Emergencias)",
+        body: "Si tenés dificultad respiratoria severa, dolor de pecho o confusión",
+        action: { label: "Llamar al 107", url: "tel:107" },
+      },
+      {
+        title: "📞 Línea COVID Argentina",
+        body: "Información oficial del Ministerio de Salud",
+        action: { label: "Llamar al 120", url: "tel:120" },
+      },
+      {
+        title: "💊 Test en farmacias",
+        body: "Autotest de antígenos disponible sin receta en farmacias habilitadas",
+        action: { label: "Buscar farmacia", url: "/paciente/medicamentos" },
+      },
+    ],
+    quickReplies: [
+      { label: "Tengo síntomas", value: "Tengo fiebre y tos" },
+      { label: "Dónde hisoparte", value: "Dónde puedo hacerme un test de COVID" },
+      { label: "Teleconsulta", value: "Quiero hacer una teleconsulta" },
+    ],
+  };
+}
+
 // ── Build triage response from TriageEntry ──────────────────
 function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
   let text = entry.advice;
@@ -845,6 +885,17 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
           { label: "Tengo otro problema", value: "No me siento bien" },
         ];
 
+  // PS-02: Crisis hotline card for mental health intents
+  const isMentalHealth =
+    entry.doctorType.includes("Psicología") || entry.doctorType.includes("Psiquiatría");
+
+  const crisisCard: InfoCard = {
+    title: "Línea de Crisis — 135",
+    body: "Atención en crisis emocional las 24 horas, los 365 días. Confidencial y gratuita.",
+    icon: "phone",
+    action: { label: "Llamar al 135", url: "tel:135" },
+  };
+
   const cards: InfoCard[] | undefined =
     entry.severity === "emergencia"
       ? [
@@ -855,36 +906,46 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
             action: { label: "Llamar al 107", url: "tel:107" },
           },
         ]
-      : [
-          {
-            title: `Buscá un ${entry.doctorLabel}`,
-            body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
-            icon: "search",
-            action: { label: "Ver profesionales", url: "/paciente/medicos" },
-          },
-          ...(entry.otcMeds.length > 0
-            ? [
-                {
-                  title: "🛵 Rappi — Te lo llevan a casa",
-                  body: "Pedí los medicamentos de venta libre por Rappi en minutos.",
-                  icon: "truck" as const,
-                  action: {
-                    label: "Pedir en Rappi",
-                    url: "https://www.rappi.com.ar/restaurantes/categoria/farmacias",
+      : isMentalHealth
+        ? [
+            crisisCard,
+            {
+              title: `Buscá un ${entry.doctorLabel}`,
+              body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
+              icon: "search",
+              action: { label: "Ver profesionales", url: "/paciente/medicos" },
+            },
+          ]
+        : [
+            {
+              title: `Buscá un ${entry.doctorLabel}`,
+              body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
+              icon: "search",
+              action: { label: "Ver profesionales", url: "/paciente/medicos" },
+            },
+            ...(entry.otcMeds.length > 0
+              ? [
+                  {
+                    title: "🛵 Rappi — Te lo llevan a casa",
+                    body: "Pedí los medicamentos de venta libre por Rappi en minutos.",
+                    icon: "truck" as const,
+                    action: {
+                      label: "Pedir en Rappi",
+                      url: "https://www.rappi.com.ar/farmacias",
+                    },
                   },
-                },
-                {
-                  title: "🛵 PedidosYa — Farmacia a domicilio",
-                  body: "Comprá sin receta y recibilo en tu casa.",
-                  icon: "truck" as const,
-                  action: {
-                    label: "Pedir en PedidosYa",
-                    url: "https://www.pedidosya.com.ar/farmacias",
+                  {
+                    title: "🛵 PedidosYa — Farmacia a domicilio",
+                    body: "Comprá sin receta y recibilo en tu casa.",
+                    icon: "truck" as const,
+                    action: {
+                      label: "Pedir en PedidosYa",
+                      url: "https://www.pedidosya.com.ar/farmacias",
+                    },
                   },
-                },
-              ]
-            : []),
-        ];
+                ]
+              : []),
+          ];
 
   return { text, quickReplies, cards };
 }
@@ -992,7 +1053,7 @@ function generateMedicationResponse(): Partial<ChatMessage> {
         icon: "truck",
         action: {
           label: "Abrir Rappi",
-          url: "https://www.rappi.com.ar/restaurantes/categoria/farmacias",
+          url: "https://www.rappi.com.ar/farmacias",
         },
       },
       {
@@ -1011,8 +1072,8 @@ function generateDeliveryResponse(
   coords?: { lat: number; lng: number } | null,
 ): Partial<ChatMessage> {
   const rappiUrl = coords
-    ? `https://www.rappi.com.ar/restaurantes/categoria/farmacias?lat=${coords.lat}&lng=${coords.lng}`
-    : "https://www.rappi.com.ar/restaurantes/categoria/farmacias";
+    ? `https://www.rappi.com.ar/farmacias?lat=${coords.lat}&lng=${coords.lng}`
+    : "https://www.rappi.com.ar/farmacias";
   const pedidosYaUrl = "https://www.pedidosya.com.ar/farmacias";
 
   let text =
@@ -1754,6 +1815,8 @@ export function processMessage(
       return generateFarewell();
     case "thanks":
       return generateThanks();
+    case "covid":
+      return generateCovidResponse();
     case "triage_generic":
       return generateSymptomPicker();
     case "coverage":

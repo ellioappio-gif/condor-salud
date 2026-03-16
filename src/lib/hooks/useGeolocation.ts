@@ -67,9 +67,20 @@ function readCache(): GeoLocationInfo | null {
   }
 }
 
+/** SM-08: Round coordinates to ~1km precision before caching to avoid storing exact GPS */
+function roundCoord(val: number, decimals = 2): number {
+  const factor = 10 ** decimals;
+  return Math.round(val * factor) / factor;
+}
+
 function writeCache(info: GeoLocationInfo): void {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(info));
+    const reduced = {
+      ...info,
+      latitude: roundCoord(info.latitude),
+      longitude: roundCoord(info.longitude),
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(reduced));
   } catch {
     // Quota exceeded — ignore
   }

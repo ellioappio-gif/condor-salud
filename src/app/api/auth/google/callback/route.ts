@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { exchangeCodeForTokens, getGoogleUserInfo } from "@/lib/google";
 import { logger } from "@/lib/security/api-guard";
+import { rateLimit, rateLimitHeaders } from "@/lib/security/rate-limit";
+import { encrypt } from "@/lib/security/crypto";
 
 /** Validate redirect target to prevent open-redirect attacks */
 function safeRedirect(target: string | null): string {
@@ -12,7 +14,29 @@ function safeRedirect(target: string | null): string {
   return target;
 }
 
+// ─── SH-01: Verify OAuth state parameter against cookie ─────
+function verifyState(req: NextRequest, stateParam: string | null): boolean {
+  const cookieState = req.cookies.get("condor_oauth_state")?.value;
+  if (!cookieState || !stateParam) return false;
+  // state format: "nonce:redirect"
+  return cookieState === stateParam.split(":")[0];
+}
+
 export async function GET(req: NextRequest) {
+  // ── SH-02: Rate limit callback endpoint ──
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    req.ip ||
+    "unknown";
+  const rlResult = rateLimit(`google_callback:${ip}`, { limit: 10, windowSec: 60 });
+  if (!rlResult.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas solicitudes. Intentá de nuevo en unos minutos." },
+      { status: 429, headers: rateLimitHeaders(rlResult) },
+    );
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
@@ -30,6 +54,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/auth/login?error=missing_code", req.url));
     }
 
+    // ── SH-01: Verify CSRF state ──
+    if (!verifyState(req, state)) {
+      logger.warn({ route: "auth/google/callback" }, "OAuth state mismatch — possible CSRF");
+      return NextResponse.redirect(new URL("/auth/login?error=invalid_state", req.url));
+    }
+
     const origin = new URL(req.url).origin;
     const redirectUri = `${origin}/api/auth/google/callback`;
 
@@ -39,21 +69,35 @@ export async function GET(req: NextRequest) {
     // Get user info from Google
     const googleUser = await getGoogleUserInfo(tokens.access_token);
 
-    // Build session data (do NOT store raw tokens in the readable cookie)
+    // ── SM-02: Check email_verified ──
+    if (!googleUser.email_verified) {
+      logger.warn(
+        { email: googleUser.email, route: "auth/google/callback" },
+        "Unverified Google email attempted login",
+      );
+      return NextResponse.redirect(new URL("/auth/login?error=email_not_verified", req.url));
+    }
+
+    // ── S-06: Encrypt tokens before storing ──
+    const encryptedAccessToken = encrypt(tokens.access_token);
+    const encryptedRefreshToken = tokens.refresh_token ? encrypt(tokens.refresh_token) : undefined;
+
+    // ── SH-03: Default role is "user", NOT "admin" ──
     const sessionData = {
       id: `google-${googleUser.sub}`,
       email: googleUser.email,
       name: googleUser.name,
-      role: "admin" as const,
-      clinicId: "clinic-001",
-      clinicName: "Centro Médico Sur",
+      role: "user" as const,
+      clinicId: "pending",
+      clinicName: "Sin asignar",
       avatarUrl: googleUser.picture,
-      googleAccessToken: tokens.access_token,
-      googleRefreshToken: tokens.refresh_token,
+      googleAccessToken: encryptedAccessToken,
+      googleRefreshToken: encryptedRefreshToken,
     };
 
-    // Validated redirect — prevents open redirect
-    const redirect = safeRedirect(state);
+    // Extract redirect from state (format: "nonce:redirect")
+    const redirectPath = state?.includes(":") ? state.split(":").slice(1).join(":") : null;
+    const redirect = safeRedirect(redirectPath);
     const response = NextResponse.redirect(new URL(redirect, req.url));
 
     // Set session cookie (httpOnly for security)
@@ -65,7 +109,7 @@ export async function GET(req: NextRequest) {
       path: "/",
     });
 
-    // Public cookie — NEVER include tokens
+    // Public cookie — NEVER include tokens or role
     response.cookies.set(
       "condor_google_user",
       JSON.stringify({
@@ -82,6 +126,9 @@ export async function GET(req: NextRequest) {
         path: "/",
       },
     );
+
+    // Clear the OAuth state cookie
+    response.cookies.delete("condor_oauth_state");
 
     logger.info({ userId: sessionData.id }, "Google OAuth login success");
     return response;

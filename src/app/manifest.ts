@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Cóndor Salud",
     short_name: "Cóndor",
     description: "Plataforma unificada de inteligencia para el sistema de salud argentino",
-    start_url: "/dashboard",
+    start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#75AADB",
@@ -15,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: "/favicon.png", sizes: "32x32", type: "image/png" },
       { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }

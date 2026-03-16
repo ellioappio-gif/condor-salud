@@ -98,7 +98,7 @@ const navSections = [
   {
     title: "SISTEMA",
     items: [
-      { label: "Alertas", href: "/dashboard/alertas", badge: 5 },
+      { label: "Alertas", href: "/dashboard/alertas" },
       { label: "Configuracion", href: "/dashboard/configuracion" },
       { label: "Recorrido Guiado", href: "/dashboard/wizard" },
     ],
@@ -185,7 +185,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
+          role="button"
+          aria-label="Cerrar menú lateral"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Escape" && setSidebarOpen(false)}
         />
       )}
 
@@ -253,7 +256,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               >
                 {section.title && (
                   <div
-                    className="px-3 mb-2 text-[9px] font-bold tracking-[0.16em] text-gray-400 uppercase"
+                    className="px-3 mb-2 text-[10px] font-bold tracking-[0.16em] text-gray-400 uppercase"
                     aria-hidden="true"
                   >
                     {section.title}
@@ -282,7 +285,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <span className="flex-1">{item.label}</span>
                         {"badge" in item && (item as { badge?: number }).badge ? (
                           <span
-                            className="bg-red-100 text-red-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none"
+                            className="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
                             aria-label={`${(item as { badge?: number }).badge} notificaciones`}
                           >
                             {(item as { badge?: number }).badge}

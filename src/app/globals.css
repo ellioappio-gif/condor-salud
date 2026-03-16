@@ -2,17 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* AM-01: Global focus-visible outline for keyboard accessibility */
+*:focus-visible {
+  outline: 2px solid #75aadb;
+  outline-offset: 2px;
+}
+
+/* A-09: Ensure focus:outline-none elements still show focus-visible ring */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid #75aadb !important;
+  outline-offset: 2px !important;
+}
+
 html {
   scroll-behavior: smooth;
-}
-body {
-  -webkit-font-smoothing: antialiased;
 }
 input,
 select,
 textarea,
 button {
   font-family: inherit;
+}
+
+/* AM-01: Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @keyframes toast-in {

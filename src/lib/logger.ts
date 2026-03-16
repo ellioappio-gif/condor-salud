@@ -11,7 +11,8 @@
 
 import pino from "pino";
 
-const LOG_LEVEL = process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug");
+const LOG_LEVEL =
+  process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug");
 
 // ─── Base logger (server-side, Node.js) ──────────────────────
 const baseLogger = pino({
@@ -33,6 +34,22 @@ const baseLogger = pino({
       "*.cuit",
       "email",
       "*.email",
+      "phone",
+      "*.phone",
+      "address",
+      "*.address",
+      "name",
+      "*.name",
+      "firstName",
+      "*.firstName",
+      "lastName",
+      "*.lastName",
+      "dateOfBirth",
+      "*.dateOfBirth",
+      "dob",
+      "*.dob",
+      "ip",
+      "*.ip",
     ],
     censor: "[REDACTED]",
   },
@@ -102,21 +119,45 @@ export type LogFn = (obj: Record<string, unknown>, msg?: string) => void;
 export function createClientLogger(module: string) {
   const prefix = `[${module}]`;
 
+  /** SM-05: Strip PII patterns from logged objects */
+  function redactPII(obj: Record<string, unknown>): Record<string, unknown> {
+    const redacted = { ...obj };
+    const sensitiveKeys = [
+      "password",
+      "token",
+      "email",
+      "phone",
+      "dni",
+      "cuil",
+      "cuit",
+      "name",
+      "address",
+      "dateOfBirth",
+      "dob",
+    ];
+    for (const key of Object.keys(redacted)) {
+      if (sensitiveKeys.includes(key.toLowerCase())) {
+        redacted[key] = "[REDACTED]";
+      }
+    }
+    return redacted;
+  }
+
   return {
     info: (obj: Record<string, unknown>, msg?: string) => {
       if (process.env.NODE_ENV === "development") {
-        console.info(prefix, msg || "", obj);
+        console.info(prefix, msg || "", redactPII(obj));
       }
     },
     warn: (obj: Record<string, unknown>, msg?: string) => {
-      console.warn(prefix, msg || "", obj);
+      console.warn(prefix, msg || "", redactPII(obj));
     },
     error: (obj: Record<string, unknown>, msg?: string) => {
-      console.error(prefix, msg || "", obj);
+      console.error(prefix, msg || "", redactPII(obj));
     },
     debug: (obj: Record<string, unknown>, msg?: string) => {
       if (process.env.NODE_ENV === "development") {
-        console.debug(prefix, msg || "", obj);
+        console.debug(prefix, msg || "", redactPII(obj));
       }
     },
   };

@@ -231,7 +231,7 @@ export default function ReportesPage() {
                 const I = reportIconMap[r.id];
                 return I ? <I className="w-6 h-6 text-celeste-dark" /> : null;
               })()}
-              <span className="px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded bg-celeste-pale text-celeste-dark">
+              <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded bg-celeste-pale text-celeste-dark">
                 {r.categoria}
               </span>
             </div>
@@ -293,7 +293,7 @@ export default function ReportesPage() {
                 <td className="px-5 py-3 text-xs font-semibold text-ink">{h.reporte}</td>
                 <td className="px-5 py-3 text-center">
                   <span
-                    className={`px-2 py-0.5 text-[9px] font-bold rounded ${h.formato === "PDF" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded ${h.formato === "PDF" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}
                   >
                     {h.formato}
                   </span>

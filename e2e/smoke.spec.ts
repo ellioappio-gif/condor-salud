@@ -26,6 +26,8 @@ test.describe("Smoke Tests", () => {
     const body = await response.json();
     expect(body.status).toBe("healthy");
     expect(body.checks.app).toBe("ok");
+    expect(body).toHaveProperty("timestamp");
+    expect(body).toHaveProperty("responseTimeMs");
   });
 
   test("privacy page loads", async ({ page }) => {

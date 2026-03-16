@@ -319,7 +319,8 @@ export async function createPrescription(data: {
 }): Promise<Prescription | null> {
   if (!isSupabaseConfigured()) return null;
   const sb = await getSupabase();
-  const code = `RX-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9999)).padStart(4, "0")}`;
+  // Q-01: Use crypto for unique ID instead of Math.random()
+  const code = `RX-${new Date().getFullYear()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const { data: row, error } = await sb
     .from("prescriptions")
     .insert({

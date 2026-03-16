@@ -276,7 +276,7 @@ export default function AuditoriaPage() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-mono text-ink-muted">{a.id}</span>
                   <span
-                    className={`px-1.5 py-0.5 text-[9px] font-bold rounded ${severidadColors[a.severidad]}`}
+                    className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${severidadColors[a.severidad]}`}
                   >
                     {a.severidad}
                   </span>

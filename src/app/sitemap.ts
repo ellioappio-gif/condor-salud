@@ -1,30 +1,28 @@
 import type { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://condorsalud.com";
+// L-23: Use env var for base URL instead of hardcoding
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://condorsalud.com";
 
+export default function sitemap(): MetadataRoute.Sitemap {
   return [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
+    // Public marketing pages
+    { url: BASE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
+    // Q-06: Include /planes page
     {
-      url: `${baseUrl}/auth/login`,
+      url: `${BASE_URL}/planes`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.8,
     },
+    // L-24: Removed /auth/* pages (not useful for SEO crawlers)
     {
-      url: `${baseUrl}/auth/registro`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/privacidad`,
+      url: `${BASE_URL}/privacidad`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/terminos`,
+      url: `${BASE_URL}/terminos`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,

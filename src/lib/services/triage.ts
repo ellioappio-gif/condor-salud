@@ -202,7 +202,8 @@ export async function createTriage(data: {
 }): Promise<Triage | null> {
   if (!isSupabaseConfigured()) return null;
   const sb = await getSupabase();
-  const code = `TRI-${String(Math.floor(Math.random() * 9999)).padStart(4, "0")}`;
+  // Q-01: Use crypto for unique ID instead of Math.random()
+  const code = `TRI-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const routedSpecialties = Array.from(
     new Set(data.symptoms.map((s) => symptomToSpecialty[s]).filter(Boolean)),
   );
@@ -282,8 +283,22 @@ export async function saveClinicalNote(data: {
   };
 }
 
+const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic"];
+const MAX_PHOTO_SIZE = 10 * 1024 * 1024; // 10 MB
+
 export async function uploadTriagePhoto(triageId: string, file: File): Promise<string | null> {
   if (!isSupabaseConfigured()) return null;
+  // SH-08: Validate file type and size
+  if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+    throw new Error(
+      `Tipo de archivo no permitido: ${file.type}. Permitidos: JPEG, PNG, WebP, HEIC`,
+    );
+  }
+  if (file.size > MAX_PHOTO_SIZE) {
+    throw new Error(
+      `Archivo demasiado grande (${(file.size / 1024 / 1024).toFixed(1)} MB). Máximo: 10 MB`,
+    );
+  }
   const sb = await getSupabase();
   const ext = file.name.split(".").pop();
   const path = `${triageId}/${Date.now()}.${ext}`;

@@ -156,7 +156,7 @@ export default function TeleconsultaPage() {
           <button
             onClick={() => {
               const chatBtn = document.querySelector(
-                '[aria-label="Abrir asistente virtual"]',
+                '[aria-haspopup="dialog"]',
               ) as HTMLButtonElement;
               if (chatBtn) chatBtn.click();
             }}
@@ -167,8 +167,10 @@ export default function TeleconsultaPage() {
           </button>
           <button
             onClick={() => {
-              setView("list");
-              setSelectedApt(null);
+              if (window.confirm("¿Seguro querés finalizar la consulta?")) {
+                setView("list");
+                setSelectedApt(null);
+              }
             }}
             aria-label="Finalizar llamada"
             className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition"

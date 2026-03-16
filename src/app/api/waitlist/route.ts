@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
+import { isSupabaseConfigured } from "@/lib/env";
 
-// TODO: Replace with Supabase insert when DB is connected
-const waitlist: string[] = [];
+// S-10: Persist to Supabase when configured; log as structured fallback.
 
 export async function POST(request: NextRequest) {
   // ── Rate limit: 5 req / 60s per IP ──
@@ -23,14 +23,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email inválido" }, { status: 400 });
     }
 
-    waitlist.push(email);
+    // ── Persist to Supabase if configured ──
+    if (isSupabaseConfigured()) {
+      try {
+        const { createClient } = await import("@supabase/supabase-js");
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        );
+        const { error: dbError } = await supabase
+          .from("waitlist")
+          .upsert({ email }, { onConflict: "email" });
 
-    logger.info({ email: "[redacted]", count: waitlist.length }, "Waitlist signup");
+        if (dbError) {
+          logger.error({ err: dbError, route: "waitlist" }, "Supabase waitlist insert failed");
+        } else {
+          logger.info({ route: "waitlist" }, "Waitlist signup persisted to Supabase");
+        }
+      } catch (err) {
+        logger.error({ err, route: "waitlist" }, "Supabase waitlist error");
+      }
+    } else {
+      // Structured log fallback — persists in log aggregator (Vercel, Sentry, etc.)
+      logger.info(
+        { email, route: "waitlist", action: "signup" },
+        "Waitlist signup (logged, no DB configured)",
+      );
+    }
 
-    return NextResponse.json(
-      { message: "¡Listo! Te contactamos pronto.", count: waitlist.length },
-      { status: 201 },
-    );
+    return NextResponse.json({ message: "¡Listo! Te contactamos pronto." }, { status: 201 });
   } catch (err) {
     logger.error({ err, route: "waitlist" }, "Waitlist error");
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });

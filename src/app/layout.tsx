@@ -58,13 +58,48 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Cóndor Salud",
+    applicationCategory: "HealthApplication",
+    operatingSystem: "Web",
+    description:
+      "Plataforma unificada de inteligencia para el sistema de salud argentino. PAMI, obras sociales, prepagas en un solo dashboard.",
+    url: "https://condorsalud.com",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "ARS",
+      description: "14 días de prueba gratuita",
+    },
+    creator: {
+      "@type": "Organization",
+      name: "Cóndor Salud",
+      url: "https://condorsalud.com",
+    },
+  };
+
   return (
     <html lang="es" dir="ltr" className={dmSans.variable}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="bg-white text-ink font-body antialiased">
+        {/* A-01: Skip-to-content link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:bg-celeste-dark focus:text-white focus:px-4 focus:py-2 focus:rounded focus:text-sm focus:font-semibold"
+        >
+          Saltar al contenido principal
+        </a>
         <SWRProvider>
           <PlanProvider>
             <AuthProvider>
-              {children}
+              <main id="main-content">{children}</main>
               <Chatbot />
             </AuthProvider>
           </PlanProvider>

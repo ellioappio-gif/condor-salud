@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getTriages, createTriage, saveClinicalNote, getTriageKPIs } from "@/lib/services/triage";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { triageActionSchema } from "@/lib/validations/schemas";
 
 export async function GET(req: NextRequest) {
   const auth = requireAuth(req);
@@ -36,15 +37,27 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
-    const { action } = body;
+
+    // Validate request body shape
+    const parsed = triageActionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { action } = parsed.data;
 
     switch (action) {
       case "create-triage": {
-        const triage = await createTriage(body.data as Parameters<typeof createTriage>[0]);
+        const triage = await createTriage(parsed.data.data as Parameters<typeof createTriage>[0]);
         return NextResponse.json(triage);
       }
       case "save-clinical-note": {
-        const note = await saveClinicalNote(body.data as Parameters<typeof saveClinicalNote>[0]);
+        const note = await saveClinicalNote(
+          parsed.data.data as Parameters<typeof saveClinicalNote>[0],
+        );
         return NextResponse.json(note);
       }
       default:

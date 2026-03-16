@@ -38,7 +38,7 @@ const appointments: Appointment[] = [
     id: 1,
     doctor: "Dra. Laura Méndez",
     specialty: "Clínica Médica",
-    date: "2025-03-17",
+    date: "2026-03-17",
     time: "10:30",
     type: "presencial",
     location: "Consultorio 3 - Sede Belgrano",
@@ -48,7 +48,7 @@ const appointments: Appointment[] = [
     id: 2,
     doctor: "Dr. Carlos Ruiz",
     specialty: "Cardiología",
-    date: "2025-03-19",
+    date: "2026-03-19",
     time: "15:00",
     type: "teleconsulta",
     location: "Videollamada",
@@ -58,7 +58,7 @@ const appointments: Appointment[] = [
     id: 3,
     doctor: "Dra. Sofía Peralta",
     specialty: "Dermatología",
-    date: "2025-03-24",
+    date: "2026-03-24",
     time: "09:15",
     type: "presencial",
     location: "Consultorio 7 - Sede Palermo",
@@ -68,7 +68,7 @@ const appointments: Appointment[] = [
     id: 4,
     doctor: "Dr. Martín Rodríguez",
     specialty: "Clínica Médica",
-    date: "2025-02-10",
+    date: "2026-02-10",
     time: "11:00",
     type: "presencial",
     location: "Consultorio 3 - Sede Belgrano",
@@ -78,7 +78,7 @@ const appointments: Appointment[] = [
     id: 5,
     doctor: "Dra. Ana Torres",
     specialty: "Ginecología",
-    date: "2025-01-22",
+    date: "2026-01-22",
     time: "14:30",
     type: "teleconsulta",
     location: "Videollamada",
@@ -88,7 +88,7 @@ const appointments: Appointment[] = [
     id: 6,
     doctor: "Dr. Luis Herrera",
     specialty: "Traumatología",
-    date: "2025-01-08",
+    date: "2026-01-08",
     time: "16:00",
     type: "presencial",
     location: "Consultorio 5 - Sede Belgrano",
@@ -148,10 +148,14 @@ export default function TurnosPage() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  const upcoming = appointments.filter(
+  const [localAppointments, setLocalAppointments] = useState(appointments);
+
+  const upcoming = localAppointments.filter(
     (a) => a.status === "confirmado" || a.status === "pendiente",
   );
-  const history = appointments.filter((a) => a.status === "completado" || a.status === "cancelado");
+  const history = localAppointments.filter(
+    (a) => a.status === "completado" || a.status === "cancelado",
+  );
 
   const resetBooking = () => {
     setShowBooking(false);
@@ -255,9 +259,14 @@ export default function TurnosPage() {
                   </button>
                 )}
                 <button
-                  onClick={() =>
-                    showToast("Turno cancelado. Te enviamos un email de confirmación.")
-                  }
+                  onClick={() => {
+                    setLocalAppointments((prev) =>
+                      prev.map((a) =>
+                        a.id === apt.id ? { ...a, status: "cancelado" as AppointmentStatus } : a,
+                      ),
+                    );
+                    showToast("Turno cancelado. Te enviamos un email de confirmación.");
+                  }}
                   className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-[4px] hover:bg-red-100 transition"
                 >
                   Cancelar
@@ -275,13 +284,23 @@ export default function TurnosPage() {
 
       {/* ── Booking modal ────────────────────────────────── */}
       {showBooking && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-xl max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => e.target === e.currentTarget && resetBooking()}
+          onKeyDown={(e) => e.key === "Escape" && resetBooking()}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Nuevo turno"
+            className="bg-white rounded-2xl max-w-lg w-full shadow-xl max-h-[90vh] overflow-y-auto"
+          >
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
               <h2 className="text-lg font-bold text-ink">Nuevo turno</h2>
               <button
                 onClick={resetBooking}
+                aria-label="Cerrar"
                 className="p-1 text-ink-muted hover:text-ink transition"
               >
                 <X className="w-5 h-5" />
@@ -341,6 +360,7 @@ export default function TurnosPage() {
                   <p className="text-sm text-ink-muted">Elegí una fecha para {selectedSpecialty}</p>
                   <input
                     type="date"
+                    aria-label="Fecha del turno"
                     value={selectedDate}
                     onChange={(e) => {
                       setSelectedDate(e.target.value);
@@ -413,7 +433,10 @@ export default function TurnosPage() {
                     </div>
                   </div>
                   <button
-                    onClick={resetBooking}
+                    onClick={() => {
+                      showToast("¡Turno confirmado! Te enviamos un recordatorio por email.");
+                      resetBooking();
+                    }}
                     className="w-full bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
                   >
                     Confirmar turno

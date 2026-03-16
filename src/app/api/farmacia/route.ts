@@ -10,6 +10,7 @@ import {
 } from "@/lib/services/farmacia";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { farmaciaActionSchema } from "@/lib/validations/schemas";
 
 export async function GET(req: NextRequest) {
   const auth = requireAuth(req);
@@ -50,18 +51,30 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
-    const { action } = body;
+
+    // Validate request body shape
+    const parsed = farmaciaActionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { action } = parsed.data;
 
     switch (action) {
       case "create-prescription": {
-        const rx = await createPrescription(body.data as Parameters<typeof createPrescription>[0]);
+        const rx = await createPrescription(
+          parsed.data.data as Parameters<typeof createPrescription>[0],
+        );
         return NextResponse.json(rx);
       }
       case "update-delivery": {
         await updateDeliveryStatus(
-          body.deliveryId as string,
-          body.status as string,
-          (body.progress as number) ?? 0,
+          parsed.data.deliveryId,
+          parsed.data.status,
+          parsed.data.progress,
         );
         return NextResponse.json({ success: true });
       }

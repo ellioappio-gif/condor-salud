@@ -3,9 +3,7 @@
  *  Client ID: 839939811541-7gkav9m5u2bvl7siapqgbqr6nbvn2hcr.apps.googleusercontent.com
  * ──────────────────────────────────────────────────────────── */
 
-export const GOOGLE_CLIENT_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-  "839939811541-7gkav9m5u2bvl7siapqgbqr6nbvn2hcr.apps.googleusercontent.com";
+export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
 /* ── Scopes requested ────────────────────────────────────── */
 export const GOOGLE_SCOPES = [
@@ -38,7 +36,7 @@ export async function exchangeCodeForTokens(code: string, redirectUri: string) {
     body: new URLSearchParams({
       code,
       client_id: GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+      client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       redirect_uri: redirectUri,
       grant_type: "authorization_code",
     }),
@@ -51,6 +49,25 @@ export async function exchangeCodeForTokens(code: string, redirectUri: string) {
     id_token: string;
     token_type: string;
   }>;
+}
+
+/* ── U-10: Refresh access token when expired ─────────────── */
+export async function refreshAccessToken(refreshToken: string): Promise<{
+  access_token: string;
+  expires_in: number;
+}> {
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      refresh_token: refreshToken,
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      grant_type: "refresh_token",
+    }),
+  });
+  if (!res.ok) throw new Error("Token refresh failed");
+  return res.json();
 }
 
 /* ── Google User Info ────────────────────────────────────── */

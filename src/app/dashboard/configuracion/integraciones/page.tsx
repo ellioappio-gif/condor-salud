@@ -200,11 +200,11 @@ export default function IntegracionesPage() {
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <h3 className="text-sm font-bold text-ink">{int.nombre}</h3>
                   <span
-                    className={`px-2 py-0.5 text-[9px] font-bold rounded border ${estadoColors[int.estado]}`}
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded border ${estadoColors[int.estado]}`}
                   >
                     {int.estado}
                   </span>
-                  <span className="px-2 py-0.5 text-[9px] font-bold tracking-wider rounded bg-[#F8FAFB] text-ink-muted">
+                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider rounded bg-[#F8FAFB] text-ink-muted">
                     {int.tipo}
                   </span>
                 </div>

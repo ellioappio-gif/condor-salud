@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 
+// L-01: Dynamic copyright year
+
 export default function Footer() {
   return (
     <footer className="border-t border-border pt-10 pb-8">
@@ -25,7 +27,7 @@ export default function Footer() {
         {/* Nav columns — centered */}
         <div className="flex flex-wrap justify-center gap-12 text-[13px] mb-8">
           <div className="space-y-2">
-            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Producto</p>
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Solución</p>
             <Link
               href="/#problema"
               className="block text-ink-light hover:text-celeste-dark transition"
@@ -101,7 +103,7 @@ export default function Footer() {
         {/* Bottom divider + copyright */}
         <div className="border-t border-border pt-4 text-center">
           <p className="text-[11px] text-ink-muted">
-            Plataforma de Inteligencia · Sistema de Salud Argentino · 2026
+            Plataforma de Inteligencia · Sistema de Salud Argentino · {new Date().getFullYear()}
           </p>
         </div>
       </div>

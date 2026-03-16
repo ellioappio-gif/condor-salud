@@ -244,3 +244,34 @@ export interface ClinicalNote {
   referrals: string[];
   date: string;
 }
+
+// ─── Module KPI Shapes ──────────────────────────────────────
+
+export interface FarmaciaKPIs {
+  ordersToday: number;
+  inTransit: number;
+  pendingRx: number;
+  activeRecurring: number;
+}
+
+export interface TelemedicinaKPIs {
+  inWaiting: number;
+  todayCount: number;
+  billed: number;
+  prescriptionsSent: number;
+}
+
+export interface DirectorioKPIs {
+  totalDoctors: number;
+  totalSpecialties: number;
+  availableToday: number;
+  avgRating: string;
+  totalReviews: number;
+}
+
+export interface TriageKPIs {
+  todayCount: number;
+  pending: number;
+  routed: number;
+  highSeverity: number;
+}

@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 
 const COOKIE_NAME = "condor_patient_name";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+// SM-07 + L-21: Reduced from 1 year to 30 days — cookie contains PII (display name)
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;

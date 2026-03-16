@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
               { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
             ],
       },
-      { status: 200 },
+      { status: 500 },
     );
   }
 }

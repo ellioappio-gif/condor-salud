@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 
-const WA_NUMBER = "12026950244";
+// QM-04: Import shared WhatsApp number constant
+import { WA_NUMBER } from "./DemoModal";
+
 const WA_MESSAGE = encodeURIComponent(
   "Hola, me interesa una demo de Cóndor Salud para mi clínica. ¿Podemos coordinar?",
 );
@@ -25,6 +27,8 @@ export default function WhatsAppFloat() {
         rel="noopener noreferrer"
         onMouseEnter={() => setTooltip(true)}
         onMouseLeave={() => setTooltip(false)}
+        onFocus={() => setTooltip(true)}
+        onBlur={() => setTooltip(false)}
         className="w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
         aria-label="Contactar por WhatsApp para demo"
       >

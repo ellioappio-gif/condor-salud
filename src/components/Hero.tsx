@@ -69,7 +69,7 @@ export default function Hero() {
             </div>
             <div className="p-6 space-y-4">
               {/* Mock KPI row */}
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Facturado", val: "$12.4M", change: "+18%" },
                   { label: "Cobrado", val: "$9.8M", change: "+24%" },
@@ -101,7 +101,7 @@ export default function Hero() {
                 </div>
                 <div className="flex items-end gap-1.5 h-24">
                   {[65, 72, 58, 80, 75, 85, 90, 78, 88, 92, 86, 95].map((h, i) => (
-                    <div key={i} className="flex-1 flex flex-col gap-0.5">
+                    <div key={`bar-${h}-${i}`} className="flex-1 flex flex-col gap-0.5">
                       <div className="bg-celeste-dark/20 rounded-sm" style={{ height: `${h}%` }} />
                       <div
                         className="bg-celeste-dark rounded-sm"

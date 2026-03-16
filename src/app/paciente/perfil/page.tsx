@@ -228,6 +228,36 @@ export default function PerfilPage() {
                           if (item.label === "Fecha de nacimiento")
                             return { ...prev, birthDate: val };
                           if (item.label === "G\u00e9nero") return { ...prev, gender: val };
+                          if (item.label === "Dirección") {
+                            // Parse "address, city" format
+                            const parts = val.split(",").map((s: string) => s.trim());
+                            return {
+                              ...prev,
+                              address: parts[0] || "",
+                              city: parts.slice(1).join(", ") || prev.city,
+                            };
+                          }
+                          if (item.label === "Obra social") {
+                            // Parse "OSDE 310 — N° 08-29384756-3" format
+                            const match = val.match(/^(\S+)\s+(\S+)\s+—\s+N°\s+(.+)$/);
+                            if (match)
+                              return {
+                                ...prev,
+                                insurance: match[1]!,
+                                plan: match[2]!,
+                                memberId: match[3]!,
+                              };
+                            return { ...prev, insurance: val };
+                          }
+                          if (item.label === "Contacto de emergencia") {
+                            // Parse "Name — Phone" format
+                            const parts = val.split("—").map((s: string) => s.trim());
+                            return {
+                              ...prev,
+                              emergencyContact: parts[0] || "",
+                              emergencyPhone: parts[1] || prev.emergencyPhone,
+                            };
+                          }
                           return prev;
                         });
                       }}
@@ -244,6 +274,22 @@ export default function PerfilPage() {
             <div className="px-5 py-4">
               <button
                 onClick={() => {
+                  // QM-02: Validate required fields before saving
+                  if (!editProfile.name.trim()) {
+                    showToast("El nombre es obligatorio");
+                    return;
+                  }
+                  if (
+                    !editProfile.email.trim() ||
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editProfile.email)
+                  ) {
+                    showToast("Ingresá un email válido");
+                    return;
+                  }
+                  if (!editProfile.phone.trim()) {
+                    showToast("El teléfono es obligatorio");
+                    return;
+                  }
                   setProfile(editProfile);
                   // Sync name change back to cookie
                   if (editProfile.name && editProfile.name !== cookieName) {
@@ -384,6 +430,9 @@ export default function PerfilPage() {
                   </div>
                   <button
                     onClick={() => setNotifications((prev) => ({ ...prev, [key]: !prev[key] }))}
+                    role="switch"
+                    aria-checked={notifications[key]}
+                    aria-label={`${notifications[key] ? "Desactivar" : "Activar"} ${label}`}
                     className={`w-10 h-6 rounded-full transition relative ${
                       notifications[key] ? "bg-celeste-dark" : "bg-ink-200"
                     }`}

@@ -73,7 +73,7 @@ export default function FacturacionPage() {
     {
       label: "Cobrado",
       value: formatCurrency(totals.totalCobrado),
-      sub: `${Math.round((totals.totalCobrado / totals.totalFacturado) * 100)}% del total`,
+      sub: `${totals.totalFacturado ? Math.round((totals.totalCobrado / totals.totalFacturado) * 100) : 0}% del total`,
       accent: "border-l-green-400",
       subColor: "text-green-600",
     },
@@ -86,7 +86,7 @@ export default function FacturacionPage() {
     {
       label: "Rechazado",
       value: formatCurrency(totals.totalRechazado),
-      sub: `${Math.round((totals.totalRechazado / totals.totalFacturado) * 100)}% del total`,
+      sub: `${totals.totalFacturado ? Math.round((totals.totalRechazado / totals.totalFacturado) * 100) : 0}% del total`,
       accent: "border-l-red-400",
       subColor: "text-red-600",
     },

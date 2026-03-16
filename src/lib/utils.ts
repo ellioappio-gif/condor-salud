@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 // ─── Class name merge utility ────────────────────────────────
-// Simple implementation without clsx/twMerge dependency
+// Merges Tailwind CSS classes with clsx + tailwind-merge
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
@@ -113,5 +113,5 @@ export function delay(ms: number): Promise<void> {
 
 // ─── Generate demo ID ────────────────────────────────────────
 export function generateId(): string {
-  return Math.random().toString(36).substring(2, 11);
+  return crypto.randomUUID().replace(/-/g, "").substring(0, 11);
 }

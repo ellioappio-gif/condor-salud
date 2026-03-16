@@ -99,3 +99,55 @@ export const teamMemberSchema = z.object({
 });
 
 export type TeamMemberInput = z.infer<typeof teamMemberSchema>;
+
+// ─── Triage schemas ─────────────────────────────────────────
+export const triageActionSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("create-triage"),
+    data: z.object({
+      patientName: z.string().min(1),
+      symptoms: z.array(z.string().min(1)).min(1),
+      severity: z.number().int().min(1).max(5),
+      frequency: z.string().min(1),
+      duration: z.string().min(1),
+      triggers: z.string(),
+      freeNotes: z.string(),
+    }),
+  }),
+  z.object({
+    action: z.literal("save-clinical-note"),
+    data: z.object({
+      triageId: z.string().optional(),
+      consultationId: z.string().optional(),
+      doctorName: z.string().min(1),
+      patientName: z.string().min(1),
+      icd10Codes: z.array(z.object({ code: z.string(), description: z.string() })),
+      notes: z.string().min(1).max(5000),
+      treatmentPlan: z.string(),
+      referrals: z.array(z.string()),
+    }),
+  }),
+]);
+
+export type TriageActionInput = z.infer<typeof triageActionSchema>;
+
+// ─── Farmacia schemas ────────────────────────────────────────
+export const farmaciaActionSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("create-prescription"),
+    data: z.object({
+      patientName: z.string().min(1),
+      doctorName: z.string().min(1),
+      items: z.array(z.string().min(1)).min(1),
+      financiador: z.string().min(1),
+    }),
+  }),
+  z.object({
+    action: z.literal("update-delivery"),
+    deliveryId: z.string().min(1),
+    status: z.enum(["Pendiente", "Preparando", "En camino", "Entregado", "Cancelado"]),
+    progress: z.number().min(0).max(100).default(0),
+  }),
+]);
+
+export type FarmaciaActionInput = z.infer<typeof farmaciaActionSchema>;

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { WA_NUMBER } from "@/components/DemoModal";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -15,7 +16,10 @@ export default function Navbar() {
         <div className="flex-1 bg-celeste" />
       </div>
 
-      <nav className="sticky top-1 z-[99] bg-white border-b border-border px-6 lg:px-10 py-4 flex items-center justify-between">
+      <nav
+        aria-label="Navegación principal"
+        className="sticky top-1 z-[99] bg-white border-b border-border px-6 lg:px-10 py-4 flex items-center justify-between"
+      >
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/condor.png"
@@ -48,7 +52,7 @@ export default function Navbar() {
             href="/#pricing"
             className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
           >
-            Pricing
+            Precios
           </Link>
           <Link
             href="/planes"
@@ -81,7 +85,7 @@ export default function Navbar() {
             Demo
           </Link>
           <a
-            href="https://wa.me/12026950244?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F"
+            href={`https://wa.me/${WA_NUMBER}?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2 text-xs font-semibold text-white bg-[#25D366] hover:bg-[#20BD5A] rounded-[4px] transition flex items-center gap-1.5"
@@ -94,7 +98,12 @@ export default function Navbar() {
         </div>
 
         {/* Mobile hamburger */}
-        <button onClick={() => setOpen(!open)} className="md:hidden p-2" aria-label="Menu">
+        <button
+          onClick={() => setOpen(!open)}
+          className="md:hidden p-2"
+          aria-label="Menú de navegación"
+          aria-expanded={open ? true : undefined}
+        >
           <div className="space-y-1.5">
             <span
               className={`block w-6 h-0.5 bg-ink transition-transform ${open ? "rotate-45 translate-y-2" : ""}`}
@@ -130,7 +139,7 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="text-[13px] font-medium text-ink-light"
             >
-              Pricing
+              Precios
             </Link>
             <Link
               href="/planes"
@@ -168,7 +177,7 @@ export default function Navbar() {
               Demo
             </Link>
             <a
-              href="https://wa.me/12026950244?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F"
+              href={`https://wa.me/${WA_NUMBER}?text=Hola%2C%20me%20interesa%20una%20demo%20de%20C%C3%B3ndor%20Salud%20para%20mi%20cl%C3%ADnica.%20%C2%BFPodemos%20coordinar%3F`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}

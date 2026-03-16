@@ -3,7 +3,7 @@ import {
   getWaitingRoom,
   getConsultations,
   getScheduledConsultations,
-  getTelemedichinaKPIs,
+  getTelemedicinaKPIs,
 } from "@/lib/services/telemedicina";
 import { logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       case "scheduled":
         return NextResponse.json(await getScheduledConsultations());
       case "kpis":
-        return NextResponse.json(await getTelemedichinaKPIs());
+        return NextResponse.json(await getTelemedicinaKPIs());
       default:
         return NextResponse.json({ error: "Unknown resource" }, { status: 400 });
     }

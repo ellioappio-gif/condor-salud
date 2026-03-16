@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Eye,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
@@ -44,7 +45,7 @@ const events: MedicalEvent[] = [
     title: "Control cardiológico",
     description: "Electrocardiograma normal. Se ajusta medicación.",
     doctor: "Dr. Carlos Ruiz",
-    date: "2025-03-05",
+    date: "2026-03-05",
     details: ["ECG: ritmo sinusal normal", "PA: 120/80 mmHg", "Se reduce Atorvastatina a 10mg"],
   },
   {
@@ -53,7 +54,7 @@ const events: MedicalEvent[] = [
     title: "Hemograma completo + Perfil lipídico",
     description: "Resultados dentro de parámetros normales.",
     doctor: "Dra. Laura Méndez",
-    date: "2025-02-28",
+    date: "2026-02-28",
     details: [
       "Hemoglobina: 14.2 g/dL",
       "Colesterol total: 195 mg/dL",
@@ -70,7 +71,7 @@ const events: MedicalEvent[] = [
     title: "Receta - Losartán, Metformina, Atorvastatina",
     description: "Renovación de medicación crónica.",
     doctor: "Dra. Laura Méndez",
-    date: "2025-02-15",
+    date: "2026-02-15",
     details: ["Losartán 50mg x 30", "Metformina 850mg x 60", "Atorvastatina 20mg x 30"],
     attachments: [{ name: "Receta_15Feb.pdf", type: "PDF" }],
   },
@@ -80,7 +81,7 @@ const events: MedicalEvent[] = [
     title: "Control clínico general",
     description: "Paciente en buen estado general. Se solicita lab de control.",
     doctor: "Dra. Laura Méndez",
-    date: "2025-02-10",
+    date: "2026-02-10",
     details: ["Peso: 72.5 kg", "PA: 125/82 mmHg", "Se solicita hemograma + perfil lipídico"],
   },
   {
@@ -89,17 +90,17 @@ const events: MedicalEvent[] = [
     title: "Eco Doppler cardíaco",
     description: "Fracción de eyección normal. Sin alteraciones significativas.",
     doctor: "Dr. Carlos Ruiz",
-    date: "2025-01-20",
+    date: "2026-01-20",
     details: ["FE: 62%", "Cavidades de tamaño normal", "Sin valvulopatías significativas"],
     attachments: [{ name: "EcoDoppler_20Ene.pdf", type: "PDF" }],
   },
   {
     id: 6,
     type: "vacuna",
-    title: "Vacuna antigripal 2025",
+    title: "Vacuna antigripal 2026",
     description: "Aplicación vacuna influenza tetravalente.",
     doctor: "Vacunatorio Centro",
-    date: "2025-01-15",
+    date: "2026-01-15",
   },
   {
     id: 7,
@@ -107,7 +108,7 @@ const events: MedicalEvent[] = [
     title: "Consulta ginecológica",
     description: "Control anual. PAP y colposcopia normales.",
     doctor: "Dra. Ana Torres",
-    date: "2025-01-22",
+    date: "2026-01-22",
     details: [
       "PAP: negativo para lesión",
       "Colposcopia: satisfactoria",
@@ -126,7 +127,7 @@ const events: MedicalEvent[] = [
   },
 ];
 
-const typeMap: Record<EventType, { label: string; icon: any; color: string }> = {
+const typeMap: Record<EventType, { label: string; icon: LucideIcon; color: string }> = {
   consulta: { label: "Consulta", icon: Stethoscope, color: "bg-celeste-50 text-celeste-dark" },
   laboratorio: { label: "Laboratorio", icon: TestTubes, color: "bg-celeste-50 text-celeste-dark" },
   imagen: { label: "Imagen", icon: ImageIcon, color: "bg-success-50 text-success-600" },

@@ -39,8 +39,8 @@ describe("registerSchema", () => {
   const validData = {
     name: "Dr. Martín Rodríguez",
     email: "martin@clinica.com",
-    password: "Password1",
-    confirmPassword: "Password1",
+    password: "Password1!Secure",
+    confirmPassword: "Password1!Secure",
     clinicName: "Clínica San Martín",
     cuit: "20-34567890-1",
     provincia: "Buenos Aires",
@@ -65,8 +65,8 @@ describe("registerSchema", () => {
   it("rejects password without uppercase", () => {
     const result = registerSchema.safeParse({
       ...validData,
-      password: "password1",
-      confirmPassword: "password1",
+      password: "password1!test",
+      confirmPassword: "password1!test",
     });
     expect(result.success).toBe(false);
   });
@@ -74,8 +74,8 @@ describe("registerSchema", () => {
   it("rejects password without number", () => {
     const result = registerSchema.safeParse({
       ...validData,
-      password: "Password",
-      confirmPassword: "Password",
+      password: "PasswordOnly!x",
+      confirmPassword: "PasswordOnly!x",
     });
     expect(result.success).toBe(false);
   });

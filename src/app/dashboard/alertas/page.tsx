@@ -224,7 +224,7 @@ export default function AlertasPage() {
               {c}
               {count > 0 && (
                 <span
-                  className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${catFilter === c ? "bg-white/20 text-white" : "bg-red-500 text-white"}`}
+                  className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${catFilter === c ? "bg-white/20 text-white" : "bg-red-500 text-white"}`}
                 >
                   {count}
                 </span>
@@ -243,7 +243,7 @@ export default function AlertasPage() {
           >
             <div className="flex items-start gap-3">
               <span
-                className={`px-1.5 py-0.5 text-[9px] font-bold rounded ${categoriaColors[a.categoria] || "bg-gray-100 text-gray-600"}`}
+                className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${categoriaColors[a.categoria] || "bg-gray-100 text-gray-600"}`}
               >
                 {a.categoria}
               </span>
@@ -251,7 +251,7 @@ export default function AlertasPage() {
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   {!a.leida && <span className="w-2 h-2 bg-celeste-dark rounded-full" />}
                   <span
-                    className={`px-1.5 py-0.5 text-[9px] font-bold rounded border ${prioridadColors[a.prioridad]}`}
+                    className={`px-1.5 py-0.5 text-[10px] font-bold rounded border ${prioridadColors[a.prioridad]}`}
                   >
                     {a.prioridad}
                   </span>

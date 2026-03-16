@@ -6,12 +6,12 @@ import {
   useWaitingRoom,
   useConsultations,
   useScheduledConsultations,
-  useTelemedichinaKPIs,
+  useTelemedicinaKPIs,
 } from "@/lib/hooks/useModules";
 
 type Tab = "sala" | "consultas" | "facturacion" | "recetas" | "resumen";
 
-export default function TelemedichinaPage() {
+export default function TelemedicinPage() {
   const { showDemo } = useDemoAction();
   const [tab, setTab] = useState<Tab>("sala");
 
@@ -19,7 +19,7 @@ export default function TelemedichinaPage() {
   const { data: waitingRoom = [] } = useWaitingRoom();
   const { data: recentConsultations = [] } = useConsultations();
   const { data: scheduledConsultations = [] } = useScheduledConsultations();
-  const { data: kpis } = useTelemedichinaKPIs();
+  const { data: kpis } = useTelemedicinaKPIs();
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "sala", label: "Sala de espera" },
@@ -33,13 +33,13 @@ export default function TelemedichinaPage() {
     ? [
         {
           label: "En sala de espera",
-          value: String(kpis.inWaitingRoom),
+          value: String(kpis.inWaiting),
           change: "Conectados",
           color: "text-celeste-dark",
         },
         {
           label: "Consultas hoy",
-          value: String(kpis.todayConsultations),
+          value: String(kpis.todayCount),
           change: "Completadas",
           color: "text-celeste-dark",
         },
@@ -73,9 +73,9 @@ export default function TelemedichinaPage() {
         { label: "Recetas enviadas", value: "6", change: "4 con farmacia", color: "text-gold" },
       ];
 
-  const wr = waitingRoom as any[];
-  const rc = recentConsultations as any[];
-  const sc = scheduledConsultations as any[];
+  const wr = waitingRoom;
+  const rc = recentConsultations;
+  const sc = scheduledConsultations;
 
   return (
     <div id="main-content" className="p-6 space-y-6">
@@ -132,7 +132,7 @@ export default function TelemedichinaPage() {
           </p>
 
           <div className="space-y-3">
-            {wr.map((p: any) => (
+            {wr.map((p) => (
               <div
                 key={p.id}
                 className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -142,7 +142,7 @@ export default function TelemedichinaPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <p className="font-medium text-sm text-ink">{p.patient}</p>
+                    <p className="font-medium text-sm text-ink">{p.patientName}</p>
                     <span className="text-[10px] text-ink-muted">{p.age} años</span>
                     <span className="text-[10px] bg-[#F8FAFB] px-2 py-0.5 rounded text-ink-muted">
                       {p.financiador}
@@ -165,7 +165,7 @@ export default function TelemedichinaPage() {
                 <div className="flex gap-2 shrink-0">
                   {!p.intakeComplete && (
                     <button
-                      onClick={() => showDemo(`Enviar formulario de intake a ${p.patient}`)}
+                      onClick={() => showDemo(`Enviar formulario de intake a ${p.patientName}`)}
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-gold hover:text-gold transition"
                     >
                       Enviar intake
@@ -174,7 +174,7 @@ export default function TelemedichinaPage() {
                   <button
                     onClick={() =>
                       showDemo(
-                        `Iniciar videoconsulta con ${p.patient} — sin descarga de app, desde el navegador`,
+                        `Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
                       )
                     }
                     className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
@@ -201,13 +201,13 @@ export default function TelemedichinaPage() {
                 </tr>
               </thead>
               <tbody>
-                {sc.map((c: any) => (
+                {sc.map((c) => (
                   <tr
                     key={c.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
                   >
-                    <td className="px-5 py-3 font-medium text-ink">{c.patient}</td>
-                    <td className="px-5 py-3 text-ink-light">{c.doctor}</td>
+                    <td className="px-5 py-3 font-medium text-ink">{c.patientName}</td>
+                    <td className="px-5 py-3 text-ink-light">{c.doctorName}</td>
                     <td className="px-5 py-3 text-ink-light">{c.specialty}</td>
                     <td className="px-5 py-3 text-center text-ink">{c.time}</td>
                     <td className="px-5 py-3 text-center">
@@ -217,7 +217,7 @@ export default function TelemedichinaPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <button
-                        onClick={() => showDemo(`Copiar link: ${c.link}`)}
+                        onClick={() => showDemo(`Copiar link: ${c.videoRoomUrl ?? c.code}`)}
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                       >
                         Copiar link
@@ -287,14 +287,14 @@ export default function TelemedichinaPage() {
                 </tr>
               </thead>
               <tbody>
-                {rc.map((c: any) => (
+                {rc.map((c) => (
                   <tr
                     key={c.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
                   >
                     <td className="px-5 py-3 text-xs font-mono text-ink-muted">{c.id}</td>
-                    <td className="px-5 py-3 font-medium text-ink">{c.patient}</td>
-                    <td className="px-5 py-3 text-ink-light">{c.doctor}</td>
+                    <td className="px-5 py-3 font-medium text-ink">{c.patientName}</td>
+                    <td className="px-5 py-3 text-ink-light">{c.doctorName}</td>
                     <td className="px-5 py-3 text-ink-light">{c.specialty}</td>
                     <td className="px-5 py-3 text-center text-ink-light">
                       {c.date} {c.time}
@@ -349,15 +349,15 @@ export default function TelemedichinaPage() {
               </thead>
               <tbody>
                 {rc
-                  .filter((c: any) => c.status === "Completada")
-                  .map((c: any) => (
+                  .filter((c) => c.status === "Completada")
+                  .map((c) => (
                     <tr
                       key={c.id}
                       className="border-t border-border-light hover:bg-celeste-pale/30 transition"
                     >
                       <td className="px-5 py-3 text-xs font-mono text-ink-muted">{c.id}</td>
-                      <td className="px-5 py-3 font-medium text-ink">{c.patient}</td>
-                      <td className="px-5 py-3 text-ink-light">{c.doctor}</td>
+                      <td className="px-5 py-3 font-medium text-ink">{c.patientName}</td>
+                      <td className="px-5 py-3 text-ink-light">{c.doctorName}</td>
                       <td className="px-5 py-3 text-center">
                         <span className="text-xs font-mono bg-celeste-pale text-celeste-dark px-2 py-0.5 rounded">
                           {c.billCode}
@@ -412,8 +412,8 @@ export default function TelemedichinaPage() {
 
           <div className="space-y-3">
             {rc
-              .filter((c: any) => c.status === "Completada")
-              .map((c: any) => (
+              .filter((c) => c.status === "Completada")
+              .map((c) => (
                 <div
                   key={c.id}
                   className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -432,16 +432,16 @@ export default function TelemedichinaPage() {
                       )}
                     </div>
                     <p className="font-medium text-sm text-ink mt-1">
-                      {c.patient} — {c.specialty}
+                      {c.patientName} — {c.specialty}
                     </p>
                     <p className="text-xs text-ink-muted">
-                      {c.doctor} — {c.date} {c.time}
+                      {c.doctorName} — {c.date} {c.time}
                     </p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     {!c.prescriptionSent && (
                       <button
-                        onClick={() => showDemo(`Generar receta digital para ${c.patient}`)}
+                        onClick={() => showDemo(`Generar receta digital para ${c.patientName}`)}
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                       >
                         Generar receta
@@ -451,7 +451,7 @@ export default function TelemedichinaPage() {
                       <button
                         onClick={() =>
                           showDemo(
-                            `Enviar receta de ${c.patient} a Farmacia Online con carrito pre-cargado`,
+                            `Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
                           )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
@@ -508,8 +508,8 @@ export default function TelemedichinaPage() {
 
           <div className="space-y-3">
             {rc
-              .filter((c: any) => c.status === "Completada")
-              .map((c: any) => (
+              .filter((c) => c.status === "Completada")
+              .map((c) => (
                 <div
                   key={c.id}
                   className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -528,10 +528,10 @@ export default function TelemedichinaPage() {
                       )}
                     </div>
                     <p className="font-medium text-sm text-ink mt-1">
-                      {c.patient} — {c.specialty}
+                      {c.patientName} — {c.specialty}
                     </p>
                     <p className="text-xs text-ink-muted">
-                      {c.doctor} — {c.date} {c.time} — {c.duration}
+                      {c.doctorName} — {c.date} {c.time} — {c.duration}
                     </p>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -539,7 +539,7 @@ export default function TelemedichinaPage() {
                       <button
                         onClick={() =>
                           showDemo(
-                            `Generar y enviar resumen WhatsApp a ${c.patient}: diagnóstico, indicaciones, receta, próximo turno`,
+                            `Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
                           )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"

@@ -27,12 +27,14 @@ import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 type Step = "select" | "details" | "result";
+import type { LucideIcon } from "lucide-react";
+
 type Severity = "leve" | "moderado" | "urgente";
 
 interface BodyPart {
   id: string;
   label: string;
-  icon: any;
+  icon: LucideIcon;
   symptoms: string[];
 }
 

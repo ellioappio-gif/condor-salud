@@ -30,7 +30,7 @@ export default function TriagePage() {
   const { data: triages = [] } = useTriages();
   const { data: kpis } = useTriageKPIs();
 
-  const intakeHistory = (triages as any[]).map((t: any) => ({
+  const intakeHistory = triages.map((t) => ({
     id: t.code || t.id,
     patient: t.patientName,
     date: t.date,
@@ -466,7 +466,7 @@ export default function TriagePage() {
                 </tr>
               </thead>
               <tbody>
-                {intakeHistory.map((h: any) => (
+                {intakeHistory.map((h) => (
                   <tr
                     key={h.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"

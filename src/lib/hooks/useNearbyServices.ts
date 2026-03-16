@@ -243,7 +243,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string | null> 
 // ─── Hook ────────────────────────────────────────────────────
 
 export function useNearbyServices(): UseNearbyServicesReturn {
-  const geo = useGeolocation();
+  const geo = useGeolocation({ lazy: true });
   const [radiusKm, setRadiusKm] = useState(10);
   const [locationName, setLocationName] = useState<string | null>(null);
 

@@ -53,8 +53,8 @@ export default function HowItWorks() {
           ))}
         </div>
 
-        {/* Connector line (desktop only) */}
-        <div className="hidden md:block relative -mt-[106px] mb-[62px] mx-[60px]">
+        {/* Connector line (desktop only) — decorative */}
+        <div className="hidden md:block relative mt-4 mb-4 mx-[60px]" aria-hidden="true">
           <div className="h-px bg-celeste/30 w-full" />
         </div>
       </div>

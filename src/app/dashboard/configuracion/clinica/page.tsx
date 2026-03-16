@@ -133,7 +133,7 @@ export default function ClinicaConfigPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-[10px] font-mono text-ink-muted">{f.nroPrestador}</span>
                   <span
-                    className={`px-2 py-0.5 text-[9px] font-bold rounded ${f.estado === "Activo" ? "bg-green-50 text-green-700" : "bg-gold-pale text-[#B8860B]"}`}
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded ${f.estado === "Activo" ? "bg-green-50 text-green-700" : "bg-gold-pale text-[#B8860B]"}`}
                   >
                     {f.estado}
                   </span>

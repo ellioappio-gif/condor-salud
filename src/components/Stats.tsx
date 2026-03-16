@@ -47,8 +47,7 @@ export default function Stats() {
           ))}
         </div>
         <p className="text-center text-[11px] text-ink-muted mt-4">
-          Fuente: Datos del mercado argentino de salud 2024–2026. Superintendencia de Servicios de
-          Salud.
+          Fuente: Datos del mercado argentino de salud. Superintendencia de Servicios de Salud.
         </p>
       </div>
     </section>

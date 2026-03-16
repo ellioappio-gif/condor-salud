@@ -164,7 +164,18 @@ export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const browserLang = typeof navigator !== "undefined" ? navigator.language : "es";
   const isEn = browserLang.startsWith("en");
-  const [messages, setMessages] = useState<ChatMessage[]>([getWelcomeMessage(browserLang)]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    // UM-08: Restore from sessionStorage if available
+    if (typeof sessionStorage !== "undefined") {
+      try {
+        const saved = sessionStorage.getItem("condor_chat_messages");
+        if (saved) return JSON.parse(saved) as ChatMessage[];
+      } catch {
+        /* ignore */
+      }
+    }
+    return [getWelcomeMessage(browserLang)];
+  });
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [hasNewMessage, setHasNewMessage] = useState(false);
@@ -184,6 +195,15 @@ export default function Chatbot() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
+
+  // UM-08: Save messages to sessionStorage on change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("condor_chat_messages", JSON.stringify(messages));
+    } catch {
+      /* ignore */
+    }
+  }, [messages]);
 
   // Focus input when chat opens
   useEffect(() => {
@@ -326,6 +346,31 @@ export default function Chatbot() {
               )}
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-white/60 text-[10px]">Online</span>
+              {/* U-04: Reset conversation button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMessages([getWelcomeMessage(browserLang)]);
+                  setInput("");
+                  sessionStorage.removeItem("condor_chat_messages");
+                }}
+                className="ml-2 p-1 text-white/50 hover:text-white transition rounded"
+                aria-label={isEn ? "Clear conversation" : "Limpiar conversación"}
+                title={isEn ? "Clear conversation" : "Limpiar conversación"}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="1 4 1 10 7 10" />
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -418,6 +463,7 @@ export default function Chatbot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={isEn ? "Type your question..." : "Escribí tu consulta..."}
+              maxLength={2000}
               aria-label={
                 isEn
                   ? "Type your question for the virtual assistant"

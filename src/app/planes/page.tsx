@@ -184,7 +184,7 @@ function CategoryAccordion({
                     <span className="text-sm font-medium text-ink">{mod.label}</span>
                     {isBase && <Lock className="w-3 h-3 text-ink-muted" />}
                     {mod.phase > 1 && (
-                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-amber-50 text-amber-700 rounded">
+                      <span className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 rounded">
                         Fase {mod.phase}
                       </span>
                     )}
@@ -297,10 +297,7 @@ export default function PlanesPage() {
     ? PRESETS.find((p) => p.id === plan.activePreset)
     : null;
 
-  // Show mobile bottom bar when scrolled past hero
-  if (typeof window !== "undefined") {
-    // handled client-side via scroll
-  }
+  // L-08: Removed dead typeof window check (no-op in "use client" component)
 
   return (
     <div className="min-h-screen bg-white">

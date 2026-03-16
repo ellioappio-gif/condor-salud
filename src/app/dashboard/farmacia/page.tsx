@@ -34,9 +34,9 @@ export default function FarmaciaPage() {
     { key: "recurrentes", label: "Recurrentes" },
   ];
 
-  const meds = medications as any[];
-  const categories = ["Todas", ...Array.from(new Set(meds.map((m: any) => m.category)))];
-  const filtered = meds.filter((m: any) => {
+  const meds = medications;
+  const categories = ["Todas", ...Array.from(new Set(meds.map((m) => m.category)))];
+  const filtered = meds.filter((m) => {
     const matchesSearch =
       m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.lab.toLowerCase().includes(search.toLowerCase());
@@ -44,7 +44,7 @@ export default function FarmaciaPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const getCoverageForFinanciador = (med: any) => {
+  const getCoverageForFinanciador = (med: (typeof meds)[number]) => {
     if (copagoFinanciador === "PAMI") return med.pamiCoverage;
     if (copagoFinanciador === "Obra Social") return med.osCoverage;
     return med.prepagaCoverage;
@@ -54,7 +54,7 @@ export default function FarmaciaPage() {
     ? [
         {
           label: "Pedidos hoy",
-          value: String(kpis.todayOrders),
+          value: String(kpis.ordersToday),
           change: "Desde servicio",
           color: "text-celeste-dark",
         },
@@ -174,7 +174,7 @@ export default function FarmaciaPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((med: any) => (
+                {filtered.map((med) => (
                   <tr
                     key={med.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -182,7 +182,7 @@ export default function FarmaciaPage() {
                     <td className="px-5 py-3 font-medium text-ink">
                       {med.name}
                       {med.requiresPrescription && (
-                        <span className="ml-2 text-[9px] bg-celeste-pale text-celeste-dark px-1.5 py-0.5 rounded font-bold">
+                        <span className="ml-2 text-[10px] bg-celeste-pale text-celeste-dark px-1.5 py-0.5 rounded font-bold">
                           Rx
                         </span>
                       )}
@@ -239,7 +239,7 @@ export default function FarmaciaPage() {
             pre-cargado.
           </p>
           <div className="space-y-3">
-            {(prescriptions as any[]).map((rx: any) => (
+            {prescriptions.map((rx) => (
               <div
                 key={rx.id}
                 className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -259,9 +259,9 @@ export default function FarmaciaPage() {
                       {rx.status}
                     </span>
                   </div>
-                  <p className="font-medium text-sm text-ink mt-1">{rx.patient}</p>
+                  <p className="font-medium text-sm text-ink mt-1">{rx.patientName}</p>
                   <p className="text-xs text-ink-muted">
-                    {rx.doctor} - {rx.date} - {rx.financiador}
+                    {rx.doctorName} - {rx.date} - {rx.financiador}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {(rx.items || []).map((item: string) => (
@@ -278,7 +278,7 @@ export default function FarmaciaPage() {
                   {rx.status === "Pendiente" && (
                     <>
                       <button
-                        onClick={() => showDemo(`Cargar carrito para ${rx.patient}`)}
+                        onClick={() => showDemo(`Cargar carrito para ${rx.patientName}`)}
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                       >
                         Cargar carrito
@@ -286,7 +286,7 @@ export default function FarmaciaPage() {
                       <button
                         onClick={() =>
                           showDemo(
-                            `Enviar WhatsApp a ${rx.patient} con link del carrito pre-cargado`,
+                            `Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
                           )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
@@ -297,7 +297,7 @@ export default function FarmaciaPage() {
                   )}
                   {rx.status === "En carrito" && (
                     <button
-                      onClick={() => showDemo(`Enviar recordatorio WhatsApp a ${rx.patient}`)}
+                      onClick={() => showDemo(`Enviar recordatorio WhatsApp a ${rx.patientName}`)}
                       className="px-4 py-2 text-xs font-semibold border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                     >
                       Recordar
@@ -317,7 +317,7 @@ export default function FarmaciaPage() {
             Seguimiento en tiempo real de entregas via Rappi Farma y PedidosYa.
           </p>
           <div className="space-y-3">
-            {(deliveries as any[]).map((del: any) => (
+            {deliveries.map((del) => (
               <div key={del.id} className="bg-white border border-border rounded-lg p-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -338,10 +338,10 @@ export default function FarmaciaPage() {
                         {del.courier}
                       </span>
                     </div>
-                    <p className="font-medium text-sm text-ink mt-1">{del.patient}</p>
+                    <p className="font-medium text-sm text-ink mt-1">{del.patientName}</p>
                     <p className="text-xs text-ink-muted">{del.address}</p>
                     <p className="text-xs text-ink-muted mt-0.5">
-                      {del.items} items - ETA: {del.eta}
+                      {del.itemCount} items - ETA: {del.eta}
                     </p>
                   </div>
                   <button
@@ -402,7 +402,7 @@ export default function FarmaciaPage() {
                 </tr>
               </thead>
               <tbody>
-                {meds.slice(0, 6).map((med: any) => {
+                {meds.slice(0, 6).map((med) => {
                   const coverage = getCoverageForFinanciador(med);
                   const discount = Math.round(med.price * (coverage / 100));
                   const copago = med.price - discount;
@@ -458,7 +458,7 @@ export default function FarmaciaPage() {
           </div>
 
           <div className="space-y-3">
-            {(recurringOrders as any[]).map((order: any) => (
+            {recurringOrders.map((order) => (
               <div
                 key={order.id}
                 className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -477,7 +477,7 @@ export default function FarmaciaPage() {
                     </span>
                     <span className="text-[10px] text-ink-muted">{order.frequency}</span>
                   </div>
-                  <p className="font-medium text-sm text-ink mt-1">{order.patient}</p>
+                  <p className="font-medium text-sm text-ink mt-1">{order.patientName}</p>
                   <p className="text-xs text-ink-muted">
                     {order.financiador} - Próxima entrega: {order.nextDelivery}
                   </p>

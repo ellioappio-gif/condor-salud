@@ -9,11 +9,11 @@ const serverSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z
     .string()
     .url("NEXT_PUBLIC_SUPABASE_URL must be a valid URL")
-    .default("https://placeholder.supabase.co"),
+    .optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z
     .string()
     .min(1, "NEXT_PUBLIC_SUPABASE_ANON_KEY is required")
-    .default("placeholder-key"),
+    .optional(),
 
   // ── Sentry ──────────────────────────────────────────────────
   SENTRY_DSN: z.string().url().optional(),
@@ -61,19 +61,28 @@ const serverSchema = z.object({
   // ── Anthropic (Claude AI for Cora chatbot) ─────────────────
   ANTHROPIC_API_KEY: z.string().optional(),
 
+  // ── Google OAuth ────────────────────────────────────────────
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+
   // ── App ─────────────────────────────────────────────────────
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_DEMO_MODE: z.string().optional(),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
 });
 
 // ─── Client-side Environment Variables ───────────────────────
 // Only NEXT_PUBLIC_* variables are available in the browser.
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url().default("https://placeholder.supabase.co"),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).default("placeholder-key"),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
   NEXT_PUBLIC_MP_PUBLIC_KEY: z.string().optional(),
   NEXT_PUBLIC_GOOGLE_MAPS_KEY: z.string().optional(),
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().optional(),
+  NEXT_PUBLIC_DEMO_MODE: z.string().optional(),
 });
 
 // ─── Type exports ────────────────────────────────────────────
@@ -112,15 +121,21 @@ function validateClientEnv(): ClientEnv {
     clientVars.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
     clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     clientVars.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+    clientVars.NEXT_PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
     clientVars.NEXT_PUBLIC_MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
     clientVars.NEXT_PUBLIC_GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+    clientVars.NEXT_PUBLIC_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    clientVars.NEXT_PUBLIC_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE;
   } else {
     // On server: can read directly
     clientVars.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
     clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     clientVars.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+    clientVars.NEXT_PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
     clientVars.NEXT_PUBLIC_MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
     clientVars.NEXT_PUBLIC_GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+    clientVars.NEXT_PUBLIC_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    clientVars.NEXT_PUBLIC_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE;
   }
 
   const result = clientSchema.safeParse(clientVars);
@@ -149,9 +164,7 @@ export const clientEnv: ClientEnv = validateClientEnv();
 // ─── Helper: Check if Supabase is configured ────────────────
 export function isSupabaseConfigured(): boolean {
   const url = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
-  return (
-    !!url && url !== "https://placeholder.supabase.co" && url !== "https://your-project.supabase.co"
-  );
+  return !!url && !url.includes("placeholder") && !url.includes("your-project");
 }
 
 // ─── Helper: Check if Sentry is configured ──────────────────

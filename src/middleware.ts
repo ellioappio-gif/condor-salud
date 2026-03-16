@@ -3,9 +3,30 @@ import { NextResponse, type NextRequest } from "next/server";
 // ─── Protected routes ────────────────────────────────────────
 const PROTECTED_PREFIXES = ["/dashboard", "/paciente"];
 const AUTH_ROUTES = ["/auth/login", "/auth/registro"];
+// Public API routes that don't require authentication
+const PUBLIC_API_PREFIXES = [
+  "/api/health",
+  "/api/chatbot",
+  "/api/waitlist",
+  "/api/auth",
+  "/api/csp-report",
+];
+
+/** SM-01: Validate redirect param — only allow relative paths to prevent open redirects */
+function sanitizeRedirect(value: string | null): string {
+  if (!value) return "/dashboard";
+  // Must start with / and must NOT start with // (protocol-relative) or contain :
+  if (value.startsWith("/") && !value.startsWith("//") && !value.includes(":")) return value;
+  return "/dashboard";
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Skip auth for public API routes
+  if (PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
 
   // Check if Supabase is configured
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,15 +44,25 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     // Redirect unauthenticated users away from protected routes
-    if (!user && PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
+    const isProtectedPage = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+    const isProtectedApi =
+      pathname.startsWith("/api/") && !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p));
+
+    if (!user && isProtectedPage) {
       const loginUrl = new URL("/auth/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
+    // SH-04: Block unauthenticated access to protected API routes
+    if (!user && isProtectedApi) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // Redirect authenticated users away from auth pages
     if (user && AUTH_ROUTES.includes(pathname)) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      const redirectTo = sanitizeRedirect(request.nextUrl.searchParams.get("redirect"));
+      return NextResponse.redirect(new URL(redirectTo, request.url));
     }
 
     return response;
@@ -63,8 +94,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (images, logos, etc.)
-     * - Public API routes (health, chatbot, waitlist, auth)
      */
-    "/((?!_next/static|_next/image|favicon.ico|logos/|api/health|api/chatbot|api/waitlist|api/auth).*)",
+    "/((?!_next/static|_next/image|favicon.ico|logos/).*)",
   ],
 };

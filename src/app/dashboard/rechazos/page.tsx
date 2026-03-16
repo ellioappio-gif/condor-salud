@@ -224,7 +224,7 @@ export default function RechazosPage() {
                         }
                       />
                       {r.reprocesable && (
-                        <span className="text-[9px] px-1.5 py-0.5 bg-green-100 text-green-700 font-bold rounded">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-green-100 text-green-700 font-bold rounded">
                           Reprocesable
                         </span>
                       )}

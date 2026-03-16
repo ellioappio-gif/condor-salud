@@ -30,7 +30,7 @@ import {
   getWaitingRoom,
   getConsultations,
   getScheduledConsultations,
-  getTelemedichinaKPIs,
+  getTelemedicinaKPIs,
 } from "@/lib/services/telemedicina";
 
 import { getDoctors, getDirectorioKPIs } from "@/lib/services/directorio";
@@ -69,7 +69,7 @@ const dataService = {
   waitingRoom: getWaitingRoom,
   consultations: getConsultations,
   scheduledConsultations: getScheduledConsultations,
-  telemedichinaKPIs: getTelemedichinaKPIs,
+  telemedicinaKPIs: getTelemedicinaKPIs,
 
   // ─── Module 13: Directorio ─────────────────────────────────
   doctors: () => getDoctors({}),

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useDemoAction } from "@/components/DemoModal";
 import { ExternalLink } from "lucide-react";
 import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
+import type { Doctor } from "@/lib/types";
 import {
   specialties as specialtiesData,
   financiadoresOptions,
@@ -30,13 +31,13 @@ export default function DirectorioPage() {
   const [locationFilter, setLocationFilter] = useState("Todas");
   const [financiadorFilter, setFinanciadorFilter] = useState("Todos");
   const [selectedSymptom, setSelectedSymptom] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
   // ─── SWR data hooks ─────────────────────────────────────────
   const { data: doctors = [] } = useDoctors();
   const { data: kpis } = useDirectorioKPIs();
 
-  const docs = doctors as any[];
+  const docs = doctors;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "busqueda", label: "Búsqueda" },
@@ -46,20 +47,28 @@ export default function DirectorioPage() {
     { key: "recomendaciones", label: "Recomendaciones" },
   ];
 
-  const filtered = docs.filter((d: any) => {
-    const matchesSearch =
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.specialty.toLowerCase().includes(search.toLowerCase());
-    const matchesSpecialty = specialtyFilter === "Todas" || d.specialty === specialtyFilter;
-    const matchesLocation = locationFilter === "Todas" || d.location === locationFilter;
-    const matchesFinanciador =
-      financiadorFilter === "Todos" || (d.financiadores || []).includes(financiadorFilter);
-    return matchesSearch && matchesSpecialty && matchesLocation && matchesFinanciador;
-  });
+  const filtered = useMemo(
+    () =>
+      docs.filter((d) => {
+        const matchesSearch =
+          d.name.toLowerCase().includes(search.toLowerCase()) ||
+          d.specialty.toLowerCase().includes(search.toLowerCase());
+        const matchesSpecialty = specialtyFilter === "Todas" || d.specialty === specialtyFilter;
+        const matchesLocation = locationFilter === "Todas" || d.location === locationFilter;
+        const matchesFinanciador =
+          financiadorFilter === "Todos" || (d.financiadores || []).includes(financiadorFilter);
+        return matchesSearch && matchesSpecialty && matchesLocation && matchesFinanciador;
+      }),
+    [docs, search, specialtyFilter, locationFilter, financiadorFilter],
+  );
 
-  const recommendedDoctors = selectedSymptom
-    ? docs.filter((d: any) => (symptomToSpecialty[selectedSymptom] || []).includes(d.specialty))
-    : [];
+  const recommendedDoctors = useMemo(
+    () =>
+      selectedSymptom
+        ? docs.filter((d) => (symptomToSpecialty[selectedSymptom] || []).includes(d.specialty))
+        : [],
+    [docs, selectedSymptom],
+  );
 
   const renderStars = (rating: number) => {
     const full = Math.floor(rating);
@@ -221,75 +230,94 @@ export default function DirectorioPage() {
 
           <p className="text-xs text-ink-muted">{filtered.length} resultados</p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {filtered.map((doc: any) => (
-              <div
-                key={doc.id}
-                className="bg-white border border-border rounded-lg p-5 hover:border-celeste-dark/30 transition"
+          {filtered.length === 0 ? (
+            <div className="text-center py-12 bg-white border border-border rounded-lg">
+              <p className="text-sm text-ink-muted">
+                No se encontraron médicos con los filtros seleccionados.
+              </p>
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setSpecialtyFilter("Todas");
+                  setLocationFilter("Todas");
+                  setFinanciadorFilter("Todos");
+                }}
+                className="mt-3 text-sm text-celeste-dark font-medium hover:underline"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-medium text-sm text-ink">{doc.name}</p>
-                    <p className="text-xs text-celeste-dark font-medium">{doc.specialty}</p>
-                    <p className="text-xs text-ink-muted mt-0.5">
-                      {doc.location} — {doc.address}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="flex items-center gap-1">
-                      {renderStars(doc.rating)}
-                      <span className="text-xs font-medium text-ink ml-1">{doc.rating}</span>
+                Limpiar filtros
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {filtered.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="bg-white border border-border rounded-lg p-5 hover:border-celeste-dark/30 transition"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-medium text-sm text-ink">{doc.name}</p>
+                      <p className="text-xs text-celeste-dark font-medium">{doc.specialty}</p>
+                      <p className="text-xs text-ink-muted mt-0.5">
+                        {doc.location} — {doc.address}
+                      </p>
                     </div>
-                    <p className="text-[10px] text-ink-muted">{doc.reviews} reviews</p>
+                    <div className="text-right shrink-0">
+                      <div className="flex items-center gap-1">
+                        {renderStars(doc.rating)}
+                        <span className="text-xs font-medium text-ink ml-1">{doc.rating}</span>
+                      </div>
+                      <p className="text-[10px] text-ink-muted">{doc.reviews} reviews</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  {(doc.financiadores || []).map((f: string) => (
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {(doc.financiadores || []).map((f: string) => (
+                      <span
+                        key={f}
+                        className="text-[10px] bg-[#F8FAFB] border border-border-light px-2 py-0.5 rounded text-ink-light"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                    {doc.teleconsulta && (
+                      <span className="text-[10px] bg-celeste-pale text-celeste-dark px-2 py-0.5 rounded font-bold">
+                        Teleconsulta
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-light">
                     <span
-                      key={f}
-                      className="text-[10px] bg-[#F8FAFB] border border-border-light px-2 py-0.5 rounded text-ink-light"
+                      className={`text-xs font-medium ${doc.available ? "text-success-600" : "text-ink-muted"}`}
                     >
-                      {f}
+                      {doc.available ? `Próximo: ${doc.nextSlot}` : "Sin disponibilidad"}
                     </span>
-                  ))}
-                  {doc.teleconsulta && (
-                    <span className="text-[10px] bg-celeste-pale text-celeste-dark px-2 py-0.5 rounded font-bold">
-                      Teleconsulta
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-light">
-                  <span
-                    className={`text-xs font-medium ${doc.available ? "text-success-600" : "text-ink-muted"}`}
-                  >
-                    {doc.available ? `Próximo: ${doc.nextSlot}` : "Sin disponibilidad"}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={getTopDoctorsSearchUrl(doc.name)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste-dark/30 rounded hover:bg-celeste-pale transition flex items-center gap-1"
-                    >
-                      <ExternalLink className="w-3 h-3" /> TopDoctors
-                    </a>
-                    <a
-                      href={getTopDoctorsBookingUrl(doc.specialty, doc.name)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`px-4 py-1.5 text-xs font-semibold rounded transition inline-block text-center ${
-                        doc.available
-                          ? "bg-celeste-dark text-white hover:bg-celeste"
-                          : "bg-gray-100 text-gray-400 pointer-events-none"
-                      }`}
-                    >
-                      Reservar
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={getTopDoctorsSearchUrl(doc.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste-dark/30 rounded hover:bg-celeste-pale transition flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3 h-3" /> TopDoctors
+                      </a>
+                      <a
+                        href={getTopDoctorsBookingUrl(doc.specialty, doc.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`px-4 py-1.5 text-xs font-semibold rounded transition inline-block text-center ${
+                          doc.available
+                            ? "bg-celeste-dark text-white hover:bg-celeste"
+                            : "bg-gray-100 text-gray-400 pointer-events-none"
+                        }`}
+                      >
+                        Reservar
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -330,7 +358,7 @@ export default function DirectorioPage() {
                 </tr>
               </thead>
               <tbody>
-                {docs.slice(0, 5).map((doc: any) => (
+                {docs.slice(0, 5).map((doc, docIdx) => (
                   <tr
                     key={doc.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -340,7 +368,8 @@ export default function DirectorioPage() {
                       <p className="text-[10px] text-ink-muted">{doc.specialty}</p>
                     </td>
                     {[1, 2, 3, 4, 5].map((day) => {
-                      const slots = Math.floor(Math.random() * 6);
+                      // Deterministic slot count based on doctor index + day
+                      const slots = (docIdx * 3 + day * 2) % 6;
                       return (
                         <td key={day} className="px-5 py-3 text-center">
                           {slots > 0 ? (
@@ -375,7 +404,7 @@ export default function DirectorioPage() {
 
           {!selectedDoctor ? (
             <div className="space-y-3">
-              {docs.map((doc: any) => (
+              {docs.map((doc) => (
                 <button
                   key={doc.id}
                   onClick={() => setSelectedDoctor(doc)}
@@ -714,7 +743,7 @@ export default function DirectorioPage() {
               <h3 className="text-sm font-semibold text-ink">
                 Médicos recomendados para &quot;{selectedSymptom}&quot;
               </h3>
-              {recommendedDoctors.map((doc: any) => (
+              {recommendedDoctors.map((doc) => (
                 <div
                   key={doc.id}
                   className="bg-white border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-center gap-4"

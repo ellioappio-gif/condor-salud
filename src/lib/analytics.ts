@@ -56,7 +56,11 @@ class Analytics {
   }
 
   private flush() {
-    // TODO: Send queued events to analytics provider
+    if (this.queue.length === 0) return;
+    // TODO: Wire to PostHog/Plausible — for now, log in dev and clear queue
+    if (process.env.NODE_ENV === "development") {
+      log.debug({ count: this.queue.length }, "Analytics flush (events pending provider)");
+    }
     this.queue = [];
   }
 }

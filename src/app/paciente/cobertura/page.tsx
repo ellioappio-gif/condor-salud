@@ -25,9 +25,9 @@ const planInfo = {
   memberId: "08-29384756-3",
   group: "Individual",
   status: "Activo",
-  validUntil: "31/12/2025",
+  validUntil: "31/12/2026",
   monthlyFee: "$185.400",
-  lastPayment: "01/03/2025",
+  lastPayment: "01/03/2026",
   phone: "0800-555-6733",
   web: "www.osde.com.ar",
 };
@@ -76,35 +76,35 @@ const coverageItems = [
 const recentClaims = [
   {
     id: 1,
-    date: "12/03/2025",
+    date: "12/03/2026",
     description: "Consulta - Clínica Médica",
     amount: "$0",
     status: "aprobado",
   },
   {
     id: 2,
-    date: "05/03/2025",
+    date: "05/03/2026",
     description: "Laboratorio - Hemograma completo",
     amount: "$0",
     status: "aprobado",
   },
   {
     id: 3,
-    date: "28/02/2025",
+    date: "28/02/2026",
     description: "Farmacia - Losartán 50mg",
     amount: "$4.200",
     status: "aprobado",
   },
   {
     id: 4,
-    date: "20/02/2025",
+    date: "20/02/2026",
     description: "Consulta - Cardiología",
     amount: "$0",
     status: "aprobado",
   },
   {
     id: 5,
-    date: "15/02/2025",
+    date: "15/02/2026",
     description: "Imagen - Eco Doppler",
     amount: "$0",
     status: "pendiente",
@@ -113,9 +113,9 @@ const recentClaims = [
 
 const documents = [
   { name: "Credencial digital", type: "PDF" },
-  { name: "Cartilla médica 2025", type: "PDF" },
+  { name: "Cartilla médica 2026", type: "PDF" },
   { name: "Programa Materno Infantil", type: "PDF" },
-  { name: "Vademécum 2025", type: "PDF" },
+  { name: "Vademécum 2026", type: "PDF" },
 ];
 
 export default function CoberturaPage() {

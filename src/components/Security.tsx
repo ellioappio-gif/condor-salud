@@ -56,7 +56,7 @@ export default function Security() {
               className="bg-white border border-border rounded-xl p-5 hover:border-celeste/30 hover:shadow-sm transition"
             >
               <div className="w-9 h-9 rounded-lg bg-celeste-pale flex items-center justify-center mb-3">
-                <c.icon className="w-4.5 h-4.5 text-celeste-dark" />
+                <c.icon className="w-[18px] h-[18px] text-celeste-dark" />
               </div>
               <h3 className="font-bold text-sm text-ink mb-1.5">{c.title}</h3>
               <p className="text-[12px] text-ink-light leading-relaxed">{c.desc}</p>

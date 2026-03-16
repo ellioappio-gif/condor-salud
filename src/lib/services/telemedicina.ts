@@ -278,7 +278,7 @@ export async function sendWhatsAppSummary(consultationId: string): Promise<boole
   }
 }
 
-export async function getTelemedichinaKPIs() {
+export async function getTelemedicinaKPIs() {
   const [waiting, consultations] = await Promise.all([getWaitingRoom(), getConsultations()]);
   const completed = consultations.filter((c) => c.status === "Completada");
   return {

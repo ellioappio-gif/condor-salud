@@ -375,7 +375,7 @@ export default function MedicosPage() {
                   <button
                     onClick={() => showToast(`${doctor.name} agregado a favoritos`)}
                     className="p-2 text-ink-200 hover:text-red-500 transition shrink-0"
-                    title="Agregar a favoritos"
+                    aria-label={`Agregar a ${doctor.name} a favoritos`}
                   >
                     <Heart className="w-4 h-4" />
                   </button>

@@ -22,12 +22,26 @@ export function sanitize(input: string, maxLength = 1000): string {
   return stripHtml(input).trim().slice(0, maxLength);
 }
 
-/** Sanitize an entire object's string values */
+/** SM-06: Recursively sanitize all string values in an object (deep) */
 export function sanitizeObject<T extends Record<string, unknown>>(obj: T, maxLength = 1000): T {
   const result = { ...obj };
   for (const key in result) {
-    if (typeof result[key] === "string") {
-      (result as Record<string, unknown>)[key] = sanitize(result[key] as string, maxLength);
+    const val = result[key];
+    if (typeof val === "string") {
+      (result as Record<string, unknown>)[key] = sanitize(val, maxLength);
+    } else if (Array.isArray(val)) {
+      (result as Record<string, unknown>)[key] = val.map((item) =>
+        typeof item === "string"
+          ? sanitize(item, maxLength)
+          : item && typeof item === "object"
+            ? sanitizeObject(item as Record<string, unknown>, maxLength)
+            : item,
+      );
+    } else if (val && typeof val === "object") {
+      (result as Record<string, unknown>)[key] = sanitizeObject(
+        val as Record<string, unknown>,
+        maxLength,
+      );
     }
   }
   return result;
