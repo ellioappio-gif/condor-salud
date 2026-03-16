@@ -399,7 +399,7 @@ export default function FarmaciaPage() {
                   <th className="text-right font-medium px-5 py-3">Precio lista</th>
                   <th className="text-center font-medium px-5 py-3">Cobertura</th>
                   <th className="text-right font-medium px-5 py-3">Descuento</th>
-                  <th className="text-right font-medium px-5 py-3 font-bold">Copago</th>
+                  <th className="text-right font-bold px-5 py-3">Copago</th>
                 </tr>
               </thead>
               <tbody>

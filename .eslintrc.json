@@ -1,5 +1,6 @@
 {
   "extends": ["next/core-web-vitals", "prettier"],
+  "ignorePatterns": ["scripts/**", "supabase/**"],
   "rules": {
     "@next/next/no-img-element": "warn",
     "react/no-unescaped-entities": "off"

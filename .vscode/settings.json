@@ -13,7 +13,15 @@
   },
 
   // PostgreSQL migrations — disable MSSQL diagnostics for .sql files
-  "mssql.ignoredFiles": ["supabase/**/*.sql"],
+  "mssql.intelliSense.enableIntelliSense": false,
+  "[sql]": {
+    "editor.defaultFormatter": null
+  },
+
+  // Exclude supabase SQL from MSSQL linting
+  "files.exclude": {
+    "supabase/.temp": true
+  },
 
   // Ensure the TS language server restarts cleanly
   "typescript.tsdk": "node_modules/typescript/lib"
