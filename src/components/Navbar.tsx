@@ -6,7 +6,7 @@ import { useLocale } from "@/lib/i18n/context";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { locale, toggleLocale, t, segment, setSegment } = useLocale();
+  const { locale, toggleLocale, t } = useLocale();
 
   return (
     <>
@@ -48,39 +48,6 @@ export default function Navbar() {
             <span className="text-ink-muted">/</span>
             <span className={locale === "en" ? "text-celeste-dark" : "text-ink-muted"}>EN</span>
           </button>
-          {/* Segment switcher */}
-          <div
-            className="flex items-center border border-border rounded-full overflow-hidden"
-            role="radiogroup"
-            aria-label={t("seg.label")}
-          >
-            <button
-              type="button"
-              role="radio"
-              aria-checked={segment === "provider" || segment === "default"}
-              onClick={() => setSegment("provider")}
-              className={`px-2.5 py-1 text-[10px] font-semibold transition ${
-                segment === "provider" || segment === "default"
-                  ? "bg-celeste-dark text-white"
-                  : "text-ink-muted hover:text-celeste-dark"
-              }`}
-            >
-              {t("seg.provider")}
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={segment === "tourist"}
-              onClick={() => setSegment("tourist")}
-              className={`px-2.5 py-1 text-[10px] font-semibold transition ${
-                segment === "tourist"
-                  ? "bg-celeste-dark text-white"
-                  : "text-ink-muted hover:text-celeste-dark"
-              }`}
-            >
-              {t("seg.tourist")}
-            </button>
-          </div>
           <Link
             href="/#problema"
             className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
@@ -165,39 +132,6 @@ export default function Navbar() {
               <span className="text-ink-muted">/</span>
               <span className={locale === "en" ? "text-celeste-dark" : "text-ink-muted"}>EN</span>
             </button>
-            {/* Mobile segment switcher */}
-            <div
-              className="self-start flex items-center border border-border rounded-full overflow-hidden"
-              role="radiogroup"
-              aria-label={t("seg.label")}
-            >
-              <button
-                type="button"
-                role="radio"
-                aria-checked={segment === "provider" || segment === "default"}
-                onClick={() => setSegment("provider")}
-                className={`px-3 py-1.5 text-[10px] font-semibold transition ${
-                  segment === "provider" || segment === "default"
-                    ? "bg-celeste-dark text-white"
-                    : "text-ink-muted hover:text-celeste-dark"
-                }`}
-              >
-                {t("seg.provider")}
-              </button>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={segment === "tourist"}
-                onClick={() => setSegment("tourist")}
-                className={`px-3 py-1.5 text-[10px] font-semibold transition ${
-                  segment === "tourist"
-                    ? "bg-celeste-dark text-white"
-                    : "text-ink-muted hover:text-celeste-dark"
-                }`}
-              >
-                {t("seg.tourist")}
-              </button>
-            </div>
             <Link
               href="/#problema"
               onClick={() => setOpen(false)}

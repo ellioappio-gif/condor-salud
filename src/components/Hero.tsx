@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Building2, User } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
 const trustLogos = ["PAMI", "OSDE", "Swiss Medical", "Galeno", "Medifé", "IOMA"];
 
 export default function Hero() {
-  const { t, segment } = useLocale();
+  const { t, segment, setSegment } = useLocale();
+
+  const isProvider = segment === "provider" || segment === "default";
 
   // Tourist CTA links go to patient-facing pages
   const cta1Href = segment === "tourist" ? "/paciente/medicos" : "/auth/registro";
@@ -15,6 +17,44 @@ export default function Hero() {
 
   return (
     <section className="px-6 pt-16 pb-20 max-w-[1000px] mx-auto">
+      {/* ── Audience Toggle ────────────────────────────── */}
+      <div className="flex justify-center mb-6">
+        <div
+          className="inline-flex items-center bg-surface border border-border rounded-full p-1 gap-1"
+          role="radiogroup"
+          aria-label={t("seg.label")}
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={isProvider}
+            onClick={() => setSegment("provider")}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+              isProvider
+                ? "bg-celeste-dark text-white shadow-sm"
+                : "text-ink-muted hover:text-ink hover:bg-white"
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            {t("seg.provider")}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={segment === "tourist"}
+            onClick={() => setSegment("tourist")}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+              segment === "tourist"
+                ? "bg-celeste-dark text-white shadow-sm"
+                : "text-ink-muted hover:text-ink hover:bg-white"
+            }`}
+          >
+            <User className="w-4 h-4" />
+            {t("seg.tourist")}
+          </button>
+        </div>
+      </div>
+
       {/* Announcement banner */}
       <div className="flex justify-center mb-8">
         <Link
@@ -27,7 +67,8 @@ export default function Hero() {
         </Link>
       </div>
 
-      <div className="text-center">
+      {/* Content crossfades when segment changes */}
+      <div key={segment} className="text-center animate-segmentFade">
         <h1 className="text-[clamp(32px,5vw,56px)] font-bold text-ink leading-[1.1] mb-6">
           {t("hero.title1")}
           <br />
