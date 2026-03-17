@@ -5,15 +5,21 @@ import {
   ArrowRight,
   BarChart3,
   Building2,
+  Calendar,
   Clock,
   CheckCircle2,
   DollarSign,
+  Heart,
   MapPin,
+  Pill,
   Send,
+  Shield,
   Stethoscope,
+  Target,
   Timer,
   TrendingDown,
   User,
+  Users,
   Video,
   Zap,
 } from "lucide-react";
@@ -162,8 +168,8 @@ export default function Hero() {
 function ProviderPreview({ t }: { t: (key: string) => string }) {
   return (
     <>
-      {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* KPI row — 6 cards in 3x2 grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {[
           {
             label: t("hero.mockBilled"),
@@ -193,6 +199,20 @@ function ProviderPreview({ t }: { t: (key: string) => string }) {
             accent: "border-l-amber-400",
             icon: <Timer className="w-3.5 h-3.5 text-amber-500" />,
           },
+          {
+            label: t("hero.mockPatients"),
+            val: t("hero.mockPatientsVal"),
+            change: t("hero.mockPatientsChange"),
+            accent: "border-l-purple-400",
+            icon: <Users className="w-3.5 h-3.5 text-purple-500" />,
+          },
+          {
+            label: t("hero.mockAgenda"),
+            val: t("hero.mockAgendaVal"),
+            change: t("hero.mockAgendaChange"),
+            accent: "border-l-celeste",
+            icon: <Calendar className="w-3.5 h-3.5 text-celeste" />,
+          },
         ].map((k) => (
           <div
             key={k.label}
@@ -207,7 +227,29 @@ function ProviderPreview({ t }: { t: (key: string) => string }) {
         ))}
       </div>
 
-      {/* Two-column: Alerts + Automations */}
+      {/* Revenue target bar */}
+      <div className="bg-white border border-border/60 rounded-lg px-4 py-3 flex items-center gap-4">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Target className="w-4 h-4 text-celeste-dark" />
+          <span className="text-xs font-semibold text-ink">{t("hero.mockRevenueTitle")}</span>
+        </div>
+        <div className="flex-1">
+          <div className="w-full bg-surface rounded-full h-2.5">
+            <div
+              className="bg-celeste-dark rounded-full h-2.5 transition-all"
+              style={{ width: "78%" }}
+            />
+          </div>
+        </div>
+        <span className="text-xs font-bold text-celeste-dark flex-shrink-0">
+          {t("hero.mockRevenuePercent")}
+        </span>
+        <span className="text-[10px] text-ink-muted flex-shrink-0 hidden sm:inline">
+          {t("hero.mockRevenueLabel")}
+        </span>
+      </div>
+
+      {/* Three-column: Alerts + Automations + Spark */}
       <div className="grid sm:grid-cols-5 gap-3">
         {/* Alerts feed — 3 cols */}
         <div className="sm:col-span-3 bg-white border border-border/60 rounded-lg p-4 text-left">
@@ -215,8 +257,13 @@ function ProviderPreview({ t }: { t: (key: string) => string }) {
             <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
             {t("hero.mockAlertsTitle")}
           </p>
-          <div className="space-y-2.5">
-            {[t("hero.mockAlert1"), t("hero.mockAlert2"), t("hero.mockAlert3")].map((alert, i) => (
+          <div className="space-y-2">
+            {[
+              t("hero.mockAlert1"),
+              t("hero.mockAlert2"),
+              t("hero.mockAlert3"),
+              t("hero.mockAlert4"),
+            ].map((alert, i) => (
               <div
                 key={`alert-${i}`}
                 className="flex items-start gap-2 px-3 py-2 bg-surface/60 rounded-md"
@@ -234,7 +281,12 @@ function ProviderPreview({ t }: { t: (key: string) => string }) {
             {t("hero.mockAutoTitle")}
           </p>
           <div className="space-y-2">
-            {[t("hero.mockAuto1"), t("hero.mockAuto2"), t("hero.mockAuto3")].map((item, i) => (
+            {[
+              t("hero.mockAuto1"),
+              t("hero.mockAuto2"),
+              t("hero.mockAuto3"),
+              t("hero.mockAuto4"),
+            ].map((item, i) => (
               <div
                 key={`auto-${i}`}
                 className="flex items-center gap-2 px-3 py-2 bg-celeste-pale/40 border border-celeste/10 rounded-md"
@@ -291,8 +343,8 @@ function TouristPreview({ t }: { t: (key: string) => string }) {
 
   return (
     <>
-      {/* KPI row — patient-relevant */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* KPI row — 6 cards in 3x2 grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {[
           {
             label: t("hero.mockBilled"),
@@ -322,6 +374,20 @@ function TouristPreview({ t }: { t: (key: string) => string }) {
             icon: <Zap className="w-3.5 h-3.5 text-purple-500" />,
             accent: "border-l-purple-400",
           },
+          {
+            label: t("hero.mockPatients"),
+            val: t("hero.mockPatientsVal"),
+            sub: t("hero.mockPatientsChange"),
+            icon: <Shield className="w-3.5 h-3.5 text-emerald-500" />,
+            accent: "border-l-emerald-400",
+          },
+          {
+            label: t("hero.mockAgenda"),
+            val: t("hero.mockAgendaVal"),
+            sub: t("hero.mockAgendaChange"),
+            icon: <Pill className="w-3.5 h-3.5 text-rose-500" />,
+            accent: "border-l-rose-400",
+          },
         ].map((k) => (
           <div
             key={k.label}
@@ -334,6 +400,17 @@ function TouristPreview({ t }: { t: (key: string) => string }) {
             <p className="text-[10px] text-celeste-dark font-medium">{k.sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* Coverage status bar */}
+      <div className="bg-white border border-border/60 rounded-lg px-4 py-3 flex items-center gap-3">
+        <Shield className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+        <span className="text-xs font-semibold text-ink">{t("hero.mockCoverageTitle")}</span>
+        <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+          {t("hero.mockCoveragePlan")}
+        </span>
+        <span className="text-[10px] text-ink-muted">{t("hero.mockCoverageStatus")}</span>
+        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 ml-auto flex-shrink-0" />
       </div>
 
       {/* Two-column: Appointments + Cora chatbot */}
@@ -368,17 +445,35 @@ function TouristPreview({ t }: { t: (key: string) => string }) {
         {/* Cora chatbot preview — 2 cols */}
         <div className="sm:col-span-2 bg-white border border-border/60 rounded-lg p-4 text-left flex flex-col">
           <p className="text-xs font-semibold text-ink mb-3 flex items-center gap-1.5">
-            <Stethoscope className="w-4 h-4 text-celeste-dark" />
+            <Heart className="w-4 h-4 text-celeste-dark" />
             {t("hero.mockCoraTitle")}
           </p>
-          <div className="flex-1 space-y-2">
-            {/* Cora message bubble */}
+          <div className="flex-1 space-y-2.5">
+            {/* Cora greeting */}
             <div className="flex gap-2">
               <div className="w-6 h-6 bg-celeste-dark rounded-full flex items-center justify-center flex-shrink-0 text-[10px] text-white font-bold">
                 C
               </div>
               <div className="bg-celeste-pale/60 border border-celeste/10 rounded-lg rounded-tl-none px-3 py-2 max-w-[85%]">
                 <p className="text-[11px] text-ink leading-snug">{t("hero.mockCoraMsg")}</p>
+              </div>
+            </div>
+            {/* User message */}
+            <div className="flex gap-2 justify-end">
+              <div className="bg-celeste-dark/10 border border-celeste/20 rounded-lg rounded-tr-none px-3 py-2 max-w-[85%]">
+                <p className="text-[11px] text-ink leading-snug">{t("hero.mockCoraUser")}</p>
+              </div>
+              <div className="w-6 h-6 bg-ink-muted/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="w-3 h-3 text-ink-muted" />
+              </div>
+            </div>
+            {/* Cora reply */}
+            <div className="flex gap-2">
+              <div className="w-6 h-6 bg-celeste-dark rounded-full flex items-center justify-center flex-shrink-0 text-[10px] text-white font-bold">
+                C
+              </div>
+              <div className="bg-celeste-pale/60 border border-celeste/10 rounded-lg rounded-tl-none px-3 py-2 max-w-[85%]">
+                <p className="text-[11px] text-ink leading-snug">{t("hero.mockCoraReply")}</p>
               </div>
             </div>
           </div>
