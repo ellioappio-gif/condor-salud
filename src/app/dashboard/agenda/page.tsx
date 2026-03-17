@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useToast } from "@/components/Toast";
 import { RequirePermission } from "@/components/RequirePermission";
 import {
@@ -12,7 +12,43 @@ import {
 } from "@/lib/services/turnos";
 import type { Turno } from "@/lib/services/data";
 import { useTurnos } from "@/hooks/use-data";
-import { Calendar, Plus, X, Check, Clock, Ban, Loader2 } from "lucide-react";
+import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Video } from "lucide-react";
+
+// ─── Google Calendar hook ────────────────────────────────────
+
+interface GCalEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  meetLink?: string;
+}
+
+function useGoogleCalendarEvents() {
+  const [events, setEvents] = useState<GCalEvent[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+
+    fetch("/api/google/calendar?days=7")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.events) setEvents(data.events);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { events, loading };
+}
 
 // ─── Config ──────────────────────────────────────────────────
 
@@ -97,12 +133,27 @@ const financiadoresOptions = [
 export default function AgendaPage() {
   const { showToast } = useToast();
   const { data: turnos, isLoading, mutate } = useTurnos();
+  const { events: gCalEvents } = useGoogleCalendarEvents();
   const [vista, setVista] = useState<"semana" | "lista">("semana");
   const [profFilter, setProfFilter] = useState("");
   const [showNewModal, setShowNewModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const allTurnos = turnos ?? [];
+  // Merge Google Calendar events as virtual turnos
+  const gCalTurnos: Turno[] = gCalEvents.map((e) => ({
+    id: `gcal-${e.id}`,
+    hora: e.start
+      ? new Date(e.start).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })
+      : "",
+    paciente: e.title,
+    tipo: e.meetLink ? "Teleconsulta" : "Google Calendar",
+    financiador: "",
+    profesional: "",
+    estado: "confirmado" as const,
+    notas: e.meetLink ? `Meet: ${e.meetLink}` : undefined,
+  }));
+
+  const allTurnos = [...(turnos ?? []), ...gCalTurnos];
   const filtered = profFilter
     ? allTurnos.filter(
         (t: Turno) =>

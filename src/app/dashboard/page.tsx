@@ -19,8 +19,17 @@ import {
   Loader2,
 } from "lucide-react";
 import { useExport } from "@/lib/services/export";
+import {
+  useDashboardKPIs,
+  useFinanciadores,
+  useTurnos,
+  useAuditoria,
+  usePacientes,
+} from "@/hooks/use-data";
 
-const kpis = [
+// ─── Fallback static data (shown while hooks load) ──────────
+
+const FALLBACK_KPIS = [
   {
     label: "Facturado este mes",
     value: "$4.2M",
@@ -55,12 +64,26 @@ const kpis = [
   },
 ];
 
-const financiadores = [
+const FALLBACK_FINANCIADORES = [
   { name: "PAMI", facturado: "$1.4M", cobrado: "$980K", rechazo: "12%", dias: "68" },
   { name: "OSDE", facturado: "$890K", cobrado: "$845K", rechazo: "4%", dias: "32" },
   { name: "Swiss Medical", facturado: "$620K", cobrado: "$595K", rechazo: "2%", dias: "28" },
   { name: "IOMA", facturado: "$410K", cobrado: "$312K", rechazo: "18%", dias: "82" },
   { name: "Galeno", facturado: "$280K", cobrado: "$268K", rechazo: "3%", dias: "35" },
+];
+
+const FALLBACK_AGENDA = [
+  { hora: "08:00", pac: "González, María Elena", tipo: "Control", estado: "confirmado" as const },
+  { hora: "08:30", pac: "López, Juan Carlos", tipo: "Consulta", estado: "confirmado" as const },
+  { hora: "09:00", pac: "Ramírez, Sofía", tipo: "Primera vez", estado: "pendiente" as const },
+  { hora: "10:00", pac: "Díaz, Roberto", tipo: "Ecografía", estado: "confirmado" as const },
+];
+
+const FALLBACK_AUDIT = [
+  { tipo: "Código incorrecto", sev: "alta", pac: "González — PAMI", monto: "$24.600" },
+  { tipo: "Autorización vencida", sev: "alta", pac: "Ramírez — Swiss Med.", monto: "$65.000" },
+  { tipo: "Duplicado potencial", sev: "media", pac: "Morales — Galeno", monto: "$32.000" },
+  { tipo: "Tope superado", sev: "alta", pac: "Romero — Medifé", monto: "$42.300" },
 ];
 
 const quickLinkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -73,26 +96,12 @@ const quickLinkIcons: Record<string, React.ComponentType<{ className?: string }>
 };
 
 const quickLinks = [
-  { label: "Pacientes", desc: "847 activos", href: "/dashboard/pacientes" },
-  { label: "Agenda", desc: "16 turnos hoy", href: "/dashboard/agenda" },
-  { label: "Auditoria", desc: "5 pendientes", href: "/dashboard/auditoria" },
-  { label: "Inventario", desc: "3 criticos", href: "/dashboard/inventario" },
-  { label: "Nomenclador", desc: "18 codigos", href: "/dashboard/nomenclador" },
-  { label: "Reportes", desc: "10 disponibles", href: "/dashboard/reportes" },
-];
-
-const todayAgenda = [
-  { hora: "08:00", pac: "González, María Elena", tipo: "Control", estado: "confirmado" as const },
-  { hora: "08:30", pac: "López, Juan Carlos", tipo: "Consulta", estado: "confirmado" as const },
-  { hora: "09:00", pac: "Ramírez, Sofía", tipo: "Primera vez", estado: "pendiente" as const },
-  { hora: "10:00", pac: "Díaz, Roberto", tipo: "Ecografía", estado: "confirmado" as const },
-];
-
-const pendingAudit = [
-  { tipo: "Código incorrecto", sev: "alta", pac: "González — PAMI", monto: "$24.600" },
-  { tipo: "Autorización vencida", sev: "alta", pac: "Ramírez — Swiss Med.", monto: "$65.000" },
-  { tipo: "Duplicado potencial", sev: "media", pac: "Morales — Galeno", monto: "$32.000" },
-  { tipo: "Tope superado", sev: "alta", pac: "Romero — Medifé", monto: "$42.300" },
+  { label: "Pacientes", desc: "activos", href: "/dashboard/pacientes" },
+  { label: "Agenda", desc: "turnos hoy", href: "/dashboard/agenda" },
+  { label: "Auditoria", desc: "pendientes", href: "/dashboard/auditoria" },
+  { label: "Inventario", desc: "críticos", href: "/dashboard/inventario" },
+  { label: "Nomenclador", desc: "códigos", href: "/dashboard/nomenclador" },
+  { label: "Reportes", desc: "disponibles", href: "/dashboard/reportes" },
 ];
 
 export default function DashboardPage() {
@@ -100,6 +109,81 @@ export default function DashboardPage() {
   const plan = usePlanSafe();
   const [showWizardBanner, setShowWizardBanner] = useState(true);
   const { isExporting, exportPDF } = useExport();
+
+  // ── Real data hooks (fall back to static demo data) ──────
+  const { data: kpiData } = useDashboardKPIs();
+  const { data: financiadoresData } = useFinanciadores();
+  const { data: turnosData } = useTurnos();
+  const { data: auditoriaData } = useAuditoria();
+  const { data: pacientesData } = usePacientes();
+
+  // Map KPI hook data → display cards, or fallback
+  const kpis = kpiData?.length
+    ? kpiData.map((k) => ({
+        label: k.label,
+        value: k.value,
+        change: k.change ?? "",
+        up: k.up,
+        accent: k.label.includes("Facturado")
+          ? "border-l-celeste"
+          : k.label.includes("Cobrado")
+            ? "border-l-green-400"
+            : k.label.includes("Rechazo")
+              ? "border-l-amber-400"
+              : "border-l-red-400",
+        href: k.label.includes("Facturado")
+          ? "/dashboard/facturacion"
+          : k.label.includes("Cobrado")
+            ? "/dashboard/financiadores"
+            : k.label.includes("Rechazo")
+              ? "/dashboard/rechazos"
+              : "/dashboard/inflacion",
+      }))
+    : FALLBACK_KPIS;
+
+  // Map financiadores hook data → table rows, or fallback
+  const financiadores = financiadoresData?.length
+    ? financiadoresData.slice(0, 5).map((f) => ({
+        name: f.name,
+        facturado: `$${Math.round(f.facturado / 1000)}K`,
+        cobrado: `$${Math.round(f.cobrado / 1000)}K`,
+        rechazo: `${f.tasaRechazo}%`,
+        dias: f.diasPromedioPago.toString(),
+      }))
+    : FALLBACK_FINANCIADORES;
+
+  // Map turnos hook data → today agenda, or fallback
+  const todayAgenda = turnosData?.length
+    ? turnosData.slice(0, 4).map((t) => ({
+        hora: t.hora,
+        pac: t.paciente,
+        tipo: t.tipo,
+        estado: t.estado as "confirmado" | "pendiente",
+      }))
+    : FALLBACK_AGENDA;
+
+  // Map audit hook data → pending items, or fallback
+  const pendingAudit = auditoriaData?.length
+    ? auditoriaData
+        .filter((a) => a.estado === "pendiente")
+        .slice(0, 4)
+        .map((a) => ({
+          tipo: a.tipo,
+          sev: a.severidad,
+          pac: `${a.paciente} — ${a.financiador}`,
+          monto: a.prestacion,
+        }))
+    : FALLBACK_AUDIT;
+
+  // Quick-link live counts
+  const pacCount = pacientesData?.length ?? 847;
+  const turnoCount = turnosData?.length ?? 16;
+  const auditCount = auditoriaData?.filter((a) => a.estado === "pendiente").length ?? 5;
+  const quickCounts: Record<string, string> = {
+    Pacientes: `${pacCount} activos`,
+    Agenda: `${turnoCount} turnos hoy`,
+    Auditoria: `${auditCount} pendientes`,
+  };
 
   const activePresetDef = plan.activePreset
     ? PRESETS.find((p) => p.id === plan.activePreset)
@@ -264,7 +348,7 @@ export default function DashboardPage() {
             <p className="text-xs font-bold text-ink group-hover:text-celeste-dark transition">
               {q.label}
             </p>
-            <p className="text-[10px] text-ink-muted">{q.desc}</p>
+            <p className="text-[10px] text-ink-muted">{quickCounts[q.label] ?? q.desc}</p>
           </Link>
         ))}
       </div>
@@ -460,7 +544,7 @@ export default function DashboardPage() {
                 <Link
                   key={i}
                   href="/dashboard/agenda"
-                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2 block"
+                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
                   role="listitem"
                 >
                   <span className="font-mono text-[10px] text-ink-muted w-10">{t.hora}</span>
@@ -493,7 +577,7 @@ export default function DashboardPage() {
                 <Link
                   key={i}
                   href="/dashboard/auditoria"
-                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2 block"
+                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
                   role="listitem"
                 >
                   <span

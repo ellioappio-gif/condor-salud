@@ -240,12 +240,45 @@ async function reverseGeocode(lat: number, lng: number): Promise<string | null> 
   }
 }
 
+// ─── Fetch nearby places from API (Google Places) ───────────
+
+interface PlaceResult {
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  types: string[];
+  rating: number | null;
+  open_now: boolean | null;
+}
+
+async function fetchNearbyPlaces(
+  lat: number,
+  lng: number,
+  type: string,
+  radiusM: number,
+): Promise<PlaceResult[]> {
+  try {
+    const res = await fetch(
+      `/api/geolocation?action=nearby&lat=${lat}&lng=${lng}&type=${type}&radius=${radiusM}`,
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.places ?? [];
+  } catch {
+    return [];
+  }
+}
+
 // ─── Hook ────────────────────────────────────────────────────
 
 export function useNearbyServices(): UseNearbyServicesReturn {
   const geo = useGeolocation({ lazy: true });
   const [radiusKm, setRadiusKm] = useState(10);
   const [locationName, setLocationName] = useState<string | null>(null);
+  const [apiProviders, setApiProviders] = useState<NearbyProvider[] | null>(null);
+  const [apiPharmacies, setApiPharmacies] = useState<NearbyPharmacy[] | null>(null);
+  const [apiCenters, setApiCenters] = useState<NearbyCenter[] | null>(null);
 
   // Resolve locality name when coords change
   const coordLat = geo.coords?.latitude;
@@ -264,7 +297,80 @@ export function useNearbyServices(): UseNearbyServicesReturn {
     };
   }, [coordLat, coordLng]);
 
-  // Compute distances and filter within radius
+  // Fetch real nearby places from /api/geolocation (Google Places)
+  // Falls back to demo data if the API returns empty results
+  useEffect(() => {
+    if (coordLat == null || coordLng == null) return;
+    let cancelled = false;
+    const radiusM = Math.min(radiusKm * 1000, 50000);
+
+    Promise.all([
+      fetchNearbyPlaces(coordLat, coordLng, "doctor", radiusM),
+      fetchNearbyPlaces(coordLat, coordLng, "pharmacy", radiusM),
+      fetchNearbyPlaces(coordLat, coordLng, "hospital", radiusM),
+    ]).then(([docs, pharms, hosp]) => {
+      if (cancelled) return;
+
+      if (docs.length > 0) {
+        setApiProviders(
+          docs
+            .map((p, i) => ({
+              id: `api-doc-${i}`,
+              name: p.name,
+              specialty: "Medicina General",
+              address: p.address,
+              lat: p.lat,
+              lng: p.lng,
+              distanceKm: Math.round(haversineKm(coordLat, coordLng, p.lat, p.lng) * 10) / 10,
+              teleconsulta: false,
+              rating: p.rating ?? 4.0,
+              availableToday: p.open_now ?? false,
+            }))
+            .sort((a, b) => a.distanceKm - b.distanceKm),
+        );
+      }
+
+      if (pharms.length > 0) {
+        setApiPharmacies(
+          pharms
+            .map((p, i) => ({
+              id: `api-pharm-${i}`,
+              name: p.name,
+              address: p.address,
+              lat: p.lat,
+              lng: p.lng,
+              distanceKm: Math.round(haversineKm(coordLat, coordLng, p.lat, p.lng) * 10) / 10,
+              open24h: false,
+              hasDelivery: false,
+            }))
+            .sort((a, b) => a.distanceKm - b.distanceKm),
+        );
+      }
+
+      if (hosp.length > 0) {
+        setApiCenters(
+          hosp
+            .map((p, i) => ({
+              id: `api-ctr-${i}`,
+              name: p.name,
+              type: (p.types.includes("hospital") ? "hospital" : "clinica") as NearbyCenter["type"],
+              address: p.address,
+              lat: p.lat,
+              lng: p.lng,
+              distanceKm: Math.round(haversineKm(coordLat, coordLng, p.lat, p.lng) * 10) / 10,
+              emergency: p.types.includes("hospital"),
+            }))
+            .sort((a, b) => a.distanceKm - b.distanceKm),
+        );
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [coordLat, coordLng, radiusKm]);
+
+  // Merge API results with demo fallback, sorted by distance
   const results = useMemo<NearbyResult>(() => {
     if (!geo.coords) {
       return { providers: [], pharmacies: [], centers: [] };
@@ -285,11 +391,12 @@ export function useNearbyServices(): UseNearbyServicesReturn {
     }
 
     return {
-      providers: withDistance<NearbyProvider>(DEMO_PROVIDERS as NearbyProvider[]),
-      pharmacies: withDistance<NearbyPharmacy>(DEMO_PHARMACIES as NearbyPharmacy[]),
-      centers: withDistance<NearbyCenter>(DEMO_CENTERS as NearbyCenter[]),
+      providers: apiProviders ?? withDistance<NearbyProvider>(DEMO_PROVIDERS as NearbyProvider[]),
+      pharmacies:
+        apiPharmacies ?? withDistance<NearbyPharmacy>(DEMO_PHARMACIES as NearbyPharmacy[]),
+      centers: apiCenters ?? withDistance<NearbyCenter>(DEMO_CENTERS as NearbyCenter[]),
     };
-  }, [geo.coords, radiusKm]);
+  }, [geo.coords, radiusKm, apiProviders, apiPharmacies, apiCenters]);
 
   return {
     results,
