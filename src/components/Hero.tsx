@@ -1,7 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Building2, User } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  Building2,
+  Clock,
+  CheckCircle2,
+  DollarSign,
+  MapPin,
+  Send,
+  Stethoscope,
+  Timer,
+  TrendingDown,
+  User,
+  Video,
+  Zap,
+} from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
 const trustLogos = ["PAMI", "OSDE", "Swiss Medical", "Galeno", "Medifé", "IOMA"];
@@ -96,7 +111,7 @@ export default function Hero() {
         </div>
         <p className="text-[11px] text-ink-muted mb-10">{t("hero.fine")}</p>
 
-        {/* Dashboard preview */}
+        {/* Dashboard preview — segment-aware */}
         <div className="relative max-w-[800px] mx-auto mb-10">
           <div className="bg-gradient-to-b from-celeste-pale to-white border border-border rounded-xl overflow-hidden shadow-lg">
             {/* Browser chrome */}
@@ -108,56 +123,14 @@ export default function Hero() {
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="px-4 py-1 bg-surface rounded text-[11px] text-ink-muted">
-                  condorsalud.com/dashboard
+                  {segment === "tourist" ? t("hero.mockUrl") : t("hero.mockUrl")}
                 </div>
               </div>
             </div>
-            <div className="p-6 space-y-4">
-              {/* Mock KPI row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                  { label: t("hero.mockBilled"), val: "$12.4M", change: "+18%" },
-                  { label: t("hero.mockCollected"), val: "$9.8M", change: "+24%" },
-                  { label: t("hero.mockRejections"), val: "3.2%", change: "-62%" },
-                  { label: t("hero.mockDelay"), val: "22 días", change: "-45d" },
-                ].map((k) => (
-                  <div key={k.label} className="bg-white border border-border/60 rounded-lg p-3">
-                    <p className="text-[10px] text-ink-muted">{k.label}</p>
-                    <p className="text-lg font-bold text-ink">{k.val}</p>
-                    <p className="text-[10px] text-celeste-dark font-medium">{k.change}</p>
-                  </div>
-                ))}
-              </div>
-              {/* Mock chart */}
-              <div className="bg-white border border-border/60 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-ink">{t("hero.mockChartTitle")}</p>
-                  <div className="flex gap-3 text-[10px] text-ink-muted">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-celeste-dark rounded-full" />{" "}
-                      {t("hero.mockBilled")}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-gold rounded-full" /> {t("hero.mockCollected")}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-red-400 rounded-full" />{" "}
-                      {t("hero.mockRejections")}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-end gap-1.5 h-24">
-                  {[65, 72, 58, 80, 75, 85, 90, 78, 88, 92, 86, 95].map((h, i) => (
-                    <div key={`bar-${h}-${i}`} className="flex-1 flex flex-col gap-0.5">
-                      <div className="bg-celeste-dark/20 rounded-sm" style={{ height: `${h}%` }} />
-                      <div
-                        className="bg-celeste-dark rounded-sm"
-                        style={{ height: `${h * 0.75}%` }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+
+            {/* Content area */}
+            <div className="p-5 sm:p-6 space-y-4">
+              {isProvider ? <ProviderPreview t={t} /> : <TouristPreview t={t} />}
             </div>
           </div>
           <div className="absolute -inset-4 bg-celeste/5 rounded-2xl -z-10 blur-xl" />
@@ -179,5 +152,243 @@ export default function Hero() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────
+ * Provider Dashboard Preview
+ * Shows billing KPIs, real-time alerts, and active automations
+ * ──────────────────────────────────────────────────────────── */
+function ProviderPreview({ t }: { t: (key: string) => string }) {
+  return (
+    <>
+      {/* KPI row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          {
+            label: t("hero.mockBilled"),
+            val: t("hero.mockBilledVal"),
+            change: t("hero.mockBilledChange"),
+            accent: "border-l-celeste-dark",
+            icon: <BarChart3 className="w-3.5 h-3.5 text-celeste-dark" />,
+          },
+          {
+            label: t("hero.mockCollected"),
+            val: t("hero.mockCollectedVal"),
+            change: t("hero.mockCollectedChange"),
+            accent: "border-l-green-400",
+            icon: <DollarSign className="w-3.5 h-3.5 text-green-500" />,
+          },
+          {
+            label: t("hero.mockRejections"),
+            val: t("hero.mockRejectionsVal"),
+            change: t("hero.mockRejectionsChange"),
+            accent: "border-l-red-400",
+            icon: <TrendingDown className="w-3.5 h-3.5 text-red-400" />,
+          },
+          {
+            label: t("hero.mockDelay"),
+            val: t("hero.mockDelayVal"),
+            change: t("hero.mockDelayChange"),
+            accent: "border-l-amber-400",
+            icon: <Timer className="w-3.5 h-3.5 text-amber-500" />,
+          },
+        ].map((k) => (
+          <div
+            key={k.label}
+            className={`bg-white border border-border/60 ${k.accent} border-l-[3px] rounded-lg p-3 text-left`}
+          >
+            <p className="text-[10px] text-ink-muted flex items-center gap-1">
+              {k.icon} {k.label}
+            </p>
+            <p className="text-lg font-bold text-ink">{k.val}</p>
+            <p className="text-[10px] text-celeste-dark font-medium">{k.change}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Two-column: Alerts + Automations */}
+      <div className="grid sm:grid-cols-5 gap-3">
+        {/* Alerts feed — 3 cols */}
+        <div className="sm:col-span-3 bg-white border border-border/60 rounded-lg p-4 text-left">
+          <p className="text-xs font-semibold text-ink mb-3 flex items-center gap-1.5">
+            <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
+            {t("hero.mockAlertsTitle")}
+          </p>
+          <div className="space-y-2.5">
+            {[t("hero.mockAlert1"), t("hero.mockAlert2"), t("hero.mockAlert3")].map((alert, i) => (
+              <div
+                key={`alert-${i}`}
+                className="flex items-start gap-2 px-3 py-2 bg-surface/60 rounded-md"
+              >
+                <p className="text-[11px] text-ink-light leading-snug">{alert}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Automations — 2 cols */}
+        <div className="sm:col-span-2 bg-white border border-border/60 rounded-lg p-4 text-left">
+          <p className="text-xs font-semibold text-ink mb-3 flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-celeste-dark" />
+            {t("hero.mockAutoTitle")}
+          </p>
+          <div className="space-y-2">
+            {[t("hero.mockAuto1"), t("hero.mockAuto2"), t("hero.mockAuto3")].map((item, i) => (
+              <div
+                key={`auto-${i}`}
+                className="flex items-center gap-2 px-3 py-2 bg-celeste-pale/40 border border-celeste/10 rounded-md"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-celeste-dark flex-shrink-0" />
+                <p className="text-[11px] font-medium text-ink">{item}</p>
+              </div>
+            ))}
+          </div>
+          {/* Mini chart spark */}
+          <div className="mt-3 flex items-end gap-1 h-10">
+            {[40, 55, 45, 65, 60, 75, 80, 70, 85, 90, 82, 95].map((h, i) => (
+              <div
+                key={`spark-${i}`}
+                className="flex-1 bg-celeste-dark/20 rounded-sm"
+                style={{ height: `${h}%` }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────
+ * Tourist / Patient Preview
+ * Shows upcoming appointments, Cora chatbot, and quick-access cards
+ * ──────────────────────────────────────────────────────────── */
+function TouristPreview({ t }: { t: (key: string) => string }) {
+  const appointments = [
+    {
+      doctor: t("hero.mockAppt1.doctor"),
+      spec: t("hero.mockAppt1.spec"),
+      time: t("hero.mockAppt1.time"),
+      icon: <Video className="w-3.5 h-3.5 text-celeste-dark" />,
+      accent: "border-l-celeste-dark",
+    },
+    {
+      doctor: t("hero.mockAppt2.doctor"),
+      spec: t("hero.mockAppt2.spec"),
+      time: t("hero.mockAppt2.time"),
+      icon: <MapPin className="w-3.5 h-3.5 text-gold" />,
+      accent: "border-l-gold",
+    },
+    {
+      doctor: t("hero.mockAppt3.doctor"),
+      spec: t("hero.mockAppt3.spec"),
+      time: t("hero.mockAppt3.time"),
+      icon: <MapPin className="w-3.5 h-3.5 text-gold" />,
+      accent: "border-l-gold",
+    },
+  ];
+
+  return (
+    <>
+      {/* KPI row — patient-relevant */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          {
+            label: t("hero.mockBilled"),
+            val: t("hero.mockBilledVal"),
+            sub: t("hero.mockBilledChange"),
+            icon: <Clock className="w-3.5 h-3.5 text-celeste-dark" />,
+            accent: "border-l-celeste-dark",
+          },
+          {
+            label: t("hero.mockCollected"),
+            val: t("hero.mockCollectedVal"),
+            sub: t("hero.mockCollectedChange"),
+            icon: <Video className="w-3.5 h-3.5 text-green-500" />,
+            accent: "border-l-green-400",
+          },
+          {
+            label: t("hero.mockRejections"),
+            val: t("hero.mockRejectionsVal"),
+            sub: t("hero.mockRejectionsChange"),
+            icon: <MapPin className="w-3.5 h-3.5 text-gold" />,
+            accent: "border-l-gold",
+          },
+          {
+            label: t("hero.mockDelay"),
+            val: t("hero.mockDelayVal"),
+            sub: t("hero.mockDelayChange"),
+            icon: <Zap className="w-3.5 h-3.5 text-purple-500" />,
+            accent: "border-l-purple-400",
+          },
+        ].map((k) => (
+          <div
+            key={k.label}
+            className={`bg-white border border-border/60 ${k.accent} border-l-[3px] rounded-lg p-3 text-left`}
+          >
+            <p className="text-[10px] text-ink-muted flex items-center gap-1.5">
+              {k.icon} {k.label}
+            </p>
+            <p className="text-lg font-bold text-ink">{k.val}</p>
+            <p className="text-[10px] text-celeste-dark font-medium">{k.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Two-column: Appointments + Cora chatbot */}
+      <div className="grid sm:grid-cols-5 gap-3">
+        {/* Appointments list — 3 cols */}
+        <div className="sm:col-span-3 bg-white border border-border/60 rounded-lg p-4 text-left">
+          <p className="text-xs font-semibold text-ink mb-3 flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-celeste-dark" />
+            {t("hero.mockApptTitle")}
+          </p>
+          <div className="space-y-2">
+            {appointments.map((appt, i) => (
+              <div
+                key={`appt-${i}`}
+                className={`flex items-center gap-3 px-3 py-2.5 bg-surface/60 ${appt.accent} border-l-[3px] rounded-md`}
+              >
+                <div className="flex-shrink-0 w-8 h-8 bg-celeste-pale rounded-full flex items-center justify-center">
+                  {appt.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-semibold text-ink truncate">{appt.doctor}</p>
+                  <p className="text-[10px] text-ink-muted truncate">{appt.spec}</p>
+                </div>
+                <span className="text-[10px] font-semibold text-celeste-dark whitespace-nowrap">
+                  {appt.time}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Cora chatbot preview — 2 cols */}
+        <div className="sm:col-span-2 bg-white border border-border/60 rounded-lg p-4 text-left flex flex-col">
+          <p className="text-xs font-semibold text-ink mb-3 flex items-center gap-1.5">
+            <Stethoscope className="w-4 h-4 text-celeste-dark" />
+            {t("hero.mockCoraTitle")}
+          </p>
+          <div className="flex-1 space-y-2">
+            {/* Cora message bubble */}
+            <div className="flex gap-2">
+              <div className="w-6 h-6 bg-celeste-dark rounded-full flex items-center justify-center flex-shrink-0 text-[10px] text-white font-bold">
+                C
+              </div>
+              <div className="bg-celeste-pale/60 border border-celeste/10 rounded-lg rounded-tl-none px-3 py-2 max-w-[85%]">
+                <p className="text-[11px] text-ink leading-snug">{t("hero.mockCoraMsg")}</p>
+              </div>
+            </div>
+          </div>
+          {/* Input bar */}
+          <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-surface border border-border/60 rounded-full">
+            <p className="flex-1 text-[10px] text-ink-muted truncate">{t("hero.mockCoraInput")}</p>
+            <Send className="w-3.5 h-3.5 text-celeste-dark flex-shrink-0" />
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-/// <reference lib="webworker" />
+/* eslint-disable no-restricted-globals */
 
 /**
  * Cóndor Salud — Service Worker
@@ -17,30 +17,27 @@ const STATIC_ASSETS = [
 
 // Install: precache shell
 self.addEventListener("install", (event) => {
-  const e = event as ExtendableEvent;
-  e.waitUntil(
+  event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)),
   );
-  (self as any).skipWaiting();
+  self.skipWaiting();
 });
 
 // Activate: clean old caches
 self.addEventListener("activate", (event) => {
-  const e = event as ExtendableEvent;
-  e.waitUntil(
+  event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
         keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)),
       ),
     ),
   );
-  (self as any).clients.claim();
+  self.clients.claim();
 });
 
 // Fetch: network-first for API, cache-first for static
 self.addEventListener("fetch", (event) => {
-  const e = event as FetchEvent;
-  const { request } = e;
+  const { request } = event;
   const url = new URL(request.url);
 
   // Skip non-GET and chrome-extension requests
@@ -49,7 +46,7 @@ self.addEventListener("fetch", (event) => {
 
   // API calls: network first, fallback to cache
   if (url.pathname.startsWith("/api/")) {
-    e.respondWith(
+    event.respondWith(
       fetch(request)
         .then((response) => {
           const clone = response.clone();
@@ -66,7 +63,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|woff2?|ico)$/) ||
     url.pathname.startsWith("/_next/static")
   ) {
-    e.respondWith(
+    event.respondWith(
       caches.match(request).then(
         (cached) =>
           cached ||
@@ -82,8 +79,8 @@ self.addEventListener("fetch", (event) => {
 
   // Navigation: network first, fallback to offline page
   if (request.mode === "navigate") {
-    e.respondWith(
-      fetch(request).catch(() => caches.match("/offline").then((r) => r || caches.match("/")!)),
+    event.respondWith(
+      fetch(request).catch(() => caches.match("/offline").then((r) => r || caches.match("/"))),
     );
     return;
   }

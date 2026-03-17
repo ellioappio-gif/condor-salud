@@ -41,15 +41,38 @@ const LanguageContext = createContext<LanguageCtx>({
 
 // ─── Provider ────────────────────────────────────────────────
 
+const LOCALE_COOKIE = "condor_locale";
+const LOCALE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
+function getLocaleFromCookie(): Locale {
+  if (typeof document === "undefined") return "es";
+  const match = document.cookie.match(new RegExp(`(?:^|; )${LOCALE_COOKIE}=([^;]*)`));
+  const val = match?.[1];
+  return val === "en" ? "en" : "es";
+}
+
+function setLocaleCookie(locale: Locale): void {
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${LOCALE_MAX_AGE}; SameSite=Lax`;
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocale] = useState<Locale>("es");
   const [segment, _setSegment] = useState<Segment>("default");
 
-  // Hydrate segment from cookie on mount
+  // Hydrate locale + segment from cookies on mount
   useEffect(() => {
-    const stored = getSegmentFromCookie();
-    if (stored !== "default") _setSegment(stored);
+    const storedLocale = getLocaleFromCookie();
+    if (storedLocale !== "es") setLocale(storedLocale);
+
+    const storedSegment = getSegmentFromCookie();
+    if (storedSegment !== "default") _setSegment(storedSegment);
   }, []);
+
+  // Keep html lang attribute and cookie in sync
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    setLocaleCookie(locale);
+  }, [locale]);
 
   const toggleLocale = useCallback(() => {
     setLocale((prev) => (prev === "es" ? "en" : "es"));
