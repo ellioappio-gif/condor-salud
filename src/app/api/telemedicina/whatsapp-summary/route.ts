@@ -3,7 +3,7 @@ import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 
 export async function POST(req: NextRequest) {
-  const auth = requireAuth(req);
+  const auth = await requireAuth(req);
   if (auth.error) return auth.error;
 
   // ── Rate limit: 5 req / 60s per IP ──

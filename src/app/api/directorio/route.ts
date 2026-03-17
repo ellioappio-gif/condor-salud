@@ -4,7 +4,7 @@ import { logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 
 export async function GET(req: NextRequest) {
-  const auth = requireAuth(req);
+  const auth = await requireAuth(req);
   if (auth.error) return auth.error;
 
   const { searchParams } = new URL(req.url);

@@ -203,7 +203,7 @@ function estimateLocality(lat: number, lng: number): string | null {
 // ─── GET handler ─────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
-  const auth = requireAuth(req);
+  const auth = await requireAuth(req);
   if (auth.error) return auth.error;
 
   // Rate limit: 30 requests per 60 seconds

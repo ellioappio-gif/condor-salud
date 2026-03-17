@@ -16,7 +16,7 @@ import { requireAuth } from "@/lib/security/require-auth";
 import type { NubixStudyFilters, NubixAppointmentFilters } from "@/lib/nubix/types";
 
 export async function GET(req: NextRequest) {
-  const auth = requireAuth(req);
+  const auth = await requireAuth(req);
   if (auth.error) return auth.error;
 
   const { searchParams } = new URL(req.url);
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = requireAuth(req);
+  const auth = await requireAuth(req);
   if (auth.error) return auth.error;
 
   // ── Rate limit: 10 req / 60s per IP ──
