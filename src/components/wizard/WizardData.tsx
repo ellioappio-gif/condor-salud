@@ -3,6 +3,7 @@
 import { useState, useCallback, createContext, useContext, useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/context";
+import { useRouter } from "next/navigation";
 import {
   Feather,
   LayoutDashboard,
@@ -794,6 +795,9 @@ interface WizardContextType {
   progress: number;
   completedSteps: Set<number>;
   markComplete: (index: number) => void;
+  completeSetup: (clinicName: string) => Promise<void>;
+  isSubmitting: boolean;
+  setupError: string | null;
 }
 
 const WizardContext = createContext<WizardContextType | undefined>(undefined);
@@ -807,6 +811,9 @@ export function useWizard() {
 export function WizardProvider({ children }: { children: React.ReactNode }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [setupError, setSetupError] = useState<string | null>(null);
+  const router = useRouter();
 
   const totalSteps = WIZARD_STEPS.length;
   const step = WIZARD_STEPS[currentStep] ?? WIZARD_STEPS[0]!;
@@ -851,6 +858,29 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const completeSetup = useCallback(
+    async (clinicName: string) => {
+      setIsSubmitting(true);
+      setSetupError(null);
+      try {
+        const { completeOnboarding } = await import("@/lib/services/onboarding");
+        const result = await completeOnboarding({ nombre: clinicName });
+        if (!result.success) {
+          setSetupError(result.error ?? "Error al completar el onboarding");
+          return;
+        }
+        // Mark all steps complete
+        setCompletedSteps(new Set(Array.from({ length: totalSteps }, (_, i) => i)));
+        router.push("/dashboard");
+      } catch (err) {
+        setSetupError(err instanceof Error ? err.message : "Error desconocido");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [totalSteps, router],
+  );
+
   const value = useMemo(
     () => ({
       currentStep,
@@ -864,6 +894,9 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
       progress,
       completedSteps,
       markComplete,
+      completeSetup,
+      isSubmitting,
+      setupError,
     }),
     [
       currentStep,
@@ -877,6 +910,9 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
       progress,
       completedSteps,
       markComplete,
+      completeSetup,
+      isSubmitting,
+      setupError,
     ],
   );
 

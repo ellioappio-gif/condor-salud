@@ -169,3 +169,73 @@ export function useInventarioKPIs() {
     dedupingInterval: 30000,
   });
 }
+
+// ─── Service-specific Hooks ──────────────────────────────────
+// These hooks call the dedicated service files with full CRUD
+// and filtering capabilities beyond what data.ts provides.
+
+export function useFinanciadoresExtended() {
+  return useSWR(
+    "financiadores-extended",
+    async () => {
+      const { getFinanciadoresExtended } = await import("@/lib/services/financiadores");
+      return getFinanciadoresExtended();
+    },
+    { revalidateOnFocus: false, dedupingInterval: 30000 },
+  );
+}
+
+export function useInflacionMensual(period?: "3m" | "6m" | "12m") {
+  return useSWR(
+    `inflacion-mensual-${period ?? "6m"}`,
+    async () => {
+      const { getInflacionMensual } = await import("@/lib/services/inflacion");
+      return getInflacionMensual({ period });
+    },
+    { revalidateOnFocus: false, dedupingInterval: 60000 },
+  );
+}
+
+export function useFinanciadoresInflacion() {
+  return useSWR(
+    "financiadores-inflacion",
+    async () => {
+      const { getFinanciadoresInflacion } = await import("@/lib/services/inflacion");
+      return getFinanciadoresInflacion();
+    },
+    { revalidateOnFocus: false, dedupingInterval: 60000 },
+  );
+}
+
+export function useInventarioItems() {
+  return useSWR(
+    "inventario-items",
+    async () => {
+      const { getInventarioItems } = await import("@/lib/services/inventario");
+      return getInventarioItems();
+    },
+    { revalidateOnFocus: false, dedupingInterval: 15000 },
+  );
+}
+
+export function useNomencladorEntries() {
+  return useSWR(
+    "nomenclador-entries",
+    async () => {
+      const { getNomencladorEntries } = await import("@/lib/services/nomenclador");
+      return getNomencladorEntries();
+    },
+    { revalidateOnFocus: false, dedupingInterval: 60000 },
+  );
+}
+
+export function useReportesList() {
+  return useSWR(
+    "reportes-list",
+    async () => {
+      const { getReportesList } = await import("@/lib/services/reportes");
+      return getReportesList();
+    },
+    { revalidateOnFocus: false, dedupingInterval: 30000 },
+  );
+}

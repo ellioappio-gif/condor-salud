@@ -7,13 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-03-16
+
 ### Added
 
-- SWR data fetching hooks with typed React hooks for all domain entities
-- Bundle analyzer (`npm run analyze`) for bundle size visibility
-- Accessibility testing with axe-core in Playwright E2E suite
-- Docker support (multi-stage Dockerfile + docker-compose.yml)
-- CONTRIBUTING.md and CHANGELOG.md
+- **Migration 004**: 10 new Supabase tables — `network_doctors`, `interconsultas`, `solicitudes_estudio`, `facturas`, `rechazos`, `financiadores`, `inflacion_mensual`, `inventario`, `nomenclador`, `reportes`; all with RLS clinic isolation, updated_at triggers, and Realtime publication
+- **7 service files** (`facturacion.ts`, `rechazos.ts`, `financiadores.ts`, `inflacion.ts`, `inventario.ts`, `nomenclador.ts`, `reportes.ts`) with dual-mode pattern: Supabase queries when configured, demo data otherwise
+- **6 SWR hooks** — `useFinanciadoresExtended`, `useInflacionMensual`, `useFinanciadoresInflacion`, `useInventarioItems`, `useNomencladorEntries`, `useReportesList`
+- **Dashboard pages wired to Supabase**: financiadores, inflación, inventario, nomenclador, reportes — all with loading spinners and error handling
+- **Multi-tenant clinic onboarding** (`onboarding.ts` service) — real Supabase insert for clinic creation, progress tracking, wizard `completeSetup` action
+- **Uptime monitoring**: `/api/status` API route with health checks for Supabase, PostHog, Vercel; `/status` public page with auto-refresh every 60s
+- **PWA enhancements**: enhanced `manifest.ts` with shortcuts and screenshots; `sw.js` service worker with offline-first caching; `InstallPrompt` component for mobile install banner; `/offline` fallback page
+- **CSP fix**: added `posthog.com`, `us.i.posthog.com`, `sentry.io` to Content-Security-Policy `connect-src`
+
+### Changed
+
+- Dashboard pages now use SWR hooks → services instead of inline hardcoded data arrays
+- WizardProvider now exposes `completeSetup`, `isSubmitting`, `setupError` for real onboarding flow
+- Root layout includes `InstallPrompt` component for PWA install prompt
+- Manifest `start_url` changed from `/` to `/dashboard`
+
+## [0.4.0] — 2026-03-15
+
+### Added
+
+- **PostHog analytics** — `posthog-js` + `posthog-node`, PostHogProvider, server-side analytics
+- **Resend email service** — transactional emails for auth flows
+- **Password reset + magic link** — full auth flow with Supabase + Resend
+- **RBAC system** — RequirePermission / RouteGuard components, role-based access control
+- **Turno scheduling** — appointment booking with slot management and Supabase persistence
+- **Audit log viewer** — real-time audit trail with filters, timeline, and Supabase Realtime
+- **Patient history timeline** — clinical history with entries, types, and doctor attribution
+- **Red de Interconsultas** — physician referral network with search, request, and tracking
+- **Google Workspace DNS** — MX, SPF, DKIM, DMARC records via Vercel
+
+### Fixed
+
+- Demo login wall — middleware rewritten to never redirect pages, only API routes
+- RouteGuard renders children for unauthenticated users (demo browsing)
 
 ## [0.3.0] — 2026-03-10
 
