@@ -29,7 +29,7 @@ export function useDemoAction() {
 }
 
 /** QM-04: Single source of truth for WhatsApp number */
-export const WA_NUMBER = "12026950244";
+export const WA_NUMBER = "5491155140371";
 
 export function DemoModalProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);

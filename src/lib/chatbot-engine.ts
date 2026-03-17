@@ -1576,7 +1576,7 @@ function generateRegisterResponse(lang?: string): Partial<ChatMessage> {
 function generateContactHumanResponse(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "Of course! Let me connect you with someone from our team:\n\n• WhatsApp: +1 202 695 0244 (response in minutes)\n• Email: soporte@condorsalud.com.ar\n• Phone: 0800-333-SALUD (Mon–Fri 9 AM to 6 PM)\n\nWould you like me to transfer you to WhatsApp?",
+      text: "Of course! Let me connect you with someone from our team:\n\n• WhatsApp: +54 11 5514-0371 (response in minutes)\n• Email: soporte@condorsalud.com.ar\n• Phone: 0800-333-SALUD (Mon–Fri 9 AM to 6 PM)\n\nWould you like me to transfer you to WhatsApp?",
       quickReplies: [
         { label: "Go to WhatsApp", value: "Yes, transfer me to WhatsApp" },
         { label: "I'll stay here", value: "I'd rather stay here" },
@@ -1588,7 +1588,7 @@ function generateContactHumanResponse(lang?: string): Partial<ChatMessage> {
           icon: "message-circle",
           action: {
             label: "Open WhatsApp",
-            url: "https://wa.me/12026950244?text=Hola%2C%20necesito%20ayuda%20con%20C%C3%B3ndor%20Salud",
+            url: "https://wa.me/5491155140371?text=Hola%2C%20necesito%20ayuda%20con%20C%C3%B3ndor%20Salud",
           },
         },
       ],
@@ -1596,7 +1596,7 @@ function generateContactHumanResponse(lang?: string): Partial<ChatMessage> {
   }
 
   return {
-    text: "¡Claro! Te conecto con una persona de nuestro equipo:\n\n• WhatsApp: +1 202 695 0244 (te responden en minutos)\n• Email: soporte@condorsalud.com.ar\n• Teléfono: 0800-333-SALUD (lunes a viernes 9 a 18hs)\n\n¿Querés que te pasemos a WhatsApp?",
+    text: "¡Claro! Te conecto con una persona de nuestro equipo:\n\n• WhatsApp: +54 11 5514-0371 (te responden en minutos)\n• Email: soporte@condorsalud.com.ar\n• Teléfono: 0800-333-SALUD (lunes a viernes 9 a 18hs)\n\n¿Querés que te pasemos a WhatsApp?",
     quickReplies: [
       { label: "Ir a WhatsApp", value: "Sí, derivame a WhatsApp" },
       { label: "Sigo por acá", value: "Prefiero seguir por acá" },
@@ -1608,7 +1608,7 @@ function generateContactHumanResponse(lang?: string): Partial<ChatMessage> {
         icon: "message-circle",
         action: {
           label: "Abrir WhatsApp",
-          url: "https://wa.me/12026950244?text=Hola%2C%20necesito%20ayuda%20con%20C%C3%B3ndor%20Salud",
+          url: "https://wa.me/5491155140371?text=Hola%2C%20necesito%20ayuda%20con%20C%C3%B3ndor%20Salud",
         },
       },
     ],

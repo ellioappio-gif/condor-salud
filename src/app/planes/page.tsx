@@ -439,7 +439,7 @@ export default function PlanesPage() {
                   Comenzar con este plan
                 </Link>
                 <a
-                  href="https://wa.me/12026950244?text=Hola%2C%20quiero%20consultar%20sobre%20planes%20de%20C%C3%B3ndor%20Salud."
+                  href="https://wa.me/5491155140371?text=Hola%2C%20quiero%20consultar%20sobre%20planes%20de%20C%C3%B3ndor%20Salud."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full py-2.5 text-center text-xs font-medium border border-border text-ink-muted rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"

@@ -487,7 +487,7 @@ export default function PerfilPage() {
             <button
               onClick={() =>
                 showToast(
-                  "Para eliminar tu cuenta, contactá a soporte por WhatsApp: +1 202 695 0244",
+                  "Para eliminar tu cuenta, contactá a soporte por WhatsApp: +54 11 5514-0371",
                 )
               }
               className="text-sm font-medium text-red-600 border border-red-200 px-4 py-2 rounded-[4px] hover:bg-red-50 transition"
