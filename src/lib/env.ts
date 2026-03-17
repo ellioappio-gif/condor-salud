@@ -178,11 +178,19 @@ function validateClientEnv(): ClientEnv {
 }
 
 // ─── Singleton exports ───────────────────────────────────────
-// These are validated once at module load time and cached.
+// Validated lazily on first access so that `next build` page-data
+// collection doesn't crash when env vars are absent at build time.
+
+let _serverEnv: ServerEnv | null = null;
 
 /** Server environment — use in API routes, server components, middleware */
-export const serverEnv: ServerEnv =
-  typeof window === "undefined" ? validateServerEnv() : ({} as ServerEnv); // Never access serverEnv in browser
+export const serverEnv: ServerEnv = new Proxy({} as ServerEnv, {
+  get(_target, prop: string) {
+    if (typeof window !== "undefined") return undefined;
+    if (!_serverEnv) _serverEnv = validateServerEnv();
+    return _serverEnv[prop as keyof ServerEnv];
+  },
+});
 
 /** Client environment — safe to use anywhere */
 export const clientEnv: ClientEnv = validateClientEnv();
