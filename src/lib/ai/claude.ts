@@ -4,10 +4,12 @@
 // is used as a safety layer for emergency detection and as a
 // fallback when the AI is unavailable.
 
-import Anthropic from "@anthropic-ai/sdk";
 import { logger } from "@/lib/logger";
 
 // ─── Types ───────────────────────────────────────────────────
+
+// Anthropic SDK is loaded lazily via dynamic import to prevent
+// cold-start failures if the module is missing or can't load.
 
 export interface ClaudeResponse {
   text: string;
@@ -129,14 +131,20 @@ function getSystemPrompt(lang?: string): string {
 
 // ─── Client ──────────────────────────────────────────────────
 
-let _client: Anthropic | null = null;
+let _client: unknown = null;
 
-function getClient(): Anthropic | null {
+async function getClient(): Promise<unknown> {
   if (_client) return _client;
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
-  _client = new Anthropic({ apiKey });
-  return _client;
+  try {
+    const { default: Anthropic } = await import("@anthropic-ai/sdk");
+    _client = new Anthropic({ apiKey });
+    return _client;
+  } catch (err) {
+    logger.error({ err }, "Failed to load @anthropic-ai/sdk");
+    return null;
+  }
 }
 
 /** Check if Claude AI is available (API key is configured) */
@@ -157,7 +165,14 @@ export async function askClaude(
   coords?: { lat: number; lng: number } | null,
   lang?: string,
 ): Promise<ClaudeResponse | null> {
-  const client = getClient();
+  // eslint-disable-next-line -- dynamic import client is untyped
+  const client = (await getClient()) as {
+    messages: {
+      create: (
+        opts: Record<string, unknown>,
+      ) => Promise<{ content: { type: string; text: string }[] }>;
+    };
+  } | null;
   if (!client) return null;
 
   try {
@@ -170,7 +185,7 @@ export async function askClaude(
       enrichedMessage += `\n\n${locCtx}`;
     }
 
-    const messages: Anthropic.MessageParam[] = [
+    const messages = [
       ...(conversationHistory ?? []).map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,

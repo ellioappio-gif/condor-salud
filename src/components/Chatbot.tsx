@@ -167,7 +167,7 @@ export default function Chatbot() {
   const { locale, isEn } = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     // UM-08: Restore from sessionStorage if available
-    if (typeof sessionStorage !== "undefined") {
+    if (typeof window !== "undefined" && typeof sessionStorage !== "undefined") {
       try {
         const saved = sessionStorage.getItem("condor_chat_messages");
         if (saved) return JSON.parse(saved) as ChatMessage[];
@@ -265,6 +265,34 @@ export default function Chatbot() {
               : {}),
           }),
         });
+
+        if (!res.ok) {
+          // Parse error body — may have ChatMessage shape (500) or plain error (400/429)
+          const errorBody = await res.json().catch(() => null);
+          const errorMsg: ChatMessage = {
+            id: errorBody?.id ?? `bot-err-${Date.now()}`,
+            role: "bot",
+            timestamp: errorBody?.timestamp ?? Date.now(),
+            text:
+              errorBody?.text ??
+              (isEn
+                ? "Sorry, something went wrong. Could you try again in a moment?"
+                : "Disculpá, ocurrió un error. ¿Podés intentar de nuevo en un momento?"),
+            quickReplies:
+              errorBody?.quickReplies ??
+              (isEn
+                ? [
+                    { label: "Try again", value: "Hello" },
+                    { label: "Talk to someone", value: "I want to speak with an agent" },
+                  ]
+                : [
+                    { label: "Reintentar", value: "Hola" },
+                    { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
+                  ]),
+          };
+          setMessages((prev) => [...prev, errorMsg]);
+          return;
+        }
 
         const botMsg: ChatMessage = await res.json();
         setMessages((prev) => [...prev, botMsg]);

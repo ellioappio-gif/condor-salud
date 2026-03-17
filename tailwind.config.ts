@@ -70,6 +70,20 @@ const config: Config = {
         display: ["Georgia", "'Times New Roman'", "serif"],
         body: ["var(--font-dm-sans)", '"DM Sans"', "sans-serif"],
       },
+      keyframes: {
+        "chat-open": {
+          "0%": { opacity: "0", transform: "scale(0.92) translateY(8px)" },
+          "100%": { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "chat-msg": {
+          "0%": { opacity: "0", transform: "translateY(6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        chatOpen: "chat-open 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        chatMsg: "chat-msg 0.2s ease-out forwards",
+      },
     },
   },
   plugins: [],

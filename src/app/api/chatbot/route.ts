@@ -6,7 +6,19 @@ import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
 export async function POST(req: NextRequest) {
   // ── Rate limit: 20 req / 60s per IP ──
   const limited = checkRateLimit(req, "chatbot", { limit: 20, windowSec: 60 });
-  if (limited) return limited;
+  if (limited) {
+    // Return rate-limit error as a valid ChatMessage so the client can display it
+    return NextResponse.json(
+      {
+        id: `bot-${Date.now()}`,
+        role: "bot",
+        timestamp: Date.now(),
+        text: "Estás enviando mensajes muy rápido. Esperá un momento antes de enviar otro. / You're sending messages too quickly. Please wait a moment.",
+        quickReplies: [{ label: "Reintentar / Retry", value: "Hola" }],
+      },
+      { status: 429, headers: Object.fromEntries(limited.headers.entries()) },
+    );
+  }
 
   let lang: string | undefined;
 
@@ -28,7 +40,21 @@ export async function POST(req: NextRequest) {
     lang = bodyLang;
 
     if (!message || typeof message !== "string") {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+      const isEn = typeof bodyLang === "string" && bodyLang.startsWith("en");
+      return NextResponse.json(
+        {
+          id: `bot-${Date.now()}`,
+          role: "bot",
+          timestamp: Date.now(),
+          text: isEn
+            ? "I didn't receive a message. Could you try again?"
+            : "No recibí un mensaje. ¿Podés intentar de nuevo?",
+          quickReplies: isEn
+            ? [{ label: "Try again", value: "Hello" }]
+            : [{ label: "Reintentar", value: "Hola" }],
+        },
+        { status: 400 },
+      );
     }
 
     // Sanitize user input
