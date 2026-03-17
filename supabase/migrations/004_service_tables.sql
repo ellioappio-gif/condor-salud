@@ -1,11 +1,10 @@
 -- ─── 004: Service Tables for Dashboard Modules ──────────────
--- Creates tables for: interconsultas, facturacion, rechazos,
--- financiadores, inflacion, inventario, nomenclador, reportes.
--- Each table has RLS and belongs to a clinic_id for multi-tenancy.
+-- Extends the core schema (002) with additional columns and new tables.
+-- Safe to run multiple times (all operations are IF NOT EXISTS / idempotent).
 -- Run in Supabase SQL Editor.
 
 -- ═══════════════════════════════════════════════════════════════
--- 1. INTERCONSULTAS MODULE
+-- 1. NEW TABLES — Interconsultas Module
 -- ═══════════════════════════════════════════════════════════════
 
 -- Network of referral doctors
@@ -70,100 +69,7 @@ CREATE TABLE IF NOT EXISTS public.solicitudes_estudio (
   updated_at     TIMESTAMPTZ DEFAULT now()
 );
 
--- ═══════════════════════════════════════════════════════════════
--- 2. FACTURACION MODULE (extends existing facturas)
--- ═══════════════════════════════════════════════════════════════
-
--- Main invoices table
-CREATE TABLE IF NOT EXISTS public.facturas (
-  id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  clinic_id         UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
-  numero            TEXT NOT NULL,
-  fecha             DATE NOT NULL DEFAULT CURRENT_DATE,
-  financiador       TEXT NOT NULL,
-  paciente          TEXT NOT NULL,
-  paciente_id       UUID REFERENCES public.pacientes(id),
-  prestacion        TEXT NOT NULL,
-  codigo_nomenclador TEXT,
-  monto             NUMERIC(12,2) NOT NULL DEFAULT 0,
-  estado            TEXT NOT NULL DEFAULT 'pendiente'
-                    CHECK (estado IN ('presentada','cobrada','rechazada','pendiente','en_observacion')),
-  fecha_presentacion DATE,
-  fecha_cobro       DATE,
-  cae               TEXT,
-  lote_id           TEXT,
-  notas             TEXT,
-  created_at        TIMESTAMPTZ DEFAULT now(),
-  updated_at        TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_facturas_clinic ON public.facturas(clinic_id);
-CREATE INDEX IF NOT EXISTS idx_facturas_estado ON public.facturas(estado);
-CREATE INDEX IF NOT EXISTS idx_facturas_financiador ON public.facturas(financiador);
-CREATE INDEX IF NOT EXISTS idx_facturas_fecha ON public.facturas(fecha DESC);
-
--- ═══════════════════════════════════════════════════════════════
--- 3. RECHAZOS MODULE
--- ═══════════════════════════════════════════════════════════════
-
-CREATE TABLE IF NOT EXISTS public.rechazos (
-  id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  clinic_id         UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
-  factura_id        UUID REFERENCES public.facturas(id),
-  factura_numero    TEXT NOT NULL,
-  financiador       TEXT NOT NULL,
-  paciente          TEXT NOT NULL,
-  prestacion        TEXT NOT NULL,
-  monto             NUMERIC(12,2) NOT NULL DEFAULT 0,
-  motivo            TEXT NOT NULL
-                    CHECK (motivo IN ('codigo_invalido','afiliado_no_encontrado','vencida','duplicada','sin_autorizacion','datos_incompletos','nomenclador_desactualizado')),
-  motivo_detalle    TEXT,
-  fecha_rechazo     DATE NOT NULL,
-  fecha_presentacion DATE NOT NULL,
-  reprocesable      BOOLEAN DEFAULT false,
-  estado            TEXT NOT NULL DEFAULT 'pendiente'
-                    CHECK (estado IN ('pendiente','reprocesado','descartado')),
-  resuelto_por      TEXT,
-  fecha_resolucion  DATE,
-  created_at        TIMESTAMPTZ DEFAULT now(),
-  updated_at        TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_rechazos_clinic ON public.rechazos(clinic_id);
-CREATE INDEX IF NOT EXISTS idx_rechazos_estado ON public.rechazos(estado);
-CREATE INDEX IF NOT EXISTS idx_rechazos_motivo ON public.rechazos(motivo);
-
--- ═══════════════════════════════════════════════════════════════
--- 4. FINANCIADORES MODULE
--- ═══════════════════════════════════════════════════════════════
-
-CREATE TABLE IF NOT EXISTS public.financiadores (
-  id                  UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  clinic_id           UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
-  name                TEXT NOT NULL,
-  type                TEXT NOT NULL CHECK (type IN ('os','prepaga','pami')),
-  cuit                TEXT,
-  contacto_email      TEXT,
-  contacto_telefono   TEXT,
-  direccion           TEXT,
-  facturado           NUMERIC(12,2) DEFAULT 0,
-  cobrado             NUMERIC(12,2) DEFAULT 0,
-  tasa_rechazo        NUMERIC(5,2) DEFAULT 0,
-  dias_promedio_pago  INTEGER DEFAULT 0,
-  facturas_pendientes INTEGER DEFAULT 0,
-  ultimo_pago         DATE,
-  ultima_liquidacion  TEXT,
-  activo              BOOLEAN DEFAULT true,
-  created_at          TIMESTAMPTZ DEFAULT now(),
-  updated_at          TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_financiadores_clinic ON public.financiadores(clinic_id);
-
--- ═══════════════════════════════════════════════════════════════
--- 5. INFLACION MODULE
--- ═══════════════════════════════════════════════════════════════
-
+-- Inflacion mensual (separate from 002's inflacion table)
 CREATE TABLE IF NOT EXISTS public.inflacion_mensual (
   id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   clinic_id         UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
@@ -181,142 +87,118 @@ CREATE TABLE IF NOT EXISTS public.inflacion_mensual (
 );
 
 -- ═══════════════════════════════════════════════════════════════
--- 6. INVENTARIO MODULE
+-- 2. ALTER EXISTING TABLES — add missing columns from 002
 -- ═══════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS public.inventario (
-  id             UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  clinic_id      UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
-  nombre         TEXT NOT NULL,
-  categoria      TEXT NOT NULL,
-  presentacion   TEXT,
-  stock          INTEGER NOT NULL DEFAULT 0,
-  stock_minimo   INTEGER NOT NULL DEFAULT 0,
-  unidad         TEXT DEFAULT 'unidad',
-  precio_unitario NUMERIC(10,2) DEFAULT 0,
-  proveedor      TEXT,
-  ultima_compra  DATE,
-  vencimiento    DATE,
-  lote           TEXT,
-  estado         TEXT GENERATED ALWAYS AS (
-    CASE
-      WHEN vencimiento IS NOT NULL AND vencimiento <= CURRENT_DATE THEN 'Vencido'
-      WHEN stock <= 0 THEN 'Crítico'
-      WHEN stock < stock_minimo THEN 'Bajo'
-      ELSE 'OK'
-    END
-  ) STORED,
-  created_at     TIMESTAMPTZ DEFAULT now(),
-  updated_at     TIMESTAMPTZ DEFAULT now()
-);
+-- ─── facturas: add lote_id, notas ────────────────────────────
+ALTER TABLE public.facturas ADD COLUMN IF NOT EXISTS lote_id TEXT;
+ALTER TABLE public.facturas ADD COLUMN IF NOT EXISTS notas TEXT;
 
-CREATE INDEX IF NOT EXISTS idx_inventario_clinic ON public.inventario(clinic_id);
+-- ─── rechazos: add resuelto_por, fecha_resolucion ────────────
+ALTER TABLE public.rechazos ADD COLUMN IF NOT EXISTS resuelto_por TEXT;
+ALTER TABLE public.rechazos ADD COLUMN IF NOT EXISTS fecha_resolucion DATE;
+
+-- ─── financiadores: add contact/billing columns ──────────────
+ALTER TABLE public.financiadores ADD COLUMN IF NOT EXISTS cuit TEXT;
+ALTER TABLE public.financiadores ADD COLUMN IF NOT EXISTS contacto_email TEXT;
+ALTER TABLE public.financiadores ADD COLUMN IF NOT EXISTS contacto_telefono TEXT;
+ALTER TABLE public.financiadores ADD COLUMN IF NOT EXISTS direccion TEXT;
+ALTER TABLE public.financiadores ADD COLUMN IF NOT EXISTS ultima_liquidacion TEXT;
+ALTER TABLE public.financiadores ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true;
+
+-- ─── inventario: add extended columns ────────────────────────
+ALTER TABLE public.inventario ADD COLUMN IF NOT EXISTS presentacion TEXT;
+ALTER TABLE public.inventario ADD COLUMN IF NOT EXISTS stock_minimo INTEGER DEFAULT 0;
+ALTER TABLE public.inventario ADD COLUMN IF NOT EXISTS precio_unitario NUMERIC(10,2) DEFAULT 0;
+ALTER TABLE public.inventario ADD COLUMN IF NOT EXISTS ultima_compra DATE;
+
+-- Backfill stock_minimo from old 'minimo' column if it exists
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'inventario' AND column_name = 'minimo'
+  ) THEN
+    UPDATE public.inventario SET stock_minimo = minimo WHERE stock_minimo = 0 AND minimo > 0;
+  END IF;
+END $$;
+
+-- ─── nomenclador: add clinic_id + missing columns ───────────
+ALTER TABLE public.nomenclador ADD COLUMN IF NOT EXISTS clinic_id UUID REFERENCES public.clinics(id) ON DELETE CASCADE;
+ALTER TABLE public.nomenclador ADD COLUMN IF NOT EXISTS modulo TEXT;
+ALTER TABLE public.nomenclador ADD COLUMN IF NOT EXISTS valor_sss NUMERIC(10,2) DEFAULT 0;
+
+-- ─── reportes: add extended columns ─────────────────────────
+ALTER TABLE public.reportes ADD COLUMN IF NOT EXISTS frecuencia TEXT DEFAULT 'Mensual';
+ALTER TABLE public.reportes ADD COLUMN IF NOT EXISTS ultima_generacion TIMESTAMPTZ;
+ALTER TABLE public.reportes ADD COLUMN IF NOT EXISTS archivo_url TEXT;
+ALTER TABLE public.reportes ADD COLUMN IF NOT EXISTS generado_por UUID REFERENCES auth.users(id);
+ALTER TABLE public.reportes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
+
+-- ─── Indexes for new tables ─────────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_facturas_fecha_desc ON public.facturas(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_inflacion_mensual_clinic ON public.inflacion_mensual(clinic_id);
 CREATE INDEX IF NOT EXISTS idx_inventario_categoria ON public.inventario(categoria);
-
--- ═══════════════════════════════════════════════════════════════
--- 7. NOMENCLADOR MODULE
--- ═══════════════════════════════════════════════════════════════
-
-CREATE TABLE IF NOT EXISTS public.nomenclador (
-  id                   UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  clinic_id            UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
-  codigo               TEXT NOT NULL,
-  descripcion          TEXT NOT NULL,
-  capitulo             TEXT NOT NULL,
-  modulo               TEXT,
-  valor_sss            NUMERIC(10,2) DEFAULT 0,
-  valor_pami           NUMERIC(10,2) DEFAULT 0,
-  valor_osde           NUMERIC(10,2) DEFAULT 0,
-  valor_swiss          NUMERIC(10,2) DEFAULT 0,
-  valor_galeno         NUMERIC(10,2) DEFAULT 0,
-  vigente              BOOLEAN DEFAULT true,
-  ultima_actualizacion DATE DEFAULT CURRENT_DATE,
-  created_at           TIMESTAMPTZ DEFAULT now(),
-  updated_at           TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(clinic_id, codigo)
-);
-
-CREATE INDEX IF NOT EXISTS idx_nomenclador_clinic ON public.nomenclador(clinic_id);
 CREATE INDEX IF NOT EXISTS idx_nomenclador_capitulo ON public.nomenclador(capitulo);
 
 -- ═══════════════════════════════════════════════════════════════
--- 8. REPORTES MODULE
+-- 3. CLINICS ONBOARDING (multi-tenant setup)
 -- ═══════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS public.reportes (
-  id             UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  clinic_id      UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
-  nombre         TEXT NOT NULL,
-  categoria      TEXT NOT NULL,
-  descripcion    TEXT,
-  formato        TEXT DEFAULT 'PDF',
-  frecuencia     TEXT DEFAULT 'Mensual',
-  ultima_generacion TIMESTAMPTZ,
-  archivo_url    TEXT,
-  generado_por   UUID REFERENCES auth.users(id),
-  created_at     TIMESTAMPTZ DEFAULT now(),
-  updated_at     TIMESTAMPTZ DEFAULT now()
-);
+ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT false;
+ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS onboarding_step INTEGER DEFAULT 0;
+ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS direccion TEXT;
+ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS telefono TEXT;
+ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS cantidad_profesionales INTEGER DEFAULT 1;
+ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS sistema_anterior TEXT;
 
 -- ═══════════════════════════════════════════════════════════════
--- 9. CLINICS ONBOARDING (multi-tenant setup)
--- ═══════════════════════════════════════════════════════════════
-
--- Add onboarding fields to clinics if not exist
-DO $$ BEGIN
-  ALTER TABLE public.clinics
-    ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT false,
-    ADD COLUMN IF NOT EXISTS onboarding_step INTEGER DEFAULT 0,
-    ADD COLUMN IF NOT EXISTS logo_url TEXT,
-    ADD COLUMN IF NOT EXISTS direccion TEXT,
-    ADD COLUMN IF NOT EXISTS telefono TEXT,
-    ADD COLUMN IF NOT EXISTS email TEXT,
-    ADD COLUMN IF NOT EXISTS especialidades TEXT[] DEFAULT '{}',
-    ADD COLUMN IF NOT EXISTS cantidad_profesionales INTEGER DEFAULT 1,
-    ADD COLUMN IF NOT EXISTS sistema_anterior TEXT;
-EXCEPTION WHEN duplicate_column THEN NULL;
-END $$;
-
--- ═══════════════════════════════════════════════════════════════
--- RLS POLICIES
+-- 4. RLS POLICIES
 -- ═══════════════════════════════════════════════════════════════
 
 ALTER TABLE public.network_doctors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.interconsultas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.solicitudes_estudio ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.facturas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rechazos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.financiadores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.inflacion_mensual ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.inventario ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.nomenclador ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.reportes ENABLE ROW LEVEL SECURITY;
 
--- Generic RLS policy: clinic members can only see their own data
--- Using a DO block to avoid errors if policies already exist
-
-DO $$ 
+-- RLS for new tables (002 already handles facturas, rechazos, etc.)
+DO $$
 DECLARE
   tbl TEXT;
 BEGIN
   FOR tbl IN SELECT unnest(ARRAY[
-    'network_doctors','interconsultas','solicitudes_estudio',
-    'facturas','rechazos','financiadores','inflacion_mensual',
-    'inventario','nomenclador','reportes'
+    'network_doctors','interconsultas','solicitudes_estudio','inflacion_mensual'
   ])
   LOOP
-    EXECUTE format(
-      'CREATE POLICY "Clinic isolation: %I" ON public.%I
-       FOR ALL TO authenticated
-       USING (clinic_id = public.get_clinic_id())
-       WITH CHECK (clinic_id = public.get_clinic_id())',
-      tbl, tbl
-    );
-  EXCEPTION WHEN duplicate_object THEN NULL;
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Clinic isolation: %I" ON public.%I
+         FOR ALL TO authenticated
+         USING (clinic_id = public.get_clinic_id())
+         WITH CHECK (clinic_id = public.get_clinic_id())',
+        tbl, tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
   END LOOP;
 END $$;
 
--- Allow anon read for demo mode (public nomenclador)
+-- Nomenclador: clinic-scoped policy (allows NULL clinic_id for shared codes)
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'nomenclador' AND column_name = 'clinic_id'
+  ) THEN
+    BEGIN
+      EXECUTE 'CREATE POLICY "Clinic isolation: nomenclador" ON public.nomenclador
+               FOR ALL TO authenticated
+               USING (clinic_id IS NULL OR clinic_id = public.get_clinic_id())
+               WITH CHECK (clinic_id = public.get_clinic_id())';
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+  END IF;
+END $$;
+
+-- Allow anon read for nomenclador (public codes)
 DO $$ BEGIN
   CREATE POLICY "Public nomenclador read"
     ON public.nomenclador FOR SELECT
@@ -326,10 +208,9 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 -- ═══════════════════════════════════════════════════════════════
--- UPDATED_AT TRIGGERS
+-- 5. UPDATED_AT TRIGGERS
 -- ═══════════════════════════════════════════════════════════════
 
--- Reusable trigger function (may already exist from 001)
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -343,24 +224,30 @@ DECLARE
   tbl TEXT;
 BEGIN
   FOR tbl IN SELECT unnest(ARRAY[
-    'network_doctors','interconsultas','solicitudes_estudio',
-    'facturas','rechazos','financiadores',
-    'inventario','nomenclador','reportes'
+    'network_doctors','interconsultas','solicitudes_estudio'
   ])
   LOOP
-    EXECUTE format(
-      'CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.%I
-       FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at()',
-      tbl
-    );
-  EXCEPTION WHEN duplicate_object THEN NULL;
+    BEGIN
+      EXECUTE format(
+        'CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.%I
+         FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at()',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
   END LOOP;
 END $$;
 
 -- ═══════════════════════════════════════════════════════════════
--- ENABLE REALTIME for key tables
+-- 6. ENABLE REALTIME for key tables
 -- ═══════════════════════════════════════════════════════════════
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.facturas;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.interconsultas;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.inventario;
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.interconsultas;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.inflacion_mensual;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
