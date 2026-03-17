@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { usePlan } from "@/lib/plan-context";
@@ -264,27 +264,38 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 // ─── Main Page ───────────────────────────────────────────────
 
 export default function PlanesPage() {
+  return (
+    <Suspense>
+      <PlanesContent />
+    </Suspense>
+  );
+}
+
+function PlanesContent() {
   const plan = usePlan();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const customRef = useRef<HTMLDivElement>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
   const [mobileBar, setMobileBar] = useState(false);
 
   // Auto-select tier from URL query param (?tier=esencial|profesional|enterprise)
+  const urlTier = searchParams.get("tier") as PresetId | null;
   useEffect(() => {
-    const tier = searchParams.get("tier") as PresetId | null;
-    if (tier && PRESETS.find((p) => p.id === tier)) {
-      plan.applyPreset(tier);
+    if (urlTier && PRESETS.find((p) => p.id === urlTier)) {
+      plan.applyPreset(urlTier);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [urlTier]);
 
   const handleSelectPreset = (id: PresetId) => {
     plan.applyPreset(id);
+    // Update URL to reflect selected tier (shallow, no scroll)
+    router.replace(`/planes?tier=${id}`, { scroll: false });
     // Scroll to custom section to show checked modules
     setTimeout(() => {
       customRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 200);
+    }, 300);
   };
 
   const handleToggle = (id: ModuleId) => {
