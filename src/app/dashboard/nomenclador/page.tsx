@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useExport } from "@/lib/services/export";
 import { useNomencladorEntries } from "@/hooks/use-data";
 import { formatCurrency } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -9,6 +10,7 @@ import { Loader2 } from "lucide-react";
 export default function NomencladorPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { exportExcel, isExporting } = useExport();
   const { data: nomenclador = [], isLoading } = useNomencladorEntries();
   const [search, setSearch] = useState("");
   const [capFilter, setCapFilter] = useState("Todos");
@@ -51,10 +53,11 @@ export default function NomencladorPage() {
                 {comparar ? "Comparar financiadores (activo)" : "Comparar financiadores"}
               </button>
               <button
-                onClick={() => showDemo("Exportar nomenclador a Excel")}
-                className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
+                onClick={() => exportExcel("nomenclador")}
+                disabled={isExporting}
+                className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
               >
-                Exportar Excel
+                {isExporting ? "Exportando..." : "Exportar Excel"}
               </button>
             </div>
           </div>

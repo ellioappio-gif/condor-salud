@@ -95,6 +95,7 @@ export interface Alerta {
   detalle: string;
   fecha: string;
   acento: "celeste" | "gold";
+  read: boolean;
 }
 
 export interface KPI {

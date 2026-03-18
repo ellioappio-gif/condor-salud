@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useExport } from "@/lib/services/export";
 import { useInflacionMensual, useFinanciadoresInflacion } from "@/hooks/use-data";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -21,6 +22,7 @@ const formatMonto = formatCurrency;
 
 export default function InflacionPage() {
   const { showDemo } = useDemoAction();
+  const { exportPDF, exportExcel, isExporting } = useExport();
   const [period, setPeriod] = useState<Period>("6m");
   const [finFilter, setFinFilter] = useState<FinFilter>("Todos");
 
@@ -75,15 +77,17 @@ export default function InflacionPage() {
                 ))}
               </div>
               <button
-                onClick={() => showDemo("Exportar reporte de inflación PDF")}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+                onClick={() => exportPDF("kpi")}
+                disabled={isExporting}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" />
-                Exportar PDF
+                {isExporting ? "..." : "Exportar PDF"}
               </button>
               <button
-                onClick={() => showDemo("Exportar datos de inflación Excel")}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
+                onClick={() => exportExcel("facturacion")}
+                disabled={isExporting}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" />
                 Excel
@@ -194,10 +198,11 @@ export default function InflacionPage() {
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="text-xs text-ink-muted">Detalle mensual</div>
               <button
-                onClick={() => showDemo("Exportar detalle mensual CSV")}
+                onClick={() => exportExcel("facturacion")}
+                disabled={isExporting}
                 className="text-xs text-celeste-dark font-medium hover:underline flex items-center gap-1"
               >
-                <Download className="w-3 h-3" /> CSV
+                <Download className="w-3 h-3" /> Excel
               </button>
             </div>
             <table className="w-full text-sm">

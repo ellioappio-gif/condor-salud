@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-03-17
+
+### Added
+
+- **Alertas API** (`/api/alertas`) — GET fetches from `alertas` table by `clinic_id` with demo fallback; PATCH supports `mark_read`, `mark_all_read`, `dismiss` actions
+- **Verificacion API** (`/api/verificacion`) — GET by `?dni=` with Supabase `pacientes` lookup and static known-patients fallback
+- **Alertas page rewrite** — now uses SWR for live data, real mark-as-read and dismiss via PATCH, category filters, unread-only toggle
+- **Verificacion page rewrite** — calls real API instead of `setTimeout` stub; builds session history of lookups
+- **Export buttons wired** on 4 remaining dashboard pages (inventario, nomenclador, financiadores, inflacion) — replaced `showDemo()` toasts with real `useExport()` PDF/Excel downloads
+
+### Changed
+
+- `Alerta` type now includes `read: boolean` matching DB schema
+- Financiadores and inflacion export buttons relabeled from "CSV" to "Excel" (downloads actual `.xlsx` via ExcelJS)
+- Export buttons show loading state and disable during download
+
+### Removed
+
+- Hardcoded alert arrays and fake verification delay from dashboard pages
+
 ## [0.5.1] — 2026-03-16
 
 ### Added

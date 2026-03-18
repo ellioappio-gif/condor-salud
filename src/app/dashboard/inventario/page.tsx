@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useExport } from "@/lib/services/export";
 import { useInventarioItems } from "@/hooks/use-data";
 import { formatCurrency } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -63,6 +64,7 @@ const movimientos = [
 export default function InventarioPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { exportExcel, isExporting } = useExport();
   const { data: inventario = [], isLoading } = useInventarioItems();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("Todos");
@@ -100,10 +102,11 @@ export default function InventarioPage() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => showDemo("Exportar inventario")}
-                className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
+                onClick={() => exportExcel("inventario")}
+                disabled={isExporting}
+                className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
               >
-                Exportar
+                {isExporting ? "Exportando..." : "Exportar"}
               </button>
               <button
                 onClick={() => showDemo("Registrar ingreso de stock")}

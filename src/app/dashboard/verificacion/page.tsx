@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 type Result = {
   status: "activo" | "inactivo" | null;
@@ -10,28 +10,60 @@ type Result = {
   grupo?: string;
 };
 
+type HistoryEntry = {
+  nombre: string;
+  dni: string;
+  financiador: string;
+  status: "activo" | "inactivo";
+  hora: string;
+};
+
 export default function VerificacionPage() {
   const [dni, setDni] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!dni.trim() || dni.trim().length < 6) return;
-    setLoading(true);
+  const handleSearch = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      const clean = dni.replace(/[.\-\s]/g, "");
+      if (!clean || clean.length < 6) return;
+      setLoading(true);
+      setError(null);
 
-    // TODO: Replace with real PAMI/Swiss Medical API call
-    await new Promise((r) => setTimeout(r, 800));
-    setResult({
-      status: "activo",
-      nombre: "María González",
-      financiador: "PAMI",
-      plan: "Jubilados y Pensionados",
-      vigencia: "01/2026 – 12/2026",
-      grupo: "Titular + 1 familiar",
-    });
-    setLoading(false);
-  };
+      try {
+        const res = await fetch(`/api/verificacion?dni=${encodeURIComponent(clean)}`);
+        if (!res.ok) throw new Error("Error al consultar cobertura");
+        const data = await res.json();
+        setResult(data);
+
+        // Prepend to local history
+        const now = new Date();
+        const hora =
+          now.getHours().toString().padStart(2, "0") +
+          ":" +
+          now.getMinutes().toString().padStart(2, "0");
+        setHistory((prev) => [
+          {
+            nombre: data.nombre ?? "—",
+            dni: clean.replace(/(\d{2})(\d{3})(\d{3})/, "$1.$2.$3"),
+            financiador: data.financiador ?? "—",
+            status: data.status ?? "inactivo",
+            hora,
+          },
+          ...prev.slice(0, 9),
+        ]);
+      } catch {
+        setError("No se pudo verificar. Intenta nuevamente.");
+        setResult(null);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [dni],
+  );
 
   return (
     <div className="space-y-5">
@@ -62,6 +94,13 @@ export default function VerificacionPage() {
           </button>
         </form>
       </div>
+
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* Result */}
       {result && (
@@ -132,56 +171,55 @@ export default function VerificacionPage() {
       )}
 
       {/* Recent verifications */}
-      <div className="bg-white border border-border rounded-lg overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
-          <div className="text-xs text-ink-muted">Últimas verificaciones</div>
-        </div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              <th scope="col" className="text-left px-5 py-2.5">
-                Paciente
-              </th>
-              <th scope="col" className="text-left px-5 py-2.5">
-                DNI
-              </th>
-              <th scope="col" className="text-left px-5 py-2.5">
-                Financiador
-              </th>
-              <th scope="col" className="text-left px-5 py-2.5">
-                Estado
-              </th>
-              <th scope="col" className="text-right px-5 py-2.5">
-                Hora
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              { n: "Carlos Pérez", d: "28.456.789", f: "OSDE", s: "activo", t: "14:23" },
-              { n: "Ana Rodríguez", d: "35.123.456", f: "Swiss Medical", s: "activo", t: "13:45" },
-              { n: "Jorge Martínez", d: "22.789.012", f: "PAMI", s: "activo", t: "12:10" },
-              { n: "Laura Gómez", d: "40.567.890", f: "IOMA", s: "inactivo", t: "11:30" },
-            ].map((v) => (
-              <tr key={v.d} className="border-t border-border-light">
-                <td className="px-5 py-3 font-semibold text-ink">{v.n}</td>
-                <td className="px-5 py-3 text-ink-light">{v.d}</td>
-                <td className="px-5 py-3 text-ink-light">{v.f}</td>
-                <td className="px-5 py-3">
-                  <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                      v.s === "activo" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {v.s}
-                  </span>
-                </td>
-                <td className="px-5 py-3 text-right text-ink-muted">{v.t}</td>
+      {history.length > 0 && (
+        <div className="bg-white border border-border rounded-lg overflow-hidden">
+          <div className="px-5 py-4 border-b border-border">
+            <div className="text-xs text-ink-muted">Últimas verificaciones</div>
+          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Paciente
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  DNI
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Financiador
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Estado
+                </th>
+                <th scope="col" className="text-right px-5 py-2.5">
+                  Hora
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {history.map((v, i) => (
+                <tr key={`${v.dni}-${i}`} className="border-t border-border-light">
+                  <td className="px-5 py-3 font-semibold text-ink">{v.nombre}</td>
+                  <td className="px-5 py-3 text-ink-light">{v.dni}</td>
+                  <td className="px-5 py-3 text-ink-light">{v.financiador}</td>
+                  <td className="px-5 py-3">
+                    <span
+                      className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                        v.status === "activo"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {v.status}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-right text-ink-muted">{v.hora}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,141 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import useSWR from "swr";
 import { useToast } from "@/components/Toast";
-import { useDemoAction } from "@/components/DemoModal";
+import type { Alerta } from "@/lib/types";
 
-interface Alerta {
-  id: string;
-  titulo: string;
-  descripcion: string;
-  categoria: "Pagos" | "Rechazos" | "Aranceles" | "Sistema" | "Vencimientos" | "Inventario";
-  prioridad: "Urgente" | "Alta" | "Media" | "Baja";
-  fecha: string;
-  leida: boolean;
-  accionUrl?: string;
-  accionLabel?: string;
-}
+/* ---------- Fetcher ---------- */
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-const alertas: Alerta[] = [
-  {
-    id: "ALR-001",
-    titulo: "Pago recibido — OSDE",
-    descripcion:
-      "Se acreditó el pago de OSDE correspondiente al período enero 2026 por $1.245.800.",
-    categoria: "Pagos",
-    prioridad: "Media",
-    fecha: "07/03/2026 15:42",
-    leida: false,
-    accionUrl: "/dashboard/financiadores",
-    accionLabel: "Ver financiadores",
-  },
-  {
-    id: "ALR-002",
-    titulo: "3 rechazos nuevos — PAMI",
-    descripcion:
-      "Se detectaron 3 nuevos rechazos en la última presentación de PAMI. Motivo principal: documentación faltante.",
-    categoria: "Rechazos",
-    prioridad: "Alta",
-    fecha: "07/03/2026 10:15",
-    leida: false,
-    accionUrl: "/dashboard/rechazos",
-    accionLabel: "Ver rechazos",
-  },
-  {
-    id: "ALR-003",
-    titulo: "Actualización arancelaria — Swiss Medical",
-    descripcion:
-      "Swiss Medical publicó nuevos aranceles vigentes desde 01/03/2026. Incremento promedio: 12.5%.",
-    categoria: "Aranceles",
-    prioridad: "Alta",
-    fecha: "06/03/2026 09:00",
-    leida: false,
-    accionUrl: "/dashboard/nomenclador",
-    accionLabel: "Ver nomenclador",
-  },
-  {
-    id: "ALR-004",
-    titulo: "Stock crítico — Guantes nitrilo M",
-    descripcion:
-      "El stock de guantes nitrilo talle M está por debajo del mínimo (5 cajas de 15 requeridas).",
-    categoria: "Inventario",
-    prioridad: "Urgente",
-    fecha: "06/03/2026 08:30",
-    leida: false,
-    accionUrl: "/dashboard/inventario",
-    accionLabel: "Ver inventario",
-  },
-  {
-    id: "ALR-005",
-    titulo: "Stock crítico — Tiras reactivas glucemia",
-    descripcion:
-      "Solo quedan 3 cajas de tiras reactivas (mínimo: 10). Vencimiento cercano: 06/2026.",
-    categoria: "Inventario",
-    prioridad: "Urgente",
-    fecha: "06/03/2026 08:30",
-    leida: true,
-    accionUrl: "/dashboard/inventario",
-    accionLabel: "Ver inventario",
-  },
-  {
-    id: "ALR-006",
-    titulo: "Vencimiento de autorización — Holter (Ramírez)",
-    descripcion:
-      "La autorización de Swiss Medical para Holter 24hs de Sofía Ramírez vence el 28/02. Renovar antes de presentar.",
-    categoria: "Vencimientos",
-    prioridad: "Alta",
-    fecha: "05/03/2026 14:20",
-    leida: true,
-    accionUrl: "/dashboard/auditoria",
-    accionLabel: "Ver auditoría",
-  },
-  {
-    id: "ALR-007",
-    titulo: "Backup del sistema completado",
-    descripcion:
-      "El backup diario del sistema se completó exitosamente a las 03:00. Tamaño: 2.4GB.",
-    categoria: "Sistema",
-    prioridad: "Baja",
-    fecha: "07/03/2026 03:05",
-    leida: true,
-  },
-  {
-    id: "ALR-008",
-    titulo: "Nuevo arancel PAMI — Resolución 2024/2026",
-    descripcion:
-      "Se publicó la Resolución 2024/2026 con actualización de aranceles PAMI vigente desde 01/03/2026.",
-    categoria: "Aranceles",
-    prioridad: "Alta",
-    fecha: "04/03/2026 11:00",
-    leida: true,
-    accionUrl: "/dashboard/nomenclador",
-    accionLabel: "Ver nomenclador",
-  },
-  {
-    id: "ALR-009",
-    titulo: "Demora en pago — Galeno",
-    descripcion:
-      "El pago de Galeno correspondiente a enero 2026 supera los 90 días. Monto pendiente: $342.600.",
-    categoria: "Pagos",
-    prioridad: "Urgente",
-    fecha: "03/03/2026 09:00",
-    leida: true,
-    accionUrl: "/dashboard/financiadores",
-    accionLabel: "Ver financiadores",
-  },
-  {
-    id: "ALR-010",
-    titulo: "Presentación vence mañana — IOMA",
-    descripcion:
-      "La fecha límite de presentación del período febrero 2026 para IOMA es el 10/03/2026.",
-    categoria: "Vencimientos",
-    prioridad: "Alta",
-    fecha: "09/03/2026 08:00",
-    leida: false,
-    accionUrl: "/dashboard/facturacion",
-    accionLabel: "Ver facturación",
-  },
-];
+/* ---------- Category → UI mapping ---------- */
+const TIPO_TO_CAT: Record<string, string> = {
+  pago: "Pagos",
+  rechazo: "Rechazos",
+  nomenclador: "Aranceles",
+  inflacion: "Sistema",
+  vencimiento: "Vencimientos",
+};
+
+const TIPO_TO_URL: Record<string, string> = {
+  pago: "/dashboard/financiadores",
+  rechazo: "/dashboard/rechazos",
+  nomenclador: "/dashboard/nomenclador",
+  vencimiento: "/dashboard/auditoria",
+  inflacion: "/dashboard/inflacion",
+};
+
+const TIPO_TO_LABEL: Record<string, string> = {
+  pago: "Ver financiadores",
+  rechazo: "Ver rechazos",
+  nomenclador: "Ver nomenclador",
+  vencimiento: "Ver auditoria",
+  inflacion: "Ver inflacion",
+};
 
 const categoriaColors: Record<string, string> = {
   Pagos: "bg-green-100 text-green-700",
@@ -144,6 +40,14 @@ const categoriaColors: Record<string, string> = {
   Sistema: "bg-gray-100 text-gray-600",
   Vencimientos: "bg-gold-100 text-gold-700",
   Inventario: "bg-amber-100 text-amber-700",
+};
+
+const prioridadFromTipo: Record<string, string> = {
+  rechazo: "Alta",
+  vencimiento: "Alta",
+  pago: "Media",
+  nomenclador: "Media",
+  inflacion: "Baja",
 };
 
 const prioridadColors: Record<string, string> = {
@@ -155,37 +59,68 @@ const prioridadColors: Record<string, string> = {
 
 export default function AlertasPage() {
   const { showToast } = useToast();
-  const { showDemo } = useDemoAction();
+  const { data, mutate, isLoading } = useSWR<{ alertas: Alerta[] }>("/api/alertas", fetcher, {
+    revalidateOnFocus: true,
+    dedupingInterval: 5000,
+  });
+
+  const alertas = data?.alertas ?? [];
   const [catFilter, setCatFilter] = useState("Todas");
   const [soloNoLeidas, setSoloNoLeidas] = useState(false);
 
-  const categorias = [
-    "Todas",
-    "Pagos",
-    "Rechazos",
-    "Aranceles",
-    "Inventario",
-    "Vencimientos",
-    "Sistema",
-  ];
+  const categorias = ["Todas", "Pagos", "Rechazos", "Aranceles", "Vencimientos", "Sistema"];
+
+  const catOf = (a: Alerta) => TIPO_TO_CAT[a.tipo] ?? "Sistema";
 
   const filtered = alertas.filter((a) => {
-    const matchCat = catFilter === "Todas" || a.categoria === catFilter;
-    const matchLeida = !soloNoLeidas || !a.leida;
+    const matchCat = catFilter === "Todas" || catOf(a) === catFilter;
+    const matchLeida = !soloNoLeidas || !a.read;
     return matchCat && matchLeida;
   });
 
-  const noLeidas = alertas.filter((a) => !a.leida).length;
-  const urgentes = alertas.filter((a) => a.prioridad === "Urgente" && !a.leida).length;
+  const noLeidas = alertas.filter((a) => !a.read).length;
+
+  // ── Actions ────────────────────────────────────────────
+  const patchAlertas = useCallback(
+    async (action: string, ids?: string[]) => {
+      try {
+        await fetch("/api/alertas", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, ids }),
+        });
+        mutate();
+      } catch {
+        showToast("Error actualizando alertas", "error");
+      }
+    },
+    [mutate, showToast],
+  );
+
+  const markAllRead = () => {
+    patchAlertas("mark_all_read");
+    showToast("Todas marcadas como leidas", "success");
+  };
+
+  const dismiss = (id: string) => {
+    patchAlertas("dismiss", [id]);
+    showToast("Alerta descartada", "success");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-sm text-ink-muted">
+        Cargando alertas...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-ink">Alertas</h1>
-          <p className="text-sm text-ink-muted mt-0.5">
-            {noLeidas} sin leer · {urgentes} urgente{urgentes !== 1 ? "s" : ""}
-          </p>
+          <p className="text-sm text-ink-muted mt-0.5">{noLeidas} sin leer</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -195,10 +130,10 @@ export default function AlertasPage() {
             {soloNoLeidas ? "Solo no leidas (activo)" : "Solo no leidas"}
           </button>
           <button
-            onClick={() => showDemo("Marcar todas leídas")}
+            onClick={markAllRead}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
-            Marcar todas leídas
+            Marcar todas leidas
           </button>
         </div>
       </div>
@@ -208,8 +143,8 @@ export default function AlertasPage() {
         {categorias.map((c) => {
           const count =
             c === "Todas"
-              ? alertas.filter((a) => !a.leida).length
-              : alertas.filter((a) => a.categoria === c && !a.leida).length;
+              ? alertas.filter((a) => !a.read).length
+              : alertas.filter((a) => catOf(a) === c && !a.read).length;
           return (
             <button
               key={c}
@@ -236,58 +171,64 @@ export default function AlertasPage() {
 
       {/* Alert list */}
       <div className="space-y-2">
-        {filtered.map((a) => (
-          <div
-            key={a.id}
-            className={`border rounded-lg p-4 transition ${a.leida ? "bg-white border-border" : "bg-celeste-pale/20 border-celeste-light"} hover:shadow-sm`}
-          >
-            <div className="flex items-start gap-3">
-              <span
-                className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${categoriaColors[a.categoria] || "bg-gray-100 text-gray-600"}`}
-              >
-                {a.categoria}
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  {!a.leida && <span className="w-2 h-2 bg-celeste-dark rounded-full" />}
-                  <span
-                    className={`px-1.5 py-0.5 text-[10px] font-bold rounded border ${prioridadColors[a.prioridad]}`}
-                  >
-                    {a.prioridad}
-                  </span>
-                  <span className="text-xs font-bold text-ink">{a.titulo}</span>
-                </div>
-                <p className="text-xs text-ink-light leading-relaxed">{a.descripcion}</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="text-[10px] text-ink-muted">{a.fecha}</span>
-                  {a.accionUrl && (
-                    <Link
-                      href={a.accionUrl}
-                      className="text-[10px] text-celeste-dark font-semibold hover:underline"
-                    >
-                      {a.accionLabel}
-                    </Link>
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={() => showDemo("Descartar alerta")}
-                className="text-ink-muted hover:text-ink text-xs p-1"
-                aria-label="Descartar alerta"
-              >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
+        {filtered.map((a) => {
+          const cat = catOf(a);
+          const prio = prioridadFromTipo[a.tipo] ?? "Media";
+          return (
+            <div
+              key={a.id}
+              className={`border rounded-lg p-4 transition ${a.read ? "bg-white border-border" : "bg-celeste-pale/20 border-celeste-light"} hover:shadow-sm`}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${categoriaColors[cat] || "bg-gray-100 text-gray-600"}`}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                  {cat}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    {!a.read && <span className="w-2 h-2 bg-celeste-dark rounded-full" />}
+                    <span
+                      className={`px-1.5 py-0.5 text-[10px] font-bold rounded border ${prioridadColors[prio]}`}
+                    >
+                      {prio}
+                    </span>
+                    <span className="text-xs font-bold text-ink">{a.titulo}</span>
+                  </div>
+                  <p className="text-xs text-ink-light leading-relaxed">{a.detalle}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-[10px] text-ink-muted">
+                      {new Date(a.fecha).toLocaleDateString("es-AR")}
+                    </span>
+                    {TIPO_TO_URL[a.tipo] && (
+                      <Link
+                        href={TIPO_TO_URL[a.tipo]}
+                        className="text-[10px] text-celeste-dark font-semibold hover:underline"
+                      >
+                        {TIPO_TO_LABEL[a.tipo]}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => dismiss(a.id)}
+                  className="text-ink-muted hover:text-ink text-xs p-1"
+                  aria-label="Descartar alerta"
+                >
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (
