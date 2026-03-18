@@ -12,7 +12,7 @@ export function WizardSidebar() {
     >
       <div className="mb-6">
         <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-          Índice del Recorrido
+          Configuración inicial
         </h2>
       </div>
 

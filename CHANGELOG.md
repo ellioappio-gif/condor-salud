@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-03-19
+
+### Changed
+
+- **Onboarding wizard rewrite**: Replaced the 13-slide informational tour with a real 6-step clinic setup wizard:
+  1. **Bienvenida** — Overview of the setup process
+  2. **Datos de la clínica** — Name (required), CUIT, address, phone, email, logo upload
+  3. **Equipo médico** — Add team members manually or import via spreadsheet (xlsx/csv)
+  4. **Importar datos** — Upload patient spreadsheets, medical documents (xlsx, csv, pdf)
+  5. **Configuración** — Specialty & financiador chip selectors, sistema anterior, WhatsApp & telemedicine toggles
+  6. **Confirmación** — Summary review + "Activar clínica" button that calls `completeOnboarding()`
+- **`WizardData.tsx`**: New `SetupStep` interface, `OnboardingFormData` type, `WizardProvider` with form state, per-step validation, non-blocking progress saves via `saveOnboardingProgress()`
+- **`WizardStepContent.tsx`**: Full form renderers for all 6 steps with real inputs, file uploads, team member CRUD, chip selectors
+- **`WizardNavigation.tsx`**: Prev/Next with step title labels; last step hidden (confirmation button lives in step content)
+- **Sidebar nav label**: "Recorrido Guiado" → "Configuración inicial"
+
+### Added
+
+- **`FileUpload` component** (`src/components/ui/FileUpload.tsx`): Reusable drag-and-drop + click file upload with preview, delete, size validation (10 MB default), file type filtering, ARIA labels, error messages in Spanish
+- **New type exports**: `SetupStep`, `OnboardingFormData`, `TeamMember` from `src/components/wizard/index.ts`
+
 ## [0.8.1] — 2026-03-18
 
 ### Fixed

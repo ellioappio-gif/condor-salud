@@ -105,7 +105,7 @@ const navSections = [
     items: [
       { label: "Alertas", href: "/dashboard/alertas" },
       { label: "Configuracion", href: "/dashboard/configuracion" },
-      { label: "Recorrido Guiado", href: "/dashboard/wizard" },
+      { label: "Configuración inicial", href: "/dashboard/wizard" },
     ],
   },
 ];
