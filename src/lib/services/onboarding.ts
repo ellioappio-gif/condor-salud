@@ -18,6 +18,10 @@ export interface ClinicOnboardingInput {
   sistemaAnterior?: string;
   logoUrl?: string;
   plan?: string;
+  whatsappNumber?: string;
+  enableWhatsapp?: boolean;
+  enableTelemedicina?: boolean;
+  financiadores?: string[];
 }
 
 export interface OnboardingResult {

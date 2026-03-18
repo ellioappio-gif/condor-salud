@@ -58,7 +58,7 @@ export const WIZARD_STEPS: SetupStep[] = [
     title: "Bienvenido a Cóndor Salud",
     subtitle: "Configurá tu clínica en minutos",
     description:
-      "Este asistente te guía paso a paso para dejar tu clínica lista. Podés completar todo ahora o guardar el progreso y continuar después. Toda la información se puede modificar más adelante desde Configuración.",
+      "Este asistente te guía paso a paso para dejar tu clínica operativa. Vas a poder: cargar datos básicos, importar pacientes desde planillas, configurar WhatsApp AI para turnos automáticos y recordatorios 24 hs, y activar recetas digitales por WhatsApp. Solo el nombre de la clínica es obligatorio — todo lo demás se puede completar después.",
   },
   {
     id: "clinica",
@@ -67,7 +67,7 @@ export const WIZARD_STEPS: SetupStep[] = [
     title: "Datos de la clínica",
     subtitle: "Información básica de tu centro",
     description:
-      "Completá los datos básicos de tu clínica. Esta información se usa en facturas, reportes y comunicaciones con pacientes.",
+      "Esta información aparece en facturas, reportes PDF, y comunicaciones con pacientes. El logo se muestra en el dashboard y en las recetas digitales que envía el sistema por WhatsApp. Podés subir fotos desde la cámara del celular.",
     requiredFields: ["nombre"],
   },
   {
@@ -77,7 +77,7 @@ export const WIZARD_STEPS: SetupStep[] = [
     title: "Equipo médico",
     subtitle: "Profesionales y roles",
     description:
-      "Agregá los miembros de tu equipo manualmente o importá una planilla. Cada miembro recibe un rol con permisos específicos (admin, médico, facturación, recepción).",
+      "Cada miembro recibe un rol con permisos específicos: admin (acceso total), médico (historia clínica + agenda), facturación (cobros + reportes), recepción (turnos + pacientes). Podés agregar uno por uno o importar todo tu equipo desde una planilla Excel/CSV.",
   },
   {
     id: "importacion",
@@ -86,16 +86,16 @@ export const WIZARD_STEPS: SetupStep[] = [
     title: "Importar datos",
     subtitle: "Pacientes, turnos y documentos",
     description:
-      "Subí planillas con datos de pacientes, historial de turnos o cualquier documento que necesites migrar. Aceptamos Excel (.xlsx), CSV y PDF.",
+      "Subí planillas con datos de pacientes para migrar desde tu sistema anterior. También podés subir contratos, habilitaciones, o documentos escaneados (usá la cámara del celular para fotos). Aceptamos Excel (.xlsx), CSV y PDF.",
   },
   {
     id: "configuracion",
     category: "Configuración",
     icon: "configuracion",
     title: "Configuración inicial",
-    subtitle: "Financiadores, especialidades y más",
+    subtitle: "WhatsApp AI, financiadores y más",
     description:
-      "Seleccioná las obras sociales y prepagas con las que trabajás, las especialidades de tu clínica y las preferencias generales.",
+      "Configurá el número de WhatsApp de tu clínica para activar el bot con IA: agenda turnos automáticamente, pregunta síntomas y gravedad, envía recordatorios 24 hs antes, y manda recetas digitales por WhatsApp. También elegí las obras sociales y especialidades con las que trabajás.",
   },
   {
     id: "confirmacion",
@@ -104,7 +104,7 @@ export const WIZARD_STEPS: SetupStep[] = [
     title: "¡Todo listo!",
     subtitle: "Revisá y confirmá",
     description:
-      "Revisá un resumen de toda la información cargada. Al confirmar, tu clínica queda activa y lista para operar.",
+      "Revisá un resumen de toda la información cargada. Al confirmar, tu clínica queda activa con: dashboard en tiempo real, agenda inteligente, facturación automática, auditoría de cobros, WhatsApp AI, telemedicina, y más.",
   },
 ];
 
@@ -146,6 +146,8 @@ export interface OnboardingFormData {
   sistemaAnterior: string;
   enableWhatsapp: boolean;
   enableTelemedicina: boolean;
+  /** Clinic WhatsApp number in E.164 format */
+  whatsappNumber: string;
 }
 
 export interface TeamMember {
@@ -172,6 +174,7 @@ const DEFAULT_FORM: OnboardingFormData = {
   sistemaAnterior: "",
   enableWhatsapp: false,
   enableTelemedicina: false,
+  whatsappNumber: "",
 };
 
 // ─── Available options ───────────────────────────────────────
@@ -348,6 +351,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
         especialidades: formData.especialidades.length ? formData.especialidades : undefined,
         cantidadProfesionales: formData.cantidadProfesionales,
         sistemaAnterior: formData.sistemaAnterior || undefined,
+        whatsappNumber: formData.whatsappNumber || undefined,
       });
 
       if (!result.success) {

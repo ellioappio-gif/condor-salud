@@ -115,18 +115,18 @@ export default function DirectorioPage() {
     : [
         {
           label: "Médicos activos",
-          value: "148",
-          change: "+6 este mes",
+          value: "0",
+          change: "En directorio",
           color: "text-celeste-dark",
         },
         {
           label: "Especialidades",
-          value: "23",
+          value: "0",
           change: "Cobertura total",
           color: "text-celeste-dark",
         },
-        { label: "Turnos hoy", value: "89", change: "12 teleconsulta", color: "text-success-600" },
-        { label: "Rating promedio", value: "4.7", change: "849 reviews", color: "text-gold" },
+        { label: "Turnos hoy", value: "0", change: "Disponibles", color: "text-success-600" },
+        { label: "Rating promedio", value: "—", change: "Sin reviews", color: "text-gold" },
       ];
 
   return (

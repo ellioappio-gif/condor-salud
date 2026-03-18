@@ -8,7 +8,23 @@ import {
 } from "./WizardData";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { Toggle } from "@/components/ui/Toggle";
-import { Feather, Building2, Download, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Feather,
+  Building2,
+  Download,
+  CheckCircle2,
+  AlertCircle,
+  MessageSquare,
+  Bot,
+  Bell,
+  FileText,
+  Camera,
+  Shield,
+  BarChart3,
+  Calendar,
+  Stethoscope,
+  Video,
+} from "lucide-react";
 
 // ─── Reusable form field ─────────────────────────────────────
 
@@ -38,6 +54,38 @@ function Field({
 const inputClass =
   "w-full rounded-[4px] border border-border px-3 py-2 text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-celeste-dark focus:border-celeste-dark transition";
 
+// ─── Feature explanation card ────────────────────────────────
+
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+  color = "celeste",
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  color?: "celeste" | "green" | "amber" | "purple";
+}) {
+  const colorMap = {
+    celeste: "border-celeste-200 bg-celeste-50/60 text-celeste-dark",
+    green: "border-green-200 bg-green-50/60 text-green-700",
+    amber: "border-amber-200 bg-amber-50/60 text-amber-700",
+    purple: "border-purple-200 bg-purple-50/60 text-purple-700",
+  };
+  return (
+    <div className={`rounded-xl border p-4 ${colorMap[color]}`}>
+      <div className="flex items-start gap-3">
+        <Icon className="h-5 w-5 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold">{title}</p>
+          <p className="text-xs mt-0.5 opacity-80">{description}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Step renderers ──────────────────────────────────────────
 
 function StepBienvenida() {
@@ -49,8 +97,8 @@ function StepBienvenida() {
         <div>
           <h2 className="text-lg font-bold text-ink">Configurá tu clínica en 5 pasos</h2>
           <p className="text-sm text-ink-muted mt-1">
-            Vamos a pedirte información básica, datos del equipo, y opcionalmente podés importar
-            datos existentes desde planillas Excel, CSV o documentos PDF.
+            Cargá datos básicos, importá pacientes desde planillas, y activá WhatsApp AI para turnos
+            automáticos, recordatorios y recetas digitales.
           </p>
         </div>
       </div>
@@ -58,10 +106,18 @@ function StepBienvenida() {
       {/* Steps preview */}
       <div className="grid gap-3 sm:grid-cols-2">
         {[
-          { n: 1, label: "Datos de la clínica", desc: "Nombre, dirección, CUIT, logo" },
+          {
+            n: 1,
+            label: "Datos de la clínica",
+            desc: "Nombre, dirección, CUIT, logo (cámara habilitada)",
+          },
           { n: 2, label: "Equipo médico", desc: "Profesionales, roles, importar planilla" },
-          { n: 3, label: "Importar datos", desc: "Pacientes, turnos, documentos" },
-          { n: 4, label: "Configuración", desc: "Financiadores, especialidades" },
+          { n: 3, label: "Importar datos", desc: "Pacientes, documentos, fotos escaneadas" },
+          {
+            n: 4,
+            label: "WhatsApp AI + Config",
+            desc: "Bot IA, recordatorios 24hs, recetas digitales",
+          },
           { n: 5, label: "Confirmación", desc: "Revisión final y activación" },
         ].map((s) => (
           <div
@@ -79,6 +135,49 @@ function StepBienvenida() {
         ))}
       </div>
 
+      {/* What you get */}
+      <div>
+        <h3 className="text-sm font-semibold text-ink mb-3">¿Qué incluye Cóndor Salud?</h3>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <FeatureCard
+            icon={Bot}
+            title="WhatsApp AI"
+            description="Bot inteligente que agenda turnos, pregunta síntomas y evalúa gravedad automáticamente."
+            color="celeste"
+          />
+          <FeatureCard
+            icon={Bell}
+            title="Recordatorios 24hs"
+            description="Envía recordatorios de turnos automáticos por WhatsApp. El paciente confirma, cancela o reprograma."
+            color="green"
+          />
+          <FeatureCard
+            icon={FileText}
+            title="Recetas digitales"
+            description="Envía recetas digitales firmadas por WhatsApp con validez legal (Ley 27.553)."
+            color="purple"
+          />
+          <FeatureCard
+            icon={BarChart3}
+            title="Dashboard en tiempo real"
+            description="KPIs de facturación, cobros, rechazos e inflación actualizados al instante."
+            color="amber"
+          />
+          <FeatureCard
+            icon={Shield}
+            title="Auditoría automática"
+            description="Detecta errores de facturación, duplicados y autorizaciones vencidas antes de presentar."
+            color="celeste"
+          />
+          <FeatureCard
+            icon={Video}
+            title="Telemedicina"
+            description="Videollamadas integradas con Daily.co para consultas a distancia."
+            color="green"
+          />
+        </div>
+      </div>
+
       <div className="rounded-xl border border-celeste-200 bg-celeste-50 p-4">
         <p className="text-sm text-ink-muted">
           <strong className="text-celeste-dark">Tip:</strong> Solo el nombre de la clínica es
@@ -94,6 +193,21 @@ function StepClinica() {
 
   return (
     <div className="space-y-5">
+      {/* Feature explanation */}
+      <div className="grid gap-2 sm:grid-cols-2 mb-2">
+        <FeatureCard
+          icon={Building2}
+          title="Datos en facturas y reportes"
+          description="Nombre, CUIT y dirección aparecen automáticamente en facturas PDF, notas de crédito y reportes."
+        />
+        <FeatureCard
+          icon={Camera}
+          title="Cámara habilitada"
+          description="Desde el celular podés sacar fotos directamente para subir el logo o documentos."
+          color="green"
+        />
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Nombre de la clínica" required>
           <input
@@ -146,12 +260,13 @@ function StepClinica() {
 
       <FileUpload
         label="Logo de la clínica"
-        hint="Se muestra en facturas, reportes y el dashboard. PNG o JPG, máx. 2 MB."
+        hint="Se muestra en facturas, reportes, dashboard y recetas digitales. PNG o JPG, máx. 2 MB."
         files={formData.logoFiles}
         onChange={(f) => updateForm({ logoFiles: f })}
         accept="image/png,image/jpeg,image/webp"
         maxFiles={1}
         maxSize={2 * 1024 * 1024}
+        enableCamera
       />
     </div>
   );
@@ -162,6 +277,21 @@ function StepEquipo() {
 
   return (
     <div className="space-y-6">
+      {/* Feature explanation */}
+      <div className="grid gap-2 sm:grid-cols-2 mb-2">
+        <FeatureCard
+          icon={Shield}
+          title="Permisos por rol"
+          description="Admin: acceso total. Médico: HC + agenda. Facturación: cobros + reportes. Recepción: turnos + pacientes."
+        />
+        <FeatureCard
+          icon={Stethoscope}
+          title="Cada médico, su agenda"
+          description="Los profesionales con rol 'médico' reciben su propia agenda y lista de pacientes automáticamente."
+          color="green"
+        />
+      </div>
+
       <Field label="Cantidad de profesionales" hint="Incluye médicos, administrativos y recepción">
         <input
           type="number"
@@ -336,6 +466,22 @@ function StepImportacion() {
         </div>
       </div>
 
+      {/* Feature explanation */}
+      <div className="grid gap-2 sm:grid-cols-2">
+        <FeatureCard
+          icon={Camera}
+          title="Usá la cámara del celular"
+          description="Escaneá documentos, habilitaciones o historias clínicas en papel sacando una foto directamente."
+          color="green"
+        />
+        <FeatureCard
+          icon={FileText}
+          title="Importación inteligente"
+          description="El sistema detecta automáticamente las columnas de tu planilla y mapea los datos al formato correcto."
+          color="celeste"
+        />
+      </div>
+
       <FileUpload
         label="Planilla de pacientes"
         hint="Excel o CSV con columnas: Nombre, DNI, Financiador, Teléfono, Email. Descargá la plantilla abajo."
@@ -367,10 +513,11 @@ function StepImportacion() {
 
       <FileUpload
         label="Contratos, habilitaciones y otros documentos"
-        hint="PDF, imágenes u otros archivos relevantes para la migración."
+        hint="PDF, imágenes u otros archivos relevantes. Usá la cámara del celular para escanear documentos en papel."
         files={formData.documentFiles}
         onChange={(f) => updateForm({ documentFiles: f })}
         maxFiles={20}
+        enableCamera
       />
     </div>
   );
@@ -395,11 +542,76 @@ function StepConfiguracion() {
 
   return (
     <div className="space-y-6">
-      {/* Especialidades */}
+      {/* ─── WhatsApp AI ─────────────────────────────────── */}
+      <div className="space-y-4 rounded-2xl border-2 border-celeste-200 bg-celeste-50/40 p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#25D366]/10">
+            <MessageSquare className="h-5 w-5 text-[#25D366]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-ink">WhatsApp AI para tu clínica</h3>
+            <p className="text-xs text-ink-muted">
+              Ingresá el número de WhatsApp y activá las funciones de inteligencia artificial
+            </p>
+          </div>
+        </div>
+
+        <Field
+          label="Número de WhatsApp de la clínica"
+          hint="Formato: +54 11 1234-5678. Este número recibe y envía mensajes automáticos."
+        >
+          <input
+            type="tel"
+            className={inputClass}
+            placeholder="+54 11 1234-5678"
+            value={formData.whatsappNumber}
+            onChange={(e) => updateForm({ whatsappNumber: e.target.value })}
+          />
+        </Field>
+
+        <Toggle
+          checked={formData.enableWhatsapp}
+          onChange={(v) => updateForm({ enableWhatsapp: v })}
+          label="Activar WhatsApp AI"
+          description="Bot con IA que responde automáticamente a tus pacientes por WhatsApp."
+        />
+
+        {formData.enableWhatsapp && (
+          <div className="grid gap-2 sm:grid-cols-2 mt-2">
+            <FeatureCard
+              icon={Bot}
+              title="Auto-agendar turnos"
+              description="El bot conversa con el paciente, pregunta especialidad y horario preferido, y agenda el turno."
+              color="celeste"
+            />
+            <FeatureCard
+              icon={Stethoscope}
+              title="Triage de síntomas"
+              description="Pregunta síntomas y gravedad (leve/moderado/urgente/emergencia), sugiere especialidad y prioriza el turno."
+              color="amber"
+            />
+            <FeatureCard
+              icon={Bell}
+              title="Recordatorios automáticos"
+              description="Envía recordatorio 24 hs y 2 hs antes. El paciente responde 1=Confirmar, 2=Cancelar, 3=Reprogramar."
+              color="green"
+            />
+            <FeatureCard
+              icon={FileText}
+              title="Recetas digitales"
+              description="Los médicos envían recetas firmadas por WhatsApp con validez legal (Ley 27.553 de Receta Electrónica)."
+              color="purple"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ─── Especialidades ──────────────────────────────── */}
       <div>
         <h3 className="text-sm font-semibold text-ink mb-2">Especialidades de la clínica</h3>
         <p className="text-xs text-ink-muted mb-3">
-          Seleccioná todas las que correspondan. Se pueden modificar después.
+          Seleccioná todas las que correspondan. El bot de WhatsApp sugiere especialidades según los
+          síntomas del paciente.
         </p>
         <div className="flex flex-wrap gap-2">
           {ESPECIALIDADES_OPTIONS.map((esp) => {
@@ -422,11 +634,12 @@ function StepConfiguracion() {
         </div>
       </div>
 
-      {/* Financiadores */}
+      {/* ─── Financiadores ───────────────────────────────── */}
       <div>
         <h3 className="text-sm font-semibold text-ink mb-2">Obras sociales y prepagas</h3>
         <p className="text-xs text-ink-muted mb-3">
-          Seleccioná los financiadores con los que trabaja tu clínica.
+          Se usan para facturación automática, verificación de cobertura y reportes de cobro por
+          financiador.
         </p>
         <div className="flex flex-wrap gap-2">
           {FINANCIADORES_OPTIONS.map((fin) => {
@@ -449,8 +662,8 @@ function StepConfiguracion() {
         </div>
       </div>
 
-      {/* Sistema anterior */}
-      <Field label="¿Qué sistema usaban antes?">
+      {/* ─── Sistema anterior ────────────────────────────── */}
+      <Field label="¿Qué sistema usaban antes?" hint="Nos ayuda a optimizar la migración de datos.">
         <select
           className={inputClass}
           value={formData.sistemaAnterior}
@@ -465,20 +678,14 @@ function StepConfiguracion() {
         </select>
       </Field>
 
-      {/* Feature toggles */}
+      {/* ─── Telemedicina ────────────────────────────────── */}
       <div className="space-y-4 rounded-xl border border-gray-200 bg-gray-50/50 p-5">
-        <h3 className="text-sm font-semibold text-ink">Funcionalidades opcionales</h3>
-        <Toggle
-          checked={formData.enableWhatsapp}
-          onChange={(v) => updateForm({ enableWhatsapp: v })}
-          label="WhatsApp Business"
-          description="Enviar recordatorios de turnos y comunicaciones a pacientes por WhatsApp."
-        />
+        <h3 className="text-sm font-semibold text-ink">Telemedicina</h3>
         <Toggle
           checked={formData.enableTelemedicina}
           onChange={(v) => updateForm({ enableTelemedicina: v })}
-          label="Telemedicina"
-          description="Habilitar videollamadas con pacientes a través de Daily.co integrado."
+          label="Habilitar videollamadas"
+          description="Los médicos pueden iniciar videollamadas con pacientes directamente desde la agenda. Integrado con Daily.co, sin instalar nada."
         />
       </div>
     </div>
@@ -538,13 +745,42 @@ function StepConfirmacion() {
           value={allFiles.length ? `${allFiles.length} archivo(s)` : "Ninguno"}
         />
         <SummaryCard
-          label="WhatsApp"
-          value={formData.enableWhatsapp ? "Habilitado" : "Deshabilitado"}
+          label="WhatsApp AI"
+          value={
+            formData.enableWhatsapp
+              ? `Activado${formData.whatsappNumber ? ` · ${formData.whatsappNumber}` : ""}`
+              : "Desactivado"
+          }
         />
         <SummaryCard
           label="Telemedicina"
           value={formData.enableTelemedicina ? "Habilitada" : "Deshabilitada"}
         />
+      </div>
+
+      {/* What happens next */}
+      <div className="rounded-xl border border-celeste-200 bg-celeste-50 p-4">
+        <h4 className="text-sm font-semibold text-ink mb-2">¿Qué pasa al activar?</h4>
+        <ul className="space-y-1.5 text-xs text-ink-muted">
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
+            Tu dashboard se activa con datos reales (sin datos de ejemplo)
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
+            El equipo médico recibe invitaciones por email
+          </li>
+          {formData.enableWhatsapp && (
+            <li className="flex items-start gap-2">
+              <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
+              WhatsApp AI empieza a responder pacientes y enviar recordatorios 24hs
+            </li>
+          )}
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
+            Los archivos importados se procesan en segundo plano
+          </li>
+        </ul>
       </div>
 
       {setupError && (

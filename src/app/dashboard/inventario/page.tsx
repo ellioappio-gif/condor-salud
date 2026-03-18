@@ -23,43 +23,13 @@ const estadoColors: Record<string, string> = {
   Vencido: "bg-border-light text-ink-muted",
 };
 
-const movimientos = [
-  {
-    fecha: "07/03/2026",
-    item: "Enalapril 10mg",
-    tipo: "Ingreso",
-    cantidad: "+50 cajas",
-    usuario: "Dr. Rodríguez",
-  },
-  {
-    fecha: "07/03/2026",
-    item: "Guantes nitrilo M",
-    tipo: "Consumo",
-    cantidad: "-10 cajas",
-    usuario: "Enf. López",
-  },
-  {
-    fecha: "06/03/2026",
-    item: "Tiras reactivas",
-    tipo: "Consumo",
-    cantidad: "-7 cajas",
-    usuario: "Dra. Pérez",
-  },
-  {
-    fecha: "05/03/2026",
-    item: "Gel ecográfico",
-    tipo: "Ingreso",
-    cantidad: "+5 bidones",
-    usuario: "Admin",
-  },
-  {
-    fecha: "04/03/2026",
-    item: "Jeringa 5ml",
-    tipo: "Consumo",
-    cantidad: "-2 cajas",
-    usuario: "Enf. López",
-  },
-];
+const movimientos: {
+  fecha: string;
+  item: string;
+  tipo: string;
+  cantidad: string;
+  usuario: string;
+}[] = [];
 
 export default function InventarioPage() {
   const { showToast } = useToast();

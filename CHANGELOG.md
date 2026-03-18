@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] — 2026-03-19
+
+### Added
+
+- **WhatsApp AI service** (`src/lib/services/whatsapp-ai.ts`): Complete integration with WhatsApp Business Cloud API v21.0
+  - Multi-turn conversation AI: greeting → symptom collection → severity assessment → scheduling → confirmation
+  - Symptom triage with 4 severity levels (leve / moderado / urgente / emergencia) and specialty suggestion
+  - Auto-scheduling: bot asks specialty, preferred time, and books appointments
+  - 24-hour & 2-hour appointment reminders with patient confirm/cancel/reschedule replies (1/2/3)
+  - Digital prescription delivery via WhatsApp with legal compliance notice (Ley 27.553)
+  - Batch reminder processor for cron job integration
+- **Camera capture on mobile**: `FileUpload` component now accepts `enableCamera` prop. Opens rear camera via `capture="environment"` on mobile devices for scanning documents, logos, and credentials
+- **Feature explanation cards in wizard**: Every wizard step now explains what each feature does with illustrated cards (WhatsApp AI, recordatorios, recetas digitales, triage, telemedicina, auditoría)
+- **WhatsApp number collection**: Step 4 (Configuración) now asks for the clinic's WhatsApp number with toggle to enable WhatsApp AI. Saved to `ClinicOnboardingInput`
+
+### Changed
+
+- **Zero mock data for new clinics**: Clinics and doctors that sign up now see completely empty dashboards — no fake patients, invoices, appointments, or KPIs
+  - `data.ts`: All 11 mock arrays emptied (pacientes, facturas, rechazos, financiadores, inflación, alertas, turnos, inventario, nomenclador, reportes, auditoría). All 6 KPI builders return `[]`
+  - `directorio.ts`: mockDoctors, mockReviews, coverage fallbacks → empty
+  - `dashboard/page.tsx`: Fallback KPIs, agenda, audit log, and inline alerts all emptied
+  - `dashboard/pacientes/page.tsx`: 12 inline mock patients → empty array
+  - `api/verificacion/route.ts`: Fake "activo PAMI" fallback → proper 404 error
+  - `api/alertas/route.ts`: 10 demo alerts → empty array
+  - `dashboard/directorio/page.tsx`: Hardcoded KPI values → zeros
+  - `dashboard/inventario/page.tsx`: Fake stock movements → empty array
+  - `paciente/medicos/page.tsx`: Hardcoded doctor array → empty
+  - `chatbot-engine.ts`: Fake nearby doctors/pharmacies/hospitals → empty
+  - `services/reportes.ts`: Demo report definitions → empty
+  - `configuracion/whatsapp/page.tsx`: Fake clinic defaults and demo history → empty
+- **Onboarding wizard enhanced** with WhatsApp configuration section, feature explanation cards per step, and camera-enabled file uploads
+- **`ClinicOnboardingInput`**: Added `whatsappNumber`, `enableWhatsapp`, `enableTelemedicina`, `financiadores` fields
+
 ## [0.9.0] — 2026-03-19
 
 ### Changed
