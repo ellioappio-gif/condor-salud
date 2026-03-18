@@ -91,7 +91,7 @@ export default function AlertasPage() {
         });
         mutate();
       } catch {
-        showToast("Error actualizando alertas", "error");
+        showToast("Error actualizando alertas");
       }
     },
     [mutate, showToast],
