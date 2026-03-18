@@ -99,12 +99,12 @@ export default function AlertasPage() {
 
   const markAllRead = () => {
     patchAlertas("mark_all_read");
-    showToast("Todas marcadas como leidas", "success");
+    showToast("Todas marcadas como leidas");
   };
 
   const dismiss = (id: string) => {
     patchAlertas("dismiss", [id]);
-    showToast("Alerta descartada", "success");
+    showToast("Alerta descartada");
   };
 
   if (isLoading) {
