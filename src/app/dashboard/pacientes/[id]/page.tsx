@@ -3,114 +3,47 @@ import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
 
 const paciente = {
-  id: "P001",
-  nombre: "María Elena",
-  apellido: "González",
-  dni: "27.845.332",
-  cuil: "27-27845332-4",
-  fechaNac: "15/04/1958",
-  edad: 67,
-  sexo: "Femenino",
-  telefono: "11-4523-8891",
-  email: "maria.gonzalez@gmail.com",
-  direccion: "Av. Rivadavia 4520, Piso 3°B, CABA",
-  financiador: "PAMI",
-  plan: "Básico",
-  nroAfiliado: "27845332-00",
-  estado: "Activo",
-  grupoSanguineo: "A+",
-  alergias: ["Penicilina", "AINEs"],
-  medicacionCronica: ["Enalapril 10mg", "Metformina 850mg", "Levotiroxina 50mcg"],
-  antecedentes: ["Hipertensión arterial", "Diabetes tipo 2", "Hipotiroidismo"],
+  id: "",
+  nombre: "",
+  apellido: "",
+  dni: "",
+  cuil: "",
+  fechaNac: "",
+  edad: 0,
+  sexo: "",
+  telefono: "",
+  email: "",
+  direccion: "",
+  financiador: "",
+  plan: "",
+  nroAfiliado: "",
+  estado: "",
+  grupoSanguineo: "",
+  alergias: [] as string[],
+  medicacionCronica: [] as string[],
+  antecedentes: [] as string[],
 };
 
-const historial = [
-  {
-    fecha: "07/03/2026",
-    tipo: "Consulta",
-    profesional: "Dr. Rodríguez",
-    descripcion: "Control cardiológico. TA 130/85. Ajuste medicación.",
-    codigo: "420101",
-    financiador: "PAMI",
-    estado: "Facturada",
-  },
-  {
-    fecha: "21/02/2026",
-    tipo: "Laboratorio",
-    profesional: "Dra. Pérez",
-    descripcion: "Hemograma completo + TSH + HbA1c. Resultados normales.",
-    codigo: "660101",
-    financiador: "PAMI",
-    estado: "Cobrada",
-  },
-  {
-    fecha: "14/02/2026",
-    tipo: "Consulta",
-    profesional: "Dr. Rodríguez",
-    descripcion: "Seguimiento diabetes. HbA1c 6.8%. Mantener tratamiento.",
-    codigo: "420101",
-    financiador: "PAMI",
-    estado: "Cobrada",
-  },
-  {
-    fecha: "30/01/2026",
-    tipo: "Ecografía",
-    profesional: "Dr. Martínez",
-    descripcion: "Eco abdominal. Sin hallazgos patológicos.",
-    codigo: "810101",
-    financiador: "PAMI",
-    estado: "Rechazada",
-  },
-  {
-    fecha: "10/01/2026",
-    tipo: "Consulta",
-    profesional: "Dr. Rodríguez",
-    descripcion: "Control mensual. Ajuste levotiroxina.",
-    codigo: "420101",
-    financiador: "PAMI",
-    estado: "Cobrada",
-  },
-  {
-    fecha: "20/02/2026",
-    tipo: "Laboratorio",
-    profesional: "Dra. Pérez",
-    descripcion: "Perfil tiroideo completo.",
-    codigo: "660201",
-    financiador: "PAMI",
-    estado: "Cobrada",
-  },
-];
+const historial: {
+  fecha: string;
+  tipo: string;
+  profesional: string;
+  descripcion: string;
+  codigo: string;
+  financiador: string;
+  estado: string;
+}[] = [];
 
-const turnos = [
-  {
-    fecha: "12/03/2026",
-    hora: "10:00",
-    profesional: "Dr. Rodríguez",
-    tipo: "Consulta",
-    estado: "Confirmado",
-  },
-  {
-    fecha: "19/03/2026",
-    hora: "08:30",
-    profesional: "Dra. Pérez",
-    tipo: "Laboratorio",
-    estado: "Pendiente",
-  },
-  {
-    fecha: "02/04/2026",
-    hora: "11:00",
-    profesional: "Dr. Rodríguez",
-    tipo: "Control",
-    estado: "Pendiente",
-  },
-];
+const turnos: { fecha: string; hora: string; profesional: string; tipo: string; estado: string }[] =
+  [];
 
-const facturacion = [
-  { periodo: "Mar 2026", facturas: 1, total: "$18.500", cobrado: "$0", pendiente: "$18.500" },
-  { periodo: "Feb 2026", facturas: 3, total: "$52.200", cobrado: "$33.700", pendiente: "$18.500" },
-  { periodo: "Ene 2026", facturas: 2, total: "$36.400", cobrado: "$36.400", pendiente: "$0" },
-  { periodo: "Feb 2026", facturas: 1, total: "$15.800", cobrado: "$15.800", pendiente: "$0" },
-];
+const facturacion: {
+  periodo: string;
+  facturas: number;
+  total: string;
+  cobrado: string;
+  pendiente: string;
+}[] = [];
 
 export default function PacienteDetailPage() {
   const { showDemo } = useDemoAction();

@@ -84,74 +84,9 @@ export const severityLabels: Record<number, string> = {
 
 export const frequencyOptions = ["Primera vez", "Ocasional", "Frecuente", "Diario", "Constante"];
 
-// ─── Mock Data ───────────────────────────────────────────────
+// ─── Empty fallback array (no demo data) ────────────────────
 
-const mockTriages: Triage[] = [
-  {
-    id: "1",
-    code: "TRI-0341",
-    patientName: "Carlos Méndez",
-    date: "10/03/2026 09:45",
-    symptoms: ["Dolor de pecho", "Falta de aire"],
-    severity: 7,
-    frequency: "Frecuente",
-    duration: "3 días",
-    triggers: "Al caminar",
-    freeNotes: "",
-    photoUrls: [],
-    routedSpecialty: "Cardiología",
-    routedDoctor: "Dra. Fernández",
-    status: "Completado",
-  },
-  {
-    id: "2",
-    code: "TRI-0340",
-    patientName: "Ana Rodríguez",
-    date: "10/03/2026 08:30",
-    symptoms: ["Dolor de espalda", "Rigidez muscular"],
-    severity: 5,
-    frequency: "Diario",
-    duration: "2 semanas",
-    triggers: "Al despertar",
-    freeNotes: "",
-    photoUrls: [],
-    routedSpecialty: "Traumatología",
-    routedDoctor: "Dra. Sánchez",
-    status: "En consulta",
-  },
-  {
-    id: "3",
-    code: "TRI-0339",
-    patientName: "Pedro Silva",
-    date: "09/03/2026 16:20",
-    symptoms: ["Erupciones", "Picazón"],
-    severity: 4,
-    frequency: "Primera vez",
-    duration: "1 semana",
-    triggers: "Contacto con plantas",
-    freeNotes: "",
-    photoUrls: [],
-    routedSpecialty: "Dermatología",
-    routedDoctor: "Dr. García",
-    status: "Completado",
-  },
-  {
-    id: "4",
-    code: "TRI-0338",
-    patientName: "Marta Gutiérrez",
-    date: "09/03/2026 14:10",
-    symptoms: ["Dolor abdominal", "Náuseas", "Acidez"],
-    severity: 6,
-    frequency: "Frecuente",
-    duration: "5 días",
-    triggers: "Después de comer",
-    freeNotes: "",
-    photoUrls: [],
-    routedSpecialty: "Gastroenterología",
-    routedDoctor: "Dr. Rossi",
-    status: "Completado",
-  },
-];
+const mockTriages: Triage[] = [];
 
 // ─── Service Functions ───────────────────────────────────────
 

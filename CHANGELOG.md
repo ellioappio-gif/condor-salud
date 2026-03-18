@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] — 2026-03-19
+
+### Changed
+
+- **Complete mock data removal**: Stripped every remaining demo/mock data array across the entire codebase so new clinics start with a truly clean slate
+  - `farmacia.ts`: Emptied mockMedications (8 items), mockPrescriptions (3), mockDeliveries (3), mockRecurringOrders (3)
+  - `telemedicina.ts`: Emptied mockWaitingRoom (3), mockConsultations (4), mockScheduled (3)
+  - `triage.ts`: Emptied mockTriages (4)
+  - `interconsultas.ts`: Emptied DEMO_DOCTORS (13), DEMO_INTERCONSULTAS (5), DEMO_ESTUDIOS (4)
+  - `useNearbyServices.ts`: Emptied DEMO_PROVIDERS (4), DEMO_PHARMACIES (3), DEMO_CENTERS (4)
+  - `nubix.ts`: Emptied mockStudies (6), mockReports (2), mockDeliveries (3), mockAppointments (3); removed fake KPI values and simulated deliveries
+  - `financiadores.ts`: Emptied DEMO_FINANCIADORES (7)
+  - `inflacion.ts`: Emptied DEMO_MESES (6) and DEMO_FINANCIADORES_INFLACION (5)
+  - `inventario.ts`: Emptied DEMO_INVENTARIO (12)
+  - `nomenclador.ts`: Emptied DEMO_NOMENCLADOR (18)
+  - `historia.ts`: Emptied getDemoHistoria events (8)
+  - `reportes/page.tsx`: Emptied historialGeneraciones (6 fake entries)
+  - `pacientes/[id]/page.tsx`: Cleared all hardcoded patient data, historial, turnos, and facturacion
+  - `directorio/page.tsx`: Removed hardcoded doctor options and verification history mock rows
+  - `layout.tsx`: Changed fallback name from "Dr. Rodríguez" → "Usuario", clinic from "Clínica San Martín" → "Mi Clínica"
+  - `interconsultas.ts`: Changed "Dr. Demo" fallback → "Médico"
+
 ## [0.9.1] — 2026-03-19
 
 ### Added

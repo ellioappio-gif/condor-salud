@@ -66,50 +66,13 @@ const reportLinkMap: Record<string, string> = {
   R10: "/dashboard",
 };
 
-const historialGeneraciones = [
-  {
-    fecha: "07/03/2026 14:32",
-    reporte: "Ocupación de Agenda",
-    formato: "PDF",
-    usuario: "Dr. Rodríguez",
-    estado: "Completado",
-  },
-  {
-    fecha: "05/03/2026 10:15",
-    reporte: "Análisis de Rechazos",
-    formato: "Excel",
-    usuario: "Adm. García",
-    estado: "Completado",
-  },
-  {
-    fecha: "05/03/2026 09:45",
-    reporte: "Auditoría Pre-Presentación",
-    formato: "PDF",
-    usuario: "Adm. García",
-    estado: "Completado",
-  },
-  {
-    fecha: "03/03/2026 16:20",
-    reporte: "Inventario & Consumo",
-    formato: "PDF",
-    usuario: "Enf. López",
-    estado: "Completado",
-  },
-  {
-    fecha: "01/03/2026 08:00",
-    reporte: "Indicadores KPI Ejecutivo",
-    formato: "PDF",
-    usuario: "Dr. Rodríguez",
-    estado: "Completado",
-  },
-  {
-    fecha: "01/03/2026 08:00",
-    reporte: "Facturación Mensual",
-    formato: "Excel",
-    usuario: "Adm. García",
-    estado: "Completado",
-  },
-];
+const historialGeneraciones: {
+  fecha: string;
+  reporte: string;
+  formato: string;
+  usuario: string;
+  estado: string;
+}[] = [];
 
 export default function ReportesPage() {
   const { isExporting, exportError, exportPDF, exportExcel } = useExport();

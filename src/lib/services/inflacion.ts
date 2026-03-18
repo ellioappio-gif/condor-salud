@@ -28,84 +28,11 @@ export interface InflacionStats {
   tendencia: "mejorando" | "empeorando" | "estable";
 }
 
-// ─── Demo Data ───────────────────────────────────────────────
+// ─── Empty fallback arrays (no demo data) ───────────────────
 
-const DEMO_MESES: InflacionMes[] = [
-  {
-    mes: "Ene 2026",
-    ipc: 3.5,
-    facturado: 3200000,
-    cobrado: 2350000,
-    diasDemora: 52,
-    perdidaReal: 198000,
-    perdidaPorcentaje: 8.4,
-  },
-  {
-    mes: "Feb 2026",
-    ipc: 3.2,
-    facturado: 3450000,
-    cobrado: 2580000,
-    diasDemora: 48,
-    perdidaReal: 185000,
-    perdidaPorcentaje: 7.2,
-  },
-  {
-    mes: "Mar 2026",
-    ipc: 3.8,
-    facturado: 3600000,
-    cobrado: 2720000,
-    diasDemora: 55,
-    perdidaReal: 245000,
-    perdidaPorcentaje: 9.0,
-  },
-  {
-    mes: "Ene 2026",
-    ipc: 2.9,
-    facturado: 3100000,
-    cobrado: 2280000,
-    diasDemora: 50,
-    perdidaReal: 162000,
-    perdidaPorcentaje: 7.1,
-  },
-  {
-    mes: "Feb 2026",
-    ipc: 2.7,
-    facturado: 3800000,
-    cobrado: 2900000,
-    diasDemora: 45,
-    perdidaReal: 195000,
-    perdidaPorcentaje: 6.7,
-  },
-  {
-    mes: "Mar 2026",
-    ipc: 2.5,
-    facturado: 4200000,
-    cobrado: 3100000,
-    diasDemora: 42,
-    perdidaReal: 210000,
-    perdidaPorcentaje: 6.8,
-  },
-];
+const DEMO_MESES: InflacionMes[] = [];
 
-const DEMO_FINANCIADORES_INFLACION: FinanciadorInflacion[] = [
-  { name: "PAMI", diasPromedio: 68, perdidaPorDia: 0.11, perdidaTotal: 7.5, montoAfectado: 980000 },
-  { name: "IOMA", diasPromedio: 82, perdidaPorDia: 0.11, perdidaTotal: 9.0, montoAfectado: 312000 },
-  { name: "OSDE", diasPromedio: 32, perdidaPorDia: 0.11, perdidaTotal: 3.5, montoAfectado: 845000 },
-  {
-    name: "Swiss Medical",
-    diasPromedio: 28,
-    perdidaPorDia: 0.11,
-    perdidaTotal: 3.1,
-    montoAfectado: 595000,
-  },
-  {
-    name: "Galeno",
-    diasPromedio: 35,
-    perdidaPorDia: 0.11,
-    perdidaTotal: 3.9,
-    montoAfectado: 268000,
-  },
-];
+const DEMO_FINANCIADORES_INFLACION: FinanciadorInflacion[] = [];
 
 // ─── Read Operations ─────────────────────────────────────────
 
