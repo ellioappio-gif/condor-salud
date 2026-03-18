@@ -18,7 +18,6 @@ import {
   BookOpen,
   Download,
   Loader2,
-  MessageSquare,
 } from "lucide-react";
 import { useExport } from "@/lib/services/export";
 import {
@@ -89,7 +88,6 @@ const FALLBACK_AUDIT = [
 ];
 
 const quickLinkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  "CRM / Leads": MessageSquare,
   Pacientes: Users,
   Agenda: Calendar,
   Auditoria: Shield,
@@ -99,7 +97,6 @@ const quickLinkIcons: Record<string, React.ComponentType<{ className?: string }>
 };
 
 const quickLinks = [
-  { label: "CRM / Leads", desc: "pipeline", href: "/dashboard/crm" },
   { label: "Pacientes", desc: "activos", href: "/dashboard/pacientes" },
   { label: "Agenda", desc: "turnos hoy", href: "/dashboard/agenda" },
   { label: "Auditoria", desc: "pendientes", href: "/dashboard/auditoria" },
