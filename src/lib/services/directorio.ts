@@ -56,9 +56,155 @@ export const symptomToSpecialty: Record<string, string[]> = {
 
 // ─── Mock Data ───────────────────────────────────────────────
 
-const mockDoctors: Doctor[] = [];
+const mockDoctors: Doctor[] = [
+  {
+    id: "1",
+    name: "Dra. Laura Fernández",
+    specialty: "Cardiología",
+    location: "CABA",
+    address: "Av. Santa Fe 2100, Piso 3",
+    financiadores: ["OSDE", "Swiss Medical", "Galeno"],
+    rating: 4.9,
+    reviews: 127,
+    nextSlot: "Hoy 14:30",
+    available: true,
+    teleconsulta: true,
+    experience: "18 años",
+    languages: ["Español", "Inglés"],
+  },
+  {
+    id: "2",
+    name: "Dr. Martín García",
+    specialty: "Dermatología",
+    location: "CABA",
+    address: "Callao 850, Piso 8",
+    financiadores: ["OSDE", "PAMI", "IOMA"],
+    rating: 4.7,
+    reviews: 89,
+    nextSlot: "Mañana 09:00",
+    available: true,
+    teleconsulta: true,
+    experience: "12 años",
+    languages: ["Español"],
+  },
+  {
+    id: "3",
+    name: "Dra. Patricia Moreno",
+    specialty: "Pediatría",
+    location: "La Plata",
+    address: "Calle 7 #1230",
+    financiadores: ["IOMA", "OSDE", "Swiss Medical"],
+    rating: 4.8,
+    reviews: 203,
+    nextSlot: "Hoy 16:00",
+    available: true,
+    teleconsulta: false,
+    experience: "22 años",
+    languages: ["Español"],
+  },
+  {
+    id: "4",
+    name: "Dr. Alejandro Pérez",
+    specialty: "Endocrinología",
+    location: "CABA",
+    address: "Av. Córdoba 1500",
+    financiadores: ["PAMI", "Galeno", "Medifé"],
+    rating: 4.6,
+    reviews: 64,
+    nextSlot: "Jue 11:00",
+    available: true,
+    teleconsulta: true,
+    experience: "15 años",
+    languages: ["Español", "Portugués"],
+  },
+  {
+    id: "5",
+    name: "Dra. Claudia Sánchez",
+    specialty: "Traumatología",
+    location: "Rosario",
+    address: "San Martín 920",
+    financiadores: ["OSDE", "Swiss Medical"],
+    rating: 4.5,
+    reviews: 51,
+    nextSlot: "Vie 10:00",
+    available: true,
+    teleconsulta: false,
+    experience: "10 años",
+    languages: ["Español"],
+  },
+  {
+    id: "6",
+    name: "Dr. Roberto López",
+    specialty: "Clínica médica",
+    location: "CABA",
+    address: "Av. Rivadavia 4500",
+    financiadores: ["PAMI", "IOMA", "Galeno", "Medifé"],
+    rating: 4.4,
+    reviews: 178,
+    nextSlot: "Hoy 17:30",
+    available: true,
+    teleconsulta: true,
+    experience: "25 años",
+    languages: ["Español"],
+  },
+  {
+    id: "7",
+    name: "Dra. Mariana Vega",
+    specialty: "Ginecología",
+    location: "Córdoba",
+    address: "Bv. San Juan 800",
+    financiadores: ["OSDE", "Swiss Medical", "Galeno"],
+    rating: 4.8,
+    reviews: 95,
+    nextSlot: "Lun 08:30",
+    available: false,
+    teleconsulta: true,
+    experience: "14 años",
+    languages: ["Español", "Inglés"],
+  },
+  {
+    id: "8",
+    name: "Dr. Federico Ruiz",
+    specialty: "Neurología",
+    location: "Mendoza",
+    address: "Las Heras 450",
+    financiadores: ["OSDE", "PAMI"],
+    rating: 4.7,
+    reviews: 42,
+    nextSlot: "Mar 14:00",
+    available: true,
+    teleconsulta: true,
+    experience: "20 años",
+    languages: ["Español"],
+  },
+];
 
-const mockReviews: DoctorReview[] = [];
+const mockReviews: DoctorReview[] = [
+  {
+    id: "1",
+    doctorId: "1",
+    patientName: "Carlos M.",
+    rating: 5,
+    text: "Excelente profesional. Muy atento y dedicado. Explica todo con claridad.",
+    date: "02/03/2026",
+  },
+  {
+    id: "2",
+    doctorId: "1",
+    patientName: "Ana L.",
+    rating: 5,
+    text: "La mejor cardióloga que consulté. Muy minuciosa en la revisión.",
+    date: "25/02/2026",
+  },
+  {
+    id: "3",
+    doctorId: "1",
+    patientName: "Roberto P.",
+    rating: 4,
+    text: "Buena atención aunque el turno demoró un poco. Muy profesional.",
+    date: "18/02/2026",
+  },
+];
 
 // ─── Service Functions ───────────────────────────────────────
 
@@ -116,7 +262,7 @@ export async function getDoctors(filters?: {
     }
     return enrichWithDoctoraliar(doctors);
   } catch {
-    return enrichWithDoctoraliar(mockDoctors);
+    return [];
   }
 }
 
@@ -289,7 +435,7 @@ export async function getDoctorReviews(doctorId: string): Promise<DoctorReview[]
       date: r.date,
     }));
   } catch {
-    return mockReviews.filter((r) => r.doctorId === doctorId);
+    return [];
   }
 }
 
@@ -306,8 +452,8 @@ export async function verifyPatientCoverage(
   const covered = doctor?.financiadores.includes(patientFinanciador) ?? false;
   return {
     covered,
-    coveragePercent: 0,
-    estimatedCopago: 0,
+    coveragePercent: covered ? (patientFinanciador === "PAMI" ? 80 : 70) : 0,
+    estimatedCopago: covered ? 2400 : 12000,
   };
 }
 

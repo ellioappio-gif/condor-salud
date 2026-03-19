@@ -24,11 +24,11 @@ interface PageTemplate {
   active: boolean;
 }
 
-/* ---------- Defaults (empty for new clinics) ---------- */
-const DEFAULT_CLINIC_ADDRESS = "";
-const DEFAULT_CLINIC_PHONE = "";
-const DEFAULT_CLINIC_NAME = "";
-const DEFAULT_GMAPS = "";
+/* ---------- Defaults (shown in demo + pre-filled for new users) ---------- */
+const DEFAULT_CLINIC_ADDRESS = "Av. San Martin 1520, Piso 2, CABA";
+const DEFAULT_CLINIC_PHONE = "(011) 4523-8800";
+const DEFAULT_CLINIC_NAME = "Centro Medico San Martin";
+const DEFAULT_GMAPS = "https://maps.google.com/?q=Av+San+Martin+1520+CABA+Argentina";
 
 const DEFAULT_REMINDER_SETTINGS: ReminderSettings = {
   hoursBeforeFirst: 24,
@@ -101,13 +101,64 @@ const DEFAULT_TEMPLATES: PageTemplate[] = [
   },
 ];
 
-const DEMO_RECENT: {
-  paciente: string;
-  turno: string;
-  estado: string;
-  enviado: string;
-  respuesta: string;
-}[] = [];
+const DEMO_RECENT = [
+  {
+    paciente: "Gonzalez, Maria Elena",
+    turno: "10/03 08:00",
+    estado: "Confirmado",
+    enviado: "09/03 08:00",
+    respuesta: "1 - Confirmar",
+  },
+  {
+    paciente: "Lopez, Juan Carlos",
+    turno: "10/03 08:30",
+    estado: "Confirmado",
+    enviado: "09/03 08:30",
+    respuesta: "1 - Confirmar",
+  },
+  {
+    paciente: "Ramirez, Sofia",
+    turno: "10/03 09:00",
+    estado: "Sin respuesta",
+    enviado: "09/03 09:00",
+    respuesta: "---",
+  },
+  {
+    paciente: "Diaz, Roberto",
+    turno: "10/03 10:00",
+    estado: "Cancelado",
+    enviado: "09/03 10:00",
+    respuesta: "2 - Cancelar",
+  },
+  {
+    paciente: "Morales, Carolina",
+    turno: "10/03 10:30",
+    estado: "Reprogramado",
+    enviado: "09/03 10:30",
+    respuesta: "3 - Reprogramar",
+  },
+  {
+    paciente: "Suarez, Hector",
+    turno: "11/03 08:00",
+    estado: "Pendiente",
+    enviado: "Prog. 10/03 08:00",
+    respuesta: "---",
+  },
+  {
+    paciente: "Romero, Lucia",
+    turno: "11/03 09:30",
+    estado: "Pendiente",
+    enviado: "Prog. 10/03 09:30",
+    respuesta: "---",
+  },
+  {
+    paciente: "Torres, Miguel",
+    turno: "11/03 11:00",
+    estado: "Pendiente",
+    enviado: "Prog. 10/03 11:00",
+    respuesta: "---",
+  },
+];
 
 const ESTADO_COLOR: Record<string, string> = {
   Confirmado: "bg-green-50 text-green-700",

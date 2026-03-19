@@ -607,7 +607,9 @@ export default function DirectorioPage() {
                   aria-labelledby="lbl-medico-sim"
                   className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
                 >
-                  <option>Seleccionar médico...</option>
+                  <option>Dra. Fernández — Cardiología</option>
+                  <option>Dr. García — Dermatología</option>
+                  <option>Dr. López — Clínica médica</option>
                 </select>
               </div>
             </div>
@@ -643,15 +645,36 @@ export default function DirectorioPage() {
                 </tr>
               </thead>
               <tbody>
-                {(
-                  [] as {
-                    patient: string;
-                    doctor: string;
-                    fin: string;
-                    cov: string;
-                    status: string;
-                  }[]
-                ).map((v, i) => (
+                {[
+                  {
+                    patient: "Carlos M.",
+                    doctor: "Dra. Fernández",
+                    fin: "PAMI",
+                    cov: "80%",
+                    status: "Aprobado",
+                  },
+                  {
+                    patient: "Ana R.",
+                    doctor: "Dr. García",
+                    fin: "OSDE",
+                    cov: "100%",
+                    status: "Aprobado",
+                  },
+                  {
+                    patient: "Pedro S.",
+                    doctor: "Dra. Moreno",
+                    fin: "Galeno",
+                    cov: "0%",
+                    status: "Sin cobertura",
+                  },
+                  {
+                    patient: "Lucía T.",
+                    doctor: "Dr. Pérez",
+                    fin: "IOMA",
+                    cov: "70%",
+                    status: "Aprobado",
+                  },
+                ].map((v, i) => (
                   <tr
                     key={i}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3] — 2026-03-19
+
+### Changed
+
+- **Dual-mode architecture: Demo shows mock data, authenticated clinics get blank slate**
+  - Restored all mock/demo data that was removed in v0.9.1 and v0.9.2 — demo visitors see rich sample data
+  - Service layer catch blocks now return `[]` (empty) instead of mock data when Supabase is configured, ensuring authenticated users never see demo data on error
+  - KPI builders return zeroed KPIs (`$0`, `0%`, `—`) on query failure for authenticated users instead of falling through to demo values
+  - All 12 data.ts service functions (getPacientes, getFacturas, etc.) wrapped in try-catch returning `[]` for auth error paths
+  - Pattern B files (financiadores, inflacion, inventario, nomenclador, reportes) wrapped Supabase blocks in try-catch returning `[]` on failure
+  - dashboard/page.tsx: Distinguishes `undefined` (loading → show fallback) from `[]` (loaded, no data → show empty)
+  - pacientes/page.tsx: Uses `usePacientes()` hook for auth mode, inline demo data for demo mode
+  - reportes/page.tsx & inventario/page.tsx: Generation history and movements sections hidden for authenticated users
+  - Removed hardcoded "Centro Médico San Martín" fallback from dashboard subtitle (shows "Mi Clínica" for auth users without a name)
+
+### Fixed
+
+- Authenticated clinic dashboards now start completely blank — no demo patients, KPIs, prescriptions, or sample data leak through
+
 ## [0.9.2] — 2026-03-19
 
 ### Changed

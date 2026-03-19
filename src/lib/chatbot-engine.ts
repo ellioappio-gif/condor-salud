@@ -1714,11 +1714,95 @@ interface NearbyServiceItem {
   openNow?: boolean;
 }
 
-const NEARBY_DOCTORS: NearbyServiceItem[] = [];
+const NEARBY_DOCTORS: NearbyServiceItem[] = [
+  {
+    name: "Dra. Laura Méndez",
+    address: "Av. Cabildo 2040, Belgrano",
+    lat: -34.5605,
+    lng: -58.4563,
+    specialty: "Clínica Médica",
+  },
+  {
+    name: "Dr. Carlos Ruiz",
+    address: "Av. Santa Fe 3200, Palermo",
+    lat: -34.5875,
+    lng: -58.4096,
+    specialty: "Cardiología",
+  },
+  {
+    name: "Dra. Sofía Peralta",
+    address: "Gorriti 4800, Palermo",
+    lat: -34.588,
+    lng: -58.428,
+    specialty: "Dermatología",
+  },
+  {
+    name: "Dra. Valentina Castro",
+    address: "Av. Rivadavia 5200, Caballito",
+    lat: -34.6186,
+    lng: -58.4381,
+    specialty: "Pediatría",
+  },
+];
 
-const NEARBY_PHARMACIES: NearbyServiceItem[] = [];
+const NEARBY_PHARMACIES: NearbyServiceItem[] = [
+  {
+    name: "Farmacity Belgrano",
+    address: "Av. Cabildo 1900, Belgrano",
+    lat: -34.561,
+    lng: -58.455,
+    open24h: true,
+  },
+  {
+    name: "Farmacia del Pueblo",
+    address: "Av. Corrientes 3500, Almagro",
+    lat: -34.605,
+    lng: -58.415,
+    open24h: false,
+  },
+  {
+    name: "Farmacia Suizo Argentina",
+    address: "Av. Santa Fe 2100, Recoleta",
+    lat: -34.595,
+    lng: -58.396,
+    open24h: true,
+  },
+];
 
-const NEARBY_GUARDIAS: NearbyServiceItem[] = [];
+const NEARBY_GUARDIAS: NearbyServiceItem[] = [
+  {
+    name: "Hospital Italiano",
+    address: "Tte. Gral. Juan D. Perón 4190, Almagro",
+    lat: -34.6047,
+    lng: -58.4215,
+    emergency: true,
+    phone: "+541149590200",
+  },
+  {
+    name: "Hospital Fernández",
+    address: "Av. Cerviño 3356, Palermo",
+    lat: -34.579,
+    lng: -58.406,
+    emergency: true,
+    phone: "+541148082600",
+  },
+  {
+    name: "Guardia SAME",
+    address: "Av. Entre Ríos 1200, Constitución",
+    lat: -34.629,
+    lng: -58.387,
+    emergency: true,
+    phone: "107",
+  },
+  {
+    name: "Hospital de Clínicas",
+    address: "Av. Córdoba 2351, Recoleta",
+    lat: -34.599,
+    lng: -58.398,
+    emergency: true,
+    phone: "+541159508000",
+  },
+];
 
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;

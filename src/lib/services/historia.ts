@@ -214,10 +214,97 @@ export async function getHistoriaSummary(patientName: string): Promise<HistoriaS
   };
 }
 
-// ─── Empty fallback (no demo data) ──────────────────────────
+// ─── Demo Data ───────────────────────────────────────────────
 
 function getDemoHistoria(filter?: HistoriaFilter): HistoriaEvent[] {
-  const events: HistoriaEvent[] = [];
+  const events: HistoriaEvent[] = [
+    {
+      id: "h1",
+      type: "consulta",
+      title: "Control cardiológico",
+      description: "Electrocardiograma normal. Se ajusta medicación.",
+      doctor: "Dr. Carlos Ruiz",
+      date: "2026-03-05",
+      details: ["ECG: ritmo sinusal normal", "PA: 120/80 mmHg", "Se reduce Atorvastatina a 10mg"],
+    },
+    {
+      id: "h2",
+      type: "laboratorio",
+      title: "Hemograma completo + Perfil lipídico",
+      description: "Resultados dentro de parámetros normales.",
+      doctor: "Dra. Laura Méndez",
+      date: "2026-02-28",
+      details: [
+        "Hemoglobina: 14.2 g/dL",
+        "Colesterol total: 195 mg/dL",
+        "LDL: 110 mg/dL",
+        "HDL: 55 mg/dL",
+        "Triglicéridos: 120 mg/dL",
+        "Glucemia: 98 mg/dL",
+      ],
+      attachments: [{ name: "Resultados_Lab_28Feb.pdf", type: "PDF" }],
+    },
+    {
+      id: "h3",
+      type: "receta",
+      title: "Receta - Losartán, Metformina, Atorvastatina",
+      description: "Renovación de medicación crónica.",
+      doctor: "Dra. Laura Méndez",
+      date: "2026-02-15",
+      details: ["Losartán 50mg x 30", "Metformina 850mg x 60", "Atorvastatina 20mg x 30"],
+      attachments: [{ name: "Receta_15Feb.pdf", type: "PDF" }],
+    },
+    {
+      id: "h4",
+      type: "consulta",
+      title: "Control clínico general",
+      description: "Paciente en buen estado general. Se solicita lab de control.",
+      doctor: "Dra. Laura Méndez",
+      date: "2026-02-10",
+      details: ["Peso: 72.5 kg", "PA: 125/82 mmHg", "Se solicita hemograma + perfil lipídico"],
+    },
+    {
+      id: "h5",
+      type: "imagen",
+      title: "Eco Doppler cardíaco",
+      description: "Fracción de eyección normal. Sin alteraciones significativas.",
+      doctor: "Dr. Carlos Ruiz",
+      date: "2026-01-20",
+      details: ["FE: 62%", "Cavidades de tamaño normal", "Sin valvulopatías significativas"],
+      attachments: [{ name: "EcoDoppler_20Ene.pdf", type: "PDF" }],
+    },
+    {
+      id: "h6",
+      type: "vacuna",
+      title: "Vacuna antigripal 2026",
+      description: "Aplicación vacuna influenza tetravalente.",
+      doctor: "Vacunatorio Centro",
+      date: "2026-01-15",
+    },
+    {
+      id: "h7",
+      type: "triage",
+      title: "Triage - Dolor torácico",
+      description: "Evaluación de emergencia. Derivado a cardiología.",
+      doctor: "Sistema de Triage",
+      date: "2026-01-10",
+      details: [
+        "Severidad: Moderada",
+        "Especialidad: Cardiología",
+        "Estado: Completado",
+        "Síntomas: dolor torácico, disnea leve",
+      ],
+    },
+    {
+      id: "h8",
+      type: "laboratorio",
+      title: "Análisis de orina",
+      description: "Sin particularidades.",
+      doctor: "Dra. Laura Méndez",
+      date: "2026-02-10",
+      details: ["pH: 6.0", "Proteínas: negativo", "Glucosa: negativo", "Sedimento: normal"],
+    },
+  ];
 
   let filtered = events;
   if (filter?.types && filter.types.length > 0) {

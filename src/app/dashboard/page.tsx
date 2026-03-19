@@ -28,31 +28,64 @@ import {
   usePacientes,
 } from "@/hooks/use-data";
 
-// ─── Empty defaults (new clinic = no data) ─────────────────
+// ─── Fallback static data (shown while hooks load) ──────────
 
-type KpiCard = {
-  label: string;
-  value: string;
-  change: string;
-  up: boolean;
-  accent: string;
-  href: string;
-};
-const EMPTY_KPIS: KpiCard[] = [];
-const EMPTY_FINANCIADORES: {
-  name: string;
-  facturado: string;
-  cobrado: string;
-  rechazo: string;
-  dias: string;
-}[] = [];
-const EMPTY_AGENDA: {
-  hora: string;
-  pac: string;
-  tipo: string;
-  estado: "confirmado" | "pendiente";
-}[] = [];
-const EMPTY_AUDIT: { tipo: string; sev: string; pac: string; monto: string }[] = [];
+const FALLBACK_KPIS = [
+  {
+    label: "Facturado este mes",
+    value: "$4.2M",
+    change: "+12%",
+    up: true,
+    accent: "border-l-celeste",
+    href: "/dashboard/facturacion",
+  },
+  {
+    label: "Cobrado",
+    value: "$3.1M",
+    change: "74% del facturado",
+    up: true,
+    accent: "border-l-green-400",
+    href: "/dashboard/financiadores",
+  },
+  {
+    label: "Rechazos PAMI",
+    value: "8.2%",
+    change: "-3.1% vs. mes ant.",
+    up: false,
+    accent: "border-l-amber-400",
+    href: "/dashboard/rechazos",
+  },
+  {
+    label: "Pérdida por inflación",
+    value: "$320K",
+    change: "7.6% del cobrado",
+    up: false,
+    accent: "border-l-red-400",
+    href: "/dashboard/inflacion",
+  },
+];
+
+const FALLBACK_FINANCIADORES = [
+  { name: "PAMI", facturado: "$1.4M", cobrado: "$980K", rechazo: "12%", dias: "68" },
+  { name: "OSDE", facturado: "$890K", cobrado: "$845K", rechazo: "4%", dias: "32" },
+  { name: "Swiss Medical", facturado: "$620K", cobrado: "$595K", rechazo: "2%", dias: "28" },
+  { name: "IOMA", facturado: "$410K", cobrado: "$312K", rechazo: "18%", dias: "82" },
+  { name: "Galeno", facturado: "$280K", cobrado: "$268K", rechazo: "3%", dias: "35" },
+];
+
+const FALLBACK_AGENDA = [
+  { hora: "08:00", pac: "González, María Elena", tipo: "Control", estado: "confirmado" as const },
+  { hora: "08:30", pac: "López, Juan Carlos", tipo: "Consulta", estado: "confirmado" as const },
+  { hora: "09:00", pac: "Ramírez, Sofía", tipo: "Primera vez", estado: "pendiente" as const },
+  { hora: "10:00", pac: "Díaz, Roberto", tipo: "Ecografía", estado: "confirmado" as const },
+];
+
+const FALLBACK_AUDIT = [
+  { tipo: "Código incorrecto", sev: "alta", pac: "González — PAMI", monto: "$24.600" },
+  { tipo: "Autorización vencida", sev: "alta", pac: "Ramírez — Swiss Med.", monto: "$65.000" },
+  { tipo: "Duplicado potencial", sev: "media", pac: "Morales — Galeno", monto: "$32.000" },
+  { tipo: "Tope superado", sev: "alta", pac: "Romero — Medifé", monto: "$42.300" },
+];
 
 const quickLinkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Pacientes: Users,
@@ -86,67 +119,82 @@ export default function DashboardPage() {
   const { data: pacientesData } = usePacientes();
 
   // Map KPI hook data → display cards, or fallback
-  const kpis = kpiData?.length
-    ? kpiData.map((k) => ({
-        label: k.label,
-        value: k.value,
-        change: k.change ?? "",
-        up: k.up,
-        accent: k.label.includes("Facturado")
-          ? "border-l-celeste"
-          : k.label.includes("Cobrado")
-            ? "border-l-green-400"
-            : k.label.includes("Rechazo")
-              ? "border-l-amber-400"
-              : "border-l-red-400",
-        href: k.label.includes("Facturado")
-          ? "/dashboard/facturacion"
-          : k.label.includes("Cobrado")
-            ? "/dashboard/financiadores"
-            : k.label.includes("Rechazo")
-              ? "/dashboard/rechazos"
-              : "/dashboard/inflacion",
-      }))
-    : EMPTY_KPIS;
+  const kpis =
+    kpiData === undefined
+      ? FALLBACK_KPIS
+      : kpiData.length
+        ? kpiData.map((k) => ({
+            label: k.label,
+            value: k.value,
+            change: k.change ?? "",
+            up: k.up,
+            accent: k.label.includes("Facturado")
+              ? "border-l-celeste"
+              : k.label.includes("Cobrado")
+                ? "border-l-green-400"
+                : k.label.includes("Rechazo")
+                  ? "border-l-amber-400"
+                  : "border-l-red-400",
+            href: k.label.includes("Facturado")
+              ? "/dashboard/facturacion"
+              : k.label.includes("Cobrado")
+                ? "/dashboard/financiadores"
+                : k.label.includes("Rechazo")
+                  ? "/dashboard/rechazos"
+                  : "/dashboard/inflacion",
+          }))
+        : [];
 
-  // Map financiadores hook data → table rows, or empty
-  const financiadores = financiadoresData?.length
-    ? financiadoresData.slice(0, 5).map((f) => ({
-        name: f.name,
-        facturado: `$${Math.round(f.facturado / 1000)}K`,
-        cobrado: `$${Math.round(f.cobrado / 1000)}K`,
-        rechazo: `${f.tasaRechazo}%`,
-        dias: f.diasPromedioPago.toString(),
-      }))
-    : EMPTY_FINANCIADORES;
+  // Map financiadores hook data → table rows, or fallback
+  const financiadores =
+    financiadoresData === undefined
+      ? FALLBACK_FINANCIADORES
+      : financiadoresData.length
+        ? financiadoresData.slice(0, 5).map((f) => ({
+            name: f.name,
+            facturado: `$${Math.round(f.facturado / 1000)}K`,
+            cobrado: `$${Math.round(f.cobrado / 1000)}K`,
+            rechazo: `${f.tasaRechazo}%`,
+            dias: f.diasPromedioPago.toString(),
+          }))
+        : [];
 
   // Map turnos hook data → today agenda, or fallback
-  const todayAgenda = turnosData?.length
-    ? turnosData.slice(0, 4).map((t) => ({
-        hora: t.hora,
-        pac: t.paciente,
-        tipo: t.tipo,
-        estado: t.estado as "confirmado" | "pendiente",
-      }))
-    : EMPTY_AGENDA;
+  const todayAgenda =
+    turnosData === undefined
+      ? FALLBACK_AGENDA
+      : turnosData.length
+        ? turnosData.slice(0, 4).map((t) => ({
+            hora: t.hora,
+            pac: t.paciente,
+            tipo: t.tipo,
+            estado: t.estado as "confirmado" | "pendiente",
+          }))
+        : [];
 
-  // Map audit hook data → pending items, or empty
-  const pendingAudit = auditoriaData?.length
-    ? auditoriaData
-        .filter((a) => a.estado === "pendiente")
-        .slice(0, 4)
-        .map((a) => ({
-          tipo: a.tipo,
-          sev: a.severidad,
-          pac: `${a.paciente} — ${a.financiador}`,
-          monto: a.prestacion,
-        }))
-    : EMPTY_AUDIT;
+  // Map audit hook data → pending items, or fallback
+  const pendingAudit =
+    auditoriaData === undefined
+      ? FALLBACK_AUDIT
+      : auditoriaData.length
+        ? auditoriaData
+            .filter((a) => a.estado === "pendiente")
+            .slice(0, 4)
+            .map((a) => ({
+              tipo: a.tipo,
+              sev: a.severidad,
+              pac: `${a.paciente} — ${a.financiador}`,
+              monto: a.prestacion,
+            }))
+        : [];
 
-  // Quick-link live counts (0 for new clinics)
-  const pacCount = pacientesData?.length ?? 0;
-  const turnoCount = turnosData?.length ?? 0;
-  const auditCount = auditoriaData?.filter((a) => a.estado === "pendiente").length ?? 0;
+  // Quick-link live counts
+  const pacCount = pacientesData === undefined ? "—" : pacientesData.length;
+  const turnoCount = turnosData === undefined ? "—" : turnosData.length;
+  const auditCount =
+    auditoriaData === undefined
+      ? "—"
+      : auditoriaData.filter((a) => a.estado === "pendiente").length;
   const quickCounts: Record<string, string> = {
     Pacientes: `${pacCount} activos`,
     Agenda: `${turnoCount} turnos hoy`,
@@ -197,10 +245,10 @@ export default function DashboardPage() {
               <BookOpen className="w-6 h-6 text-celeste-dark" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-sm font-bold text-ink">Configurá tu clínica en minutos</h2>
+              <h2 className="text-sm font-bold text-ink">Recorrido guiado de la plataforma</h2>
               <p className="text-xs text-ink-muted mt-0.5 leading-relaxed">
-                Completá el asistente de configuración inicial: datos de la clínica, equipo médico,
-                WhatsApp AI para turnos automáticos, y más. Solo el nombre es obligatorio.
+                Descubrí las 15 funcionalidades clave de Condor Salud en un recorrido interactivo de
+                5 minutos. Ideal para conocer todo lo que la plataforma puede hacer por tu clinica.
               </p>
             </div>
             <div className="flex gap-2 shrink-0">
@@ -208,7 +256,7 @@ export default function DashboardPage() {
                 href="/dashboard/wizard"
                 className="px-5 py-2.5 text-xs font-semibold bg-celeste-dark text-white rounded-lg hover:bg-celeste transition"
               >
-                Comenzar configuración
+                Iniciar recorrido
               </Link>
               <a
                 href={whatsappUrl("Hola, quiero agendar una demo en vivo de Cóndor Salud.")}
@@ -234,7 +282,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-ink">Panel principal</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            Vista ejecutiva{user?.clinicName ? ` · ${user.clinicName}` : ""}
+            Vista ejecutiva · {user?.clinicName || "Mi Clínica"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -381,7 +429,32 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-3" role="list" aria-label="Alertas recientes">
-              {([] as { href: string; color: string; title: string; sub: string }[]).map((a, i) => (
+              {[
+                {
+                  href: "/dashboard/rechazos",
+                  color: "border-amber-400",
+                  title: "5 rechazos IOMA nuevos",
+                  sub: "Hace 2 horas · Error de código",
+                },
+                {
+                  href: "/dashboard/facturacion",
+                  color: "border-celeste",
+                  title: "Vence presentación PAMI",
+                  sub: "En 3 días · 12 facturas pendientes",
+                },
+                {
+                  href: "/dashboard/nomenclador",
+                  color: "border-amber-400",
+                  title: "Nomenclador SSS actualizado",
+                  sub: "Ayer · 14 códigos modificados",
+                },
+                {
+                  href: "/dashboard/financiadores",
+                  color: "border-celeste",
+                  title: "Swiss Medical pagó lote",
+                  sub: "Hoy · $595K acreditados",
+                },
+              ].map((a, i) => (
                 <Link
                   key={i}
                   href={a.href}
@@ -392,8 +465,6 @@ export default function DashboardPage() {
                   <div className="text-[10px] text-ink-muted">{a.sub}</div>
                 </Link>
               ))}
-              {/* Empty state */}
-              <p className="text-xs text-ink-muted py-2">Sin alertas recientes</p>
             </div>
           </CardContent>
         </Card>

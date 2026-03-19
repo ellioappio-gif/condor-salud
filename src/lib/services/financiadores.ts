@@ -26,9 +26,101 @@ export interface FinanciadorStats {
   tasaRechazoGlobal: number;
 }
 
-// ─── Empty fallback array (no demo data) ────────────────────
+// ─── Demo Data ───────────────────────────────────────────────
 
-const DEMO_FINANCIADORES: FinanciadorExtended[] = [];
+const DEMO_FINANCIADORES: FinanciadorExtended[] = [
+  {
+    id: "1",
+    name: "PAMI",
+    type: "pami",
+    facturado: 1400000,
+    cobrado: 980000,
+    tasaRechazo: 12,
+    diasPromedioPago: 68,
+    facturasPendientes: 23,
+    ultimoPago: "2026-02-28",
+    contacto: "delegacion.caba@pami.gob.ar",
+    ultimaLiquidacion: "Febrero 2026",
+  },
+  {
+    id: "2",
+    name: "OSDE",
+    type: "prepaga",
+    facturado: 890000,
+    cobrado: 845000,
+    tasaRechazo: 4,
+    diasPromedioPago: 32,
+    facturasPendientes: 8,
+    ultimoPago: "2026-03-05",
+    contacto: "prestadores@osde.com.ar",
+    ultimaLiquidacion: "Marzo 2026",
+  },
+  {
+    id: "3",
+    name: "Swiss Medical",
+    type: "prepaga",
+    facturado: 620000,
+    cobrado: 595000,
+    tasaRechazo: 2,
+    diasPromedioPago: 28,
+    facturasPendientes: 5,
+    ultimoPago: "2026-03-07",
+    contacto: "prestadores@swissmedical.com.ar",
+    ultimaLiquidacion: "Marzo 2026",
+  },
+  {
+    id: "4",
+    name: "IOMA",
+    type: "os",
+    facturado: 410000,
+    cobrado: 312000,
+    tasaRechazo: 18,
+    diasPromedioPago: 82,
+    facturasPendientes: 31,
+    ultimoPago: "2026-01-15",
+    contacto: "prestadores@ioma.gba.gov.ar",
+    ultimaLiquidacion: "Enero 2026",
+  },
+  {
+    id: "5",
+    name: "Galeno",
+    type: "prepaga",
+    facturado: 280000,
+    cobrado: 268000,
+    tasaRechazo: 3,
+    diasPromedioPago: 35,
+    facturasPendientes: 4,
+    ultimoPago: "2026-03-02",
+    contacto: "admin@galeno.com.ar",
+    ultimaLiquidacion: "Marzo 2026",
+  },
+  {
+    id: "6",
+    name: "Medifé",
+    type: "prepaga",
+    facturado: 195000,
+    cobrado: 178000,
+    tasaRechazo: 5,
+    diasPromedioPago: 38,
+    facturasPendientes: 6,
+    ultimoPago: "2026-02-25",
+    contacto: "prestadores@medife.com.ar",
+    ultimaLiquidacion: "Febrero 2026",
+  },
+  {
+    id: "7",
+    name: "Obra Social Bancaria",
+    type: "os",
+    facturado: 150000,
+    cobrado: 128000,
+    tasaRechazo: 8,
+    diasPromedioPago: 55,
+    facturasPendientes: 12,
+    ultimoPago: "2026-02-10",
+    contacto: "salud@osbancaria.com.ar",
+    ultimaLiquidacion: "Febrero 2026",
+  },
+];
 
 // ─── Read Operations ─────────────────────────────────────────
 
@@ -36,20 +128,24 @@ export async function getFinanciadoresExtended(
   filter?: FinanciadorFilter,
 ): Promise<FinanciadorExtended[]> {
   if (isSupabaseConfigured()) {
-    const { createClient } = await import("@/lib/supabase/client");
-    const sb = createClient();
-    let query = (sb as any)
-      .from("financiadores")
-      .select("*")
-      .eq("activo", true)
-      .order("facturado", { ascending: false });
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const sb = createClient();
+      let query = (sb as any)
+        .from("financiadores")
+        .select("*")
+        .eq("activo", true)
+        .order("facturado", { ascending: false });
 
-    if (filter?.type) query = query.eq("type", filter.type);
-    if (filter?.search) query = query.ilike("name", `%${filter.search}%`);
+      if (filter?.type) query = query.eq("type", filter.type);
+      if (filter?.search) query = query.ilike("name", `%${filter.search}%`);
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data ?? []).map(mapFinanciadorFromDB);
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []).map(mapFinanciadorFromDB);
+    } catch {
+      return [];
+    }
   }
 
   await delay(120);
@@ -101,7 +197,7 @@ export async function updateFinanciador(
     return mapFinanciadorFromDB(data);
   }
 
-  throw new Error("Cannot update financiador in demo mode");
+  throw new Error("Cannot update in demo mode");
 }
 
 // ─── Stats ───────────────────────────────────────────────────

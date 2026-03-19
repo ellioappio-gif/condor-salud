@@ -4,12 +4,208 @@
 import { isSupabaseConfigured } from "@/lib/env";
 import type { Medication, Prescription, Delivery, RecurringOrder } from "@/lib/types";
 
-// ─── Empty fallback arrays (no demo data) ────────────────────
+// ─── Mock Data ───────────────────────────────────────────────
 
-const mockMedications: Medication[] = [];
-const mockPrescriptions: Prescription[] = [];
-const mockDeliveries: Delivery[] = [];
-const mockRecurringOrders: RecurringOrder[] = [];
+const mockMedications: Medication[] = [
+  {
+    id: "1",
+    name: "Losartán 50mg",
+    lab: "Roemmers",
+    category: "Antihipertensivo",
+    price: 12400,
+    pamiCoverage: 80,
+    osCoverage: 70,
+    prepagaCoverage: 60,
+    stock: "Disponible",
+    requiresPrescription: true,
+  },
+  {
+    id: "2",
+    name: "Metformina 850mg",
+    lab: "Bago",
+    category: "Antidiabético",
+    price: 8900,
+    pamiCoverage: 100,
+    osCoverage: 80,
+    prepagaCoverage: 70,
+    stock: "Disponible",
+    requiresPrescription: true,
+  },
+  {
+    id: "3",
+    name: "Omeprazol 20mg",
+    lab: "Elea",
+    category: "Protector gástrico",
+    price: 6200,
+    pamiCoverage: 70,
+    osCoverage: 50,
+    prepagaCoverage: 40,
+    stock: "Últimas unidades",
+    requiresPrescription: true,
+  },
+  {
+    id: "4",
+    name: "Enalapril 10mg",
+    lab: "Bernabó",
+    category: "Antihipertensivo",
+    price: 9800,
+    pamiCoverage: 80,
+    osCoverage: 70,
+    prepagaCoverage: 55,
+    stock: "Disponible",
+    requiresPrescription: true,
+  },
+  {
+    id: "5",
+    name: "Ibuprofeno 400mg",
+    lab: "Raffo",
+    category: "Antiinflamatorio",
+    price: 3100,
+    pamiCoverage: 50,
+    osCoverage: 40,
+    prepagaCoverage: 30,
+    stock: "Disponible",
+    requiresPrescription: false,
+  },
+  {
+    id: "6",
+    name: "Levotiroxina 100mcg",
+    lab: "Montpellier",
+    category: "Tiroides",
+    price: 7500,
+    pamiCoverage: 80,
+    osCoverage: 70,
+    prepagaCoverage: 60,
+    stock: "Disponible",
+    requiresPrescription: true,
+  },
+  {
+    id: "7",
+    name: "Atorvastatina 20mg",
+    lab: "Gador",
+    category: "Hipolipemiante",
+    price: 11200,
+    pamiCoverage: 70,
+    osCoverage: 60,
+    prepagaCoverage: 50,
+    stock: "Sin stock",
+    requiresPrescription: true,
+  },
+  {
+    id: "8",
+    name: "Amlodipina 5mg",
+    lab: "Roemmers",
+    category: "Antihipertensivo",
+    price: 8100,
+    pamiCoverage: 80,
+    osCoverage: 65,
+    prepagaCoverage: 50,
+    stock: "Disponible",
+    requiresPrescription: true,
+  },
+];
+
+const mockPrescriptions: Prescription[] = [
+  {
+    id: "1",
+    code: "RX-2026-0891",
+    patientName: "Carlos Méndez",
+    doctorName: "Dra. Fernández",
+    date: "10/03/2026",
+    items: ["Losartán 50mg x30", "Enalapril 10mg x30"],
+    status: "Pendiente",
+    financiador: "PAMI",
+  },
+  {
+    id: "2",
+    code: "RX-2026-0890",
+    patientName: "Marta Gutiérrez",
+    doctorName: "Dr. López",
+    date: "09/03/2026",
+    items: ["Metformina 850mg x60", "Levotiroxina 100mcg x30"],
+    status: "En carrito",
+    financiador: "OSDE",
+  },
+  {
+    id: "3",
+    code: "RX-2026-0888",
+    patientName: "Jorge Ramírez",
+    doctorName: "Dra. Sánchez",
+    date: "08/03/2026",
+    items: ["Atorvastatina 20mg x30"],
+    status: "Entregado",
+    financiador: "Swiss Medical",
+  },
+];
+
+const mockDeliveries: Delivery[] = [
+  {
+    id: "1",
+    code: "DEL-4521",
+    patientName: "Ana Rodríguez",
+    address: "Av. Corrientes 3200, CABA",
+    itemCount: 3,
+    status: "En camino",
+    eta: "14:30",
+    courier: "Rappi Farma",
+    progress: 65,
+  },
+  {
+    id: "2",
+    code: "DEL-4520",
+    patientName: "Pedro Silva",
+    address: "Calle 48 #720, La Plata",
+    itemCount: 2,
+    status: "Preparando",
+    eta: "16:00",
+    courier: "PedidosYa",
+    progress: 25,
+  },
+  {
+    id: "3",
+    code: "DEL-4519",
+    patientName: "Lucía Torres",
+    address: "San Martín 1450, Rosario",
+    itemCount: 1,
+    status: "Entregado",
+    eta: "-",
+    courier: "Rappi Farma",
+    progress: 100,
+  },
+];
+
+const mockRecurringOrders: RecurringOrder[] = [
+  {
+    id: "1",
+    code: "REC-091",
+    patientName: "María García",
+    medications: ["Losartán 50mg", "Metformina 850mg"],
+    frequency: "Mensual",
+    nextDelivery: "15/03/2026",
+    financiador: "PAMI",
+    status: "Activo",
+  },
+  {
+    id: "2",
+    code: "REC-088",
+    patientName: "Roberto Díaz",
+    medications: ["Levotiroxina 100mcg"],
+    frequency: "Mensual",
+    nextDelivery: "18/03/2026",
+    financiador: "IOMA",
+    status: "Activo",
+  },
+  {
+    id: "3",
+    code: "REC-085",
+    patientName: "Susana Flores",
+    medications: ["Enalapril 10mg", "Amlodipina 5mg", "Atorvastatina 20mg"],
+    frequency: "Mensual",
+    nextDelivery: "20/03/2026",
+    financiador: "OSDE",
+    status: "Pausado",
+  },
+];
 
 // ─── Service Functions ───────────────────────────────────────
 
@@ -41,7 +237,7 @@ export async function getMedications(): Promise<Medication[]> {
       requiresPrescription: r.requires_prescription,
     })) as Medication[];
   } catch {
-    return mockMedications;
+    return [];
   }
 }
 
@@ -65,7 +261,7 @@ export async function getPrescriptions(): Promise<Prescription[]> {
       financiador: r.financiador,
     })) as Prescription[];
   } catch {
-    return mockPrescriptions;
+    return [];
   }
 }
 
@@ -90,7 +286,7 @@ export async function getDeliveries(): Promise<Delivery[]> {
       progress: r.progress,
     }));
   } catch {
-    return mockDeliveries;
+    return [];
   }
 }
 
@@ -111,7 +307,7 @@ export async function getRecurringOrders(): Promise<RecurringOrder[]> {
       status: r.status as RecurringOrder["status"],
     }));
   } catch {
-    return mockRecurringOrders;
+    return [];
   }
 }
 

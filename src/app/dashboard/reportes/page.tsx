@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useExport } from "@/lib/services/export";
 import { useReportesList } from "@/hooks/use-data";
+import { isSupabaseConfigured } from "@/lib/env";
 import type { PDFReportType, ExcelReportType } from "@/lib/services/export";
 import {
   BarChart3,
@@ -66,13 +67,50 @@ const reportLinkMap: Record<string, string> = {
   R10: "/dashboard",
 };
 
-const historialGeneraciones: {
-  fecha: string;
-  reporte: string;
-  formato: string;
-  usuario: string;
-  estado: string;
-}[] = [];
+const historialGeneraciones = [
+  {
+    fecha: "07/03/2026 14:32",
+    reporte: "Ocupación de Agenda",
+    formato: "PDF",
+    usuario: "Dr. Rodríguez",
+    estado: "Completado",
+  },
+  {
+    fecha: "05/03/2026 10:15",
+    reporte: "Análisis de Rechazos",
+    formato: "Excel",
+    usuario: "Adm. García",
+    estado: "Completado",
+  },
+  {
+    fecha: "05/03/2026 09:45",
+    reporte: "Auditoría Pre-Presentación",
+    formato: "PDF",
+    usuario: "Adm. García",
+    estado: "Completado",
+  },
+  {
+    fecha: "03/03/2026 16:20",
+    reporte: "Inventario & Consumo",
+    formato: "PDF",
+    usuario: "Enf. López",
+    estado: "Completado",
+  },
+  {
+    fecha: "01/03/2026 08:00",
+    reporte: "Indicadores KPI Ejecutivo",
+    formato: "PDF",
+    usuario: "Dr. Rodríguez",
+    estado: "Completado",
+  },
+  {
+    fecha: "01/03/2026 08:00",
+    reporte: "Facturación Mensual",
+    formato: "Excel",
+    usuario: "Adm. García",
+    estado: "Completado",
+  },
+];
 
 export default function ReportesPage() {
   const { isExporting, exportError, exportPDF, exportExcel } = useExport();
@@ -208,62 +246,64 @@ export default function ReportesPage() {
             ))}
           </div>
 
-          {/* Generation history */}
-          <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <div className="px-5 py-4 border-b border-border">
-              <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-                Historial de Generaciones
-              </h3>
-            </div>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-5 py-2.5">Fecha</th>
-                  <th className="text-left px-5 py-2.5">Reporte</th>
-                  <th className="text-center px-5 py-2.5">Formato</th>
-                  <th className="text-left px-5 py-2.5">Usuario</th>
-                  <th className="text-center px-5 py-2.5">Estado</th>
-                  <th className="text-right px-5 py-2.5">Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {historialGeneraciones.map((h, i) => (
-                  <tr
-                    key={i}
-                    className="border-t border-border-light hover:bg-celeste-pale/30 transition"
-                  >
-                    <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{h.fecha}</td>
-                    <td className="px-5 py-3 text-xs font-semibold text-ink">{h.reporte}</td>
-                    <td className="px-5 py-3 text-center">
-                      <span
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded ${h.formato === "PDF" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}
-                      >
-                        {h.formato}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-xs text-ink-light">{h.usuario}</td>
-                    <td className="px-5 py-3 text-center">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-green-50 text-green-700">
-                        {h.estado}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      <button
-                        onClick={() => {
-                          if (h.formato === "PDF") exportPDF("kpi", { periodo: dateRange });
-                          else exportExcel("facturacion", { periodo: dateRange });
-                        }}
-                        disabled={isExporting}
-                        className="text-xs text-celeste-dark font-medium hover:underline disabled:opacity-50"
-                      >
-                        {isExporting ? "..." : "Descargar"}
-                      </button>
-                    </td>
+          {/* Generation history (demo mode only) */}
+          {!isSupabaseConfigured() && (
+            <div className="bg-white border border-border rounded-lg overflow-hidden">
+              <div className="px-5 py-4 border-b border-border">
+                <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
+                  Historial de Generaciones
+                </h3>
+              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                    <th className="text-left px-5 py-2.5">Fecha</th>
+                    <th className="text-left px-5 py-2.5">Reporte</th>
+                    <th className="text-center px-5 py-2.5">Formato</th>
+                    <th className="text-left px-5 py-2.5">Usuario</th>
+                    <th className="text-center px-5 py-2.5">Estado</th>
+                    <th className="text-right px-5 py-2.5">Acción</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {historialGeneraciones.map((h, i) => (
+                    <tr
+                      key={i}
+                      className="border-t border-border-light hover:bg-celeste-pale/30 transition"
+                    >
+                      <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{h.fecha}</td>
+                      <td className="px-5 py-3 text-xs font-semibold text-ink">{h.reporte}</td>
+                      <td className="px-5 py-3 text-center">
+                        <span
+                          className={`px-2 py-0.5 text-[10px] font-bold rounded ${h.formato === "PDF" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}
+                        >
+                          {h.formato}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-xs text-ink-light">{h.usuario}</td>
+                      <td className="px-5 py-3 text-center">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-green-50 text-green-700">
+                          {h.estado}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <button
+                          onClick={() => {
+                            if (h.formato === "PDF") exportPDF("kpi", { periodo: dateRange });
+                            else exportExcel("facturacion", { periodo: dateRange });
+                          }}
+                          disabled={isExporting}
+                          className="text-xs text-celeste-dark font-medium hover:underline disabled:opacity-50"
+                        >
+                          {isExporting ? "..." : "Descargar"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
     </div>

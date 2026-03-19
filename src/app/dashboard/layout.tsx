@@ -167,8 +167,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push("/auth/login");
   };
 
-  const displayName = user?.name || "Usuario";
-  const displayClinic = user?.clinicName || "Mi Clínica";
+  const displayName = user?.name || "Dr. Rodríguez";
+  const displayClinic = user?.clinicName || "Clínica San Martín";
   const initials = displayName
     .split(" ")
     .map((w) => w[0])

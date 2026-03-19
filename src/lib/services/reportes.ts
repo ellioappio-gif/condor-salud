@@ -32,26 +32,121 @@ export interface GenerateReporteInput {
 
 // ─── Demo Data ───────────────────────────────────────────────
 
-const DEMO_REPORTES: ReporteEntry[] = [];
+const DEMO_REPORTES: ReporteEntry[] = [
+  {
+    id: "R01",
+    nombre: "Facturación Mensual",
+    categoria: "Finanzas",
+    descripcion: "Resumen de facturación por financiador con desglose de prestaciones",
+    frecuencia: "Mensual",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-01",
+  },
+  {
+    id: "R02",
+    nombre: "Análisis de Rechazos",
+    categoria: "Finanzas",
+    descripcion: "Motivos de rechazo, tendencias y tasa por financiador",
+    frecuencia: "Semanal",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-05",
+  },
+  {
+    id: "R03",
+    nombre: "Rendimiento Financiadores",
+    categoria: "Finanzas",
+    descripcion: "Comparación de financiadores por cobro, plazos y cartera",
+    frecuencia: "Mensual",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-01",
+  },
+  {
+    id: "R04",
+    nombre: "Impacto Inflacionario",
+    categoria: "Finanzas",
+    descripcion: "Desfasaje arancelario vs IPC, pérdida real acumulada",
+    frecuencia: "Mensual",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-01",
+  },
+  {
+    id: "R05",
+    nombre: "Pacientes Activos",
+    categoria: "Gestión Clínica",
+    descripcion: "Demografía, cobertura, frecuencia de atención, retención",
+    frecuencia: "Mensual",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-01",
+  },
+  {
+    id: "R06",
+    nombre: "Agenda Ocupacional",
+    categoria: "Gestión Clínica",
+    descripcion: "Tasa de ocupación de agenda por profesional y sede",
+    frecuencia: "Semanal",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-06",
+  },
+  {
+    id: "R07",
+    nombre: "Producción por Profesional",
+    categoria: "Gestión Clínica",
+    descripcion: "Prestaciones realizadas por cada profesional del equipo",
+    frecuencia: "Mensual",
+    formato: "PDF",
+    ultimaGeneracion: "2026-02-28",
+  },
+  {
+    id: "R08",
+    nombre: "Inventario Crítico",
+    categoria: "Operativo",
+    descripcion: "Insumos por debajo del stock mínimo y próximos a vencer",
+    frecuencia: "Semanal",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-09",
+  },
+  {
+    id: "R09",
+    nombre: "Nomenclador Actualizado",
+    categoria: "Operativo",
+    descripcion: "Códigos vigentes con valores por financiador y diferencias",
+    frecuencia: "Mensual",
+    formato: "PDF / Excel",
+    ultimaGeneracion: "2026-03-01",
+  },
+  {
+    id: "R10",
+    nombre: "KPIs Ejecutivos",
+    categoria: "Ejecutivo",
+    descripcion: "Resumen ejecutivo con KPIs de facturación, cobro y operación",
+    frecuencia: "Mensual",
+    formato: "PDF",
+    ultimaGeneracion: "2026-03-10",
+  },
+];
 
 // ─── Read Operations ─────────────────────────────────────────
 
 export async function getReportesList(filter?: ReporteFilter): Promise<ReporteEntry[]> {
   if (isSupabaseConfigured()) {
-    const { createClient } = await import("@/lib/supabase/client");
-    const sb = createClient();
-    let query = (sb as any).from("reportes").select("*").order("nombre");
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const sb = createClient();
+      let query = (sb as any).from("reportes").select("*").order("nombre");
 
-    if (filter?.categoria && filter.categoria !== "Todos") {
-      query = query.eq("categoria", filter.categoria);
-    }
-    if (filter?.search) {
-      query = query.or(`nombre.ilike.%${filter.search}%,descripcion.ilike.%${filter.search}%`);
-    }
+      if (filter?.categoria && filter.categoria !== "Todos") {
+        query = query.eq("categoria", filter.categoria);
+      }
+      if (filter?.search) {
+        query = query.or(`nombre.ilike.%${filter.search}%,descripcion.ilike.%${filter.search}%`);
+      }
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data ?? []).map(mapReporteFromDB);
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []).map(mapReporteFromDB);
+    } catch {
+      return [];
+    }
   }
 
   await delay(120);
@@ -121,7 +216,7 @@ export async function getReportesStats() {
   return {
     totalReportes: DEMO_REPORTES.length,
     categorias: new Set(DEMO_REPORTES.map((r) => r.categoria)).size,
-    generadosEsteMes: 0,
+    generadosEsteMes: 7,
   };
 }
 
