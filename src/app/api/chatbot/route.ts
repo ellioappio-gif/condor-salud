@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { processMessage, detectEmergency } from "@/lib/chatbot-engine";
+import { processMessage, detectEmergency, detectGeoIntent } from "@/lib/chatbot-engine";
 import type { LivePlaces } from "@/lib/chatbot-engine";
 import { askClaude, isClaudeConfigured } from "@/lib/ai/claude";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
@@ -157,6 +157,7 @@ async function fetchLivePlaces(lat: number, lng: number): Promise<LivePlaces | n
       doctors: rawDocs.map((p) => ({
         ...mapItem(p),
         specialty: p.types?.find((t) => t !== "doctor" && t !== "health") ?? undefined,
+        openNow: p.openNow ?? undefined,
       })),
       pharmacies: rawPharms.map((p) => ({
         ...mapItem(p),
@@ -259,6 +260,24 @@ export async function POST(req: NextRequest) {
         source: "rules" as const,
         isEmergency: true,
         ...processMessage(cleanMessage, coords, lang, livePlaces, triageContext),
+      });
+    }
+
+    // ── GEO INTENTS: Route to rule-based engine for location queries ──
+    // The rule-based engine has livePlaces data for structured card responses
+    // with directions + maps.  Claude AI doesn't have this data.
+    const isGeoQuery = detectGeoIntent(cleanMessage);
+
+    if (isGeoQuery) {
+      const delay = 200 + Math.random() * 400;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      const geoResponse = processMessage(cleanMessage, coords, lang, livePlaces, triageContext);
+      return NextResponse.json({
+        id: `bot-${Date.now()}`,
+        role: "bot",
+        timestamp: Date.now(),
+        source: "rules" as const,
+        ...geoResponse,
       });
     }
 

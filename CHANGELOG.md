@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.5] — 2026-03-19
+
+### Fixed
+
+- **Google Maps & Places integration in Cora now works end-to-end**
+  - Geo intents (`nearby_doctor`, `nearby_pharmacy`, `nearby_guardia`, `directions`, `shared_location`, `location`) now route to the rule-based engine instead of Claude AI — the rule-based engine has live Google Places data and generates structured cards with "Get directions" and "View on map" links, while Claude only received raw coordinates as text context and could not produce actionable cards
+  - Fixed `fetchLivePlaces` missing `openNow` field for doctors — pharmacies and hospitals had it but doctors didn't, so doctor open/closed status was never shown
+  - Exported new `detectGeoIntent()` helper from chatbot-engine for use by the API route
+
 ## [0.9.4] — 2026-03-19
 
 ### Fixed

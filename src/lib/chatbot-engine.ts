@@ -2704,3 +2704,23 @@ export function detectEmergency(message: string): boolean {
   ];
   return emergencyPatterns.some((p) => p.test(lower));
 }
+
+/**
+ * Detect if a message is geolocation-related (nearby services, directions,
+ * shared location).  These intents require live Google Places data and
+ * structured card responses, so they must be handled by the rule-based
+ * engine rather than Claude AI.
+ */
+const GEO_INTENTS = new Set([
+  "nearby_doctor",
+  "nearby_pharmacy",
+  "nearby_guardia",
+  "directions",
+  "shared_location",
+  "location",
+]);
+
+export function detectGeoIntent(message: string): boolean {
+  const { intent } = detectIntent(message);
+  return GEO_INTENTS.has(intent);
+}
