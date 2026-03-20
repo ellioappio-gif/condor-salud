@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { whatsappConfigPutSchema } from "@/lib/validations/schemas";
 
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -85,11 +86,21 @@ export async function PUT(req: NextRequest) {
 
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
+
+    // ── I-04: Zod validation ──
+    const parsed = whatsappConfigPutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
     const supabase = getServiceClient();
 
     // ── Upsert config ────────────────────────────────────
-    if (body.config) {
-      const cfg = body.config;
+    if (parsed.data.config) {
+      const cfg = parsed.data.config;
       const row = {
         clinic_id: clinicId,
         whatsapp_number: cfg.whatsapp_number ?? "",
@@ -115,8 +126,8 @@ export async function PUT(req: NextRequest) {
     }
 
     // ── Upsert templates ─────────────────────────────────
-    if (body.templates && Array.isArray(body.templates)) {
-      for (const tpl of body.templates) {
+    if (parsed.data.templates && Array.isArray(parsed.data.templates)) {
+      for (const tpl of parsed.data.templates) {
         const row = {
           clinic_id: clinicId,
           name: tpl.name,

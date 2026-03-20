@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
 import { isSupabaseConfigured } from "@/lib/env";
+import { waitlistSchema } from "@/lib/validations/schemas";
 
 // S-10: Persist to Supabase when configured; log as structured fallback.
 
@@ -11,17 +12,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const email = sanitize(body.email || "", 254);
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "Email es requerido" }, { status: 400 });
+    // ── I-04: Zod validation ──
+    const parsed = waitlistSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Email inválido", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
     }
 
-    // Strict email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: "Email inválido" }, { status: 400 });
-    }
+    const email = sanitize(parsed.data.email, 254);
 
     // ── Persist to Supabase if configured ──
     if (isSupabaseConfigured()) {

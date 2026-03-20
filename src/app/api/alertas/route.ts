@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { isSupabaseConfigured } from "@/lib/env";
+import { alertaPatchSchema } from "@/lib/validations/schemas";
 
 function getServiceClient() {
   const { createClient } = require("@supabase/supabase-js");
@@ -158,10 +159,17 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = sanitizeBody(await request.json());
-    const { action, ids } = body as {
-      action: "mark_read" | "mark_all_read" | "dismiss";
-      ids?: string[];
-    };
+
+    // ── I-04: Zod validation ──
+    const parsed = alertaPatchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { action, ids } = parsed.data;
 
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ success: true, message: "Demo mode — no changes persisted" });

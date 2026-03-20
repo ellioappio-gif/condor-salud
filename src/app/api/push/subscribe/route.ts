@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logger } from "@/lib/security/api-guard";
+import { logger, checkRateLimit } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
+import { z } from "zod";
+
+// ── Zod schema for push subscription ─────────────────────────
+const pushSubscriptionSchema = z.object({
+  subscription: z.object({
+    endpoint: z.string().url("Endpoint must be a valid URL"),
+    keys: z.object({
+      p256dh: z.string().min(1),
+      auth: z.string().min(1),
+    }),
+    expirationTime: z.number().nullable().optional(),
+  }),
+});
 
 /**
  * POST /api/push/subscribe
@@ -12,13 +26,27 @@ import { logger } from "@/lib/security/api-guard";
  */
 
 export async function POST(req: NextRequest) {
+  // ── S-01: Require auth to store subscriptions ──
+  const auth = await requireAuth(req);
+  if (auth.error) return auth.error;
+
+  // ── Rate limit: 10 req / 60s per IP ──
+  const limited = checkRateLimit(req, "push-subscribe", { limit: 10, windowSec: 60 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
-    const { subscription } = body;
 
-    if (!subscription?.endpoint) {
-      return NextResponse.json({ error: "Missing subscription endpoint" }, { status: 400 });
+    // ── I-04: Zod validation ──
+    const parsed = pushSubscriptionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid subscription payload", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
     }
+
+    const { subscription } = parsed.data;
 
     // Store in Supabase if configured
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

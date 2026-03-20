@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-03-21
+
+### Security — Phase 1 CRITICAL Hardening
+
+- **S-01/S-02: Auth enforcement on all API routes** — Added `requireAuth()` + rate limiting to `/api/push/subscribe` POST. All 16 API routes now require authentication (chatbot and waitlist are intentionally public with rate limiting).
+- **I-04: Zod schema validation on all POST/PUT/PATCH routes** — Created 10 new Zod schemas in `src/lib/validations/schemas.ts` and wired them into 9 API routes:
+  - `nubixActionSchema` — discriminatedUnion for send-results + upsert-appointment actions
+  - `telemedicinaRoomSchema` — validates patientName + consultationId
+  - `whatsappSummarySchema` — validates phone format, patient/doctor names, diagnosis
+  - `chatbotMessageSchema` — validates message (max 2000 chars), coords, history (max 50), lang
+  - `pushSubscriptionSchema` — validates endpoint URL + keys (p256dh, auth)
+  - `alertaPatchSchema` — validates action enum + optional ids array
+  - `doctoraliarActionSchema` — discriminatedUnion for book + cancel actions with full booking payload validation
+  - `whatsappConfigPutSchema` — validates config fields + templates array
+  - `waitlistSchema` — validates email format
+- All unsafe `as` type casts and manual field checks replaced with proper Zod `.safeParse()` + 400 error responses with structured field errors.
+
+### Audit Verification — Items Already Resolved in Prior Releases
+
+The following CRITICAL audit items were verified as already implemented:
+
+- **PS-01** (greeting overrides emergency): Intent priority system already exists — `greeting: 1`, `pain_chest: 10`
+- **PS-02** (no crisis card): Crisis card with `tel:135` already exists at line 1020+ in chatbot-engine
+- **S-03** (demo mode in production): Session API already blocks demo login in production
+- **S-04/S-05** (httpOnly session): `requireAuth()` already reads encrypted httpOnly cookies via AES-256-GCM
+- **S-06** (Google token exposure): Google callback already encrypts tokens before storing in cookie
+- **S-09** (in-memory rate limiter): Upstash Redis rate limiter already implemented
+- **S-10** (waitlist in-memory): Waitlist already persists to Supabase via upsert
+
 ## [0.9.8] — 2026-03-19
 
 ### Changed

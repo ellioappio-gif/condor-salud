@@ -151,3 +151,197 @@ export const farmaciaActionSchema = z.discriminatedUnion("action", [
 ]);
 
 export type FarmaciaActionInput = z.infer<typeof farmaciaActionSchema>;
+
+// ─── Nubix (PACS) action schemas ─────────────────────────────
+export const nubixActionSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("send-results"),
+    studyId: z.string().min(1, "studyId requerido"),
+    channel: z.enum(["whatsapp", "email", "portal", "sms"]),
+    recipientContact: z.string().min(1, "Contacto requerido"),
+  }),
+  z.object({
+    action: z.literal("upsert-appointment"),
+    appointmentId: z.string().optional(),
+    data: z.object({
+      patientName: z.string().min(1),
+      patientDni: z.string().default(""),
+      modality: z.enum([
+        "CR",
+        "CT",
+        "MR",
+        "US",
+        "DX",
+        "MG",
+        "OT",
+        "XA",
+        "PT",
+        "NM",
+        "IO",
+        "PX",
+        "ES",
+        "ECG",
+        "AU",
+        "OPT",
+      ]),
+      specialty: z
+        .enum([
+          "radiologia",
+          "dental",
+          "cirugia",
+          "cardiologia",
+          "neumologia",
+          "audiometria",
+          "patologia",
+          "obstetricia",
+          "colposcopia",
+          "oftalmologia",
+          "veterinaria",
+        ])
+        .default("radiologia"),
+      description: z.string().default(""),
+      scheduledAt: z.string().min(1),
+      duration: z.number().int().min(1).default(30),
+      room: z.string().default(""),
+      referringDoctor: z.string().default(""),
+      financiador: z.string().default(""),
+      status: z
+        .enum(["confirmed", "arrived", "in_progress", "completed", "no_show", "cancelled"])
+        .default("confirmed"),
+      reminderSent: z.boolean().default(false),
+      notes: z.string().default(""),
+    }),
+  }),
+]);
+
+export type NubixActionInput = z.infer<typeof nubixActionSchema>;
+
+// ─── Telemedicina room schema ────────────────────────────────
+export const telemedicinaRoomSchema = z.object({
+  patientName: z.string().min(1, "Nombre del paciente requerido").max(200),
+  consultationId: z.string().optional(),
+});
+
+export type TelemedicinaRoomInput = z.infer<typeof telemedicinaRoomSchema>;
+
+// ─── WhatsApp summary schema ─────────────────────────────────
+export const whatsappSummarySchema = z.object({
+  patientPhone: z
+    .string()
+    .min(7, "Teléfono inválido")
+    .max(20)
+    .regex(/^\+?[\d\s()-]{7,20}$/, "Formato de teléfono inválido"),
+  patientName: z.string().min(1, "Nombre del paciente requerido").max(200),
+  doctorName: z.string().min(1, "Nombre del médico requerido").max(200),
+  diagnosis: z.string().min(1, "Diagnóstico requerido").max(2000),
+  instructions: z.string().max(2000).default(""),
+  nextAppointment: z.string().max(200).optional(),
+});
+
+export type WhatsappSummaryInput = z.infer<typeof whatsappSummarySchema>;
+
+// ─── Chatbot message schema ──────────────────────────────────
+export const chatbotMessageSchema = z.object({
+  message: z.string().min(1, "Mensaje requerido").max(2000),
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().max(5000),
+      }),
+    )
+    .max(50)
+    .optional(),
+  lang: z.string().max(10).optional(),
+  triageContext: z.string().max(5000).optional(),
+});
+
+export type ChatbotMessageInput = z.infer<typeof chatbotMessageSchema>;
+
+// ─── Alertas PATCH schema ────────────────────────────────────
+export const alertaPatchSchema = z.object({
+  action: z.enum(["mark_read", "mark_all_read", "dismiss"]),
+  ids: z.array(z.string().min(1)).optional(),
+});
+
+export type AlertaPatchInput = z.infer<typeof alertaPatchSchema>;
+
+// ─── Doctoraliar action schemas ──────────────────────────────
+const doctoraliarBookingSchema = z.object({
+  action: z.literal("book"),
+  facility_id: z.string().min(1, "facility_id requerido"),
+  doctor_id: z.string().min(1, "doctor_id requerido"),
+  address_id: z.string().min(1, "address_id requerido"),
+  slot_start: z.string().min(1, "slot_start requerido"),
+  booking: z.object({
+    patient: z.object({
+      name: z.string().min(1),
+      surname: z.string().min(1),
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+      birth_date: z.string().optional(),
+      gender: z.enum(["male", "female", "other"]).optional(),
+      pesel: z.string().optional(),
+      nin: z.string().optional(),
+    }),
+    comment: z.string().max(1000).optional(),
+  }),
+});
+
+const doctoraliarCancelSchema = z.object({
+  action: z.literal("cancel"),
+  facility_id: z.string().min(1, "facility_id requerido"),
+  doctor_id: z.string().min(1, "doctor_id requerido"),
+  address_id: z.string().min(1, "address_id requerido"),
+  booking_id: z.string().min(1, "booking_id requerido"),
+  reason: z.string().max(500).optional(),
+});
+
+export const doctoraliarActionSchema = z.discriminatedUnion("action", [
+  doctoraliarBookingSchema,
+  doctoraliarCancelSchema,
+]);
+
+export type DoctoraliarActionInput = z.infer<typeof doctoraliarActionSchema>;
+
+// ─── WhatsApp config PUT schema ──────────────────────────────
+const whatsappTemplateSchema = z.object({
+  name: z.string().min(1, "Nombre requerido"),
+  category: z.enum(["utility", "marketing", "authentication"]).default("utility"),
+  language: z.string().default("es_AR"),
+  body_template: z.string().min(1, "Cuerpo requerido"),
+  variables: z.array(z.string()).default([]),
+  header_text: z.string().nullable().optional(),
+  footer_text: z.string().nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const whatsappConfigPutSchema = z.object({
+  config: z
+    .object({
+      whatsapp_number: z.string().default(""),
+      display_name: z.string().default(""),
+      welcome_message: z.string().nullable().optional(),
+      auto_reply: z.boolean().default(true),
+      business_hours: z.string().default("08:00-20:00"),
+      out_of_hours_message: z.string().nullable().optional(),
+      notify_on_new_lead: z.boolean().default(true),
+      twilio_sid: z.string().optional(),
+      twilio_token: z.string().optional(),
+    })
+    .optional(),
+  templates: z.array(whatsappTemplateSchema).optional(),
+});
+
+export type WhatsappConfigPutInput = z.infer<typeof whatsappConfigPutSchema>;
+
+// ─── Waitlist schema ─────────────────────────────────────────
+export const waitlistSchema = z.object({
+  email: z.string().email("Email inválido"),
+  name: z.string().max(200).optional(),
+  source: z.string().max(50).optional(),
+});
+
+export type WaitlistInput = z.infer<typeof waitlistSchema>;

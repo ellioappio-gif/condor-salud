@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { whatsappSummarySchema } from "@/lib/validations/schemas";
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -13,13 +14,18 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
-    const { patientPhone, patientName, doctorName, diagnosis, instructions, nextAppointment } =
-      body as Record<string, string>;
 
-    // Validate phone format (Argentine mobile)
-    if (!patientPhone || !/^\+?[\d\s()-]{7,20}$/.test(patientPhone)) {
-      return NextResponse.json({ error: "Número de teléfono inválido" }, { status: 400 });
+    // ── I-04: Zod validation ──
+    const parsed = whatsappSummarySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
     }
+
+    const { patientPhone, patientName, doctorName, diagnosis, instructions, nextAppointment } =
+      parsed.data;
 
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;

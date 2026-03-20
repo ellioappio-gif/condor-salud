@@ -13,6 +13,7 @@ import {
 } from "@/lib/services/nubix";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { nubixActionSchema } from "@/lib/validations/schemas";
 import type { NubixStudyFilters, NubixAppointmentFilters } from "@/lib/nubix/types";
 
 export async function GET(req: NextRequest) {
@@ -105,28 +106,28 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
-    const { action } = body;
+
+    // ── I-04: Zod validation ──
+    const parsed = nubixActionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { action } = parsed.data;
 
     switch (action) {
       case "send-results": {
-        const { studyId, channel, recipientContact } = body;
-        if (!studyId || !channel || !recipientContact) {
-          return NextResponse.json(
-            { error: "Missing studyId, channel, or recipientContact" },
-            { status: 400 },
-          );
-        }
-        const delivery = await sendNubixResults(
-          studyId as string,
-          channel as "whatsapp" | "email" | "portal" | "sms",
-          recipientContact as string,
-        );
+        const { studyId, channel, recipientContact } = parsed.data;
+        const delivery = await sendNubixResults(studyId, channel, recipientContact);
         return NextResponse.json(delivery);
       }
 
       case "upsert-appointment": {
-        const { appointmentId, data } = body;
-        const appointment = await upsertNubixAppointment(data, appointmentId as string | undefined);
+        const { appointmentId, data } = parsed.data;
+        const appointment = await upsertNubixAppointment(data, appointmentId);
         return NextResponse.json(appointment);
       }
 

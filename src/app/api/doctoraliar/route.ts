@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/security/require-auth";
 import { checkRateLimit, logger } from "@/lib/security/api-guard";
+import { doctoraliarActionSchema } from "@/lib/validations/schemas";
 import {
   isDoctoraliarConfigured,
   getFacilities,
@@ -203,18 +204,22 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const action = body.action as string;
+
+    // ── I-04: Zod validation ──
+    const parsed = doctoraliarActionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const action = parsed.data.action;
 
     switch (action) {
       // ── Book a Slot ──────────────────────────────
       case "book": {
-        const { facility_id, doctor_id, address_id, slot_start, booking } = body;
-        if (!facility_id || !doctor_id || !address_id || !slot_start || !booking) {
-          return NextResponse.json(
-            { error: "facility_id, doctor_id, address_id, slot_start y booking requeridos" },
-            { status: 400 },
-          );
-        }
+        const { facility_id, doctor_id, address_id, slot_start, booking } = parsed.data;
         const result = await bookSlot(
           facility_id,
           doctor_id,
@@ -228,13 +233,7 @@ export async function POST(req: NextRequest) {
 
       // ── Cancel a Booking ─────────────────────────
       case "cancel": {
-        const { facility_id, doctor_id, address_id, booking_id, reason } = body;
-        if (!facility_id || !doctor_id || !address_id || !booking_id) {
-          return NextResponse.json(
-            { error: "facility_id, doctor_id, address_id y booking_id requeridos" },
-            { status: 400 },
-          );
-        }
+        const { facility_id, doctor_id, address_id, booking_id, reason } = parsed.data;
         await cancelBooking(facility_id, doctor_id, address_id, booking_id, reason);
         logger.info({ bookingId: booking_id }, "Doctoraliar booking canceled");
         return NextResponse.json({ success: true });

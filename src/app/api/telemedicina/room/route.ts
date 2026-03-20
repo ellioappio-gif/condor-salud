@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { telemedicinaRoomSchema } from "@/lib/validations/schemas";
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -13,7 +14,17 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
-    const { patientName, consultationId } = body;
+
+    // ── I-04: Zod validation ──
+    const parsed = telemedicinaRoomSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { patientName, consultationId } = parsed.data;
 
     // Daily.co video room creation
     const apiKey = process.env.DAILY_API_KEY;

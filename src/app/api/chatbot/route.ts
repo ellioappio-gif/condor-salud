@@ -4,6 +4,7 @@ import type { LivePlaces } from "@/lib/chatbot-engine";
 import { askClaude, isClaudeConfigured } from "@/lib/ai/claude";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
 import { nearbyPlacesSearch } from "@/lib/google";
+import { chatbotMessageSchema } from "@/lib/validations/schemas";
 
 /* ── Helper: enrich coverage responses with real data from /api/coverage ── */
 async function enrichCoverageResponse(
@@ -196,33 +197,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const {
-      message,
-      lat,
-      lng,
-      history,
-      lang: bodyLang,
-      triageContext,
-    } = body as {
-      message?: string;
-      lat?: number;
-      lng?: number;
-      history?: { role: "user" | "assistant"; content: string }[];
-      lang?: string;
-      triageContext?: string;
-    };
-    lang = bodyLang;
 
-    if (!message || typeof message !== "string") {
-      const isEn = typeof bodyLang === "string" && bodyLang.startsWith("en");
+    // ── I-04: Zod validation ──
+    const parsed = chatbotMessageSchema.safeParse(body);
+    if (!parsed.success) {
+      const isEn = typeof body?.lang === "string" && body.lang.startsWith("en");
       return NextResponse.json(
         {
           id: `bot-${Date.now()}`,
           role: "bot",
           timestamp: Date.now(),
           text: isEn
-            ? "I didn't receive a message. Could you try again?"
-            : "No recibí un mensaje. ¿Podés intentar de nuevo?",
+            ? "I didn't receive a valid message. Could you try again?"
+            : "No recibí un mensaje válido. ¿Podés intentar de nuevo?",
           quickReplies: isEn
             ? [{ label: "Try again", value: "Hello" }]
             : [{ label: "Reintentar", value: "Hola" }],
@@ -230,6 +217,9 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+
+    const { message, lat, lng, history, lang: bodyLang, triageContext } = parsed.data;
+    lang = bodyLang;
 
     // Sanitize user input
     const cleanMessage = sanitize(message, 2000);
