@@ -13,7 +13,7 @@ import {
   locationOptions,
   symptomToSpecialty,
 } from "@/lib/services/directorio";
-import { getDoctoraliarSearchUrl, getDoctoraliarSpecialtyUrl } from "@/lib/doctoraliar";
+import { getGoogleMapsSearchUrl } from "@/lib/doctor-search";
 import { useLocale } from "@/lib/i18n/context";
 
 const specialties = ["Todas", ...specialtiesData];
@@ -166,16 +166,16 @@ export default function DirectorioPage() {
         ))}
       </div>
 
-      {/* Doctoraliar attribution */}
+      {/* Google Maps attribution */}
       <div className="flex items-center gap-2 text-[11px] text-ink-muted">
-        <span>Turnos y perfiles profesionales vía</span>
+        <span>Datos de profesionales vía</span>
         <a
-          href="https://www.doctoraliar.com"
+          href="https://www.google.com/maps"
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold text-celeste-dark hover:underline inline-flex items-center gap-0.5"
         >
-          Doctoraliar.com <ExternalLink className="w-3 h-3" />
+          Google Maps <ExternalLink className="w-3 h-3" />
         </a>
       </div>
 
@@ -305,15 +305,15 @@ export default function DirectorioPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <a
-                        href={doc.profileUrl || getDoctoraliarSearchUrl(doc.name)}
+                        href={doc.profileUrl || getGoogleMapsSearchUrl(doc.name)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste-dark/30 rounded hover:bg-celeste-pale transition flex items-center gap-1"
                       >
-                        <ExternalLink className="w-3 h-3" /> Doctoraliar
+                        <ExternalLink className="w-3 h-3" /> Google Maps
                       </a>
                       <a
-                        href={doc.profileUrl || getDoctoraliarSearchUrl(doc.name)}
+                        href={doc.profileUrl || getGoogleMapsSearchUrl(doc.name)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`px-4 py-1.5 text-xs font-semibold rounded transition inline-block text-center ${
@@ -577,21 +577,21 @@ export default function DirectorioPage() {
                 </div>
 
                 <a
-                  href={selectedDoctor.profileUrl || getDoctoraliarSearchUrl(selectedDoctor.name)}
+                  href={selectedDoctor.profileUrl || getGoogleMapsSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-6 inline-block px-6 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition text-center"
                 >
-                  Reservar turno vía Doctoraliar
+                  Reservar turno vía Google Maps
                 </a>
                 <a
-                  href={selectedDoctor.profileUrl || getDoctoraliarSearchUrl(selectedDoctor.name)}
+                  href={selectedDoctor.profileUrl || getGoogleMapsSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  Ver perfil en Doctoraliar.com
+                  Ver perfil en Google Maps
                 </a>
               </div>
             </div>
@@ -806,7 +806,7 @@ export default function DirectorioPage() {
                   <div className="text-right shrink-0">
                     <p className="text-xs font-medium text-success-600 mb-2">{doc.nextSlot}</p>
                     <a
-                      href={doc.profileUrl || getDoctoraliarSearchUrl(doc.name)}
+                      href={doc.profileUrl || getGoogleMapsSearchUrl(doc.name)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition inline-block text-center"

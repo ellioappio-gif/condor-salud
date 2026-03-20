@@ -35,7 +35,7 @@ function buildCspHeader(nonce: string): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o4507.ingest.sentry.io https://*.daily.co wss://*.daily.co https://api.mercadopago.com https://*.upstash.io https://api.anthropic.com https://www.googleapis.com https://accounts.google.com https://*.posthog.com https://us.i.posthog.com https://*.sentry.io https://www.doctoraliar.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o4507.ingest.sentry.io https://*.daily.co wss://*.daily.co https://api.mercadopago.com https://*.upstash.io https://api.anthropic.com https://www.googleapis.com https://accounts.google.com https://*.posthog.com https://us.i.posthog.com https://*.sentry.io https://maps.googleapis.com",
     "frame-src 'self' https://*.daily.co",
     "media-src 'self' blob:",
     "worker-src 'self' blob:",

@@ -203,10 +203,10 @@ export interface Doctor {
   teleconsulta: boolean;
   experience: string;
   languages: string[];
-  /** Doctoraliar profile URL (when API is configured) */
+  /** External profile URL (Google Maps when enriched) */
   profileUrl?: string;
   /** Source of the listing */
-  source?: "local" | "doctoraliar";
+  source?: "local" | "google_places";
 }
 
 export interface DoctorReview {

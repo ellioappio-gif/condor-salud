@@ -1,16 +1,10 @@
 // ─── Directorio Médico Service Layer ─────────────────────────
 // Real Supabase queries with mock fallback when not configured.
-// When DOCTORALIAR_CLIENT_ID is set, enriches results with
-// Doctoraliar profile URLs and available slots.
+// When GOOGLE_PLACES_API_KEY is set, enriches results with
+// Google Maps profile URLs.
 
 import { isSupabaseConfigured } from "@/lib/env";
-import {
-  isDoctoraliarConfigured,
-  getFacilities,
-  getDoctors as getDoctoraliarDoctors,
-  getDoctoraliarSearchUrl,
-  type DoctoraliarDoctor,
-} from "@/lib/doctoraliar";
+import { getGoogleMapsSearchUrl } from "@/lib/doctor-search";
 import type { Doctor, DoctorReview } from "@/lib/types";
 
 // ─── Static Data ─────────────────────────────────────────────
@@ -236,7 +230,7 @@ export async function getDoctors(filters?: {
         (d) => d.name.toLowerCase().includes(q) || d.specialty.toLowerCase().includes(q),
       );
     }
-    return enrichWithDoctoraliar(result);
+    return enrichWithGoogleMaps(result);
   }
   try {
     const sb = await getSupabase();
@@ -260,7 +254,7 @@ export async function getDoctors(filters?: {
     if (filters?.financiador && filters.financiador !== "Todos") {
       doctors = doctors.filter((d) => d.financiadores.includes(filters.financiador!));
     }
-    return enrichWithDoctoraliar(doctors);
+    return enrichWithGoogleMaps(doctors);
   } catch {
     return [];
   }
@@ -285,134 +279,18 @@ function mapDoctor(r: Record<string, unknown>): Doctor {
   };
 }
 
-// ─── Doctoraliar Enrichment ──────────────────────────────────
-
-let cachedFacilityId: string | null = null;
+// ─── Google Maps Enrichment ──────────────────────────────────
 
 /**
- * Resolve the Doctoraliar facility ID.
- * Uses DOCTORALIAR_FACILITY_ID env var when set,
- * otherwise fetches from the API and caches the first result.
+ * Enrich doctors with Google Maps profile URLs.
+ * Attaches a profileUrl pointing to Google Maps search for each doctor.
  */
-async function resolveFacilityId(): Promise<string | null> {
-  if (cachedFacilityId) return cachedFacilityId;
-
-  const envId = process.env.DOCTORALIAR_FACILITY_ID;
-  if (envId) {
-    cachedFacilityId = envId;
-    return envId;
-  }
-
-  try {
-    const facilities = await getFacilities();
-    if (facilities.length > 0) {
-      cachedFacilityId = facilities[0]!.id;
-      return cachedFacilityId;
-    }
-  } catch {
-    // Facility fetch failed — skip enrichment
-  }
-  return null;
-}
-
-/**
- * Map a Doctoraliar API doctor into our Doctor shape.
- */
-function mapDoctoraliarDoctor(d: DoctoraliarDoctor): Doctor {
-  const fullName = `${d.name} ${d.surname}`.trim();
-  const spec = d.specializations?._items?.[0]?.name || "Clínica médica";
-  const addr = d.addresses?._items?.[0];
-
-  return {
-    id: `da-${d.id}`,
-    name: fullName,
-    specialty: spec,
-    location: addr?.city_name || "",
-    address: addr ? `${addr.street}` : "",
-    financiadores:
-      addr?.insurance_support === "insurance" || addr?.insurance_support === "private_and_insurance"
-        ? ["Obra social"]
-        : [],
-    rating: 0,
-    reviews: 0,
-    nextSlot: "",
-    available: true,
-    teleconsulta: addr?.online_only ?? false,
-    experience: "",
-    languages: ["Español"],
-    profileUrl: d.profile_url || getDoctoraliarSearchUrl(fullName),
-    source: "doctoraliar",
-  };
-}
-
-/**
- * Enrich local doctors with Doctoraliar profile URLs.
- * If a local doctor's name fuzzy-matches a Doctoraliar doctor,
- * we attach the profileUrl. Unmatched Doctoraliar doctors are
- * appended at the end.
- */
-async function enrichWithDoctoraliar(doctors: Doctor[]): Promise<Doctor[]> {
-  if (!isDoctoraliarConfigured()) return doctors;
-
-  try {
-    const facilityId = await resolveFacilityId();
-    if (!facilityId) return doctors;
-
-    const apiDoctors = await getDoctoraliarDoctors(facilityId, {
-      withProfileUrl: true,
-      withSpecializations: true,
-    });
-
-    // Build a lookup by normalized last name for fuzzy matching
-    const normalize = (n: string) =>
-      n
-        .toLowerCase()
-        .replace(/^(dr\.?|dra\.?)\s+/i, "")
-        .trim();
-
-    const apiMap = new Map<string, DoctoraliarDoctor>();
-    for (const ad of apiDoctors) {
-      const key = normalize(`${ad.name} ${ad.surname}`);
-      apiMap.set(key, ad);
-    }
-
-    const matchedApiIds = new Set<string>();
-
-    // Enrich existing local doctors
-    const enriched: Doctor[] = doctors.map((doc) => {
-      const key = normalize(doc.name);
-      const match = apiMap.get(key);
-      if (match) {
-        matchedApiIds.add(match.id);
-        return {
-          ...doc,
-          profileUrl: match.profile_url || getDoctoraliarSearchUrl(doc.name),
-          source: "doctoraliar" as const,
-        };
-      }
-      // No match — still generate a search URL
-      return {
-        ...doc,
-        profileUrl: getDoctoraliarSearchUrl(doc.name),
-        source: "local" as const,
-      };
-    });
-
-    // Append Doctoraliar-only doctors that have no local match
-    for (const ad of apiDoctors) {
-      if (!matchedApiIds.has(ad.id)) {
-        enriched.push(mapDoctoraliarDoctor(ad));
-      }
-    }
-
-    return enriched;
-  } catch {
-    // Enrichment failed — return local doctors with search URLs as fallback
-    return doctors.map((d) => ({
-      ...d,
-      profileUrl: d.profileUrl || getDoctoraliarSearchUrl(d.name),
-    }));
-  }
+function enrichWithGoogleMaps(doctors: Doctor[]): Doctor[] {
+  return doctors.map((doc) => ({
+    ...doc,
+    profileUrl: doc.profileUrl || getGoogleMapsSearchUrl(doc.name),
+    source: doc.source || "local",
+  }));
 }
 
 export async function getDoctorReviews(doctorId: string): Promise<DoctorReview[]> {

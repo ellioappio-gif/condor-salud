@@ -268,44 +268,6 @@ export const alertaPatchSchema = z.object({
 
 export type AlertaPatchInput = z.infer<typeof alertaPatchSchema>;
 
-// ─── Doctoraliar action schemas ──────────────────────────────
-const doctoraliarBookingSchema = z.object({
-  action: z.literal("book"),
-  facility_id: z.string().min(1, "facility_id requerido"),
-  doctor_id: z.string().min(1, "doctor_id requerido"),
-  address_id: z.string().min(1, "address_id requerido"),
-  slot_start: z.string().min(1, "slot_start requerido"),
-  booking: z.object({
-    patient: z.object({
-      name: z.string().min(1),
-      surname: z.string().min(1),
-      email: z.string().email().optional(),
-      phone: z.string().optional(),
-      birth_date: z.string().optional(),
-      gender: z.enum(["male", "female", "other"]).optional(),
-      pesel: z.string().optional(),
-      nin: z.string().optional(),
-    }),
-    comment: z.string().max(1000).optional(),
-  }),
-});
-
-const doctoraliarCancelSchema = z.object({
-  action: z.literal("cancel"),
-  facility_id: z.string().min(1, "facility_id requerido"),
-  doctor_id: z.string().min(1, "doctor_id requerido"),
-  address_id: z.string().min(1, "address_id requerido"),
-  booking_id: z.string().min(1, "booking_id requerido"),
-  reason: z.string().max(500).optional(),
-});
-
-export const doctoraliarActionSchema = z.discriminatedUnion("action", [
-  doctoraliarBookingSchema,
-  doctoraliarCancelSchema,
-]);
-
-export type DoctoraliarActionInput = z.infer<typeof doctoraliarActionSchema>;
-
 // ─── WhatsApp config PUT schema ──────────────────────────────
 const whatsappTemplateSchema = z.object({
   name: z.string().min(1, "Nombre requerido"),

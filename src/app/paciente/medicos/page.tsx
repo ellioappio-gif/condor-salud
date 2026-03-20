@@ -21,7 +21,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
-import { getDoctoraliarSearchUrl } from "@/lib/doctoraliar";
+import { getGoogleMapsSearchUrl } from "@/lib/doctor-search";
 import { useGeolocation, type GeoCoords } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
 import { useDoctorDirectory } from "@/hooks/use-patient-data";
@@ -258,13 +258,13 @@ export default function MedicosPage() {
                     {doctor.education}
                   </span>
                   <a
-                    href={getDoctoraliarSearchUrl(doctor.name)}
+                    href={getGoogleMapsSearchUrl(doctor.name)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-celeste-dark hover:underline"
                   >
                     <ExternalLink className="w-3 h-3" />
-                    Doctoraliar
+                    Google Maps
                   </a>
                 </div>
 
@@ -308,7 +308,7 @@ export default function MedicosPage() {
                 Ver perfil
               </button>
               <a
-                href={getDoctoraliarSearchUrl(doctor.name)}
+                href={getGoogleMapsSearchUrl(doctor.name)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition text-center"
@@ -371,13 +371,13 @@ export default function MedicosPage() {
                   Obras sociales: {selectedDoctor.insurance.join(", ")}
                 </div>
                 <a
-                  href={getDoctoraliarSearchUrl(selectedDoctor.name)}
+                  href={getGoogleMapsSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-celeste-dark hover:underline text-sm"
                 >
                   <ExternalLink className="w-4 h-4 shrink-0" />
-                  Ver perfil en Doctoraliar.com
+                  Ver perfil en Google Maps
                 </a>
               </div>
 
@@ -389,12 +389,12 @@ export default function MedicosPage() {
                   Cerrar
                 </button>
                 <a
-                  href={getDoctoraliarSearchUrl(selectedDoctor.name)}
+                  href={getGoogleMapsSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition text-center"
                 >
-                  Sacar turno vía Doctoraliar
+                  Sacar turno vía Google Maps
                 </a>
               </div>
             </div>
