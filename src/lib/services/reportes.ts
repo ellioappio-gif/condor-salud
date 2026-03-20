@@ -1,4 +1,5 @@
 // ─── Reportes Service ────────────────────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // CRUD for the reportes table. Used by reportes dashboard.
 // Manages report definitions, generation, and download tracking.
 
@@ -132,7 +133,7 @@ export async function getReportesList(filter?: ReporteFilter): Promise<ReporteEn
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const sb = createClient();
-      let query = (sb as any).from("reportes").select("*").order("nombre");
+      let query = (sb as SupabaseClient).from("reportes").select("*").order("nombre");
 
       if (filter?.categoria && filter.categoria !== "Todos") {
         query = query.eq("categoria", filter.categoria);
@@ -167,7 +168,11 @@ export async function getReporteById(id: string): Promise<ReporteEntry | null> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as any).from("reportes").select("*").eq("id", id).single();
+    const { data } = await (sb as SupabaseClient)
+      .from("reportes")
+      .select("*")
+      .eq("id", id)
+      .single();
     return data ? mapReporteFromDB(data) : null;
   }
 
@@ -185,7 +190,7 @@ export async function markReporteGenerated(id: string, archivoUrl?: string): Pro
     };
     if (archivoUrl) updates.archivo_url = archivoUrl;
 
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("reportes")
       .update(updates)
       .eq("id", id)
@@ -233,7 +238,7 @@ export async function getReportesCategorias(): Promise<string[]> {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function mapReporteFromDB(row: any): ReporteEntry {
+function mapReporteFromDB(row: DBRow): ReporteEntry {
   return {
     id: row.id,
     nombre: row.nombre,

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] — 2026-03-20
+
+### UX & Quality — Phase 4
+
+- **U-06: Empty states** — Added `<EmptyState>` conditional rendering to 5 dashboard pages (inventario, nomenclador, financiadores, inflacion, reportes). Users now see a friendly message with icon instead of blank tables/grids when data is empty or filtered to zero results.
+- **I-02: Pagination** — Created new `<Pagination>` component with first/last page, current±1, ellipsis logic, and full ARIA labels (`aria-label="Paginación"`, `aria-current="page"`, prev/next navigation). Integrated into `<DataTable>` with `pageSize` prop (default 20).
+- **U-05: Profile edit guard** — Added read-only informational banner to `/paciente/perfil` medical info section with Shield icon: "Información médica protegida — Estos datos solo pueden ser modificados por tu médico tratante."
+- **Q-04: Currency formatting** — Replaced 3 inline `$${Math.round(...)}K` / `$${(...).toFixed(1)}M` patterns with centralized `formatCurrency()` / `formatARS()` calls in dashboard, inventario, and nomenclador pages. All monetary values now render consistently as `$12.500` via `Intl.NumberFormat("es-AR")`.
+- **UM-12: Dynamic dates** — Replaced hardcoded "2025 Anual" / "2025" date options in reportes with `new Date().getFullYear()` so the dropdown stays current automatically.
+- **Q-02: Eliminate any types** — Reduced `any` from 75 occurrences across the codebase to 1 centralized definition in `db-types.ts`. Created `SupabaseClient` and `DBRow` type aliases, replaced `(sb as any)` in 9 service files (~34 occurrences), replaced `row: any` / `f: any` / `r: any` callbacks (~21 occurrences). Added `NomencladorEntry[]` and `ReporteEntry[]` generics to SWR hooks. Created `PacienteDisplay` interface for pacientes page. Extended manifest return type with `Screenshot` and `Shortcut` interfaces.
+
+### Audit Verification — Items Already Resolved in Prior Releases
+
+- **I-01** (SWR hooks): Already done — all 12+ data modules use SWR with typed hooks in `use-data.ts`
+- **D-02/U-01** (Waitlist): Already done — form validation, success states, and error handling
+- **U-04** (Chatbot reset): Already done — reset button in chatbot UI
+- **U-03** (Geolocation opt-in): Already done — `lazy: true` in both TopDoctors consumers
+- **D-05** (Planes SEO): Already done — `metadata` export with title, description, and OpenGraph in `planes/layout.tsx`
+
 ## [0.13.0] — 2026-03-20
 
 ### Accessibility — Phase 3

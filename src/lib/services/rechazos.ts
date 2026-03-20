@@ -1,4 +1,5 @@
 // ─── Rechazos Service ────────────────────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // CRUD for the rechazos table. Used by the rechazos dashboard.
 // Demo mode returns mock data; Supabase mode queries real DB.
 
@@ -38,7 +39,7 @@ export async function getRechazosFiltered(filter?: RechazoFilter): Promise<Recha
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    let query = (sb as any)
+    let query = (sb as SupabaseClient)
       .from("rechazos")
       .select("*")
       .order("fecha_rechazo", { ascending: false });
@@ -82,7 +83,11 @@ export async function getRechazoById(id: string): Promise<Rechazo | null> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any).from("rechazos").select("*").eq("id", id).single();
+    const { data, error } = await (sb as SupabaseClient)
+      .from("rechazos")
+      .select("*")
+      .eq("id", id)
+      .single();
     if (error) return null;
     return data ? mapRechazoFromDB(data) : null;
   }
@@ -98,7 +103,7 @@ export async function reprocesarRechazo(input: ReprocesarInput): Promise<Rechazo
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("rechazos")
       .update({
         estado: "reprocesado",
@@ -118,7 +123,7 @@ export async function descartarRechazo(id: string): Promise<Rechazo> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("rechazos")
       .update({ estado: "descartado" })
       .eq("id", id)
@@ -137,18 +142,20 @@ export async function getRechazoStats(): Promise<RechazoStats> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as any).from("rechazos").select("monto,estado,reprocesable,motivo");
+    const { data } = await (sb as SupabaseClient)
+      .from("rechazos")
+      .select("monto,estado,reprocesable,motivo");
 
     const items = data ?? [];
-    const totalRechazado = items.reduce((s: number, r: any) => s + Number(r.monto), 0);
-    const pendientes = items.filter((r: any) => r.estado === "pendiente").length;
-    const reprocesados = items.filter((r: any) => r.estado === "reprocesado");
+    const totalRechazado = items.reduce((s: number, r: DBRow) => s + Number(r.monto), 0);
+    const pendientes = items.filter((r: DBRow) => r.estado === "pendiente").length;
+    const reprocesados = items.filter((r: DBRow) => r.estado === "reprocesado");
     const reprocesables = items.filter(
-      (r: any) => r.estado === "pendiente" && r.reprocesable,
+      (r: DBRow) => r.estado === "pendiente" && r.reprocesable,
     ).length;
-    const montoReprocesado = reprocesados.reduce((s: number, r: any) => s + Number(r.monto), 0);
+    const montoReprocesado = reprocesados.reduce((s: number, r: DBRow) => s + Number(r.monto), 0);
     const motivoCounts = items.reduce(
-      (acc: Record<string, number>, r: any) => {
+      (acc: Record<string, number>, r: DBRow) => {
         acc[r.motivo] = (acc[r.motivo] || 0) + 1;
         return acc;
       },
@@ -185,7 +192,7 @@ export async function getRechazoStats(): Promise<RechazoStats> {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function mapRechazoFromDB(row: any): Rechazo {
+function mapRechazoFromDB(row: DBRow): Rechazo {
   return {
     id: row.id,
     facturaId: row.factura_id ?? "",

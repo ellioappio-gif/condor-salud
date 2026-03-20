@@ -1,4 +1,5 @@
 // ─── Facturación Service ─────────────────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // CRUD for the facturas table. Used by the facturacion dashboard.
 // Demo mode returns mock data; Supabase mode queries real DB.
 
@@ -51,12 +52,15 @@ export async function getFacturasFiltered(filter?: FacturaFilter): Promise<Factu
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    let query = (sb as any).from("facturas").select("*").order("fecha", { ascending: false });
+    let query = (sb as SupabaseClient)
+      .from("facturas")
+      .select("*")
+      .order("fecha", { ascending: false });
 
     if (filter?.financiador && filter.financiador !== "Todos") {
       query = query.eq("financiador", filter.financiador);
     }
-    if (filter?.estado && filter.estado !== ("todos" as any)) {
+    if (filter?.estado && filter.estado !== ("todos" as FacturaEstado)) {
       query = query.eq("estado", filter.estado);
     }
     if (filter?.dateFrom) query = query.gte("fecha", filter.dateFrom);
@@ -78,7 +82,7 @@ export async function getFacturasFiltered(filter?: FacturaFilter): Promise<Factu
   if (filter?.financiador && filter.financiador !== "Todos") {
     items = items.filter((f) => f.financiador === filter.financiador);
   }
-  if (filter?.estado && filter.estado !== ("todos" as any)) {
+  if (filter?.estado && filter.estado !== ("todos" as FacturaEstado)) {
     items = items.filter((f) => f.estado === filter.estado);
   }
   return items;
@@ -88,7 +92,11 @@ export async function getFacturaById(id: string): Promise<Factura | null> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any).from("facturas").select("*").eq("id", id).single();
+    const { data, error } = await (sb as SupabaseClient)
+      .from("facturas")
+      .select("*")
+      .eq("id", id)
+      .single();
     if (error) return null;
     return data ? mapFacturaFromDB(data) : null;
   }
@@ -104,7 +112,7 @@ export async function createFactura(input: CreateFacturaInput): Promise<Factura>
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("facturas")
       .insert({
         numero: input.numero,
@@ -136,7 +144,7 @@ export async function updateFactura(id: string, input: UpdateFacturaInput): Prom
     if (input.fechaCobro) updates.fecha_cobro = input.fechaCobro;
     if (input.cae) updates.cae = input.cae;
 
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("facturas")
       .update(updates)
       .eq("id", id)
@@ -155,19 +163,19 @@ export async function getFacturacionStats(): Promise<FacturacionStats> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as any).from("facturas").select("monto,estado");
+    const { data } = await (sb as SupabaseClient).from("facturas").select("monto,estado");
 
     const items = data ?? [];
-    const totalFacturado = items.reduce((s: number, f: any) => s + Number(f.monto), 0);
+    const totalFacturado = items.reduce((s: number, f: DBRow) => s + Number(f.monto), 0);
     const totalCobrado = items
-      .filter((f: any) => f.estado === "cobrada")
-      .reduce((s: number, f: any) => s + Number(f.monto), 0);
+      .filter((f: DBRow) => f.estado === "cobrada")
+      .reduce((s: number, f: DBRow) => s + Number(f.monto), 0);
     const totalRechazado = items
-      .filter((f: any) => f.estado === "rechazada")
-      .reduce((s: number, f: any) => s + Number(f.monto), 0);
+      .filter((f: DBRow) => f.estado === "rechazada")
+      .reduce((s: number, f: DBRow) => s + Number(f.monto), 0);
     const totalPendiente = items
-      .filter((f: any) => ["presentada", "pendiente", "en_observacion"].includes(f.estado))
-      .reduce((s: number, f: any) => s + Number(f.monto), 0);
+      .filter((f: DBRow) => ["presentada", "pendiente", "en_observacion"].includes(f.estado))
+      .reduce((s: number, f: DBRow) => s + Number(f.monto), 0);
 
     return {
       totalFacturado,
@@ -191,7 +199,7 @@ export async function getFacturacionStats(): Promise<FacturacionStats> {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function mapFacturaFromDB(row: any): Factura {
+function mapFacturaFromDB(row: DBRow): Factura {
   return {
     id: row.id,
     numero: row.numero,

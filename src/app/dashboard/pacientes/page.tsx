@@ -20,9 +20,26 @@ import { useIsDemo } from "@/lib/auth/context";
 import { usePacientes } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
 
+// ─── Patient display type ───────────────────────────────────
+interface PacienteDisplay {
+  id: string;
+  nombre: string;
+  apellido: string;
+  dni: string;
+  edad: number;
+  sexo: string;
+  financiador: string;
+  plan: string;
+  telefono: string;
+  email: string | null;
+  ultimaVisita: string;
+  estado: "activo" | "inactivo";
+  turnos: number;
+}
+
 // ─── Demo patient data ──────────────────────────────────────
 
-const DEMO_PACIENTES = [
+const DEMO_PACIENTES: PacienteDisplay[] = [
   {
     id: "P001",
     nombre: "María Elena",
@@ -291,16 +308,16 @@ export default function PacientesPage() {
 
   // Patient data: real from Supabase or demo
   const { data: realPacientes } = usePacientes();
-  const pacientes = useMemo((): typeof DEMO_PACIENTES => {
+  const pacientes = useMemo((): PacienteDisplay[] => {
     if (isDemo) return DEMO_PACIENTES;
-    if (!realPacientes || realPacientes.length === 0) return [] as any;
+    if (!realPacientes || realPacientes.length === 0) return [];
     return realPacientes.map((p) => ({
       id: p.id,
       nombre: p.nombre?.split(" ")[0] ?? "",
       apellido: p.nombre?.split(" ").slice(1).join(" ") ?? "",
       dni: p.dni,
       edad: 0,
-      sexo: "—" as const,
+      sexo: "—",
       financiador: p.financiador,
       plan: p.plan ?? "—",
       telefono: p.telefono ?? "—",
@@ -308,7 +325,7 @@ export default function PacientesPage() {
       ultimaVisita: p.ultimaVisita ?? "—",
       estado: p.estado as "activo" | "inactivo",
       turnos: 0,
-    })) as any;
+    }));
   }, [realPacientes, isDemo]);
 
   // Patient filters
@@ -635,8 +652,8 @@ function PacientesTabView({
   filtroEstado,
   setFiltroEstado,
 }: {
-  pacientes: typeof DEMO_PACIENTES;
-  filtered: typeof DEMO_PACIENTES;
+  pacientes: PacienteDisplay[];
+  filtered: PacienteDisplay[];
   search: string;
   setSearch: (v: string) => void;
   filtroFinanciador: string;

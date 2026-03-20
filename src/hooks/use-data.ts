@@ -11,6 +11,8 @@
 import useSWR from "swr";
 import type { Factura, Rechazo, Financiador, InflacionMes, Alerta, KPI } from "@/lib/types";
 import type { Paciente } from "@/lib/services/data";
+import type { NomencladorEntry } from "@/lib/services/nomenclador";
+import type { ReporteEntry } from "@/lib/services/reportes";
 import {
   getPacientes,
   getPaciente,
@@ -219,7 +221,7 @@ export function useInventarioItems() {
 }
 
 export function useNomencladorEntries() {
-  return useSWR(
+  return useSWR<NomencladorEntry[]>(
     "nomenclador-entries",
     async () => {
       const { getNomencladorEntries } = await import("@/lib/services/nomenclador");
@@ -230,7 +232,7 @@ export function useNomencladorEntries() {
 }
 
 export function useReportesList() {
-  return useSWR(
+  return useSWR<ReporteEntry[]>(
     "reportes-list",
     async () => {
       const { getReportesList } = await import("@/lib/services/reportes");

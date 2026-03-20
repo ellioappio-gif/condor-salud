@@ -8,6 +8,7 @@ export { StatusBadge } from "./StatusBadge";
 export { KPICard, KPIGrid } from "./KPICard";
 export { FilterBar } from "./FilterBar";
 export { PageHeader } from "./PageHeader";
+export { Pagination } from "./Pagination";
 export { Modal } from "./Modal";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { EmptyState } from "./EmptyState";

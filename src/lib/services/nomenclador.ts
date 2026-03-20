@@ -1,4 +1,5 @@
 // ─── Nomenclador Service ─────────────────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // CRUD for the nomenclador table. Used by nomenclador dashboard.
 // Manages medical procedure codes and values per financiador.
 
@@ -310,7 +311,7 @@ export async function getNomencladorEntries(
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const sb = createClient();
-      let query = (sb as any).from("nomenclador").select("*").order("codigo");
+      let query = (sb as SupabaseClient).from("nomenclador").select("*").order("codigo");
 
       if (filter?.capitulo && filter.capitulo !== "Todos") {
         query = query.eq("capitulo", filter.capitulo);
@@ -349,7 +350,7 @@ export async function getNomencladorByCodigo(codigo: string): Promise<Nomenclado
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as any)
+    const { data } = await (sb as SupabaseClient)
       .from("nomenclador")
       .select("*")
       .eq("codigo", codigo)
@@ -378,7 +379,7 @@ export async function updateNomencladorEntry(
     if (input.vigente !== undefined) updates.vigente = input.vigente;
     updates.ultima_actualizacion = new Date().toISOString().split("T")[0];
 
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("nomenclador")
       .update(updates)
       .eq("id", id)
@@ -430,7 +431,7 @@ export async function getNomencladorCapitulos(): Promise<string[]> {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function mapNomencladorFromDB(row: any): NomencladorEntry {
+function mapNomencladorFromDB(row: DBRow): NomencladorEntry {
   return {
     id: row.id,
     codigo: row.codigo,

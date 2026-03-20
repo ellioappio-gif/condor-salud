@@ -152,8 +152,8 @@ export default function DashboardPage() {
       : financiadoresData.length
         ? financiadoresData.slice(0, 5).map((f) => ({
             name: f.name,
-            facturado: `$${Math.round(f.facturado / 1000)}K`,
-            cobrado: `$${Math.round(f.cobrado / 1000)}K`,
+            facturado: formatARS(f.facturado),
+            cobrado: formatARS(f.cobrado),
             rechazo: `${f.tasaRechazo}%`,
             dias: f.diasPromedioPago.toString(),
           }))

@@ -1,4 +1,5 @@
 // ─── Financiadores Service ───────────────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // CRUD for the financiadores table. Used by financiadores dashboard.
 // Demo mode returns mock data; Supabase mode queries real DB.
 
@@ -131,7 +132,7 @@ export async function getFinanciadoresExtended(
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const sb = createClient();
-      let query = (sb as any)
+      let query = (sb as SupabaseClient)
         .from("financiadores")
         .select("*")
         .eq("activo", true)
@@ -162,7 +163,7 @@ export async function getFinanciadorById(id: string): Promise<FinanciadorExtende
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("financiadores")
       .select("*")
       .eq("id", id)
@@ -187,7 +188,7 @@ export async function updateFinanciador(
     if (updates.contacto) dbUpdates.contacto_email = updates.contacto;
     if (updates.ultimaLiquidacion) dbUpdates.ultima_liquidacion = updates.ultimaLiquidacion;
 
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("financiadores")
       .update(dbUpdates)
       .eq("id", id)
@@ -206,26 +207,26 @@ export async function getFinanciadorStats(): Promise<FinanciadorStats> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as any)
+    const { data } = await (sb as SupabaseClient)
       .from("financiadores")
       .select("facturado,cobrado,tasa_rechazo,dias_promedio_pago,facturas_pendientes")
       .eq("activo", true);
 
     const items = data ?? [];
-    const totalFacturado = items.reduce((s: number, f: any) => s + Number(f.facturado), 0);
-    const totalCobrado = items.reduce((s: number, f: any) => s + Number(f.cobrado), 0);
+    const totalFacturado = items.reduce((s: number, f: DBRow) => s + Number(f.facturado), 0);
+    const totalCobrado = items.reduce((s: number, f: DBRow) => s + Number(f.cobrado), 0);
     const totalPendiente = totalFacturado - totalCobrado;
     const diasPromedioGlobal =
       items.length > 0
         ? Math.round(
-            items.reduce((s: number, f: any) => s + f.dias_promedio_pago, 0) / items.length,
+            items.reduce((s: number, f: DBRow) => s + f.dias_promedio_pago, 0) / items.length,
           )
         : 0;
     const tasaRechazoGlobal =
       items.length > 0
         ? Number(
             (
-              items.reduce((s: number, f: any) => s + Number(f.tasa_rechazo), 0) / items.length
+              items.reduce((s: number, f: DBRow) => s + Number(f.tasa_rechazo), 0) / items.length
             ).toFixed(1),
           )
         : 0;
@@ -244,7 +245,7 @@ export async function getFinanciadorStats(): Promise<FinanciadorStats> {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function mapFinanciadorFromDB(row: any): FinanciadorExtended {
+function mapFinanciadorFromDB(row: DBRow): FinanciadorExtended {
   return {
     id: row.id,
     name: row.name,

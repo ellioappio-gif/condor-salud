@@ -300,6 +300,21 @@ export default function PerfilPage() {
       {/* ── Medical info ──────────────────────────────── */}
       {section === "medical" && (
         <div className="space-y-4">
+          {/* U-05: Read-only medical info banner */}
+          <div
+            className="bg-celeste-pale/40 border border-celeste/30 rounded-2xl p-4 flex items-start gap-3"
+            role="note"
+          >
+            <Shield className="w-5 h-5 text-celeste-dark shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-ink">Información médica protegida</p>
+              <p className="text-xs text-ink-muted mt-0.5">
+                Estos datos solo pueden ser modificados por tu médico tratante para garantizar la
+                precisión de tu historia clínica.
+              </p>
+            </div>
+          </div>
+
           {/* Allergies */}
           <div className="bg-white rounded-2xl border border-border-light p-5">
             <h3 className="text-sm font-bold text-ink flex items-center gap-2 mb-3">

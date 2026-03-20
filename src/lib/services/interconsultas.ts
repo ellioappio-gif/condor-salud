@@ -1,4 +1,5 @@
 // ─── Red de Interconsultas Service ───────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // Manages the physician referral network, interconsulta requests,
 // and study orders between networked professionals.
 
@@ -10,7 +11,7 @@ import { delay } from "@/lib/utils";
 async function untypedClient() {
   const { createClient } = await import("@/lib/supabase/client");
   // eslint-disable-next-line
-  return createClient() as any;
+  return createClient() as SupabaseClient;
 }
 
 // ─── Types ───────────────────────────────────────────────────

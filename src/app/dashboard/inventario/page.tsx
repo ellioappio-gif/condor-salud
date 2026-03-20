@@ -8,6 +8,7 @@ import { useExport } from "@/lib/services/export";
 import { useInventarioItems } from "@/hooks/use-data";
 import { useIsDemo } from "@/lib/auth/context";
 import { formatCurrency } from "@/lib/utils";
+import { EmptyState } from "@/components/ui";
 import { Loader2, X } from "lucide-react";
 
 const categorias = [
@@ -179,7 +180,7 @@ export default function InventarioPage() {
               { label: "Stock bajo", value: bajos, color: "border-amber-400" },
               {
                 label: "Valor inventario",
-                value: `$${(valorTotal / 1000000).toFixed(1)}M`,
+                value: formatCurrency(valorTotal),
                 color: "border-green-400",
               },
             ].map((k) => (
@@ -303,37 +304,50 @@ export default function InventarioPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="border-t border-border-light hover:bg-celeste-pale/30 transition cursor-pointer"
-                  >
-                    <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{item.id}</td>
-                    <td className="px-5 py-3 font-semibold text-ink text-xs">{item.nombre}</td>
-                    <td className="px-5 py-3 text-xs text-ink-light">{item.categoria}</td>
-                    <td className="px-5 py-3 text-xs text-ink-light">{item.presentacion}</td>
-                    <td
-                      className={`px-5 py-3 text-right text-xs font-bold ${item.stock <= item.stockMin ? "text-red-600" : "text-ink"}`}
-                    >
-                      {item.stock}
-                    </td>
-                    <td className="px-5 py-3 text-right text-xs text-ink-muted">{item.stockMin}</td>
-                    <td className="px-5 py-3 text-right text-xs text-ink">
-                      {formatCurrency(item.precioUnit)}
-                    </td>
-                    <td className="px-5 py-3 text-xs text-ink-light">{item.proveedor}</td>
-                    <td className="px-5 py-3 text-center font-mono text-[10px] text-ink-muted">
-                      {item.vencimiento}
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <span
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded ${estadoColors[item.estado]}`}
-                      >
-                        {item.estado}
-                      </span>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="p-0">
+                      <EmptyState
+                        title="Sin resultados"
+                        description="No se encontraron ítems con los filtros aplicados"
+                      />
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filtered.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="border-t border-border-light hover:bg-celeste-pale/30 transition cursor-pointer"
+                    >
+                      <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{item.id}</td>
+                      <td className="px-5 py-3 font-semibold text-ink text-xs">{item.nombre}</td>
+                      <td className="px-5 py-3 text-xs text-ink-light">{item.categoria}</td>
+                      <td className="px-5 py-3 text-xs text-ink-light">{item.presentacion}</td>
+                      <td
+                        className={`px-5 py-3 text-right text-xs font-bold ${item.stock <= item.stockMin ? "text-red-600" : "text-ink"}`}
+                      >
+                        {item.stock}
+                      </td>
+                      <td className="px-5 py-3 text-right text-xs text-ink-muted">
+                        {item.stockMin}
+                      </td>
+                      <td className="px-5 py-3 text-right text-xs text-ink">
+                        {formatCurrency(item.precioUnit)}
+                      </td>
+                      <td className="px-5 py-3 text-xs text-ink-light">{item.proveedor}</td>
+                      <td className="px-5 py-3 text-center font-mono text-[10px] text-ink-muted">
+                        {item.vencimiento}
+                      </td>
+                      <td className="px-5 py-3 text-center">
+                        <span
+                          className={`px-2 py-0.5 text-[10px] font-bold rounded ${estadoColors[item.estado]}`}
+                        >
+                          {item.estado}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

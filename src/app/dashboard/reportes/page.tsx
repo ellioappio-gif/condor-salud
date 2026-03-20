@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useExport } from "@/lib/services/export";
 import { useReportesList } from "@/hooks/use-data";
+import { EmptyState } from "@/components/ui";
 import { useIsDemo } from "@/lib/auth/context";
 import type { PDFReportType, ExcelReportType } from "@/lib/services/export";
 import {
@@ -119,10 +120,7 @@ export default function ReportesPage() {
   const [catFilter, setCatFilter] = useState("Todos");
   const [dateRange, setDateRange] = useState("Marzo 2026");
 
-  const categorias = [
-    "Todos",
-    ...Array.from(new Set(reportes.map((r: any) => r.categoria as string))),
-  ];
+  const categorias = ["Todos", ...Array.from(new Set(reportes.map((r) => r.categoria)))];
 
   const filtered =
     catFilter === "Todos" ? reportes : reportes.filter((r) => r.categoria === catFilter);
@@ -158,11 +156,11 @@ export default function ReportesPage() {
                 aria-label="Seleccionar período"
                 className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
               >
-                <option>Marzo 2026</option>
-                <option>Febrero 2026</option>
-                <option>Enero 2026</option>
-                <option>Q1 2026</option>
-                <option>2025 Anual</option>
+                <option>Marzo {new Date().getFullYear()}</option>
+                <option>Febrero {new Date().getFullYear()}</option>
+                <option>Enero {new Date().getFullYear()}</option>
+                <option>Q1 {new Date().getFullYear()}</option>
+                <option>{new Date().getFullYear() - 1} Anual</option>
               </select>
               <button
                 onClick={() => exportPDF("kpi", { periodo: dateRange })}
@@ -193,59 +191,66 @@ export default function ReportesPage() {
           </div>
 
           {/* Report grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((r) => (
-              <div
-                key={r.id}
-                className="bg-white border border-border rounded-lg p-5 hover:shadow-md hover:-translate-y-0.5 transition group"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  {(() => {
-                    const I = reportIconMap[r.id];
-                    return I ? <I className="w-6 h-6 text-celeste-dark" /> : null;
-                  })()}
-                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded bg-celeste-pale text-celeste-dark">
-                    {r.categoria}
-                  </span>
-                </div>
-                <h3 className="text-sm font-bold text-ink mb-1">{r.nombre}</h3>
-                <p className="text-xs text-ink-muted leading-relaxed mb-4">{r.descripcion}</p>
-                <div className="flex items-center justify-between text-[10px] text-ink-muted mb-3">
-                  <span>Frecuencia: {r.frecuencia}</span>
-                  <span>Último: {r.ultimaGeneracion}</span>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => exportPDF(pdfTypeMap[r.id] || "kpi", { periodo: dateRange })}
-                    disabled={isExporting}
-                    className="flex-1 px-3 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
-                  >
-                    {isExporting ? "..." : "Generar PDF"}
-                  </button>
-                  {excelTypeMap[r.id] ? (
+          {filtered.length === 0 ? (
+            <EmptyState
+              title="Sin resultados"
+              description="No se encontraron reportes con los filtros aplicados"
+            />
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtered.map((r) => (
+                <div
+                  key={r.id}
+                  className="bg-white border border-border rounded-lg p-5 hover:shadow-md hover:-translate-y-0.5 transition group"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    {(() => {
+                      const I = reportIconMap[r.id];
+                      return I ? <I className="w-6 h-6 text-celeste-dark" /> : null;
+                    })()}
+                    <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded bg-celeste-pale text-celeste-dark">
+                      {r.categoria}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-ink mb-1">{r.nombre}</h3>
+                  <p className="text-xs text-ink-muted leading-relaxed mb-4">{r.descripcion}</p>
+                  <div className="flex items-center justify-between text-[10px] text-ink-muted mb-3">
+                    <span>Frecuencia: {r.frecuencia}</span>
+                    <span>Último: {r.ultimaGeneracion}</span>
+                  </div>
+                  <div className="flex gap-2">
                     <button
-                      onClick={() =>
-                        excelTypeMap[r.id] &&
-                        exportExcel(excelTypeMap[r.id]!, { periodo: dateRange })
-                      }
+                      onClick={() => exportPDF(pdfTypeMap[r.id] || "kpi", { periodo: dateRange })}
                       disabled={isExporting}
-                      className="flex-1 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+                      className="flex-1 px-3 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
                     >
-                      {isExporting ? "..." : "Excel"}
+                      {isExporting ? "..." : "Generar PDF"}
                     </button>
-                  ) : (
-                    <span className="flex-1" />
-                  )}
-                  <Link
-                    href={reportLinkMap[r.id] || "/dashboard"}
-                    className="px-3 py-2 text-xs font-medium text-celeste-dark hover:underline flex items-center"
-                  >
-                    Ver
-                  </Link>
+                    {excelTypeMap[r.id] ? (
+                      <button
+                        onClick={() =>
+                          excelTypeMap[r.id] &&
+                          exportExcel(excelTypeMap[r.id]!, { periodo: dateRange })
+                        }
+                        disabled={isExporting}
+                        className="flex-1 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+                      >
+                        {isExporting ? "..." : "Excel"}
+                      </button>
+                    ) : (
+                      <span className="flex-1" />
+                    )}
+                    <Link
+                      href={reportLinkMap[r.id] || "/dashboard"}
+                      className="px-3 py-2 text-xs font-medium text-celeste-dark hover:underline flex items-center"
+                    >
+                      Ver
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Generation history (demo mode only) */}
           {isDemo && (

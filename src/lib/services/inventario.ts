@@ -1,4 +1,5 @@
 // ─── Inventario Service ──────────────────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // CRUD for the inventario table. Used by inventario dashboard.
 // Tracks medical supplies, medications, and equipment.
 
@@ -240,7 +241,7 @@ export async function getInventarioItems(filter?: InventarioFilter): Promise<Inv
     try {
       const { createClient } = await import("@/lib/supabase/client");
       const sb = createClient();
-      let query = (sb as any).from("inventario").select("*").order("nombre");
+      let query = (sb as SupabaseClient).from("inventario").select("*").order("nombre");
 
       if (filter?.categoria && filter.categoria !== "Todas") {
         query = query.eq("categoria", filter.categoria);
@@ -279,7 +280,11 @@ export async function getInventarioById(id: string): Promise<InventarioItem | nu
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any).from("inventario").select("*").eq("id", id).single();
+    const { data, error } = await (sb as SupabaseClient)
+      .from("inventario")
+      .select("*")
+      .eq("id", id)
+      .single();
     if (error) return null;
     return data ? mapInventarioFromDB(data) : null;
   }
@@ -293,7 +298,7 @@ export async function createInventarioItem(input: CreateInventarioInput): Promis
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("inventario")
       .insert({
         nombre: input.nombre,
@@ -332,7 +337,7 @@ export async function updateInventarioItem(
     if (input.ultimaCompra) updates.ultima_compra = input.ultimaCompra;
     if (input.vencimiento) updates.vencimiento = input.vencimiento;
 
-    const { data, error } = await (sb as any)
+    const { data, error } = await (sb as SupabaseClient)
       .from("inventario")
       .update(updates)
       .eq("id", id)
@@ -387,7 +392,7 @@ export async function getInventarioCategorias(): Promise<string[]> {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function mapInventarioFromDB(row: any): InventarioItem {
+function mapInventarioFromDB(row: DBRow): InventarioItem {
   const stock = row.stock ?? 0;
   const stockMin = row.stock_minimo ?? 0;
   const vencimiento: string = row.vencimiento

@@ -5,6 +5,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useExport } from "@/lib/services/export";
 import { useInflacionMensual, useFinanciadoresInflacion } from "@/hooks/use-data";
 import { formatCurrency } from "@/lib/utils";
+import { EmptyState } from "@/components/ui";
 import {
   Download,
   Filter,
@@ -309,34 +310,45 @@ export default function InflacionPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredFinanciadores.map((f) => {
-                  const perdidaEstimada = Math.round(f.montoAfectado * (f.perdidaTotal / 100));
-                  return (
-                    <tr
-                      key={f.name}
-                      className="border-t border-border-light hover:bg-celeste-pale/30 transition"
-                    >
-                      <td className="px-5 py-3 font-semibold text-ink">{f.name}</td>
-                      <td
-                        className={`px-5 py-3 text-right ${f.diasPromedio > 60 ? "text-red-600 font-semibold" : "text-ink-light"}`}
+                {filteredFinanciadores.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-0">
+                      <EmptyState
+                        title="Sin resultados"
+                        description="No se encontraron financiadores con los filtros aplicados"
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  filteredFinanciadores.map((f) => {
+                    const perdidaEstimada = Math.round(f.montoAfectado * (f.perdidaTotal / 100));
+                    return (
+                      <tr
+                        key={f.name}
+                        className="border-t border-border-light hover:bg-celeste-pale/30 transition"
                       >
-                        {f.diasPromedio}
-                      </td>
-                      <td className="px-5 py-3 text-right text-ink-light">{f.perdidaPorDia}%</td>
-                      <td
-                        className={`px-5 py-3 text-right font-semibold ${f.perdidaTotal > 7 ? "text-red-600" : f.perdidaTotal > 4 ? "text-amber-500" : "text-success-600"}`}
-                      >
-                        {f.perdidaTotal}%
-                      </td>
-                      <td className="px-5 py-3 text-right text-ink-light">
-                        {formatMonto(f.montoAfectado)}
-                      </td>
-                      <td className="px-5 py-3 text-right font-semibold text-red-600">
-                        {formatMonto(perdidaEstimada)}
-                      </td>
-                    </tr>
-                  );
-                })}
+                        <td className="px-5 py-3 font-semibold text-ink">{f.name}</td>
+                        <td
+                          className={`px-5 py-3 text-right ${f.diasPromedio > 60 ? "text-red-600 font-semibold" : "text-ink-light"}`}
+                        >
+                          {f.diasPromedio}
+                        </td>
+                        <td className="px-5 py-3 text-right text-ink-light">{f.perdidaPorDia}%</td>
+                        <td
+                          className={`px-5 py-3 text-right font-semibold ${f.perdidaTotal > 7 ? "text-red-600" : f.perdidaTotal > 4 ? "text-amber-500" : "text-success-600"}`}
+                        >
+                          {f.perdidaTotal}%
+                        </td>
+                        <td className="px-5 py-3 text-right text-ink-light">
+                          {formatMonto(f.montoAfectado)}
+                        </td>
+                        <td className="px-5 py-3 text-right font-semibold text-red-600">
+                          {formatMonto(perdidaEstimada)}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

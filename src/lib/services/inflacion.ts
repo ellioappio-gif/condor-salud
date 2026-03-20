@@ -1,4 +1,5 @@
 // ─── Inflación Service ───────────────────────────────────────
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 // CRUD for the inflacion_mensual table. Used by inflacion dashboard.
 // Tracks IPC impact on billing cycles and payment delays.
 
@@ -119,7 +120,7 @@ export async function getInflacionMensual(filter?: InflacionFilter): Promise<Inf
       if (filter?.period === "3m") limit = 3;
       else if (filter?.period === "12m") limit = 12;
 
-      const { data, error } = await (sb as any)
+      const { data, error } = await (sb as SupabaseClient)
         .from("inflacion_mensual")
         .select("*")
         .order("anio", { ascending: false })
@@ -145,13 +146,13 @@ export async function getFinanciadoresInflacion(
     // Computed from financiadores + inflacion tables
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as any)
+    const { data } = await (sb as SupabaseClient)
       .from("financiadores")
       .select("name,dias_promedio_pago,cobrado")
       .eq("activo", true);
 
     if (data && data.length > 0) {
-      return data.map((f: any) => ({
+      return data.map((f: DBRow) => ({
         name: f.name,
         diasPromedio: f.dias_promedio_pago,
         perdidaPorDia: 0.11,
@@ -207,7 +208,7 @@ export async function getInflacionStats(): Promise<InflacionStats> {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function mapInflacionFromDB(row: any): InflacionMes {
+function mapInflacionFromDB(row: DBRow): InflacionMes {
   return {
     mes: row.mes,
     ipc: Number(row.ipc),

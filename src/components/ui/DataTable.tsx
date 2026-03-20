@@ -1,5 +1,6 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Pagination } from "./Pagination";
 
 interface Column<T> {
   key: string;
@@ -17,6 +18,7 @@ interface DataTableProps<T> {
   className?: string;
   onRowClick?: (row: T) => void;
   stickyHeader?: boolean;
+  pageSize?: number;
 }
 
 export function DataTable<T>({
@@ -28,7 +30,12 @@ export function DataTable<T>({
   className,
   onRowClick,
   stickyHeader = false,
+  pageSize = 20,
 }: DataTableProps<T>) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(data.length / pageSize);
+  const paginatedData = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   if (data.length === 0) {
     return (
       <div className="text-center py-12 text-ink-muted text-sm" role="status">
@@ -38,56 +45,59 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={cn("overflow-x-auto rounded-[4px] border border-border", className)}>
-      <table className="w-full text-left" role="table">
-        {caption && <caption className="sr-only">{caption}</caption>}
-        <thead className={cn("bg-celeste-pale", stickyHeader && "sticky top-0 z-10")}>
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                scope="col"
-                className={cn(
-                  "px-4 py-2.5 text-[11px] font-bold text-celeste-dark uppercase tracking-wider whitespace-nowrap",
-                  col.className,
-                )}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {data.map((row, i) => (
-            <tr
-              key={keyExtractor(row)}
-              className={cn(
-                "hover:bg-surface/60 transition-colors",
-                onRowClick && "cursor-pointer",
-              )}
-              onClick={onRowClick ? () => onRowClick(row) : undefined}
-              tabIndex={onRowClick ? 0 : undefined}
-              onKeyDown={
-                onRowClick
-                  ? (e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onRowClick(row);
-                      }
-                    }
-                  : undefined
-              }
-              role={onRowClick ? "button" : undefined}
-            >
+    <>
+      <div className={cn("overflow-x-auto rounded-[4px] border border-border", className)}>
+        <table className="w-full text-left" role="table">
+          {caption && <caption className="sr-only">{caption}</caption>}
+          <thead className={cn("bg-celeste-pale", stickyHeader && "sticky top-0 z-10")}>
+            <tr>
               {columns.map((col) => (
-                <td key={col.key} className={cn("px-4 py-3 text-sm text-ink", col.className)}>
-                  {col.render(row, i)}
-                </td>
+                <th
+                  key={col.key}
+                  scope="col"
+                  className={cn(
+                    "px-4 py-2.5 text-[11px] font-bold text-celeste-dark uppercase tracking-wider whitespace-nowrap",
+                    col.className,
+                  )}
+                >
+                  {col.header}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {paginatedData.map((row, i) => (
+              <tr
+                key={keyExtractor(row)}
+                className={cn(
+                  "hover:bg-surface/60 transition-colors",
+                  onRowClick && "cursor-pointer",
+                )}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                tabIndex={onRowClick ? 0 : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onRowClick(row);
+                        }
+                      }
+                    : undefined
+                }
+                role={onRowClick ? "button" : undefined}
+              >
+                {columns.map((col) => (
+                  <td key={col.key} className={cn("px-4 py-3 text-sm text-ink", col.className)}>
+                    {col.render(row, i)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 /**
  * Onboarding service — persists clinic setup to Supabase.
  *
@@ -55,7 +56,7 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
     }
 
     // Check if user already has a clinic via profiles
-    const { data: profile } = await (sb as any)
+    const { data: profile } = await (sb as SupabaseClient)
       .from("profiles")
       .select("clinic_id")
       .eq("id", user.id)
@@ -65,7 +66,7 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
 
     if (clinicId) {
       // Update existing clinic
-      const { error } = await (sb as any)
+      const { error } = await (sb as SupabaseClient)
         .from("clinics")
         .update({
           name: input.nombre,
@@ -92,7 +93,7 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
     }
 
     // Create new clinic
-    const { data: clinic, error: insertErr } = await (sb as any)
+    const { data: clinic, error: insertErr } = await (sb as SupabaseClient)
       .from("clinics")
       .insert({
         name: input.nombre,
@@ -119,7 +120,10 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
 
     // Link profile to clinic
     if (clinicId) {
-      await (sb as any).from("profiles").update({ clinic_id: clinicId }).eq("id", user.id);
+      await (sb as SupabaseClient)
+        .from("profiles")
+        .update({ clinic_id: clinicId })
+        .eq("id", user.id);
     }
 
     return { success: true, clinicId: clinicId ?? undefined };
@@ -146,14 +150,14 @@ export async function saveOnboardingProgress(step: number): Promise<void> {
     } = await sb.auth.getUser();
     if (!user) return;
 
-    const { data: profile } = await (sb as any)
+    const { data: profile } = await (sb as SupabaseClient)
       .from("profiles")
       .select("clinic_id")
       .eq("id", user.id)
       .single();
 
     if (profile?.clinic_id) {
-      await (sb as any)
+      await (sb as SupabaseClient)
         .from("clinics")
         .update({ onboarding_step: step, updated_at: new Date().toISOString() })
         .eq("id", profile.clinic_id);
@@ -182,7 +186,7 @@ export async function getOnboardingStatus(): Promise<{
     } = await sb.auth.getUser();
     if (!user) return { completed: false, step: 0 };
 
-    const { data: profile } = await (sb as any)
+    const { data: profile } = await (sb as SupabaseClient)
       .from("profiles")
       .select("clinic_id")
       .eq("id", user.id)
@@ -190,7 +194,7 @@ export async function getOnboardingStatus(): Promise<{
 
     if (!profile?.clinic_id) return { completed: false, step: 0 };
 
-    const { data: clinic } = await (sb as any)
+    const { data: clinic } = await (sb as SupabaseClient)
       .from("clinics")
       .select("onboarding_completed, onboarding_step")
       .eq("id", profile.clinic_id)

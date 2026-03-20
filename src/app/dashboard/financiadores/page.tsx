@@ -5,6 +5,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
 import { formatCurrency } from "@/lib/utils";
+import { EmptyState } from "@/components/ui";
 import { useIsDemo } from "@/lib/auth/context";
 import { Download, Filter, Search, Mail, Loader2, X } from "lucide-react";
 import type { FinanciadorType } from "@/lib/types";
@@ -175,89 +176,96 @@ export default function FinanciadoresPage() {
           </div>
 
           {/* Financiador cards */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((f) => {
-              const tipo = typeLabels[f.type];
-              const porcentajeCobro = formatPorcentaje(f.facturado, f.cobrado);
-              return (
-                <div
-                  key={f.id}
-                  className="bg-white border border-border rounded-lg overflow-hidden"
-                >
+          {filtered.length === 0 ? (
+            <EmptyState
+              title="Sin resultados"
+              description="No se encontraron financiadores con los filtros aplicados"
+            />
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtered.map((f) => {
+                const tipo = typeLabels[f.type];
+                const porcentajeCobro = formatPorcentaje(f.facturado, f.cobrado);
+                return (
                   <div
-                    className={`h-1 ${f.type === "pami" ? "bg-celeste" : f.type === "os" ? "bg-celeste-light" : "bg-celeste"}`}
-                  />
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h3 className="font-bold text-sm text-ink">{f.name}</h3>
-                        <span
-                          className={`text-[10px] font-semibold px-2 py-0.5 rounded ${tipo.bg} ${tipo.text}`}
-                        >
-                          {tipo.label}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-celeste-dark">
-                          {formatMonto(f.facturado)}
+                    key={f.id}
+                    className="bg-white border border-border rounded-lg overflow-hidden"
+                  >
+                    <div
+                      className={`h-1 ${f.type === "pami" ? "bg-celeste" : f.type === "os" ? "bg-celeste-light" : "bg-celeste"}`}
+                    />
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="font-bold text-sm text-ink">{f.name}</h3>
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded ${tipo.bg} ${tipo.text}`}
+                          >
+                            {tipo.label}
+                          </span>
                         </div>
-                        <div className="text-[10px] text-ink-muted">facturado</div>
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-ink-muted">Cobrado</span>
-                        <span className="font-semibold text-ink">{porcentajeCobro}%</span>
-                      </div>
-                      <div className="w-full bg-border-light rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${porcentajeCobro >= 90 ? "bg-success-500" : porcentajeCobro >= 70 ? "bg-celeste" : "bg-celeste-light"}`}
-                          style={{ width: `${porcentajeCobro}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border-light">
-                      <div className="text-center">
-                        <div
-                          className={`text-sm font-bold ${f.tasaRechazo > 10 ? "text-red-600" : f.tasaRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
-                        >
-                          {f.tasaRechazo}%
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-celeste-dark">
+                            {formatMonto(f.facturado)}
+                          </div>
+                          <div className="text-[10px] text-ink-muted">facturado</div>
                         </div>
-                        <div className="text-[10px] text-ink-muted">Rechazo</div>
                       </div>
-                      <div className="text-center">
-                        <div
-                          className={`text-sm font-bold ${f.diasPromedioPago > 60 ? "text-red-600" : "text-ink"}`}
-                        >
-                          {f.diasPromedioPago}d
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-ink-muted">Cobrado</span>
+                          <span className="font-semibold text-ink">{porcentajeCobro}%</span>
                         </div>
-                        <div className="text-[10px] text-ink-muted">Días pago</div>
+                        <div className="w-full bg-border-light rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${porcentajeCobro >= 90 ? "bg-success-500" : porcentajeCobro >= 70 ? "bg-celeste" : "bg-celeste-light"}`}
+                            style={{ width: `${porcentajeCobro}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-sm font-bold text-ink">{f.facturasPendientes}</div>
-                        <div className="text-[10px] text-ink-muted">Pendientes</div>
+                      <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border-light">
+                        <div className="text-center">
+                          <div
+                            className={`text-sm font-bold ${f.tasaRechazo > 10 ? "text-red-600" : f.tasaRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
+                          >
+                            {f.tasaRechazo}%
+                          </div>
+                          <div className="text-[10px] text-ink-muted">Rechazo</div>
+                        </div>
+                        <div className="text-center">
+                          <div
+                            className={`text-sm font-bold ${f.diasPromedioPago > 60 ? "text-red-600" : "text-ink"}`}
+                          >
+                            {f.diasPromedioPago}d
+                          </div>
+                          <div className="text-[10px] text-ink-muted">Días pago</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-bold text-ink">{f.facturasPendientes}</div>
+                          <div className="text-[10px] text-ink-muted">Pendientes</div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-border-light flex gap-2">
-                      <button
-                        onClick={() => handleVerDetalle(f)}
-                        className="flex-1 text-xs font-semibold text-celeste-dark hover:underline text-center"
-                      >
-                        Ver detalle
-                      </button>
-                      <button
-                        onClick={() => handleContactar(f)}
-                        className="flex items-center gap-1 text-xs text-ink-muted hover:text-celeste-dark transition"
-                      >
-                        <Mail className="w-3 h-3" />
-                        Contactar
-                      </button>
+                      <div className="mt-3 pt-3 border-t border-border-light flex gap-2">
+                        <button
+                          onClick={() => handleVerDetalle(f)}
+                          className="flex-1 text-xs font-semibold text-celeste-dark hover:underline text-center"
+                        >
+                          Ver detalle
+                        </button>
+                        <button
+                          onClick={() => handleContactar(f)}
+                          className="flex items-center gap-1 text-xs text-ink-muted hover:text-celeste-dark transition"
+                        >
+                          <Mail className="w-3 h-3" />
+                          Contactar
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Comparison table */}
           <div className="bg-white border border-border rounded-lg overflow-hidden">

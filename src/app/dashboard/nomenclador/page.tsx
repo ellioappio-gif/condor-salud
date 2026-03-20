@@ -5,6 +5,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useExport } from "@/lib/services/export";
 import { useNomencladorEntries } from "@/hooks/use-data";
 import { formatCurrency } from "@/lib/utils";
+import { EmptyState } from "@/components/ui";
 import { Loader2 } from "lucide-react";
 
 export default function NomencladorPage() {
@@ -16,10 +17,7 @@ export default function NomencladorPage() {
   const [capFilter, setCapFilter] = useState("Todos");
   const [comparar, setComparar] = useState(false);
 
-  const capitulos = [
-    "Todos",
-    ...Array.from(new Set(nomenclador.map((p: any) => p.capitulo as string))),
-  ];
+  const capitulos = ["Todos", ...Array.from(new Set(nomenclador.map((p) => p.capitulo)))];
 
   const filtered = nomenclador.filter((p) => {
     const matchSearch =
@@ -70,7 +68,11 @@ export default function NomencladorPage() {
               {
                 label: "Valor medio SSS",
                 value: nomenclador.length
-                  ? `$${Math.round(nomenclador.reduce((s, p: any) => s + p.valorSSS, 0) / nomenclador.length / 100) / 10}K`
+                  ? formatCurrency(
+                      Math.round(
+                        nomenclador.reduce((s, p) => s + p.valorSSS, 0) / nomenclador.length,
+                      ),
+                    )
                   : "—",
                 color: "border-green-400",
               },
@@ -156,48 +158,61 @@ export default function NomencladorPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((p) => {
-                  const sss = (p as any).valorSSS as number;
-                  const pami = (p as any).valorPAMI as number;
-                  const diff = Math.round(((pami - sss) / sss) * 100);
-                  return (
-                    <tr
-                      key={p.codigo}
-                      className="border-t border-border-light hover:bg-celeste-pale/30 transition cursor-pointer"
-                    >
-                      <td className="px-5 py-3 font-mono text-xs font-bold text-celeste-dark">
-                        {p.codigo}
-                      </td>
-                      <td className="px-5 py-3 text-xs font-semibold text-ink">{p.descripcion}</td>
-                      <td className="px-5 py-3 text-xs text-ink-light">{p.capitulo}</td>
-                      <td className="px-5 py-3 text-xs text-ink-muted">{p.modulo}</td>
-                      <td className="px-5 py-3 text-right text-xs font-bold text-ink">
-                        {formatCurrency((p as any).valorSSS)}
-                      </td>
-                      <td className="px-5 py-3 text-right text-xs font-bold text-celeste-dark">
-                        {formatCurrency((p as any).valorPAMI)}
-                      </td>
-                      {comparar && (
-                        <td className="px-5 py-3 text-right text-xs text-ink">
-                          {formatCurrency((p as any).valorOSDE)}
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={comparar ? 8 : 5} className="p-0">
+                      <EmptyState
+                        title="Sin resultados"
+                        description="No se encontraron prestaciones con los filtros aplicados"
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  filtered.map((p) => {
+                    const sss = p.valorSSS;
+                    const pami = p.valorPAMI;
+                    const diff = Math.round(((pami - sss) / sss) * 100);
+                    return (
+                      <tr
+                        key={p.codigo}
+                        className="border-t border-border-light hover:bg-celeste-pale/30 transition cursor-pointer"
+                      >
+                        <td className="px-5 py-3 font-mono text-xs font-bold text-celeste-dark">
+                          {p.codigo}
                         </td>
-                      )}
-                      {comparar && (
-                        <td className="px-5 py-3 text-right text-xs text-ink">
-                          {formatCurrency((p as any).valorSwiss)}
+                        <td className="px-5 py-3 text-xs font-semibold text-ink">
+                          {p.descripcion}
                         </td>
-                      )}
-                      {comparar && (
-                        <td
-                          className={`px-5 py-3 text-right text-xs font-bold ${diff < 0 ? "text-red-600" : "text-green-600"}`}
-                        >
-                          {diff > 0 ? "+" : ""}
-                          {diff}%
+                        <td className="px-5 py-3 text-xs text-ink-light">{p.capitulo}</td>
+                        <td className="px-5 py-3 text-xs text-ink-muted">{p.modulo}</td>
+                        <td className="px-5 py-3 text-right text-xs font-bold text-ink">
+                          {formatCurrency(p.valorSSS)}
                         </td>
-                      )}
-                    </tr>
-                  );
-                })}
+                        <td className="px-5 py-3 text-right text-xs font-bold text-celeste-dark">
+                          {formatCurrency(p.valorPAMI)}
+                        </td>
+                        {comparar && (
+                          <td className="px-5 py-3 text-right text-xs text-ink">
+                            {formatCurrency(p.valorOSDE)}
+                          </td>
+                        )}
+                        {comparar && (
+                          <td className="px-5 py-3 text-right text-xs text-ink">
+                            {formatCurrency(p.valorSwiss)}
+                          </td>
+                        )}
+                        {comparar && (
+                          <td
+                            className={`px-5 py-3 text-right text-xs font-bold ${diff < 0 ? "text-red-600" : "text-green-600"}`}
+                          >
+                            {diff > 0 ? "+" : ""}
+                            {diff}%
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

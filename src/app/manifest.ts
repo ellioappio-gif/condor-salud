@@ -1,6 +1,23 @@
 import type { MetadataRoute } from "next";
 
-export default function manifest(): MetadataRoute.Manifest {
+/* Extended manifest fields not yet in Next.js types */
+interface Screenshot {
+  src: string;
+  sizes: string;
+  type: string;
+  label: string;
+}
+interface Shortcut {
+  name: string;
+  short_name: string;
+  url: string;
+  icons: { src: string; sizes: string }[];
+}
+
+export default function manifest(): MetadataRoute.Manifest & {
+  screenshots: Screenshot[];
+  shortcuts: Shortcut[];
+} {
   return {
     name: "Cóndor Salud",
     short_name: "Cóndor",
@@ -34,7 +51,7 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
         label: "Vista mobile del panel",
       },
-    ] as any,
+    ],
     shortcuts: [
       {
         name: "Panel",
@@ -54,6 +71,6 @@ export default function manifest(): MetadataRoute.Manifest {
         url: "/dashboard/facturacion",
         icons: [{ src: "/icon-192.png", sizes: "192x192" }],
       },
-    ] as any,
+    ],
   };
 }
