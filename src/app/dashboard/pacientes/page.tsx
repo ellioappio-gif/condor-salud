@@ -15,6 +15,7 @@ import {
   useSendMessage,
   useUpdateLead,
 } from "@/lib/hooks/useCRM";
+import { useCrudAction } from "@/hooks/use-crud-action";
 import { isSupabaseConfigured } from "@/lib/env";
 import { usePacientes } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
@@ -258,8 +259,34 @@ export default function PacientesPage() {
 
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { execute, isExecuting } = useCrudAction();
   const { exportPDF, exportExcel, isExporting } = useExport();
   const [activeTab, setActiveTab] = useState<PacientesTab>(initialTab);
+
+  const handleNuevoLead = () => {
+    execute({
+      action: async () => {
+        const { createManualLead } = await import("@/lib/services/crm");
+        return createManualLead("default", {
+          nombre: "Nuevo contacto",
+          telefono: "",
+          fuente: "manual",
+        });
+      },
+      successMessage: "Lead creado — completá los datos",
+      errorMessage: "Error al crear lead",
+      demoLabel: "Nuevo lead manual",
+      mutateKeys: ["leads"],
+    });
+  };
+
+  const handleNuevoPaciente = () => {
+    if (!isSupabaseConfigured()) {
+      showDemo("Nuevo paciente");
+      return;
+    }
+    showToast("Usá la pestaña Consultas → Convertir lead para registrar un nuevo paciente");
+  };
 
   // Patient data: real from Supabase or demo
   const { data: realPacientes } = usePacientes();
@@ -348,7 +375,7 @@ export default function PacientesPage() {
         breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Pacientes" }]}
         actions={
           activeTab === "leads" ? (
-            <Button onClick={() => showDemo("Nuevo lead manual")}>+ Nueva consulta</Button>
+            <Button onClick={handleNuevoLead}>+ Nueva consulta</Button>
           ) : activeTab === "pacientes" ? (
             <div className="flex gap-2">
               <button
@@ -365,7 +392,7 @@ export default function PacientesPage() {
               >
                 Excel
               </button>
-              <Button onClick={() => showDemo("Nuevo paciente")}>+ Nuevo paciente</Button>
+              <Button onClick={handleNuevoPaciente}>+ Nuevo paciente</Button>
             </div>
           ) : null
         }

@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
+import { isSupabaseConfigured } from "@/lib/env";
+import { useToast } from "@/components/Toast";
 
 const paciente = {
   id: "P001",
@@ -114,6 +116,16 @@ const facturacion = [
 
 export default function PacienteDetailPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
+
+  const handleEditarPaciente = () => {
+    if (!isSupabaseConfigured()) {
+      showDemo("Editar paciente: " + paciente.apellido + ", " + paciente.nombre);
+      return;
+    }
+    showToast("✅ Editor de paciente — próximamente con formulario completo");
+  };
+
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -158,9 +170,7 @@ export default function PacienteDetailPage() {
               Agendar turno
             </Link>
             <button
-              onClick={() =>
-                showDemo("Editar paciente: " + paciente.apellido + ", " + paciente.nombre)
-              }
+              onClick={handleEditarPaciente}
               className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
             >
               Editar paciente

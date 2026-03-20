@@ -4,10 +4,12 @@ import { useState, useMemo } from "react";
 import type { RechazoMotivo } from "@/lib/types";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useRechazos } from "@/hooks/use-data";
+import { isSupabaseConfigured } from "@/lib/env";
 import { Download, Loader2 } from "lucide-react";
 
 const motivoLabels: Record<RechazoMotivo, string> = {
@@ -23,11 +25,47 @@ const motivoLabels: Record<RechazoMotivo, string> = {
 export default function RechazosPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { execute, isExecuting } = useCrudAction();
   const { isExporting, exportPDF, exportExcel } = useExport();
   const { data: rechazos = [], isLoading } = useRechazos();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const handleReprocesar = (r: { id: string; facturaNumero: string }) => {
+    execute({
+      action: async () => {
+        const { reprocesarRechazo } = await import("@/lib/services/rechazos");
+        return reprocesarRechazo({ rechazoId: r.id });
+      },
+      successMessage: `Factura ${r.facturaNumero} reprocesada`,
+      errorMessage: "Error al reprocesar",
+      demoLabel: `Reprocesar factura ${r.facturaNumero}`,
+      mutateKeys: ["rechazos", "kpi-rechazos"],
+    });
+  };
+
+  const handleDescartar = (r: { id: string; facturaNumero: string }) => {
+    execute({
+      action: async () => {
+        const { descartarRechazo } = await import("@/lib/services/rechazos");
+        return descartarRechazo(r.id);
+      },
+      successMessage: `Factura ${r.facturaNumero} descartada`,
+      errorMessage: "Error al descartar",
+      demoLabel: `Descartar factura ${r.facturaNumero}`,
+      mutateKeys: ["rechazos", "kpi-rechazos"],
+    });
+  };
+
+  const handleVerFacturaOriginal = (r: { facturaNumero: string }) => {
+    if (!isSupabaseConfigured()) {
+      showDemo(`Ver factura original ${r.facturaNumero}`);
+      return;
+    }
+    // In real mode, navigate to facturacion filtered by this numero
+    window.location.href = `/dashboard/facturacion?numero=${r.facturaNumero}`;
+  };
 
   const filtered = useMemo(() => {
     return rechazos.filter((r) => {
@@ -302,27 +340,21 @@ export default function RechazosPage() {
                   </div>
                   <div className="flex gap-2">
                     {r.reprocesable && r.estado === "pendiente" && (
-                      <Button
-                        size="sm"
-                        onClick={() => showDemo(`Reprocesar factura ${r.facturaNumero}`)}
-                      >
-                        Reprocesar
+                      <Button size="sm" onClick={() => handleReprocesar(r)} disabled={isExecuting}>
+                        {isExecuting ? "..." : "Reprocesar"}
                       </Button>
                     )}
                     {r.estado === "pendiente" && (
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => showDemo(`Descartar factura ${r.facturaNumero}`)}
+                        onClick={() => handleDescartar(r)}
+                        disabled={isExecuting}
                       >
                         Descartar
                       </Button>
                     )}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => showDemo(`Ver factura original ${r.facturaNumero}`)}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => handleVerFacturaOriginal(r)}>
                       Ver factura original
                     </Button>
                   </div>

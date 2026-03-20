@@ -4,11 +4,13 @@ import { useState, useMemo } from "react";
 import type { FacturaEstado } from "@/lib/types";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
-import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
+import { Card, CardContent, StatusBadge, PageHeader, Select, Button, Input } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useFacturas } from "@/hooks/use-data";
-import { Download, Loader2 } from "lucide-react";
+import { isSupabaseConfigured } from "@/lib/env";
+import { Download, Loader2, X } from "lucide-react";
 
 const estadoConfig: Record<FacturaEstado, string> = {
   presentada: "Presentada",
@@ -39,10 +41,71 @@ const estadosFilter = [
 export default function FacturacionPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { execute, isExecuting } = useCrudAction();
   const { isExporting, exportPDF, exportExcel } = useExport();
   const { data: facturas = [], isLoading } = useFacturas();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [showNuevaFactura, setShowNuevaFactura] = useState(false);
+  const [detalleFactura, setDetalleFactura] = useState<(typeof facturas)[number] | null>(null);
+
+  // ─── Nueva factura form state ────────────────────────────
+  const [nfNumero, setNfNumero] = useState("");
+  const [nfPaciente, setNfPaciente] = useState("");
+  const [nfFinanciador, setNfFinanciador] = useState("PAMI");
+  const [nfPrestacion, setNfPrestacion] = useState("");
+  const [nfMonto, setNfMonto] = useState("");
+  const [nfCodigo, setNfCodigo] = useState("");
+
+  const handleNuevaFactura = () => {
+    if (!isSupabaseConfigured()) {
+      showDemo("Nueva factura");
+      return;
+    }
+    setShowNuevaFactura(true);
+  };
+
+  const handleCrearFactura = async () => {
+    if (!nfNumero || !nfPaciente || !nfMonto) {
+      showToast("❌ Completá los campos obligatorios");
+      return;
+    }
+    const result = await execute({
+      action: async () => {
+        const { createFactura } = await import("@/lib/services/facturacion");
+        return createFactura({
+          numero: nfNumero,
+          fecha: new Date().toISOString().split("T")[0]!,
+          financiador: nfFinanciador,
+          paciente: nfPaciente,
+          prestacion: nfPrestacion,
+          codigoNomenclador: nfCodigo || undefined,
+          monto: Number(nfMonto),
+          estado: "presentada",
+        });
+      },
+      successMessage: `Factura ${nfNumero} creada`,
+      errorMessage: "Error al crear factura",
+      demoLabel: "Nueva factura",
+      mutateKeys: ["facturas", "kpi-facturacion"],
+    });
+    if (result) {
+      setShowNuevaFactura(false);
+      setNfNumero("");
+      setNfPaciente("");
+      setNfPrestacion("");
+      setNfMonto("");
+      setNfCodigo("");
+    }
+  };
+
+  const handleVerDetalle = (f: (typeof facturas)[number]) => {
+    if (!isSupabaseConfigured()) {
+      showDemo(`Detalle de factura ${f.numero}`);
+      return;
+    }
+    setDetalleFactura(f);
+  };
 
   const filtered = useMemo(() => {
     return facturas.filter((f) => {
@@ -127,7 +190,7 @@ export default function FacturacionPage() {
               )}
               Excel
             </button>
-            <Button onClick={() => showDemo("Nueva factura")}>Nueva factura</Button>
+            <Button onClick={handleNuevaFactura}>Nueva factura</Button>
           </div>
         }
       />
@@ -230,7 +293,7 @@ export default function FacturacionPage() {
                   </td>
                   <td className="px-5 py-3 text-center">
                     <button
-                      onClick={() => showDemo(`Detalle de factura ${f.numero}`)}
+                      onClick={() => handleVerDetalle(f)}
                       className="text-[10px] text-celeste-dark font-medium hover:underline"
                       aria-label={`Ver detalle de factura ${f.numero}`}
                     >
@@ -250,6 +313,130 @@ export default function FacturacionPage() {
           </table>
         </div>
       </Card>
+
+      {/* ─── Nueva Factura Modal ──────────────────────────── */}
+      {showNuevaFactura && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Nueva factura"
+        >
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <h2 className="text-lg font-bold text-ink">Nueva factura</h2>
+              <button
+                onClick={() => setShowNuevaFactura(false)}
+                className="text-ink-muted hover:text-ink"
+                aria-label="Cerrar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <Input
+                label="Número *"
+                placeholder="FAC-0001"
+                value={nfNumero}
+                onChange={(e) => setNfNumero(e.target.value)}
+              />
+              <Input
+                label="Paciente *"
+                placeholder="Nombre del paciente"
+                value={nfPaciente}
+                onChange={(e) => setNfPaciente(e.target.value)}
+              />
+              <Select
+                label="Financiador"
+                options={financiadoresFilter}
+                value={nfFinanciador}
+                onChange={(e) => setNfFinanciador(e.target.value)}
+              />
+              <Input
+                label="Prestación"
+                placeholder="Consulta, laboratorio..."
+                value={nfPrestacion}
+                onChange={(e) => setNfPrestacion(e.target.value)}
+              />
+              <Input
+                label="Código nomenclador"
+                placeholder="420101"
+                value={nfCodigo}
+                onChange={(e) => setNfCodigo(e.target.value)}
+              />
+              <Input
+                label="Monto *"
+                placeholder="18500"
+                type="number"
+                value={nfMonto}
+                onChange={(e) => setNfMonto(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-border">
+              <Button variant="outline" onClick={() => setShowNuevaFactura(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleCrearFactura} disabled={isExecuting}>
+                {isExecuting ? "Creando..." : "Crear factura"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Detalle Factura Panel ────────────────────────── */}
+      {detalleFactura && (
+        <div className="fixed inset-y-0 right-0 w-96 bg-white border-l border-border shadow-xl z-50 overflow-y-auto">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h3 className="font-bold text-ink">Factura {detalleFactura.numero}</h3>
+            <button
+              onClick={() => setDetalleFactura(null)}
+              className="text-ink-muted hover:text-ink"
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-5 space-y-4">
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Fecha</span>
+                <span className="text-ink">{detalleFactura.fecha}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Financiador</span>
+                <span className="text-ink font-medium">{detalleFactura.financiador}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Paciente</span>
+                <span className="text-ink">{detalleFactura.paciente}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Prestación</span>
+                <span className="text-ink">{detalleFactura.prestacion}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Monto</span>
+                <span className="text-ink font-bold text-lg">
+                  {formatCurrency(detalleFactura.monto)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-ink-muted">Estado</span>
+                <StatusBadge
+                  variant={detalleFactura.estado}
+                  label={estadoConfig[detalleFactura.estado]}
+                />
+              </div>
+            </div>
+            {detalleFactura.estado === "rechazada" && (
+              <div className="bg-red-50 rounded-lg p-3 text-xs text-red-700">
+                Esta factura fue rechazada. Podés gestionarla desde la sección de Rechazos.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

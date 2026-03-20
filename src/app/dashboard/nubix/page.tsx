@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useToast } from "@/components/Toast";
+import { isSupabaseConfigured } from "@/lib/env";
 import {
   useNubixStudies,
   useNubixAppointments,
@@ -70,6 +72,7 @@ type Tab = "estudios" | "turnos" | "entregas" | "visor";
 
 export default function NubixPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<Tab>("estudios");
   const [search, setSearch] = useState("");
   const [modalityFilter, setModalityFilter] = useState<string>("Todas");
@@ -165,13 +168,21 @@ export default function NubixPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showDemo("Nuevo turno de imagen")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Nuevo turno de imagen")
+                : showDemo("Nuevo turno de imagen")
+            }
             className="px-4 py-2.5 border border-border text-sm font-medium rounded hover:bg-muted transition"
           >
             + Nuevo turno
           </button>
           <button
-            onClick={() => showDemo("Subir estudio DICOM")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Subir estudio DICOM")
+                : showDemo("Subir estudio DICOM")
+            }
             className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
           >
             Subir estudio
@@ -331,7 +342,11 @@ export default function NubixPage() {
                             )}
                             {study.reportStatus === "signed" && (
                               <button
-                                onClick={() => showDemo(`Enviar resultados — ${study.patientName}`)}
+                                onClick={() =>
+                                  isSupabaseConfigured()
+                                    ? showToast(`✅ Enviar resultados — ${study.patientName}`)
+                                    : showDemo(`Enviar resultados — ${study.patientName}`)
+                                }
                                 className="text-xs px-2.5 py-1.5 border border-border rounded hover:bg-muted transition"
                                 title="Enviar resultados al paciente"
                               >
@@ -566,7 +581,11 @@ export default function NubixPage() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => showDemo(`Enviar resultados — ${selectedStudy.patientName}`)}
+                    onClick={() =>
+                      isSupabaseConfigured()
+                        ? showToast(`✅ Enviar resultados — ${selectedStudy.patientName}`)
+                        : showDemo(`Enviar resultados — ${selectedStudy.patientName}`)
+                    }
                     className="text-xs px-3 py-1.5 border border-border rounded hover:bg-white transition"
                   >
                     📤 Enviar

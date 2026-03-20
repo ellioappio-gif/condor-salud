@@ -3,11 +3,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
 import { useInventarioItems } from "@/hooks/use-data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { formatCurrency } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 const categorias = [
   "Todos",
@@ -65,11 +66,62 @@ const movimientos = [
 export default function InventarioPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { execute, isExecuting } = useCrudAction();
   const { exportExcel, isExporting } = useExport();
   const { data: inventario = [], isLoading } = useInventarioItems();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("Todos");
   const [estadoFilter, setEstadoFilter] = useState("Todos");
+  const [showIngreso, setShowIngreso] = useState(false);
+
+  // Ingreso form state
+  const [ingNombre, setIngNombre] = useState("");
+  const [ingCategoria, setIngCategoria] = useState("Medicamento");
+  const [ingStock, setIngStock] = useState("");
+  const [ingStockMin, setIngStockMin] = useState("");
+  const [ingPrecio, setIngPrecio] = useState("");
+  const [ingProveedor, setIngProveedor] = useState("");
+
+  const handleRegistrarIngreso = () => {
+    if (!isSupabaseConfigured()) {
+      showDemo("Registrar ingreso de stock");
+      return;
+    }
+    setShowIngreso(true);
+  };
+
+  const handleCrearIngreso = async () => {
+    if (!ingNombre || !ingStock) {
+      showToast("❌ Completá nombre y cantidad");
+      return;
+    }
+    const result = await execute({
+      action: async () => {
+        const { createInventarioItem } = await import("@/lib/services/inventario");
+        return createInventarioItem({
+          nombre: ingNombre,
+          categoria: ingCategoria,
+          stock: Number(ingStock),
+          stockMin: Number(ingStockMin) || 10,
+          unidad: "unidades",
+          precioUnit: Number(ingPrecio) || 0,
+          proveedor: ingProveedor,
+        });
+      },
+      successMessage: `${ingNombre} registrado en inventario`,
+      errorMessage: "Error al registrar ingreso",
+      demoLabel: "Registrar ingreso de stock",
+      mutateKeys: ["inventario-items", "kpi-inventario"],
+    });
+    if (result) {
+      setShowIngreso(false);
+      setIngNombre("");
+      setIngStock("");
+      setIngStockMin("");
+      setIngPrecio("");
+      setIngProveedor("");
+    }
+  };
 
   const filtered = inventario.filter((item) => {
     const matchSearch =
@@ -110,7 +162,7 @@ export default function InventarioPage() {
                 {isExporting ? "Exportando..." : "Exportar"}
               </button>
               <button
-                onClick={() => showDemo("Registrar ingreso de stock")}
+                onClick={handleRegistrarIngreso}
                 className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
               >
                 + Registrar ingreso
@@ -295,6 +347,118 @@ export default function InventarioPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* ─── Registrar Ingreso Modal ─────────────────────── */}
+      {showIngreso && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Registrar ingreso"
+        >
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <h2 className="text-lg font-bold text-ink">Registrar ingreso</h2>
+              <button
+                onClick={() => setShowIngreso(false)}
+                className="text-ink-muted hover:text-ink"
+                aria-label="Cerrar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-ink-muted mb-1">Nombre *</label>
+                <input
+                  value={ingNombre}
+                  onChange={(e) => setIngNombre(e.target.value)}
+                  placeholder="Ej: Enalapril 10mg"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-ink-muted mb-1">Categoría</label>
+                <select
+                  value={ingCategoria}
+                  onChange={(e) => setIngCategoria(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark bg-white"
+                >
+                  {categorias
+                    .filter((c) => c !== "Todos")
+                    .map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-ink-muted mb-1">
+                    Cantidad *
+                  </label>
+                  <input
+                    type="number"
+                    value={ingStock}
+                    onChange={(e) => setIngStock(e.target.value)}
+                    placeholder="50"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-ink-muted mb-1">
+                    Stock mínimo
+                  </label>
+                  <input
+                    type="number"
+                    value={ingStockMin}
+                    onChange={(e) => setIngStockMin(e.target.value)}
+                    placeholder="10"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-ink-muted mb-1">
+                  Precio unitario
+                </label>
+                <input
+                  type="number"
+                  value={ingPrecio}
+                  onChange={(e) => setIngPrecio(e.target.value)}
+                  placeholder="3200"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-ink-muted mb-1">Proveedor</label>
+                <input
+                  value={ingProveedor}
+                  onChange={(e) => setIngProveedor(e.target.value)}
+                  placeholder="Droguería del Sud"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-border">
+              <button
+                onClick={() => setShowIngreso(false)}
+                className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCrearIngreso}
+                disabled={isExecuting}
+                className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
+              >
+                {isExecuting ? "Guardando..." : "Registrar"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

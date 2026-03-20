@@ -1,9 +1,12 @@
 "use client";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { isSupabaseConfigured } from "@/lib/env";
 
 export default function ClinicaConfigPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
 
   return (
     <div className="space-y-5">
@@ -45,7 +48,11 @@ export default function ClinicaConfigPage() {
             </div>
           ))}
           <button
-            onClick={() => showDemo("Editar información de la clínica")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Editar información de la clínica")
+                : showDemo("Editar información de la clínica")
+            }
             className="text-xs text-celeste-dark font-medium hover:underline mt-2"
           >
             Editar información
@@ -74,7 +81,9 @@ export default function ClinicaConfigPage() {
             </div>
           ))}
           <button
-            onClick={() => showDemo("Editar contacto")}
+            onClick={() =>
+              isSupabaseConfigured() ? showToast("✅ Editar contacto") : showDemo("Editar contacto")
+            }
             className="text-xs text-celeste-dark font-medium hover:underline mt-2"
           >
             Editar contacto
@@ -104,7 +113,11 @@ export default function ClinicaConfigPage() {
             ))}
           </div>
           <button
-            onClick={() => showDemo("Agregar especialidad")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Agregar especialidad")
+                : showDemo("Agregar especialidad")
+            }
             className="text-xs text-celeste-dark font-medium hover:underline mt-3 block"
           >
             + Agregar especialidad

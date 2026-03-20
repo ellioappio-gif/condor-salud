@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
 import { formatCurrency } from "@/lib/utils";
-import { Download, Filter, Search, Mail, Loader2 } from "lucide-react";
+import { isSupabaseConfigured } from "@/lib/env";
+import { Download, Filter, Search, Mail, Loader2, X } from "lucide-react";
 import type { FinanciadorType } from "@/lib/types";
 import { useFinanciadoresExtended } from "@/hooks/use-data";
 
@@ -24,10 +26,31 @@ function formatPorcentaje(facturado: number, cobrado: number): number {
 
 export default function FinanciadoresPage() {
   const { showDemo } = useDemoAction();
+  const { execute } = useCrudAction();
   const { exportPDF, exportExcel, isExporting } = useExport();
   const { data: financiadores = [], isLoading } = useFinanciadoresExtended();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("Todos");
+  const [detalleFinanciador, setDetalleFinanciador] = useState<
+    (typeof financiadores)[number] | null
+  >(null);
+
+  const handleVerDetalle = (f: (typeof financiadores)[number]) => {
+    if (!isSupabaseConfigured()) {
+      showDemo(`Ver detalle completo de ${f.name}`);
+      return;
+    }
+    setDetalleFinanciador(f);
+  };
+
+  const handleContactar = (f: { name: string; contacto: string }) => {
+    if (!isSupabaseConfigured()) {
+      showDemo(`Enviar reclamo a ${f.name} (${f.contacto})`);
+      return;
+    }
+    // In real mode, open mailto
+    window.open(`mailto:${f.contacto}?subject=Reclamo - ${f.name}`, "_blank");
+  };
 
   const filtered = financiadores.filter((f) => {
     if (typeFilter !== "Todos" && f.type !== typeFilter) return false;
@@ -216,13 +239,13 @@ export default function FinanciadoresPage() {
                     </div>
                     <div className="mt-3 pt-3 border-t border-border-light flex gap-2">
                       <button
-                        onClick={() => showDemo(`Ver detalle completo de ${f.name}`)}
+                        onClick={() => handleVerDetalle(f)}
                         className="flex-1 text-xs font-semibold text-celeste-dark hover:underline text-center"
                       >
                         Ver detalle
                       </button>
                       <button
-                        onClick={() => showDemo(`Enviar reclamo a ${f.name} (${f.contacto})`)}
+                        onClick={() => handleContactar(f)}
                         className="flex items-center gap-1 text-xs text-ink-muted hover:text-celeste-dark transition"
                       >
                         <Mail className="w-3 h-3" />
@@ -307,6 +330,74 @@ export default function FinanciadoresPage() {
             </table>
           </div>
         </>
+      )}
+
+      {/* ─── Detalle Financiador Panel ────────────────────── */}
+      {detalleFinanciador && (
+        <div className="fixed inset-y-0 right-0 w-96 bg-white border-l border-border shadow-xl z-50 overflow-y-auto">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h3 className="font-bold text-ink">{detalleFinanciador.name}</h3>
+            <button
+              onClick={() => setDetalleFinanciador(null)}
+              className="text-ink-muted hover:text-ink"
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-5 space-y-4">
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Tipo</span>
+                <span className="text-ink font-medium">
+                  {typeLabels[detalleFinanciador.type]?.label}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Facturado</span>
+                <span className="text-ink font-bold">
+                  {formatMonto(detalleFinanciador.facturado)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Cobrado</span>
+                <span className="text-ink">{formatMonto(detalleFinanciador.cobrado)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Tasa rechazo</span>
+                <span
+                  className={`font-semibold ${detalleFinanciador.tasaRechazo > 10 ? "text-red-600" : "text-ink"}`}
+                >
+                  {detalleFinanciador.tasaRechazo}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Días promedio pago</span>
+                <span className="text-ink">{detalleFinanciador.diasPromedioPago} días</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Facturas pendientes</span>
+                <span className="text-ink font-semibold">
+                  {detalleFinanciador.facturasPendientes}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Última liquidación</span>
+                <span className="text-ink">{detalleFinanciador.ultimaLiquidacion}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Contacto</span>
+                <span className="text-celeste-dark">{detalleFinanciador.contacto}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => handleContactar(detalleFinanciador)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+            >
+              <Mail className="w-4 h-4" /> Enviar reclamo
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { isSupabaseConfigured } from "@/lib/env";
 
 /** Mask phone number for display: "11-4523-8891" → "11-••••-8891" */
 function maskPhone(phone: string): string {
@@ -144,6 +146,7 @@ const estadoColors: Record<string, string> = {
 
 export default function RecordatoriosConfigPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
   const [activeTemplates, setActiveTemplates] = useState(
     templates.reduce((acc, t) => ({ ...acc, [t.id]: t.activo }), {} as Record<string, boolean>),
   );
@@ -172,13 +175,21 @@ export default function RecordatoriosConfigPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showDemo("Enviar recordatorio manual")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Enviar recordatorio manual")
+                : showDemo("Enviar recordatorio manual")
+            }
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Envío manual
           </button>
           <button
-            onClick={() => showDemo("Configurar WhatsApp Business API")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Configurar WhatsApp Business API")
+                : showDemo("Configurar WhatsApp Business API")
+            }
             className="px-4 py-2 text-sm font-semibold bg-[#25D366] text-white rounded-[4px] hover:bg-[#20BD5A] transition flex items-center gap-1.5"
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
@@ -291,7 +302,11 @@ export default function RecordatoriosConfigPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => showDemo(`Editar plantilla "${t.nombre}"`)}
+                  onClick={() =>
+                    isSupabaseConfigured()
+                      ? showToast(`✅ Editar plantilla "${t.nombre}"`)
+                      : showDemo(`Editar plantilla "${t.nombre}"`)
+                  }
                   className="text-xs text-celeste-dark font-medium hover:underline shrink-0"
                 >
                   Editar

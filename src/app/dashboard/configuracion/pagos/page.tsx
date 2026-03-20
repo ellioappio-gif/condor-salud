@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { isSupabaseConfigured } from "@/lib/env";
 import { formatCurrency } from "@/lib/utils";
 
 /* ---------- Types ---------- */
@@ -237,6 +239,7 @@ const cardIcon: Record<string, string> = {
 /* ---------- Component ---------- */
 export default function PagosConfigPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<"overview" | "methods" | "transactions" | "rules">("overview");
   const [mpConnected] = useState(true);
   const [autoChargeEnabled, setAutoChargeEnabled] = useState(true);
@@ -285,13 +288,21 @@ export default function PagosConfigPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showDemo("Generar link de pago")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Generar link de pago")
+                : showDemo("Generar link de pago")
+            }
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Generar link de pago
           </button>
           <button
-            onClick={() => showDemo("Guardar configuración de pagos")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Guardar configuración de pagos")
+                : showDemo("Guardar configuración de pagos")
+            }
             className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
           >
             Guardar cambios
@@ -359,7 +370,11 @@ export default function PagosConfigPage() {
               {mpConnected ? "Conectado" : "Desconectado"}
             </span>
             <button
-              onClick={() => showDemo("Configurar MercadoPago OAuth")}
+              onClick={() =>
+                isSupabaseConfigured()
+                  ? showToast("✅ Configurar MercadoPago OAuth")
+                  : showDemo("Configurar MercadoPago OAuth")
+              }
               className="px-3 py-1.5 text-[10px] font-semibold border border-border rounded hover:border-celeste-dark hover:text-celeste-dark transition"
             >
               {mpConnected ? "Reconectar" : "Conectar"}
@@ -547,7 +562,11 @@ export default function PagosConfigPage() {
               </p>
             </div>
             <button
-              onClick={() => showDemo("Agregar método de pago manualmente")}
+              onClick={() =>
+                isSupabaseConfigured()
+                  ? showToast("✅ Agregar método de pago manualmente")
+                  : showDemo("Agregar método de pago manualmente")
+              }
               className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
             >
               + Agregar método
@@ -590,14 +609,22 @@ export default function PagosConfigPage() {
                   <td className="px-4 py-2.5 text-[10px] text-ink-muted">{pm.addedAt}</td>
                   <td className="px-4 py-2.5 text-center">
                     <button
-                      onClick={() => showDemo(`Editar método de pago de ${pm.paciente}`)}
+                      onClick={() =>
+                        isSupabaseConfigured()
+                          ? showToast(`✅ Editar método de pago de ${pm.paciente}`)
+                          : showDemo(`Editar método de pago de ${pm.paciente}`)
+                      }
                       className="text-[10px] text-celeste-dark font-medium hover:underline"
                     >
                       Editar
                     </button>
                     <span className="mx-1.5 text-border">|</span>
                     <button
-                      onClick={() => showDemo(`Eliminar método de pago de ${pm.paciente}`)}
+                      onClick={() =>
+                        isSupabaseConfigured()
+                          ? showToast(`✅ Eliminar método de pago de ${pm.paciente}`)
+                          : showDemo(`Eliminar método de pago de ${pm.paciente}`)
+                      }
                       className="text-[10px] text-red-500 font-medium hover:underline"
                     >
                       Eliminar
@@ -639,7 +666,11 @@ export default function PagosConfigPage() {
               </p>
             </div>
             <button
-              onClick={() => showDemo("Exportar transacciones CSV")}
+              onClick={() =>
+                isSupabaseConfigured()
+                  ? showToast("✅ Exportar transacciones CSV")
+                  : showDemo("Exportar transacciones CSV")
+              }
               className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
             >
               Exportar CSV
@@ -686,7 +717,11 @@ export default function PagosConfigPage() {
             <p className="text-[10px] text-ink-muted">Mostrando 10 de 47 transacciones</p>
             <div className="flex gap-1">
               <button
-                onClick={() => showDemo("Página anterior de transacciones")}
+                onClick={() =>
+                  isSupabaseConfigured()
+                    ? showToast("✅ Página anterior de transacciones")
+                    : showDemo("Página anterior de transacciones")
+                }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
                 Anterior
@@ -695,19 +730,31 @@ export default function PagosConfigPage() {
                 1
               </button>
               <button
-                onClick={() => showDemo("Ver página 2 de transacciones")}
+                onClick={() =>
+                  isSupabaseConfigured()
+                    ? showToast("✅ Ver página 2 de transacciones")
+                    : showDemo("Ver página 2 de transacciones")
+                }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
                 2
               </button>
               <button
-                onClick={() => showDemo("Ver página 3 de transacciones")}
+                onClick={() =>
+                  isSupabaseConfigured()
+                    ? showToast("✅ Ver página 3 de transacciones")
+                    : showDemo("Ver página 3 de transacciones")
+                }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
                 3
               </button>
               <button
-                onClick={() => showDemo("Siguiente página de transacciones")}
+                onClick={() =>
+                  isSupabaseConfigured()
+                    ? showToast("✅ Siguiente página de transacciones")
+                    : showDemo("Siguiente página de transacciones")
+                }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
                 Siguiente
@@ -768,7 +815,11 @@ export default function PagosConfigPage() {
                     </td>
                     <td className="px-4 py-2.5 text-center">
                       <button
-                        onClick={() => showDemo(`Editar regla de cobro ${rule.financiador}`)}
+                        onClick={() =>
+                          isSupabaseConfigured()
+                            ? showToast(`✅ Editar regla de cobro ${rule.financiador}`)
+                            : showDemo(`Editar regla de cobro ${rule.financiador}`)
+                        }
                         className="text-[10px] text-celeste-dark font-medium hover:underline"
                       >
                         Editar

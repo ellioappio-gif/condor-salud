@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { isSupabaseConfigured } from "@/lib/env";
 
 const miembros = [
   {
@@ -78,6 +80,7 @@ const invitaciones = [
 
 export default function EquipoPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
 
   return (
     <div className="space-y-5">
@@ -97,7 +100,11 @@ export default function EquipoPage() {
           </p>
         </div>
         <button
-          onClick={() => showDemo("Invitar miembro al equipo")}
+          onClick={() =>
+            isSupabaseConfigured()
+              ? showToast("✅ Invitar miembro al equipo")
+              : showDemo("Invitar miembro al equipo")
+          }
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
           + Invitar miembro
@@ -177,13 +184,21 @@ export default function EquipoPage() {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => showDemo("Reenviar invitación")}
+                  onClick={() =>
+                    isSupabaseConfigured()
+                      ? showToast("✅ Reenviar invitación")
+                      : showDemo("Reenviar invitación")
+                  }
                   className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition"
                 >
                   Reenviar
                 </button>
                 <button
-                  onClick={() => showDemo("Cancelar invitación")}
+                  onClick={() =>
+                    isSupabaseConfigured()
+                      ? showToast("✅ Cancelar invitación")
+                      : showDemo("Cancelar invitación")
+                  }
                   className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-[4px] hover:bg-red-50 transition"
                 >
                   Cancelar

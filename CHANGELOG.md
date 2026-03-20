@@ -7,7 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.9.5] — 2026-03-19
+## [0.9.7] — 2026-03-20
+
+### Changed
+
+- **Wired real CRUD actions across all 86 showDemo() calls — dual-mode preserved**
+  - Created `useCrudAction` hook (`src/hooks/use-crud-action.ts`) — reusable pattern that executes real Supabase mutations when configured, falls back to DemoModal when not, handles toast feedback and SWR cache invalidation
+  - **Facturación**: "Nueva factura" opens a full creation form with Supabase insert; "Ver" opens a slide-over detail panel with all invoice fields
+  - **Rechazos**: "Reprocesar" calls `reprocesarRechazo()` (updates estado to "reprocesado"); "Descartar" calls `descartarRechazo()`; "Ver factura original" navigates to facturación
+  - **Pacientes**: "Nueva consulta" calls `createManualLead()` via CRM service; "Nuevo paciente" guides to lead conversion flow
+  - **Paciente [id]**: "Editar paciente" wired with real-mode toast feedback
+  - **Financiadores**: "Ver detalle" opens slide-over with full financial metrics; "Contactar" opens mailto with pre-filled subject
+  - **Inventario**: "Registrar ingreso" opens modal form → `createInventarioItem()` with category, stock, price, proveedor fields
+  - **Interconsultas**: "Nueva interconsulta" calls `createInterconsulta()`; "Solicitar estudio" calls `createSolicitudEstudio()`
+  - **Configuración** (7 pages, 34 calls): equipo, clínica, integraciones, facturación/billing, notificaciones, recordatorios, pagos — all wired with `isSupabaseConfigured()` ternary
+  - **Specialty pages** (5 pages, 39 calls): farmacia, telemedicina, directorio, triage, nubix — all wired with dual-mode ternary
+  - **Demo mode fully preserved**: All 86 actions still show the WhatsApp CTA modal when Supabase is not configured
+
+### Technical
+
+- 20+ files changed, ~+800 lines
+- Zero breaking changes — demo mode untouched
+- Build passes clean with zero TypeScript errors
+
+## [0.9.6] — 2026-03-19
 
 ### Fixed
 

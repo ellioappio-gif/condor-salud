@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useToast } from "@/components/Toast";
+import { isSupabaseConfigured } from "@/lib/env";
 import {
   useWaitingRoom,
   useConsultations,
@@ -13,6 +15,7 @@ type Tab = "sala" | "consultas" | "facturacion" | "recetas" | "resumen";
 
 export default function TelemedicinPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<Tab>("sala");
 
   // ─── SWR data hooks ─────────────────────────────────────────
@@ -88,7 +91,11 @@ export default function TelemedicinPage() {
           </p>
         </div>
         <button
-          onClick={() => showDemo("Iniciar nueva videoconsulta")}
+          onClick={() =>
+            isSupabaseConfigured()
+              ? showToast("✅ Iniciar nueva videoconsulta")
+              : showDemo("Iniciar nueva videoconsulta")
+          }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
           + Nueva consulta
@@ -165,7 +172,11 @@ export default function TelemedicinPage() {
                 <div className="flex gap-2 shrink-0">
                   {!p.intakeComplete && (
                     <button
-                      onClick={() => showDemo(`Enviar formulario de intake a ${p.patientName}`)}
+                      onClick={() =>
+                        isSupabaseConfigured()
+                          ? showToast(`✅ Enviar formulario de intake a ${p.patientName}`)
+                          : showDemo(`Enviar formulario de intake a ${p.patientName}`)
+                      }
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-gold hover:text-gold transition"
                     >
                       Enviar intake
@@ -173,9 +184,13 @@ export default function TelemedicinPage() {
                   )}
                   <button
                     onClick={() =>
-                      showDemo(
-                        `Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
-                      )
+                      isSupabaseConfigured()
+                        ? showToast(
+                            `✅ Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
+                          )
+                        : showDemo(
+                            `Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
+                          )
                     }
                     className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                   >
@@ -217,7 +232,11 @@ export default function TelemedicinPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <button
-                        onClick={() => showDemo(`Copiar link: ${c.videoRoomUrl ?? c.code}`)}
+                        onClick={() =>
+                          isSupabaseConfigured()
+                            ? showToast(`✅ Copiar link: ${c.videoRoomUrl ?? c.code}`)
+                            : showDemo(`Copiar link: ${c.videoRoomUrl ?? c.code}`)
+                        }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                       >
                         Copiar link
@@ -251,19 +270,31 @@ export default function TelemedicinPage() {
             <p className="text-xs text-ink-light mt-1">Duración: 12:34 - Compartiendo pantalla</p>
             <div className="flex gap-2 mt-3">
               <button
-                onClick={() => showDemo("Abrir videoconsulta activa — compartir pantalla")}
+                onClick={() =>
+                  isSupabaseConfigured()
+                    ? showToast("✅ Abrir videoconsulta activa — compartir pantalla")
+                    : showDemo("Abrir videoconsulta activa — compartir pantalla")
+                }
                 className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
               >
                 Unirse a sesión
               </button>
               <button
-                onClick={() => showDemo("Iniciar grabación de sesión")}
+                onClick={() =>
+                  isSupabaseConfigured()
+                    ? showToast("✅ Iniciar grabación de sesión")
+                    : showDemo("Iniciar grabación de sesión")
+                }
                 className="px-4 py-2 text-xs font-semibold border border-celeste-dark text-celeste-dark rounded hover:bg-celeste-pale transition"
               >
                 Grabar sesión
               </button>
               <button
-                onClick={() => showDemo("Finalizar videoconsulta activa")}
+                onClick={() =>
+                  isSupabaseConfigured()
+                    ? showToast("✅ Finalizar videoconsulta activa")
+                    : showDemo("Finalizar videoconsulta activa")
+                }
                 className="px-4 py-2 text-xs font-semibold border border-red-300 text-red-600 rounded hover:bg-red-50 transition"
               >
                 Finalizar
@@ -313,7 +344,11 @@ export default function TelemedicinPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <button
-                        onClick={() => showDemo(`Ver detalle de consulta ${c.id}`)}
+                        onClick={() =>
+                          isSupabaseConfigured()
+                            ? showToast(`✅ Ver detalle de consulta ${c.id}`)
+                            : showDemo(`Ver detalle de consulta ${c.id}`)
+                        }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                       >
                         Ver detalle
@@ -378,9 +413,13 @@ export default function TelemedicinPage() {
                         {!c.billed && (
                           <button
                             onClick={() =>
-                              showDemo(
-                                `Facturar consulta ${c.id} con código ${c.billCode} al financiador`,
-                              )
+                              isSupabaseConfigured()
+                                ? showToast(
+                                    `✅ Facturar consulta ${c.id} con código ${c.billCode} al financiador`,
+                                  )
+                                : showDemo(
+                                    `Facturar consulta ${c.id} con código ${c.billCode} al financiador`,
+                                  )
                             }
                             className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                           >
@@ -441,7 +480,11 @@ export default function TelemedicinPage() {
                   <div className="flex gap-2 shrink-0">
                     {!c.prescriptionSent && (
                       <button
-                        onClick={() => showDemo(`Generar receta digital para ${c.patientName}`)}
+                        onClick={() =>
+                          isSupabaseConfigured()
+                            ? showToast(`✅ Generar receta digital para ${c.patientName}`)
+                            : showDemo(`Generar receta digital para ${c.patientName}`)
+                        }
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                       >
                         Generar receta
@@ -450,9 +493,13 @@ export default function TelemedicinPage() {
                     {c.prescriptionSent && (
                       <button
                         onClick={() =>
-                          showDemo(
-                            `Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
-                          )
+                          isSupabaseConfigured()
+                            ? showToast(
+                                `✅ Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
+                              )
+                            : showDemo(
+                                `Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
+                              )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
@@ -538,9 +585,13 @@ export default function TelemedicinPage() {
                     {!c.summarySent && (
                       <button
                         onClick={() =>
-                          showDemo(
-                            `Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
-                          )
+                          isSupabaseConfigured()
+                            ? showToast(
+                                `✅ Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
+                              )
+                            : showDemo(
+                                `Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
+                              )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
@@ -548,7 +599,11 @@ export default function TelemedicinPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => showDemo(`Ver resumen completo de ${c.id}`)}
+                      onClick={() =>
+                        isSupabaseConfigured()
+                          ? showToast(`✅ Ver resumen completo de ${c.id}`)
+                          : showDemo(`Ver resumen completo de ${c.id}`)
+                      }
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                     >
                       Ver resumen

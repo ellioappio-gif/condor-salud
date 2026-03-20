@@ -1,9 +1,12 @@
 "use client";
 import Link from "next/link";
+import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { isSupabaseConfigured } from "@/lib/env";
 
 export default function FacturacionConfigPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
 
   return (
     <div className="space-y-5">
@@ -47,19 +50,29 @@ export default function FacturacionConfigPage() {
         </div>
         <div className="flex gap-2 mt-4 pt-4 border-t border-border">
           <button
-            onClick={() => showDemo("Upgrade a Enterprise")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Upgrade a Enterprise")
+                : showDemo("Upgrade a Enterprise")
+            }
             className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-gold-dark transition"
           >
             Upgrade a Enterprise
           </button>
           <button
-            onClick={() => showDemo("Cambiar plan")}
+            onClick={() =>
+              isSupabaseConfigured() ? showToast("✅ Cambiar plan") : showDemo("Cambiar plan")
+            }
             className="px-4 py-2 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Cambiar plan
           </button>
           <button
-            onClick={() => showDemo("Cancelar suscripción")}
+            onClick={() =>
+              isSupabaseConfigured()
+                ? showToast("✅ Cancelar suscripción")
+                : showDemo("Cancelar suscripción")
+            }
             className="px-4 py-2 text-sm font-medium text-red-600 hover:underline"
           >
             Cancelar suscripción
@@ -220,7 +233,11 @@ export default function FacturacionConfigPage() {
                 </td>
                 <td className="px-5 py-3 text-right">
                   <button
-                    onClick={() => showDemo("Descargar comprobante")}
+                    onClick={() =>
+                      isSupabaseConfigured()
+                        ? showToast("✅ Descargar comprobante")
+                        : showDemo("Descargar comprobante")
+                    }
                     className="text-xs text-celeste-dark font-medium hover:underline"
                   >
                     Descargar
@@ -248,7 +265,9 @@ export default function FacturacionConfigPage() {
             </div>
           </div>
           <button
-            onClick={() => showDemo("Cambiar tarjeta")}
+            onClick={() =>
+              isSupabaseConfigured() ? showToast("✅ Cambiar tarjeta") : showDemo("Cambiar tarjeta")
+            }
             className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Cambiar tarjeta
@@ -280,7 +299,11 @@ export default function FacturacionConfigPage() {
           </div>
         </div>
         <button
-          onClick={() => showDemo("Editar datos fiscales")}
+          onClick={() =>
+            isSupabaseConfigured()
+              ? showToast("✅ Editar datos fiscales")
+              : showDemo("Editar datos fiscales")
+          }
           className="mt-3 text-xs text-celeste-dark font-medium hover:underline"
         >
           Editar datos fiscales

@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useToast } from "@/components/Toast";
+import { isSupabaseConfigured } from "@/lib/env";
 import { ExternalLink, Star, StarHalf } from "lucide-react";
 import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
 import type { Doctor } from "@/lib/types";
@@ -22,6 +24,7 @@ type Tab = "busqueda" | "disponibilidad" | "perfiles" | "cobertura" | "recomenda
 
 export default function DirectorioPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
   const { locale } = useLocale();
   const [tab, setTab] = useState<Tab>("busqueda");
   const [search, setSearch] = useState("");
@@ -140,7 +143,11 @@ export default function DirectorioPage() {
           </p>
         </div>
         <button
-          onClick={() => showDemo("Agregar nuevo médico al directorio")}
+          onClick={() =>
+            isSupabaseConfigured()
+              ? showToast("✅ Agregar nuevo médico al directorio")
+              : showDemo("Agregar nuevo médico al directorio")
+          }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
           + Agregar médico
@@ -337,13 +344,21 @@ export default function DirectorioPage() {
               <h3 className="text-sm font-semibold text-ink">Semana del 10/03/2026 — 14/03/2026</h3>
               <div className="flex gap-2">
                 <button
-                  onClick={() => showDemo("Semana anterior")}
+                  onClick={() =>
+                    isSupabaseConfigured()
+                      ? showToast("✅ Semana anterior")
+                      : showDemo("Semana anterior")
+                  }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
                   Anterior
                 </button>
                 <button
-                  onClick={() => showDemo("Semana siguiente")}
+                  onClick={() =>
+                    isSupabaseConfigured()
+                      ? showToast("✅ Semana siguiente")
+                      : showDemo("Semana siguiente")
+                  }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
                   Siguiente
@@ -379,7 +394,9 @@ export default function DirectorioPage() {
                           {slots > 0 ? (
                             <button
                               onClick={() =>
-                                showDemo(`Ver ${slots} turnos disponibles — ${doc.name}`)
+                                isSupabaseConfigured()
+                                  ? showToast(`✅ Ver ${slots} turnos disponibles — ${doc.name}`)
+                                  : showDemo(`Ver ${slots} turnos disponibles — ${doc.name}`)
                               }
                               className="text-xs font-medium text-success-600 hover:text-success-700 transition"
                             >
@@ -616,9 +633,13 @@ export default function DirectorioPage() {
 
             <button
               onClick={() =>
-                showDemo(
-                  "Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
-                )
+                isSupabaseConfigured()
+                  ? showToast(
+                      "✅ Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
+                    )
+                  : showDemo(
+                      "Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
+                    )
               }
               className="mt-4 px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >

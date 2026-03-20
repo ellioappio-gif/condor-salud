@@ -24,6 +24,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useCrudAction } from "@/hooks/use-crud-action";
 import type {
   NetworkDoctor,
   Interconsulta,
@@ -91,6 +92,7 @@ type Tab = "red" | "interconsultas" | "estudios";
 
 export default function InterconsultasPage() {
   const { showDemo } = useDemoAction();
+  const { execute } = useCrudAction();
 
   const [tab, setTab] = useState<Tab>("red");
   const [search, setSearch] = useState("");
@@ -415,7 +417,23 @@ export default function InterconsultasPage() {
             setSelectedDoctor(null);
           }}
           onSubmit={() => {
-            showDemo("Interconsulta creada — el profesional destino recibirá la notificación.");
+            execute({
+              action: async () => {
+                const { createInterconsulta } = await import("@/lib/services/interconsultas");
+                return createInterconsulta({
+                  paciente: "Paciente seleccionado",
+                  doctorDestinoId: selectedDoctor?.id ?? "",
+                  especialidad: selectedDoctor?.especialidad ?? "",
+                  motivo: "Interconsulta solicitada",
+                  prioridad: "normal",
+                });
+              },
+              successMessage:
+                "Interconsulta creada — el profesional destino recibirá la notificación",
+              errorMessage: "Error al crear interconsulta",
+              demoLabel: "Interconsulta creada — el profesional destino recibirá la notificación.",
+              mutateKeys: [],
+            });
             setShowNewIc(false);
             setSelectedDoctor(null);
           }}
@@ -428,7 +446,23 @@ export default function InterconsultasPage() {
           doctors={doctors}
           onClose={() => setShowNewEstudio(false)}
           onSubmit={() => {
-            showDemo("Solicitud de estudio enviada al centro de diagnóstico.");
+            execute({
+              action: async () => {
+                const { createSolicitudEstudio } = await import("@/lib/services/interconsultas");
+                return createSolicitudEstudio({
+                  paciente: "Paciente seleccionado",
+                  centroDestino: "Centro de diagnóstico",
+                  tipo: "laboratorio",
+                  estudio: "Estudio solicitado",
+                  indicacion: "Según indicación médica",
+                  prioridad: "normal",
+                });
+              },
+              successMessage: "Solicitud de estudio enviada al centro de diagnóstico",
+              errorMessage: "Error al solicitar estudio",
+              demoLabel: "Solicitud de estudio enviada al centro de diagnóstico.",
+              mutateKeys: [],
+            });
             setShowNewEstudio(false);
           }}
         />

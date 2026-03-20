@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useToast } from "@/components/Toast";
+import { isSupabaseConfigured } from "@/lib/env";
 import { formatCurrency } from "@/lib/utils";
 import {
   useMedications,
@@ -15,6 +17,7 @@ type Tab = "catalogo" | "recetas" | "delivery" | "copago" | "recurrentes";
 
 export default function FarmaciaPage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<Tab>("catalogo");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("Todas");
@@ -101,7 +104,11 @@ export default function FarmaciaPage() {
           </p>
         </div>
         <button
-          onClick={() => showDemo("Nueva receta digital")}
+          onClick={() =>
+            isSupabaseConfigured()
+              ? showToast("✅ Nueva receta digital")
+              : showDemo("Nueva receta digital")
+          }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
           + Nueva receta
@@ -218,7 +225,11 @@ export default function FarmaciaPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <button
-                        onClick={() => showDemo(`Agregar ${med.name} al carrito`)}
+                        onClick={() =>
+                          isSupabaseConfigured()
+                            ? showToast(`✅ Agregar ${med.name} al carrito`)
+                            : showDemo(`Agregar ${med.name} al carrito`)
+                        }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                         disabled={med.stock === "Sin stock"}
                       >
@@ -280,16 +291,24 @@ export default function FarmaciaPage() {
                   {rx.status === "Pendiente" && (
                     <>
                       <button
-                        onClick={() => showDemo(`Cargar carrito para ${rx.patientName}`)}
+                        onClick={() =>
+                          isSupabaseConfigured()
+                            ? showToast(`✅ Cargar carrito para ${rx.patientName}`)
+                            : showDemo(`Cargar carrito para ${rx.patientName}`)
+                        }
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                       >
                         Cargar carrito
                       </button>
                       <button
                         onClick={() =>
-                          showDemo(
-                            `Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
-                          )
+                          isSupabaseConfigured()
+                            ? showToast(
+                                `✅ Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
+                              )
+                            : showDemo(
+                                `Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
+                              )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
@@ -299,7 +318,11 @@ export default function FarmaciaPage() {
                   )}
                   {rx.status === "En carrito" && (
                     <button
-                      onClick={() => showDemo(`Enviar recordatorio WhatsApp a ${rx.patientName}`)}
+                      onClick={() =>
+                        isSupabaseConfigured()
+                          ? showToast(`✅ Enviar recordatorio WhatsApp a ${rx.patientName}`)
+                          : showDemo(`Enviar recordatorio WhatsApp a ${rx.patientName}`)
+                      }
                       className="px-4 py-2 text-xs font-semibold border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                     >
                       Recordar
@@ -347,7 +370,11 @@ export default function FarmaciaPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() => showDemo(`Ver tracking completo de ${del.id}`)}
+                    onClick={() =>
+                      isSupabaseConfigured()
+                        ? showToast(`✅ Ver tracking completo de ${del.id}`)
+                        : showDemo(`Ver tracking completo de ${del.id}`)
+                    }
                     className="text-xs font-medium text-celeste-dark hover:text-celeste transition"
                   >
                     Ver tracking
@@ -496,18 +523,28 @@ export default function FarmaciaPage() {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button
-                    onClick={() => showDemo(`Editar pedido recurrente ${order.id}`)}
+                    onClick={() =>
+                      isSupabaseConfigured()
+                        ? showToast(`✅ Editar pedido recurrente ${order.id}`)
+                        : showDemo(`Editar pedido recurrente ${order.id}`)
+                    }
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() =>
-                      showDemo(
-                        order.status === "Activo"
-                          ? `Pausar pedido ${order.id}`
-                          : `Reactivar pedido ${order.id}`,
-                      )
+                      isSupabaseConfigured()
+                        ? showToast(
+                            order.status === "Activo"
+                              ? `✅ Pausar pedido ${order.id}`
+                              : `✅ Reactivar pedido ${order.id}`,
+                          )
+                        : showDemo(
+                            order.status === "Activo"
+                              ? `Pausar pedido ${order.id}`
+                              : `Reactivar pedido ${order.id}`,
+                          )
                     }
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                   >

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { useToast } from "@/components/Toast";
+import { isSupabaseConfigured } from "@/lib/env";
 import { useTriages, useTriageKPIs } from "@/lib/hooks/useModules";
 import {
   bodySystems,
@@ -15,6 +17,7 @@ type Tab = "sintomas" | "detalle" | "notas" | "intake" | "clinicas" | "routing";
 
 export default function TriagePage() {
   const { showDemo } = useDemoAction();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<Tab>("sintomas");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [severity, setSeverity] = useState(5);
@@ -117,7 +120,11 @@ export default function TriagePage() {
           </p>
         </div>
         <button
-          onClick={() => showDemo("Nuevo triage de paciente")}
+          onClick={() =>
+            isSupabaseConfigured()
+              ? showToast("✅ Nuevo triage de paciente")
+              : showDemo("Nuevo triage de paciente")
+          }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
           + Nuevo triage
@@ -316,9 +323,13 @@ export default function TriagePage() {
 
               <button
                 onClick={() =>
-                  showDemo(
-                    `Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
-                  )
+                  isSupabaseConfigured()
+                    ? showToast(
+                        `✅ Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
+                      )
+                    : showDemo(
+                        `Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
+                      )
                 }
                 className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
               >
@@ -361,7 +372,11 @@ export default function TriagePage() {
                   JPG, PNG hasta 10MB. Fotos de heridas, erupciones, estudios previos.
                 </p>
                 <button
-                  onClick={() => showDemo("Adjuntar fotos al triage del paciente")}
+                  onClick={() =>
+                    isSupabaseConfigured()
+                      ? showToast("✅ Adjuntar fotos al triage del paciente")
+                      : showDemo("Adjuntar fotos al triage del paciente")
+                  }
                   className="mt-3 px-4 py-2 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                 >
                   Seleccionar archivos
@@ -371,9 +386,13 @@ export default function TriagePage() {
 
             <button
               onClick={() =>
-                showDemo(
-                  `Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
-                )
+                isSupabaseConfigured()
+                  ? showToast(
+                      `✅ Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
+                    )
+                  : showDemo(
+                      `Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
+                    )
               }
               className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >
@@ -595,7 +614,11 @@ export default function TriagePage() {
                   <option>Imágenes</option>
                 </select>
                 <button
-                  onClick={() => showDemo("Agregar derivación al directorio médico")}
+                  onClick={() =>
+                    isSupabaseConfigured()
+                      ? showToast("✅ Agregar derivación al directorio médico")
+                      : showDemo("Agregar derivación al directorio médico")
+                  }
                   className="px-4 py-2.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                 >
                   Agregar
@@ -606,9 +629,13 @@ export default function TriagePage() {
             <div className="flex gap-3">
               <button
                 onClick={() =>
-                  showDemo(
-                    `Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
-                  )
+                  isSupabaseConfigured()
+                    ? showToast(
+                        `✅ Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
+                      )
+                    : showDemo(
+                        `Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
+                      )
                 }
                 className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
               >
@@ -616,7 +643,13 @@ export default function TriagePage() {
               </button>
               <button
                 onClick={() =>
-                  showDemo("Generar receta digital desde notas clínicas y enviar a Farmacia Online")
+                  isSupabaseConfigured()
+                    ? showToast(
+                        "✅ Generar receta digital desde notas clínicas y enviar a Farmacia Online",
+                      )
+                    : showDemo(
+                        "Generar receta digital desde notas clínicas y enviar a Farmacia Online",
+                      )
                 }
                 className="px-5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700 transition"
               >
@@ -666,9 +699,13 @@ export default function TriagePage() {
                         <td className="px-5 py-3 text-right">
                           <button
                             onClick={() =>
-                              showDemo(
-                                `Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
-                              )
+                              isSupabaseConfigured()
+                                ? showToast(
+                                    `✅ Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
+                                  )
+                                : showDemo(
+                                    `Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
+                                  )
                             }
                             className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                           >
@@ -694,9 +731,13 @@ export default function TriagePage() {
                 </p>
                 <button
                   onClick={() =>
-                    showDemo(
-                      `Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
-                    )
+                    isSupabaseConfigured()
+                      ? showToast(
+                          `✅ Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
+                        )
+                      : showDemo(
+                          `Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
+                        )
                   }
                   className="mt-3 px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
                 >
