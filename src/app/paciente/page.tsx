@@ -5,6 +5,12 @@ import Link from "next/link";
 import { usePatientName } from "@/lib/hooks/usePatientName";
 import { useNearbyServices, formatDistance } from "@/lib/hooks/useNearbyServices";
 import {
+  useMyAppointments,
+  useMyMedications,
+  useMyVitals,
+  useMyAlerts,
+} from "@/hooks/use-patient-data";
+import {
   Heart,
   Calendar,
   Pill,
@@ -25,39 +31,7 @@ import {
   Cross,
 } from "lucide-react";
 
-/* ── demo data ────────────────────────────────────────── */
-const upcomingAppointments = [
-  {
-    id: 1,
-    doctor: "Dra. Laura Méndez",
-    specialty: "Clínica Médica",
-    date: "Lun 17 Mar",
-    time: "10:30",
-    type: "presencial",
-  },
-  {
-    id: 2,
-    doctor: "Dr. Carlos Ruiz",
-    specialty: "Cardiología",
-    date: "Mié 19 Mar",
-    time: "15:00",
-    type: "teleconsulta",
-  },
-];
-
-const activeMeds = [
-  { id: 1, name: "Losartán 50mg", dose: "1 comprimido/día", remaining: 12 },
-  { id: 2, name: "Metformina 850mg", dose: "2 comprimidos/día", remaining: 5 },
-  { id: 3, name: "Atorvastatina 20mg", dose: "1 comprimido/noche", remaining: 28 },
-];
-
-const vitals = [
-  { label: "Presión arterial", value: "120/80", unit: "mmHg", trend: "stable" },
-  { label: "Peso", value: "72.5", unit: "kg", trend: "down" },
-  { label: "Glucemia", value: "98", unit: "mg/dL", trend: "stable" },
-  { label: "Frecuencia cardíaca", value: "68", unit: "bpm", trend: "stable" },
-];
-
+/* ── static data ──────────────────────────────────────── */
 const quickActions = [
   {
     label: "Sacar turno",
@@ -85,11 +59,6 @@ const quickActions = [
   },
 ];
 
-const alerts = [
-  { id: 1, text: "Tu receta de Metformina vence en 5 días", type: "warning" as const },
-  { id: 2, text: "Recordatorio: análisis de sangre pendiente", type: "info" as const },
-];
-
 /* ── helpers ──────────────────────────────────────────── */
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -108,6 +77,26 @@ function TrendIcon({ trend }: { trend: string }) {
 export default function PatientDashboard() {
   const { firstName } = usePatientName();
   const nearby = useNearbyServices();
+  const { data: appointments, isLoading: loadingApts } = useMyAppointments();
+  const { data: medications, isLoading: loadingMeds } = useMyMedications();
+  const { data: vitalSigns, isLoading: loadingVitals } = useMyVitals();
+  const { data: patientAlerts } = useMyAlerts();
+
+  const upcomingAppointments = (appointments ?? [])
+    .filter((a) => a.status === "confirmado" || a.status === "pendiente")
+    .slice(0, 2);
+  const activeMeds = (medications ?? [])
+    .filter((m) => m.status === "activo")
+    .slice(0, 3)
+    .map((m) => ({
+      id: m.id,
+      name: m.name,
+      dose: `${m.dose}/${m.frequency.split(" - ")[0]?.toLowerCase() ?? "día"}`,
+      remaining: m.remaining,
+    }));
+  const vitals = vitalSigns ?? [];
+  const alerts = patientAlerts ?? [];
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Greeting */}

@@ -85,3 +85,102 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 });
+
+// ─── Push Notifications ──────────────────────────────────────
+// Receives push events from the server and shows a notification.
+
+self.addEventListener("push", (event) => {
+  let data = { title: "Cóndor Salud", body: "Nueva notificación", url: "/dashboard/alertas" };
+
+  try {
+    if (event.data) {
+      const parsed = event.data.json();
+      data = { ...data, ...parsed };
+    }
+  } catch {
+    // If payload isn't JSON, use text as body
+    if (event.data) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
+    vibrate: [200, 100, 200],
+    tag: "condor-salud-notification",
+    renotify: true,
+    data: { url: data.url || "/dashboard/alertas" },
+    actions: [
+      { action: "open", title: "Abrir" },
+      { action: "dismiss", title: "Cerrar" },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+// Handle notification clicks
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  if (event.action === "dismiss") return;
+
+  const targetUrl = event.notification.data?.url || "/dashboard/alertas";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clients) => {
+        // Focus existing window if available
+        for (const client of clients) {
+          if (client.url.includes(targetUrl) && "focus" in client) {
+            return client.focus();
+          }
+        }
+        // Otherwise open new window
+        return self.clients.openWindow(targetUrl);
+      }),
+  );
+});
+
+// ─── Background Sync ─────────────────────────────────────────
+// Retries failed API requests when connectivity is restored.
+
+self.addEventListener("sync", (event) => {
+  if (event.tag === "condor-salud-sync") {
+    event.waitUntil(replayOfflineQueue());
+  }
+});
+
+async function replayOfflineQueue() {
+  try {
+    const cache = await caches.open("condor-salud-offline-queue");
+    const requests = await cache.keys();
+
+    for (const request of requests) {
+      try {
+        const cachedResponse = await cache.match(request);
+        if (!cachedResponse) continue;
+
+        // The cached response body contains the original request payload
+        const payload = await cachedResponse.json();
+
+        const response = await fetch(payload.url, {
+          method: payload.method || "POST",
+          headers: payload.headers || { "Content-Type": "application/json" },
+          body: payload.body ? JSON.stringify(payload.body) : undefined,
+        });
+
+        if (response.ok) {
+          await cache.delete(request);
+        }
+      } catch {
+        // Will retry on next sync event
+      }
+    }
+  } catch {
+    // Queue doesn't exist yet or is empty
+  }
+}

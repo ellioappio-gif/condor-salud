@@ -20,57 +20,13 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useMyTeleAppointments } from "@/hooks/use-patient-data";
+import type { TeleAppointment } from "@/lib/services/patient-data";
 
 /* ── types ────────────────────────────────────────────── */
 type View = "list" | "waiting" | "call";
 
-interface TeleAppointment {
-  id: number;
-  doctor: string;
-  specialty: string;
-  date: string;
-  time: string;
-  status: "disponible" | "en-espera" | "completado";
-  rating?: number;
-}
-
-/* ── demo data ────────────────────────────────────────── */
-const teleAppointments: TeleAppointment[] = [
-  {
-    id: 1,
-    doctor: "Dr. Carlos Ruiz",
-    specialty: "Cardiología",
-    date: "Mié 19 Mar",
-    time: "15:00",
-    status: "disponible",
-  },
-  {
-    id: 2,
-    doctor: "Dra. Ana Torres",
-    specialty: "Ginecología",
-    date: "Vie 21 Mar",
-    time: "10:30",
-    status: "disponible",
-  },
-  {
-    id: 3,
-    doctor: "Dra. Laura Méndez",
-    specialty: "Clínica Médica",
-    date: "Lun 10 Mar",
-    time: "11:00",
-    status: "completado",
-    rating: 5,
-  },
-  {
-    id: 4,
-    doctor: "Dr. Pablo Sánchez",
-    specialty: "Dermatología",
-    date: "Jue 06 Mar",
-    time: "16:00",
-    status: "completado",
-    rating: 4,
-  },
-];
+/* ── demo data removed — using SWR hooks ──────────────── */
 
 const tips = [
   { icon: Wifi, text: "Asegurate de tener buena conexión a internet" },
@@ -81,13 +37,15 @@ const tips = [
 
 export default function TeleconsultaPage() {
   const { showToast } = useToast();
+  const { data: teleAppointments } = useMyTeleAppointments();
   const [view, setView] = useState<View>("list");
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
   const [selectedApt, setSelectedApt] = useState<TeleAppointment | null>(null);
 
-  const upcoming = teleAppointments.filter((a) => a.status === "disponible");
-  const past = teleAppointments.filter((a) => a.status === "completado");
+  const allApts = teleAppointments ?? [];
+  const upcoming = allApts.filter((a) => a.status === "disponible");
+  const past = allApts.filter((a) => a.status === "completado");
 
   const handleJoin = (apt: TeleAppointment) => {
     setSelectedApt(apt);

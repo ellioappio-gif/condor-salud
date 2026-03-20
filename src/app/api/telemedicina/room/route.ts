@@ -18,12 +18,25 @@ export async function POST(req: NextRequest) {
     // Daily.co video room creation
     const apiKey = process.env.DAILY_API_KEY;
     if (!apiKey) {
-      // Return a mock room when no API key configured
-      return NextResponse.json({
-        url: `https://condorsalud.daily.co/room-${Date.now()}`,
-        name: `room-${Date.now()}`,
-        mock: true,
-      });
+      // ── Mock mode: no real video connection ──
+      logger.warn(
+        { route: "telemedicina/room", patientName, consultationId },
+        "DAILY_API_KEY not set — returning mock room URL. Video calls will NOT work. " +
+          "Set DAILY_API_KEY in env to enable real telemedicine rooms.",
+      );
+      return NextResponse.json(
+        {
+          url: `https://condorsalud.daily.co/room-${Date.now()}`,
+          name: `room-${Date.now()}`,
+          mock: true,
+          warning:
+            "Modo demo — sin conexión real a video. Configure DAILY_API_KEY para habilitar telemedicina.",
+        },
+        {
+          status: 200,
+          headers: { "X-Condor-Mock": "true" },
+        },
+      );
     }
 
     const res = await fetch("https://api.daily.co/v1/rooms", {

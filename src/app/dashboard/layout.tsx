@@ -8,10 +8,12 @@ import { ToastProvider } from "@/components/Toast";
 import { DemoModalProvider } from "@/components/DemoModal";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Chatbot from "@/components/Chatbot";
+import NotificationCenter from "@/components/NotificationCenter";
 
 import { SWRProvider } from "@/lib/swr";
 import { useAuth } from "@/lib/auth/context";
 import { usePlanSafe } from "@/lib/plan-context";
+import { useLocale } from "@/lib/i18n/context";
 import type { ModuleId } from "@/lib/plan-config";
 import {
   LayoutDashboard,
@@ -62,50 +64,63 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const navSections = [
-  { title: null, items: [{ label: "Panel", href: "/dashboard" }] },
+  {
+    title: null,
+    titleKey: null,
+    items: [{ label: "Panel", href: "/dashboard", tKey: "nav.dashboard" }],
+  },
   {
     title: "GESTION CLINICA",
+    titleKey: "nav.clinicManagement",
     items: [
-      { label: "Pacientes", href: "/dashboard/pacientes" },
-      { label: "Agenda", href: "/dashboard/agenda" },
-      { label: "Verificacion", href: "/dashboard/verificacion" },
-      { label: "Inventario", href: "/dashboard/inventario" },
+      { label: "Pacientes", href: "/dashboard/pacientes", tKey: "nav.patients" },
+      { label: "Agenda", href: "/dashboard/agenda", tKey: "nav.appointments" },
+      { label: "Verificacion", href: "/dashboard/verificacion", tKey: "" },
+      { label: "Inventario", href: "/dashboard/inventario", tKey: "nav.inventory" },
     ],
   },
   {
     title: "FINANZAS",
+    titleKey: "nav.finance",
     items: [
-      { label: "Facturacion", href: "/dashboard/facturacion" },
-      { label: "Rechazos", href: "/dashboard/rechazos" },
-      { label: "Financiadores", href: "/dashboard/financiadores" },
-      { label: "Inflacion", href: "/dashboard/inflacion" },
-      { label: "Pagos", href: "/dashboard/pagos" },
+      { label: "Facturacion", href: "/dashboard/facturacion", tKey: "nav.billing" },
+      { label: "Rechazos", href: "/dashboard/rechazos", tKey: "nav.rejections" },
+      { label: "Financiadores", href: "/dashboard/financiadores", tKey: "nav.insurers" },
+      { label: "Inflacion", href: "/dashboard/inflacion", tKey: "" },
+      { label: "Pagos", href: "/dashboard/pagos", tKey: "" },
     ],
   },
   {
     title: "INTELIGENCIA",
+    titleKey: "nav.intelligence",
     items: [
-      { label: "Auditoria", href: "/dashboard/auditoria" },
-      { label: "Nomenclador", href: "/dashboard/nomenclador" },
-      { label: "Reportes", href: "/dashboard/reportes" },
+      { label: "Auditoria", href: "/dashboard/auditoria", tKey: "nav.audit" },
+      { label: "Nomenclador", href: "/dashboard/nomenclador", tKey: "" },
+      { label: "Reportes", href: "/dashboard/reportes", tKey: "nav.analytics" },
     ],
   },
   {
     title: "SERVICIOS",
+    titleKey: "nav.services",
     items: [
-      { label: "Farmacia Online", href: "/dashboard/farmacia" },
-      { label: "Telemedicina", href: "/dashboard/telemedicina" },
-      { label: "Directorio Medico", href: "/dashboard/directorio" },
-      { label: "Red Interconsultas", href: "/dashboard/interconsultas" },
-      { label: "Triage", href: "/dashboard/triage" },
+      { label: "Farmacia Online", href: "/dashboard/farmacia", tKey: "" },
+      { label: "Telemedicina", href: "/dashboard/telemedicina", tKey: "nav.telemedicine" },
+      { label: "Directorio Medico", href: "/dashboard/directorio", tKey: "" },
+      {
+        label: "Red Interconsultas",
+        href: "/dashboard/interconsultas",
+        tKey: "nav.interconsultas",
+      },
+      { label: "Triage", href: "/dashboard/triage", tKey: "" },
     ],
   },
   {
     title: "SISTEMA",
+    titleKey: "nav.system",
     items: [
-      { label: "Alertas", href: "/dashboard/alertas" },
-      { label: "Configuracion", href: "/dashboard/configuracion" },
-      { label: "Configuración inicial", href: "/dashboard/wizard" },
+      { label: "Alertas", href: "/dashboard/alertas", tKey: "nav.alerts" },
+      { label: "Configuracion", href: "/dashboard/configuracion", tKey: "nav.settings" },
+      { label: "Configuración inicial", href: "/dashboard/wizard", tKey: "" },
     ],
   },
 ];
@@ -137,6 +152,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
   const plan = usePlanSafe();
+  const { t } = useLocale();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isNavVisible = (href: string): boolean => {
@@ -265,7 +281,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="px-3 mb-2 text-[10px] font-bold tracking-[0.16em] text-gray-400 uppercase"
                     aria-hidden="true"
                   >
-                    {section.title}
+                    {section.titleKey ? t(section.titleKey) : section.title}
                   </div>
                 )}
                 <div className="space-y-0.5">
@@ -288,7 +304,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           const IconComp = navIcons[item.href];
                           return IconComp ? <IconComp className="w-4 h-4" /> : null;
                         })()}
-                        <span className="flex-1">{item.label}</span>
+                        <span className="flex-1">
+                          {(item as { tKey?: string }).tKey
+                            ? t((item as { tKey?: string }).tKey!)
+                            : item.label}
+                        </span>
                         {"badge" in item && (item as { badge?: number }).badge ? (
                           <span
                             className="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
@@ -342,13 +362,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
             <Link href="/" className="text-[10px] text-gray-400 hover:text-celeste-dark transition">
-              Volver al sitio
+              {t("action.back")}
             </Link>
             <button
               onClick={handleLogout}
               className="text-[10px] text-gray-400 hover:text-red-500 transition ml-auto"
             >
-              Cerrar sesión
+              {t("action.logout")}
             </button>
           </div>
         </div>
@@ -394,32 +414,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             })}
           </div>
           <div className="flex items-center gap-4 ml-auto">
-            <Link
-              href="/dashboard/alertas"
-              className="relative text-ink-muted hover:text-ink transition"
-              aria-label="Alertas — 5 nuevas"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                />
-              </svg>
-              <span
-                className="absolute -top-1 -right-1 w-4 h-4 bg-celeste-dark text-white text-[8px] font-bold rounded-full flex items-center justify-center"
-                aria-hidden="true"
-              >
-                5
-              </span>
-            </Link>
+            <NotificationCenter />
             <div className="h-5 w-px bg-border" aria-hidden="true" />
             <Link href="/dashboard/configuracion" className="flex items-center gap-2.5 group">
               <span className="text-xs text-ink-muted group-hover:text-ink transition hidden sm:inline">

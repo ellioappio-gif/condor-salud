@@ -23,61 +23,49 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { usePatientName } from "@/lib/hooks/usePatientName";
+import { useMyProfile } from "@/hooks/use-patient-data";
+import type { PatientProfile } from "@/lib/services/patient-data";
 
 /* ── types ────────────────────────────────────────────── */
-interface PatientProfile {
-  name: string;
-  email: string;
-  phone: string;
-  dni: string;
-  birthDate: string;
-  gender: string;
-  address: string;
-  city: string;
-  bloodType: string;
-  insurance: string;
-  memberId: string;
-  plan: string;
-  emergencyContact: string;
-  emergencyPhone: string;
-  allergies: string[];
-  chronicConditions: string[];
-  currentMedications: string[];
-}
-
-/* ── demo data ────────────────────────────────────────── */
-const initialProfile: PatientProfile = {
-  name: "", // will be set from cookie
-  email: "paciente@email.com",
-  phone: "+54 11 5555-1234",
-  dni: "29.384.756",
-  birthDate: "1985-06-15",
-  gender: "Femenino",
-  address: "Av. Cabildo 2040, 3°B",
-  city: "CABA, Buenos Aires",
-  bloodType: "A+",
-  insurance: "OSDE",
-  memberId: "08-29384756-3",
-  plan: "310",
-  emergencyContact: "Juan Gómez (esposo)",
-  emergencyPhone: "+54 11 5555-5678",
-  allergies: ["Penicilina", "Mariscos"],
-  chronicConditions: ["Hipertensión arterial", "Diabetes tipo 2", "Dislipidemia"],
-  currentMedications: ["Losartán 50mg", "Metformina 850mg", "Atorvastatina 20mg"],
-};
-
 type Section = "personal" | "medical" | "settings";
 
 export default function PerfilPage() {
   const { showToast } = useToast();
   const { name: cookieName, setName: setCookieName, initials } = usePatientName();
+  const { data: fetchedProfile } = useMyProfile(cookieName ?? undefined);
 
-  // Seed profile name from cookie
-  const seededProfile = { ...initialProfile, name: cookieName || "Paciente" };
+  const seededProfile: PatientProfile = fetchedProfile ?? {
+    name: cookieName || "Paciente",
+    email: "",
+    phone: "",
+    dni: "",
+    birthDate: "",
+    gender: "",
+    address: "",
+    city: "",
+    bloodType: "",
+    insurance: "",
+    memberId: "",
+    plan: "",
+    emergencyContact: "",
+    emergencyPhone: "",
+    allergies: [],
+    chronicConditions: [],
+    currentMedications: [],
+  };
+
   const [profile, setProfile] = useState<PatientProfile>(seededProfile);
   const [editProfile, setEditProfile] = useState<PatientProfile>(seededProfile);
   const [section, setSection] = useState<Section>("personal");
   const [editing, setEditing] = useState(false);
+
+  // Sync fetched profile into local state
+  useEffect(() => {
+    if (fetchedProfile) {
+      setProfile(fetchedProfile);
+      setEditProfile(fetchedProfile);
+    }
+  }, [fetchedProfile]);
 
   // Keep profile in sync when cookie loads
   useEffect(() => {

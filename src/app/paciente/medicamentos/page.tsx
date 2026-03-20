@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Pill,
   Clock,
@@ -17,139 +17,23 @@ import {
   Calendar,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useMyMedications, useMyMedOrders } from "@/hooks/use-patient-data";
+import type { PatientMedication, PatientMedOrder } from "@/lib/services/patient-data";
 
 /* ── types ────────────────────────────────────────────── */
 type Tab = "activos" | "historial" | "pedidos";
 
-interface Medication {
-  id: number;
-  name: string;
-  generic: string;
-  dose: string;
-  frequency: string;
-  prescribedBy: string;
-  startDate: string;
-  remaining: number;
-  refillable: boolean;
-  coverage: string;
-  copay: string;
-  status: "activo" | "finalizado";
-}
+/* ── demo data removed — using SWR hooks ──────────────── */
 
-interface Order {
-  id: number;
-  date: string;
-  items: string[];
-  total: string;
-  status: "entregado" | "en-camino" | "preparando" | "cancelado";
-}
-
-/* ── demo data ────────────────────────────────────────── */
-const medications: Medication[] = [
-  {
-    id: 1,
-    name: "Losartán 50mg",
-    generic: "Losartán potásico",
-    dose: "1 comprimido",
-    frequency: "Cada 24 horas - Mañana",
-    prescribedBy: "Dra. Laura Méndez",
-    startDate: "15/01/2026",
-    remaining: 12,
-    refillable: true,
-    coverage: "70%",
-    copay: "$2.100",
-    status: "activo",
-  },
-  {
-    id: 2,
-    name: "Metformina 850mg",
-    generic: "Metformina clorhidrato",
-    dose: "1 comprimido",
-    frequency: "Cada 12 horas - Desayuno y cena",
-    prescribedBy: "Dra. Laura Méndez",
-    startDate: "15/01/2026",
-    remaining: 5,
-    refillable: true,
-    coverage: "70%",
-    copay: "$1.800",
-    status: "activo",
-  },
-  {
-    id: 3,
-    name: "Atorvastatina 20mg",
-    generic: "Atorvastatina cálcica",
-    dose: "1 comprimido",
-    frequency: "Cada 24 horas - Noche",
-    prescribedBy: "Dr. Carlos Ruiz",
-    startDate: "01/02/2026",
-    remaining: 28,
-    refillable: true,
-    coverage: "70%",
-    copay: "$3.200",
-    status: "activo",
-  },
-  {
-    id: 4,
-    name: "Omeprazol 20mg",
-    generic: "Omeprazol",
-    dose: "1 cápsula",
-    frequency: "Cada 24 horas - Antes del desayuno",
-    prescribedBy: "Dra. Laura Méndez",
-    startDate: "01/01/2026",
-    remaining: 0,
-    refillable: false,
-    coverage: "70%",
-    copay: "$950",
-    status: "finalizado",
-  },
-  {
-    id: 5,
-    name: "Amoxicilina 500mg",
-    generic: "Amoxicilina",
-    dose: "1 cápsula",
-    frequency: "Cada 8 horas - 7 días",
-    prescribedBy: "Dr. Martín Rodríguez",
-    startDate: "10/02/2026",
-    remaining: 0,
-    refillable: false,
-    coverage: "100%",
-    copay: "$0",
-    status: "finalizado",
-  },
-];
-
-const orders: Order[] = [
-  {
-    id: 1001,
-    date: "10/03/2026",
-    items: ["Losartán 50mg x30", "Metformina 850mg x60"],
-    total: "$3.900",
-    status: "entregado",
-  },
-  {
-    id: 1002,
-    date: "28/02/2026",
-    items: ["Atorvastatina 20mg x30"],
-    total: "$3.200",
-    status: "entregado",
-  },
-  {
-    id: 1003,
-    date: "15/02/2026",
-    items: ["Losartán 50mg x30", "Metformina 850mg x60", "Omeprazol 20mg x30"],
-    total: "$4.850",
-    status: "entregado",
-  },
-];
-
-function OrderStatusBadge({ status }: { status: Order["status"] }) {
+function OrderStatusBadge({ status }: { status: PatientMedOrder["status"] }) {
   const map = {
     entregado: { label: "Entregado", cls: "bg-success-50 text-success-700", icon: CheckCircle2 },
     "en-camino": { label: "En camino", cls: "bg-celeste-50 text-celeste-dark", icon: Truck },
     preparando: { label: "Preparando", cls: "bg-amber-50 text-amber-700", icon: Package },
     cancelado: { label: "Cancelado", cls: "bg-red-50 text-red-600", icon: AlertTriangle },
   };
-  const { label, cls, icon: Icon } = map[status];
+  const entry = map[status] ?? map.preparando;
+  const { label, cls, icon: Icon } = entry;
   return (
     <span
       className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${cls}`}
@@ -162,11 +46,15 @@ function OrderStatusBadge({ status }: { status: Order["status"] }) {
 
 export default function MedicamentosPage() {
   const { showToast } = useToast();
+  const { data: medications } = useMyMedications();
+  const { data: orders } = useMyMedOrders();
   const [tab, setTab] = useState<Tab>("activos");
   const [search, setSearch] = useState("");
 
-  const active = medications.filter((m) => m.status === "activo");
-  const history = medications.filter((m) => m.status === "finalizado");
+  const allMeds = medications ?? [];
+  const allOrders = orders ?? [];
+  const active = allMeds.filter((m) => m.status === "activo");
+  const history = allMeds.filter((m) => m.status === "finalizado");
   const filtered = (tab === "activos" ? active : history).filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase()),
   );
@@ -331,7 +219,7 @@ export default function MedicamentosPage() {
       {/* Orders list */}
       {tab === "pedidos" && (
         <div className="bg-white rounded-2xl border border-border-light divide-y divide-border-light">
-          {orders.map((order) => (
+          {allOrders.map((order) => (
             <div key={order.id} className="px-5 py-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
@@ -349,7 +237,7 @@ export default function MedicamentosPage() {
               </div>
             </div>
           ))}
-          {orders.length === 0 && (
+          {allOrders.length === 0 && (
             <div className="px-5 py-12 text-center text-sm text-ink-muted">No hay pedidos</div>
           )}
         </div>

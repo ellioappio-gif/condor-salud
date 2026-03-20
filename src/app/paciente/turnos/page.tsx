@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Calendar,
   Clock,
@@ -16,85 +16,14 @@ import {
   User,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useMyAppointments } from "@/hooks/use-patient-data";
+import type { PatientAppointment } from "@/lib/services/patient-data";
 
 /* ── types ────────────────────────────────────────────── */
 type Tab = "proximos" | "historial";
-type AppointmentStatus = "confirmado" | "pendiente" | "cancelado" | "completado";
+type AppointmentStatus = PatientAppointment["status"];
 
-interface Appointment {
-  id: number;
-  doctor: string;
-  specialty: string;
-  date: string;
-  time: string;
-  type: "presencial" | "teleconsulta";
-  location: string;
-  status: AppointmentStatus;
-}
-
-/* ── demo data ────────────────────────────────────────── */
-const appointments: Appointment[] = [
-  {
-    id: 1,
-    doctor: "Dra. Laura Méndez",
-    specialty: "Clínica Médica",
-    date: "2026-03-17",
-    time: "10:30",
-    type: "presencial",
-    location: "Consultorio 3 - Sede Belgrano",
-    status: "confirmado",
-  },
-  {
-    id: 2,
-    doctor: "Dr. Carlos Ruiz",
-    specialty: "Cardiología",
-    date: "2026-03-19",
-    time: "15:00",
-    type: "teleconsulta",
-    location: "Videollamada",
-    status: "pendiente",
-  },
-  {
-    id: 3,
-    doctor: "Dra. Sofía Peralta",
-    specialty: "Dermatología",
-    date: "2026-03-24",
-    time: "09:15",
-    type: "presencial",
-    location: "Consultorio 7 - Sede Palermo",
-    status: "confirmado",
-  },
-  {
-    id: 4,
-    doctor: "Dr. Martín Rodríguez",
-    specialty: "Clínica Médica",
-    date: "2026-02-10",
-    time: "11:00",
-    type: "presencial",
-    location: "Consultorio 3 - Sede Belgrano",
-    status: "completado",
-  },
-  {
-    id: 5,
-    doctor: "Dra. Ana Torres",
-    specialty: "Ginecología",
-    date: "2026-01-22",
-    time: "14:30",
-    type: "teleconsulta",
-    location: "Videollamada",
-    status: "completado",
-  },
-  {
-    id: 6,
-    doctor: "Dr. Luis Herrera",
-    specialty: "Traumatología",
-    date: "2026-01-08",
-    time: "16:00",
-    type: "presencial",
-    location: "Consultorio 5 - Sede Belgrano",
-    status: "cancelado",
-  },
-];
+/* ── demo data removed — now using SWR hooks ─────────── */
 
 const specialties = [
   "Clínica Médica",
@@ -141,6 +70,7 @@ function StatusBadge({ status }: { status: AppointmentStatus }) {
 /* ── component ────────────────────────────────────────── */
 export default function TurnosPage() {
   const { showToast } = useToast();
+  const { data: fetchedAppointments } = useMyAppointments();
   const [tab, setTab] = useState<Tab>("proximos");
   const [showBooking, setShowBooking] = useState(false);
   const [bookingStep, setBookingStep] = useState(1);
@@ -148,7 +78,12 @@ export default function TurnosPage() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  const [localAppointments, setLocalAppointments] = useState(appointments);
+  const [localAppointments, setLocalAppointments] = useState<PatientAppointment[]>([]);
+
+  // Sync fetched data into local state for optimistic updates
+  useEffect(() => {
+    if (fetchedAppointments) setLocalAppointments(fetchedAppointments);
+  }, [fetchedAppointments]);
 
   const upcoming = localAppointments.filter(
     (a) => a.status === "confirmado" || a.status === "pendiente",

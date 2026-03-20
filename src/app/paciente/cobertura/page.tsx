@@ -18,108 +18,40 @@ import {
   Brain,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useMyCoverage } from "@/hooks/use-patient-data";
 
-/* ── demo data ────────────────────────────────────────── */
-const planInfo = {
-  name: "OSDE 310",
-  memberId: "08-29384756-3",
-  group: "Individual",
-  status: "Activo",
-  validUntil: "31/12/2026",
-  monthlyFee: "$185.400",
-  lastPayment: "01/03/2026",
-  phone: "0800-555-6733",
-  web: "www.osde.com.ar",
+/* ── icon map for coverage categories ─────────────────── */
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Stethoscope,
+  FileText,
+  Pill,
+  Heart,
+  Eye,
+  Baby,
+  Brain,
+  CheckCircle2,
 };
-
-const coverageItems = [
-  {
-    category: "Consultas médicas",
-    coverage: "100%",
-    copay: "$0",
-    icon: Stethoscope,
-    included: true,
-  },
-  { category: "Laboratorio", coverage: "100%", copay: "$0", icon: FileText, included: true },
-  {
-    category: "Medicamentos PMO",
-    coverage: "70%",
-    copay: "30% a cargo",
-    icon: Pill,
-    included: true,
-  },
-  { category: "Internación", coverage: "100%", copay: "$0", icon: Heart, included: true },
-  {
-    category: "Oftalmología",
-    coverage: "100%",
-    copay: "Coseguro $3.500",
-    icon: Eye,
-    included: true,
-  },
-  { category: "Maternidad", coverage: "100%", copay: "$0", icon: Baby, included: true },
-  {
-    category: "Salud mental",
-    coverage: "100%",
-    copay: "Coseguro $5.000",
-    icon: Brain,
-    included: true,
-  },
-  {
-    category: "Odontología",
-    coverage: "50%",
-    copay: "50% a cargo",
-    icon: CheckCircle2,
-    included: true,
-  },
-];
-
-const recentClaims = [
-  {
-    id: 1,
-    date: "12/03/2026",
-    description: "Consulta - Clínica Médica",
-    amount: "$0",
-    status: "aprobado",
-  },
-  {
-    id: 2,
-    date: "05/03/2026",
-    description: "Laboratorio - Hemograma completo",
-    amount: "$0",
-    status: "aprobado",
-  },
-  {
-    id: 3,
-    date: "28/02/2026",
-    description: "Farmacia - Losartán 50mg",
-    amount: "$4.200",
-    status: "aprobado",
-  },
-  {
-    id: 4,
-    date: "20/02/2026",
-    description: "Consulta - Cardiología",
-    amount: "$0",
-    status: "aprobado",
-  },
-  {
-    id: 5,
-    date: "15/02/2026",
-    description: "Imagen - Eco Doppler",
-    amount: "$0",
-    status: "pendiente",
-  },
-];
-
-const documents = [
-  { name: "Credencial digital", type: "PDF" },
-  { name: "Cartilla médica 2026", type: "PDF" },
-  { name: "Programa Materno Infantil", type: "PDF" },
-  { name: "Vademécum 2026", type: "PDF" },
-];
 
 export default function CoberturaPage() {
   const { showToast } = useToast();
+  const { data: coverage } = useMyCoverage();
+  const planInfo = coverage?.plan ?? {
+    name: "",
+    memberId: "",
+    group: "",
+    status: "",
+    validUntil: "",
+    monthlyFee: "",
+    lastPayment: "",
+    phone: "",
+    web: "",
+  };
+  const coverageItems = (coverage?.items ?? []).map((item) => ({
+    ...item,
+    icon: iconMap[item.icon] ?? CheckCircle2,
+  }));
+  const recentClaims = coverage?.claims ?? [];
+  const documents = coverage?.documents ?? [];
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

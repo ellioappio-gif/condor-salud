@@ -24,26 +24,11 @@ import { useToast } from "@/components/Toast";
 import { getDoctoraliarSearchUrl } from "@/lib/doctoraliar";
 import { useGeolocation, type GeoCoords } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
+import { useDoctorDirectory } from "@/hooks/use-patient-data";
+import type { PatientDoctor } from "@/lib/services/patient-data";
 
 /* ── types ────────────────────────────────────────────── */
-interface Doctor {
-  id: number;
-  name: string;
-  specialty: string;
-  subspecialty?: string;
-  rating: number;
-  reviews: number;
-  location: string;
-  address: string;
-  lat: number;
-  lng: number;
-  availableToday: boolean;
-  teleconsulta: boolean;
-  photo?: string;
-  education: string;
-  insurance: string[];
-  nextSlot: string;
-}
+type Doctor = PatientDoctor;
 
 /* ── haversine distance helper ────────────────────────── */
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -61,141 +46,7 @@ function formatDistance(km: number): string {
   return `${km.toFixed(1)} km`;
 }
 
-/* ── demo data ────────────────────────────────────────── */
-const doctors: Doctor[] = [
-  {
-    id: 1,
-    name: "Dra. Laura Méndez",
-    specialty: "Clínica Médica",
-    rating: 4.9,
-    reviews: 234,
-    location: "Belgrano",
-    address: "Av. Cabildo 2040, CABA",
-    lat: -34.5605,
-    lng: -58.4563,
-    availableToday: true,
-    teleconsulta: true,
-    education: "UBA - Hospital Italiano",
-    insurance: ["OSDE", "Swiss Medical", "Galeno"],
-    nextSlot: "Hoy 14:30",
-  },
-  {
-    id: 2,
-    name: "Dr. Carlos Ruiz",
-    specialty: "Cardiología",
-    subspecialty: "Ecocardiografía",
-    rating: 4.8,
-    reviews: 189,
-    location: "Palermo",
-    address: "Av. Santa Fe 3200, CABA",
-    lat: -34.5875,
-    lng: -58.4096,
-    availableToday: false,
-    teleconsulta: true,
-    education: "UBA - Fundación Favaloro",
-    insurance: ["OSDE", "Medifé", "Omint"],
-    nextSlot: "Mié 15:00",
-  },
-  {
-    id: 3,
-    name: "Dra. Sofía Peralta",
-    specialty: "Dermatología",
-    subspecialty: "Dermatología estética",
-    rating: 4.7,
-    reviews: 156,
-    location: "Palermo",
-    address: "Gorriti 4800, CABA",
-    lat: -34.588,
-    lng: -58.428,
-    availableToday: true,
-    teleconsulta: false,
-    education: "Hospital de Clínicas",
-    insurance: ["OSDE", "Swiss Medical"],
-    nextSlot: "Hoy 16:00",
-  },
-  {
-    id: 4,
-    name: "Dr. Martín Rodríguez",
-    specialty: "Clínica Médica",
-    rating: 4.6,
-    reviews: 312,
-    location: "Belgrano",
-    address: "Av. del Libertador 5800, CABA",
-    lat: -34.556,
-    lng: -58.452,
-    availableToday: true,
-    teleconsulta: true,
-    education: "UBA - Hospital Austral",
-    insurance: ["OSDE", "Galeno", "Medifé", "Swiss Medical"],
-    nextSlot: "Hoy 11:00",
-  },
-  {
-    id: 5,
-    name: "Dra. Ana Torres",
-    specialty: "Ginecología",
-    subspecialty: "Obstetricia",
-    rating: 4.9,
-    reviews: 278,
-    location: "Recoleta",
-    address: "Av. Callao 1234, CABA",
-    lat: -34.595,
-    lng: -58.396,
-    availableToday: false,
-    teleconsulta: true,
-    education: "UBA - Hospital Británico",
-    insurance: ["OSDE", "Swiss Medical", "Omint"],
-    nextSlot: "Vie 10:30",
-  },
-  {
-    id: 6,
-    name: "Dr. Luis Herrera",
-    specialty: "Traumatología",
-    subspecialty: "Medicina deportiva",
-    rating: 4.5,
-    reviews: 98,
-    location: "Belgrano",
-    address: "Av. Cabildo 1500, CABA",
-    lat: -34.564,
-    lng: -58.453,
-    availableToday: false,
-    teleconsulta: false,
-    education: "UBA - Hospital Italiano",
-    insurance: ["OSDE", "Galeno"],
-    nextSlot: "Lun 09:00",
-  },
-  {
-    id: 7,
-    name: "Dr. Pablo Sánchez",
-    specialty: "Dermatología",
-    rating: 4.8,
-    reviews: 145,
-    location: "Microcentro",
-    address: "Av. Corrientes 800, CABA",
-    lat: -34.6041,
-    lng: -58.3816,
-    availableToday: true,
-    teleconsulta: true,
-    education: "Hospital de Clínicas",
-    insurance: ["OSDE", "Swiss Medical", "Medifé"],
-    nextSlot: "Hoy 17:00",
-  },
-  {
-    id: 8,
-    name: "Dra. Valentina Castro",
-    specialty: "Pediatría",
-    rating: 4.9,
-    reviews: 412,
-    location: "Caballito",
-    address: "Av. Rivadavia 5200, CABA",
-    lat: -34.6186,
-    lng: -58.4381,
-    availableToday: true,
-    teleconsulta: true,
-    education: "Hospital Garrahan",
-    insurance: ["OSDE", "Swiss Medical", "Galeno", "Omint"],
-    nextSlot: "Hoy 15:30",
-  },
-];
+/* ── demo data removed — using SWR hooks ──────────────── */
 
 const specialties = [
   "Todas",
@@ -212,6 +63,7 @@ export default function MedicosPage() {
   const { showToast } = useToast();
   const router = useRouter();
   const { locale } = useLocale();
+  const { data: doctors } = useDoctorDirectory();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState("Todas");
   const [location, setLocation] = useState("Todas");
@@ -222,7 +74,8 @@ export default function MedicosPage() {
   const geo = useGeolocation({ lazy: true });
 
   // Compute distances when geolocation is available
-  const doctorsWithDistance = doctors.map((d) => ({
+  const allDoctors = doctors ?? [];
+  const doctorsWithDistance = allDoctors.map((d) => ({
     ...d,
     distanceKm: geo.coords
       ? Math.round(haversineKm(geo.coords.latitude, geo.coords.longitude, d.lat, d.lng) * 10) / 10

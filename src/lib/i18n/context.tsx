@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import translations, { type Locale } from "./translations";
+import { dashboardTranslations } from "./dashboard-translations";
 import {
   type Segment,
   getSegmentFromCookie,
@@ -96,8 +97,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
    *
    * Resolution order:
    * 1. "{key}@{segment}"  — segment-specific override
-   * 2. "{key}"            — default translation
-   * 3. raw key string     — fallback
+   * 2. "{key}"            — landing page translations
+   * 3. "{key}"            — dashboard translations
+   * 4. raw key string     — fallback
    *
    * This lets us add targeted overrides like "hero.title1@tourist"
    * without touching existing translations.
@@ -110,10 +112,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         const segEntry = translations[segKey];
         if (segEntry) return segEntry[locale];
       }
-      // Fall back to default key
+      // Fall back to default key in landing translations
       const entry = translations[key];
-      if (!entry) return key;
-      return entry[locale];
+      if (entry) return entry[locale];
+      // Fall back to dashboard translations
+      const dashEntry = dashboardTranslations[key];
+      if (dashEntry) return dashEntry[locale];
+      return key;
     },
     [locale, segment],
   );
