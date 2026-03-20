@@ -1,12 +1,13 @@
 // ─── useCrudAction — Dual-mode CRUD helper ──────────────────
 // Provides a unified pattern for all dashboard actions:
-//   - Real Supabase mutation when configured
-//   - Graceful demo fallback via DemoModal
+//   - Real Supabase mutation when clinic is NOT in demo mode
+//   - Graceful demo fallback via DemoModal when clinic IS demo
 //   - Toast feedback for success/error
 //   - SWR cache invalidation after mutations
 //
 // Usage:
-//   const { execute } = useCrudAction();
+//   const isDemo = useIsDemo();
+//   const { execute } = useCrudAction(isDemo);
 //   await execute({
 //     action: () => createFactura(input),
 //     successMessage: "Factura creada",
@@ -19,12 +20,11 @@
 
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
-import { isSupabaseConfigured } from "@/lib/env";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 
 export interface CrudActionOptions<T = unknown> {
-  /** The real async mutation to run when Supabase is configured */
+  /** The real async mutation to run when clinic is active (not demo) */
   action: () => Promise<T>;
   /** Toast message on success */
   successMessage: string;
@@ -40,7 +40,10 @@ export interface CrudActionOptions<T = unknown> {
   onError?: (error: unknown) => void;
 }
 
-export function useCrudAction() {
+/**
+ * @param isDemo — true when the clinic is in demo mode (from useIsDemo())
+ */
+export function useCrudAction(isDemo: boolean) {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
   const { mutate } = useSWRConfig();
@@ -48,7 +51,7 @@ export function useCrudAction() {
 
   const execute = useCallback(
     async <T = unknown>(opts: CrudActionOptions<T>): Promise<T | null> => {
-      if (!isSupabaseConfigured()) {
+      if (isDemo) {
         showDemo(opts.demoLabel);
         return null;
       }
@@ -74,7 +77,7 @@ export function useCrudAction() {
         setIsExecuting(false);
       }
     },
-    [showDemo, showToast, mutate],
+    [isDemo, showDemo, showToast, mutate],
   );
 
   return { execute, isExecuting };

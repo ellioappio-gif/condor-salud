@@ -16,7 +16,7 @@ import {
   useUpdateLead,
 } from "@/lib/hooks/useCRM";
 import { useCrudAction } from "@/hooks/use-crud-action";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { usePacientes } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
 
@@ -259,7 +259,8 @@ export default function PacientesPage() {
 
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
-  const { execute, isExecuting } = useCrudAction();
+  const isDemo = useIsDemo();
+  const { execute, isExecuting } = useCrudAction(isDemo);
   const { exportPDF, exportExcel, isExporting } = useExport();
   const [activeTab, setActiveTab] = useState<PacientesTab>(initialTab);
 
@@ -281,7 +282,7 @@ export default function PacientesPage() {
   };
 
   const handleNuevoPaciente = () => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo("Nuevo paciente");
       return;
     }
@@ -291,7 +292,7 @@ export default function PacientesPage() {
   // Patient data: real from Supabase or demo
   const { data: realPacientes } = usePacientes();
   const pacientes = useMemo((): typeof DEMO_PACIENTES => {
-    if (!isSupabaseConfigured()) return DEMO_PACIENTES;
+    if (isDemo) return DEMO_PACIENTES;
     if (!realPacientes || realPacientes.length === 0) return [] as any;
     return realPacientes.map((p) => ({
       id: p.id,
@@ -308,7 +309,7 @@ export default function PacientesPage() {
       estado: p.estado as "activo" | "inactivo",
       turnos: 0,
     })) as any;
-  }, [realPacientes]);
+  }, [realPacientes, isDemo]);
 
   // Patient filters
   const [search, setSearch] = useState("");

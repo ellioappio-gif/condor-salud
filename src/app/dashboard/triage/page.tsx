@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { useTriages, useTriageKPIs } from "@/lib/hooks/useModules";
 import {
   bodySystems,
@@ -18,6 +18,7 @@ type Tab = "sintomas" | "detalle" | "notas" | "intake" | "clinicas" | "routing";
 export default function TriagePage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
   const [tab, setTab] = useState<Tab>("sintomas");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [severity, setSeverity] = useState(5);
@@ -121,7 +122,7 @@ export default function TriagePage() {
         </div>
         <button
           onClick={() =>
-            isSupabaseConfigured()
+            !isDemo
               ? showToast("✅ Nuevo triage de paciente")
               : showDemo("Nuevo triage de paciente")
           }
@@ -323,7 +324,7 @@ export default function TriagePage() {
 
               <button
                 onClick={() =>
-                  isSupabaseConfigured()
+                  !isDemo
                     ? showToast(
                         `✅ Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
                       )
@@ -373,7 +374,7 @@ export default function TriagePage() {
                 </p>
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
+                    !isDemo
                       ? showToast("✅ Adjuntar fotos al triage del paciente")
                       : showDemo("Adjuntar fotos al triage del paciente")
                   }
@@ -386,7 +387,7 @@ export default function TriagePage() {
 
             <button
               onClick={() =>
-                isSupabaseConfigured()
+                !isDemo
                   ? showToast(
                       `✅ Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
                     )
@@ -615,7 +616,7 @@ export default function TriagePage() {
                 </select>
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
+                    !isDemo
                       ? showToast("✅ Agregar derivación al directorio médico")
                       : showDemo("Agregar derivación al directorio médico")
                   }
@@ -629,7 +630,7 @@ export default function TriagePage() {
             <div className="flex gap-3">
               <button
                 onClick={() =>
-                  isSupabaseConfigured()
+                  !isDemo
                     ? showToast(
                         `✅ Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
                       )
@@ -643,7 +644,7 @@ export default function TriagePage() {
               </button>
               <button
                 onClick={() =>
-                  isSupabaseConfigured()
+                  !isDemo
                     ? showToast(
                         "✅ Generar receta digital desde notas clínicas y enviar a Farmacia Online",
                       )
@@ -699,7 +700,7 @@ export default function TriagePage() {
                         <td className="px-5 py-3 text-right">
                           <button
                             onClick={() =>
-                              isSupabaseConfigured()
+                              !isDemo
                                 ? showToast(
                                     `✅ Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
                                   )
@@ -731,7 +732,7 @@ export default function TriagePage() {
                 </p>
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
+                    !isDemo
                       ? showToast(
                           `✅ Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
                         )

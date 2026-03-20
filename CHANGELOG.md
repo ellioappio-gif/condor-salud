@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.8] — 2026-03-19
+
+### Changed
+
+- **Demo mode moved to provider/clinic level** — no longer determined by `isSupabaseConfigured()` env var
+  - Added `demo BOOLEAN NOT NULL DEFAULT false` column to `clinics` table (migration `007_clinic_demo_flag.sql`)
+  - Extended `User` type with `isDemo: boolean` — resolved from `clinics.demo` via profile join
+  - Updated `resolveProfile()` in auth context to fetch `clinics(name, demo)`
+  - Updated session API (GET/POST) to include `isDemo` in all responses
+  - Created `useIsDemo()` hook in `@/lib/auth/context` — returns `true` when clinic is demo OR Supabase not configured (local dev fallback)
+  - Updated `useCrudAction(isDemo)` to accept demo flag parameter instead of checking env
+  - Replaced all 84 `isSupabaseConfigured()` calls across 20 dashboard pages with `useIsDemo()` / `isDemo`
+  - New clinics default to `demo: false`; set `demo: true` in DB to enable demo mode per clinic
+
 ## [0.9.7] — 2026-03-20
 
 ### Changed

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
+import { useIsDemo } from "@/lib/auth/context";
 import type {
   NetworkDoctor,
   Interconsulta,
@@ -92,7 +93,8 @@ type Tab = "red" | "interconsultas" | "estudios";
 
 export default function InterconsultasPage() {
   const { showDemo } = useDemoAction();
-  const { execute } = useCrudAction();
+  const isDemo = useIsDemo();
+  const { execute } = useCrudAction(isDemo);
 
   const [tab, setTab] = useState<Tab>("red");
   const [search, setSearch] = useState("");

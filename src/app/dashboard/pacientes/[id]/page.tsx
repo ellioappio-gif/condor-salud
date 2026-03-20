@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { useToast } from "@/components/Toast";
 
 const paciente = {
@@ -117,9 +117,10 @@ const facturacion = [
 export default function PacienteDetailPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
 
   const handleEditarPaciente = () => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo("Editar paciente: " + paciente.apellido + ", " + paciente.nombre);
       return;
     }

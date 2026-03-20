@@ -9,7 +9,7 @@ import { useExport } from "@/lib/services/export";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button, Input } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useFacturas } from "@/hooks/use-data";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { Download, Loader2, X } from "lucide-react";
 
 const estadoConfig: Record<FacturaEstado, string> = {
@@ -41,7 +41,8 @@ const estadosFilter = [
 export default function FacturacionPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
-  const { execute, isExecuting } = useCrudAction();
+  const isDemo = useIsDemo();
+  const { execute, isExecuting } = useCrudAction(isDemo);
   const { isExporting, exportPDF, exportExcel } = useExport();
   const { data: facturas = [], isLoading } = useFacturas();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
@@ -58,7 +59,7 @@ export default function FacturacionPage() {
   const [nfCodigo, setNfCodigo] = useState("");
 
   const handleNuevaFactura = () => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo("Nueva factura");
       return;
     }
@@ -100,7 +101,7 @@ export default function FacturacionPage() {
   };
 
   const handleVerDetalle = (f: (typeof facturas)[number]) => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo(`Detalle de factura ${f.numero}`);
       return;
     }

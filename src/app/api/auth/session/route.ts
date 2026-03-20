@@ -32,6 +32,7 @@ const DEMO_USER = {
   role: "admin" as const,
   clinicId: "clinic-001",
   clinicName: "Centro Médico Sur",
+  isDemo: true,
 };
 
 const isSupabaseConfigured = () => {
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
       // Fetch profile data
       const { data: profile } = (await supabase
         .from("profiles")
-        .select("role, full_name, avatar_url, clinic_id, clinics(name)")
+        .select("role, full_name, avatar_url, clinic_id, clinics(name, demo)")
         .eq("id", authUser.id)
         .single()) as { data: Record<string, any> | null };
 
@@ -71,6 +72,7 @@ export async function GET(req: NextRequest) {
         clinicId: profile?.clinic_id || "",
         clinicName: (profile?.clinics as { name?: string })?.name || "",
         avatarUrl: profile?.avatar_url || authUser.user_metadata?.avatar_url,
+        isDemo: (profile?.clinics as { demo?: boolean })?.demo ?? false,
       };
 
       return NextResponse.json({ user });
@@ -99,6 +101,7 @@ export async function GET(req: NextRequest) {
         clinicId: session.clinicId,
         clinicName: session.clinicName,
         avatarUrl: session.avatarUrl,
+        isDemo: session.isDemo ?? true,
       },
     });
   } catch {
@@ -163,6 +166,7 @@ export async function POST(req: NextRequest) {
               role: "admin",
               clinicId: "",
               clinicName: body.clinicName || "",
+              isDemo: true, // New clinic starts in demo until activated
             },
             success: true,
           });
@@ -184,7 +188,7 @@ export async function POST(req: NextRequest) {
         // Fetch profile
         const { data: profile } = (await supabase
           .from("profiles")
-          .select("role, full_name, avatar_url, clinic_id, clinics(name)")
+          .select("role, full_name, avatar_url, clinic_id, clinics(name, demo)")
           .eq("id", data.user.id)
           .single()) as { data: Record<string, any> | null };
 
@@ -197,6 +201,7 @@ export async function POST(req: NextRequest) {
             clinicId: profile?.clinic_id || "",
             clinicName: (profile?.clinics as { name?: string })?.name || "",
             avatarUrl: profile?.avatar_url,
+            isDemo: (profile?.clinics as { demo?: boolean })?.demo ?? false,
           },
           success: true,
         });

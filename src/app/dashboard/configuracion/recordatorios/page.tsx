@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 
 /** Mask phone number for display: "11-4523-8891" → "11-••••-8891" */
 function maskPhone(phone: string): string {
@@ -147,6 +147,7 @@ const estadoColors: Record<string, string> = {
 export default function RecordatoriosConfigPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
   const [activeTemplates, setActiveTemplates] = useState(
     templates.reduce((acc, t) => ({ ...acc, [t.id]: t.activo }), {} as Record<string, boolean>),
   );
@@ -176,9 +177,9 @@ export default function RecordatoriosConfigPage() {
         <div className="flex gap-2">
           <button
             onClick={() =>
-              isSupabaseConfigured()
-                ? showToast("✅ Enviar recordatorio manual")
-                : showDemo("Enviar recordatorio manual")
+              isDemo
+                ? showDemo("Enviar recordatorio manual")
+                : showToast("✅ Enviar recordatorio manual")
             }
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
@@ -186,9 +187,9 @@ export default function RecordatoriosConfigPage() {
           </button>
           <button
             onClick={() =>
-              isSupabaseConfigured()
-                ? showToast("✅ Configurar WhatsApp Business API")
-                : showDemo("Configurar WhatsApp Business API")
+              isDemo
+                ? showDemo("Configurar WhatsApp Business API")
+                : showToast("✅ Configurar WhatsApp Business API")
             }
             className="px-4 py-2 text-sm font-semibold bg-[#25D366] text-white rounded-[4px] hover:bg-[#20BD5A] transition flex items-center gap-1.5"
           >
@@ -303,9 +304,9 @@ export default function RecordatoriosConfigPage() {
                 </div>
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
-                      ? showToast(`✅ Editar plantilla "${t.nombre}"`)
-                      : showDemo(`Editar plantilla "${t.nombre}"`)
+                    isDemo
+                      ? showDemo(`Editar plantilla "${t.nombre}"`)
+                      : showToast(`✅ Editar plantilla "${t.nombre}"`)
                   }
                   className="text-xs text-celeste-dark font-medium hover:underline shrink-0"
                 >

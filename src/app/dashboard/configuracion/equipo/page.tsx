@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 
 const miembros = [
   {
@@ -81,6 +81,7 @@ const invitaciones = [
 export default function EquipoPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
 
   return (
     <div className="space-y-5">
@@ -101,9 +102,9 @@ export default function EquipoPage() {
         </div>
         <button
           onClick={() =>
-            isSupabaseConfigured()
-              ? showToast("✅ Invitar miembro al equipo")
-              : showDemo("Invitar miembro al equipo")
+            isDemo
+              ? showDemo("Invitar miembro al equipo")
+              : showToast("✅ Invitar miembro al equipo")
           }
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
@@ -185,9 +186,7 @@ export default function EquipoPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
-                      ? showToast("✅ Reenviar invitación")
-                      : showDemo("Reenviar invitación")
+                    isDemo ? showDemo("Reenviar invitación") : showToast("✅ Reenviar invitación")
                   }
                   className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition"
                 >
@@ -195,9 +194,7 @@ export default function EquipoPage() {
                 </button>
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
-                      ? showToast("✅ Cancelar invitación")
-                      : showDemo("Cancelar invitación")
+                    isDemo ? showDemo("Cancelar invitación") : showToast("✅ Cancelar invitación")
                   }
                   className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-[4px] hover:bg-red-50 transition"
                 >

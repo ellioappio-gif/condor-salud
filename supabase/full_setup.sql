@@ -293,6 +293,7 @@ CREATE TABLE IF NOT EXISTS clinics (
   address TEXT,
   logo_url TEXT,
   active BOOLEAN NOT NULL DEFAULT true,
+  demo BOOLEAN NOT NULL DEFAULT false,
   onboarding_complete BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

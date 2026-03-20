@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import {
   useWaitingRoom,
   useConsultations,
@@ -16,6 +16,7 @@ type Tab = "sala" | "consultas" | "facturacion" | "recetas" | "resumen";
 export default function TelemedicinPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
   const [tab, setTab] = useState<Tab>("sala");
 
   // ─── SWR data hooks ─────────────────────────────────────────
@@ -92,7 +93,7 @@ export default function TelemedicinPage() {
         </div>
         <button
           onClick={() =>
-            isSupabaseConfigured()
+            !isDemo
               ? showToast("✅ Iniciar nueva videoconsulta")
               : showDemo("Iniciar nueva videoconsulta")
           }
@@ -173,7 +174,7 @@ export default function TelemedicinPage() {
                   {!p.intakeComplete && (
                     <button
                       onClick={() =>
-                        isSupabaseConfigured()
+                        !isDemo
                           ? showToast(`✅ Enviar formulario de intake a ${p.patientName}`)
                           : showDemo(`Enviar formulario de intake a ${p.patientName}`)
                       }
@@ -184,7 +185,7 @@ export default function TelemedicinPage() {
                   )}
                   <button
                     onClick={() =>
-                      isSupabaseConfigured()
+                      !isDemo
                         ? showToast(
                             `✅ Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
                           )
@@ -233,7 +234,7 @@ export default function TelemedicinPage() {
                     <td className="px-5 py-3 text-right">
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(`✅ Copiar link: ${c.videoRoomUrl ?? c.code}`)
                             : showDemo(`Copiar link: ${c.videoRoomUrl ?? c.code}`)
                         }
@@ -271,7 +272,7 @@ export default function TelemedicinPage() {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={() =>
-                  isSupabaseConfigured()
+                  !isDemo
                     ? showToast("✅ Abrir videoconsulta activa — compartir pantalla")
                     : showDemo("Abrir videoconsulta activa — compartir pantalla")
                 }
@@ -281,7 +282,7 @@ export default function TelemedicinPage() {
               </button>
               <button
                 onClick={() =>
-                  isSupabaseConfigured()
+                  !isDemo
                     ? showToast("✅ Iniciar grabación de sesión")
                     : showDemo("Iniciar grabación de sesión")
                 }
@@ -291,7 +292,7 @@ export default function TelemedicinPage() {
               </button>
               <button
                 onClick={() =>
-                  isSupabaseConfigured()
+                  !isDemo
                     ? showToast("✅ Finalizar videoconsulta activa")
                     : showDemo("Finalizar videoconsulta activa")
                 }
@@ -345,7 +346,7 @@ export default function TelemedicinPage() {
                     <td className="px-5 py-3 text-right">
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(`✅ Ver detalle de consulta ${c.id}`)
                             : showDemo(`Ver detalle de consulta ${c.id}`)
                         }
@@ -413,7 +414,7 @@ export default function TelemedicinPage() {
                         {!c.billed && (
                           <button
                             onClick={() =>
-                              isSupabaseConfigured()
+                              !isDemo
                                 ? showToast(
                                     `✅ Facturar consulta ${c.id} con código ${c.billCode} al financiador`,
                                   )
@@ -481,7 +482,7 @@ export default function TelemedicinPage() {
                     {!c.prescriptionSent && (
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(`✅ Generar receta digital para ${c.patientName}`)
                             : showDemo(`Generar receta digital para ${c.patientName}`)
                         }
@@ -493,7 +494,7 @@ export default function TelemedicinPage() {
                     {c.prescriptionSent && (
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(
                                 `✅ Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
                               )
@@ -585,7 +586,7 @@ export default function TelemedicinPage() {
                     {!c.summarySent && (
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(
                                 `✅ Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
                               )
@@ -600,7 +601,7 @@ export default function TelemedicinPage() {
                     )}
                     <button
                       onClick={() =>
-                        isSupabaseConfigured()
+                        !isDemo
                           ? showToast(`✅ Ver resumen completo de ${c.id}`)
                           : showDemo(`Ver resumen completo de ${c.id}`)
                       }

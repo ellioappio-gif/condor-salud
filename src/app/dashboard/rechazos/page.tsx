@@ -9,7 +9,7 @@ import { useExport } from "@/lib/services/export";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useRechazos } from "@/hooks/use-data";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { Download, Loader2 } from "lucide-react";
 
 const motivoLabels: Record<RechazoMotivo, string> = {
@@ -25,7 +25,8 @@ const motivoLabels: Record<RechazoMotivo, string> = {
 export default function RechazosPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
-  const { execute, isExecuting } = useCrudAction();
+  const isDemo = useIsDemo();
+  const { execute, isExecuting } = useCrudAction(isDemo);
   const { isExporting, exportPDF, exportExcel } = useExport();
   const { data: rechazos = [], isLoading } = useRechazos();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
@@ -59,7 +60,7 @@ export default function RechazosPage() {
   };
 
   const handleVerFacturaOriginal = (r: { facturaNumero: string }) => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo(`Ver factura original ${r.facturaNumero}`);
       return;
     }

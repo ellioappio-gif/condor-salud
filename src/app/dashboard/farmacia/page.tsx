@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { formatCurrency } from "@/lib/utils";
 import {
   useMedications,
@@ -18,6 +18,7 @@ type Tab = "catalogo" | "recetas" | "delivery" | "copago" | "recurrentes";
 export default function FarmaciaPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
   const [tab, setTab] = useState<Tab>("catalogo");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("Todas");
@@ -105,9 +106,7 @@ export default function FarmaciaPage() {
         </div>
         <button
           onClick={() =>
-            isSupabaseConfigured()
-              ? showToast("✅ Nueva receta digital")
-              : showDemo("Nueva receta digital")
+            !isDemo ? showToast("✅ Nueva receta digital") : showDemo("Nueva receta digital")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
@@ -226,7 +225,7 @@ export default function FarmaciaPage() {
                     <td className="px-5 py-3 text-right">
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(`✅ Agregar ${med.name} al carrito`)
                             : showDemo(`Agregar ${med.name} al carrito`)
                         }
@@ -292,7 +291,7 @@ export default function FarmaciaPage() {
                     <>
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(`✅ Cargar carrito para ${rx.patientName}`)
                             : showDemo(`Cargar carrito para ${rx.patientName}`)
                         }
@@ -302,7 +301,7 @@ export default function FarmaciaPage() {
                       </button>
                       <button
                         onClick={() =>
-                          isSupabaseConfigured()
+                          !isDemo
                             ? showToast(
                                 `✅ Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
                               )
@@ -319,7 +318,7 @@ export default function FarmaciaPage() {
                   {rx.status === "En carrito" && (
                     <button
                       onClick={() =>
-                        isSupabaseConfigured()
+                        !isDemo
                           ? showToast(`✅ Enviar recordatorio WhatsApp a ${rx.patientName}`)
                           : showDemo(`Enviar recordatorio WhatsApp a ${rx.patientName}`)
                       }
@@ -371,7 +370,7 @@ export default function FarmaciaPage() {
                   </div>
                   <button
                     onClick={() =>
-                      isSupabaseConfigured()
+                      !isDemo
                         ? showToast(`✅ Ver tracking completo de ${del.id}`)
                         : showDemo(`Ver tracking completo de ${del.id}`)
                     }
@@ -524,7 +523,7 @@ export default function FarmaciaPage() {
                 <div className="flex gap-2 shrink-0">
                   <button
                     onClick={() =>
-                      isSupabaseConfigured()
+                      !isDemo
                         ? showToast(`✅ Editar pedido recurrente ${order.id}`)
                         : showDemo(`Editar pedido recurrente ${order.id}`)
                     }
@@ -534,7 +533,7 @@ export default function FarmaciaPage() {
                   </button>
                   <button
                     onClick={() =>
-                      isSupabaseConfigured()
+                      !isDemo
                         ? showToast(
                             order.status === "Activo"
                               ? `✅ Pausar pedido ${order.id}`

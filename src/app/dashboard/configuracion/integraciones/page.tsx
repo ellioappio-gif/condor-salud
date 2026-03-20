@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 
 interface Integracion {
   id: string;
@@ -104,6 +104,7 @@ const estadoColors: Record<string, string> = {
 export default function IntegracionesPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const isDemo = useIsDemo();
   const activas = integraciones.filter((i) => i.estado === "Conectado").length;
   const errores = integraciones.filter((i) => i.estado === "Error").length;
 
@@ -126,9 +127,7 @@ export default function IntegracionesPage() {
         </div>
         <button
           onClick={() =>
-            isSupabaseConfigured()
-              ? showToast("✅ Nueva integración")
-              : showDemo("Nueva integración")
+            isDemo ? showDemo("Nueva integración") : showToast("✅ Nueva integración")
           }
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
@@ -222,9 +221,9 @@ export default function IntegracionesPage() {
                 {int.estado === "Conectado" && (
                   <button
                     onClick={() =>
-                      isSupabaseConfigured()
-                        ? showToast(`✅ Sincronizar ${int.nombre}`)
-                        : showDemo(`Sincronizar ${int.nombre}`)
+                      isDemo
+                        ? showDemo(`Sincronizar ${int.nombre}`)
+                        : showToast(`✅ Sincronizar ${int.nombre}`)
                     }
                     className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
@@ -234,9 +233,9 @@ export default function IntegracionesPage() {
                 {int.estado === "Error" && (
                   <button
                     onClick={() =>
-                      isSupabaseConfigured()
-                        ? showToast(`✅ Reintentar ${int.nombre}`)
-                        : showDemo(`Reintentar ${int.nombre}`)
+                      isDemo
+                        ? showDemo(`Reintentar ${int.nombre}`)
+                        : showToast(`✅ Reintentar ${int.nombre}`)
                     }
                     className="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-[4px] hover:bg-red-700 transition"
                   >
@@ -246,9 +245,9 @@ export default function IntegracionesPage() {
                 {(int.estado === "Desconectado" || int.estado === "Pendiente") && (
                   <button
                     onClick={() =>
-                      isSupabaseConfigured()
-                        ? showToast(`✅ Configurar ${int.nombre}`)
-                        : showDemo(`Configurar ${int.nombre}`)
+                      isDemo
+                        ? showDemo(`Configurar ${int.nombre}`)
+                        : showToast(`✅ Configurar ${int.nombre}`)
                     }
                     className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
                   >
@@ -257,9 +256,9 @@ export default function IntegracionesPage() {
                 )}
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
-                      ? showToast(`✅ Ajustes de ${int.nombre}`)
-                      : showDemo(`Ajustes de ${int.nombre}`)
+                    isDemo
+                      ? showDemo(`Ajustes de ${int.nombre}`)
+                      : showToast(`✅ Ajustes de ${int.nombre}`)
                   }
                   className="px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink transition"
                 >

@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { ExternalLink, Star, StarHalf } from "lucide-react";
 import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
 import type { Doctor } from "@/lib/types";
@@ -25,6 +25,7 @@ type Tab = "busqueda" | "disponibilidad" | "perfiles" | "cobertura" | "recomenda
 export default function DirectorioPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
   const { locale } = useLocale();
   const [tab, setTab] = useState<Tab>("busqueda");
   const [search, setSearch] = useState("");
@@ -144,7 +145,7 @@ export default function DirectorioPage() {
         </div>
         <button
           onClick={() =>
-            isSupabaseConfigured()
+            !isDemo
               ? showToast("✅ Agregar nuevo médico al directorio")
               : showDemo("Agregar nuevo médico al directorio")
           }
@@ -345,9 +346,7 @@ export default function DirectorioPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
-                      ? showToast("✅ Semana anterior")
-                      : showDemo("Semana anterior")
+                    !isDemo ? showToast("✅ Semana anterior") : showDemo("Semana anterior")
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
@@ -355,9 +354,7 @@ export default function DirectorioPage() {
                 </button>
                 <button
                   onClick={() =>
-                    isSupabaseConfigured()
-                      ? showToast("✅ Semana siguiente")
-                      : showDemo("Semana siguiente")
+                    !isDemo ? showToast("✅ Semana siguiente") : showDemo("Semana siguiente")
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
@@ -394,7 +391,7 @@ export default function DirectorioPage() {
                           {slots > 0 ? (
                             <button
                               onClick={() =>
-                                isSupabaseConfigured()
+                                !isDemo
                                   ? showToast(`✅ Ver ${slots} turnos disponibles — ${doc.name}`)
                                   : showDemo(`Ver ${slots} turnos disponibles — ${doc.name}`)
                               }
@@ -633,7 +630,7 @@ export default function DirectorioPage() {
 
             <button
               onClick={() =>
-                isSupabaseConfigured()
+                !isDemo
                   ? showToast(
                       "✅ Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
                     )

@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useExport } from "@/lib/services/export";
 import { useReportesList } from "@/hooks/use-data";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import type { PDFReportType, ExcelReportType } from "@/lib/services/export";
 import {
   BarChart3,
@@ -115,6 +115,7 @@ const historialGeneraciones = [
 export default function ReportesPage() {
   const { isExporting, exportError, exportPDF, exportExcel } = useExport();
   const { data: reportes = [], isLoading } = useReportesList();
+  const isDemo = useIsDemo();
   const [catFilter, setCatFilter] = useState("Todos");
   const [dateRange, setDateRange] = useState("Marzo 2026");
 
@@ -247,7 +248,7 @@ export default function ReportesPage() {
           </div>
 
           {/* Generation history (demo mode only) */}
-          {!isSupabaseConfigured() && (
+          {isDemo && (
             <div className="bg-white border border-border rounded-lg overflow-hidden">
               <div className="px-5 py-4 border-b border-border">
                 <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">

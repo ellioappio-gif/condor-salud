@@ -5,7 +5,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
 import { formatCurrency } from "@/lib/utils";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { Download, Filter, Search, Mail, Loader2, X } from "lucide-react";
 import type { FinanciadorType } from "@/lib/types";
 import { useFinanciadoresExtended } from "@/hooks/use-data";
@@ -26,7 +26,8 @@ function formatPorcentaje(facturado: number, cobrado: number): number {
 
 export default function FinanciadoresPage() {
   const { showDemo } = useDemoAction();
-  const { execute } = useCrudAction();
+  const isDemo = useIsDemo();
+  const { execute } = useCrudAction(isDemo);
   const { exportPDF, exportExcel, isExporting } = useExport();
   const { data: financiadores = [], isLoading } = useFinanciadoresExtended();
   const [search, setSearch] = useState("");
@@ -36,7 +37,7 @@ export default function FinanciadoresPage() {
   >(null);
 
   const handleVerDetalle = (f: (typeof financiadores)[number]) => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo(`Ver detalle completo de ${f.name}`);
       return;
     }
@@ -44,7 +45,7 @@ export default function FinanciadoresPage() {
   };
 
   const handleContactar = (f: { name: string; contacto: string }) => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo(`Enviar reclamo a ${f.name} (${f.contacto})`);
       return;
     }

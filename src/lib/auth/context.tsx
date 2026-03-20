@@ -14,6 +14,8 @@ export interface User {
   clinicId: string;
   clinicName: string;
   avatarUrl?: string;
+  /** True when the clinic is in demo mode — actions show DemoModal */
+  isDemo: boolean;
 }
 
 interface AuthState {
@@ -355,6 +357,18 @@ export function useUser() {
   return user;
 }
 
+/**
+ * Returns true when the current clinic is in demo mode.
+ * Demo mode is true when:
+ *   1. Supabase is not configured (local dev / preview), OR
+ *   2. The authenticated clinic has `demo = true` in the DB
+ */
+export function useIsDemo(): boolean {
+  const { user } = useAuth();
+  if (!isSupabaseConfigured()) return true; // local dev fallback
+  return user?.isDemo ?? true; // no user yet → safe default
+}
+
 // ─── Helpers ─────────────────────────────────────────────────
 
 /** Resolve Supabase auth.user → our User shape by querying the profiles table */
@@ -363,7 +377,7 @@ async function resolveProfile(supabase, authUser): Promise<User> {
   try {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role, full_name, avatar_url, clinic_id, clinics(name)")
+      .select("role, full_name, avatar_url, clinic_id, clinics(name, demo)")
       .eq("id", authUser.id)
       .single();
 
@@ -376,6 +390,7 @@ async function resolveProfile(supabase, authUser): Promise<User> {
         clinicId: profile.clinic_id,
         clinicName: profile.clinics?.name || "",
         avatarUrl: profile.avatar_url || authUser.user_metadata?.avatar_url,
+        isDemo: profile.clinics?.demo ?? false,
       };
     }
   } catch {
@@ -391,6 +406,7 @@ async function resolveProfile(supabase, authUser): Promise<User> {
     clinicId: "",
     clinicName: authUser.user_metadata?.clinic_name || "",
     avatarUrl: authUser.user_metadata?.avatar_url,
+    isDemo: true, // No clinic linked yet → treat as demo
   };
 }
 

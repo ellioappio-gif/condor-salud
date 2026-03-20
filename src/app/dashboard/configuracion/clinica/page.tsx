@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 
 export default function ClinicaConfigPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const isDemo = useIsDemo();
 
   return (
     <div className="space-y-5">
@@ -49,9 +50,9 @@ export default function ClinicaConfigPage() {
           ))}
           <button
             onClick={() =>
-              isSupabaseConfigured()
-                ? showToast("✅ Editar información de la clínica")
-                : showDemo("Editar información de la clínica")
+              isDemo
+                ? showDemo("Editar información de la clínica")
+                : showToast("✅ Editar información de la clínica")
             }
             className="text-xs text-celeste-dark font-medium hover:underline mt-2"
           >
@@ -81,9 +82,7 @@ export default function ClinicaConfigPage() {
             </div>
           ))}
           <button
-            onClick={() =>
-              isSupabaseConfigured() ? showToast("✅ Editar contacto") : showDemo("Editar contacto")
-            }
+            onClick={() => (isDemo ? showDemo("Editar contacto") : showToast("✅ Editar contacto"))}
             className="text-xs text-celeste-dark font-medium hover:underline mt-2"
           >
             Editar contacto
@@ -114,9 +113,7 @@ export default function ClinicaConfigPage() {
           </div>
           <button
             onClick={() =>
-              isSupabaseConfigured()
-                ? showToast("✅ Agregar especialidad")
-                : showDemo("Agregar especialidad")
+              isDemo ? showDemo("Agregar especialidad") : showToast("✅ Agregar especialidad")
             }
             className="text-xs text-celeste-dark font-medium hover:underline mt-3 block"
           >

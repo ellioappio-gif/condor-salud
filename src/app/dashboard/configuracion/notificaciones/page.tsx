@@ -3,11 +3,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 
 export default function NotificacionesConfigPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const isDemo = useIsDemo();
   const [prefs, setPrefs] = useState({
     emailPagos: true,
     emailRechazos: true,
@@ -178,9 +179,9 @@ export default function NotificacionesConfigPage() {
       <div className="flex gap-3">
         <button
           onClick={() =>
-            isSupabaseConfigured()
-              ? showToast("✅ Guardar preferencias de notificaciones")
-              : showDemo("Guardar preferencias de notificaciones")
+            isDemo
+              ? showDemo("Guardar preferencias de notificaciones")
+              : showToast("✅ Guardar preferencias de notificaciones")
           }
           className="px-5 py-2.5 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
@@ -188,9 +189,9 @@ export default function NotificacionesConfigPage() {
         </button>
         <button
           onClick={() =>
-            isSupabaseConfigured()
-              ? showToast("✅ Restablecer configuración")
-              : showDemo("Restablecer configuración")
+            isDemo
+              ? showDemo("Restablecer configuración")
+              : showToast("✅ Restablecer configuración")
           }
           className="px-5 py-2.5 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-ink transition"
         >

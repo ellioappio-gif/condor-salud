@@ -6,7 +6,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
 import { useInventarioItems } from "@/hooks/use-data";
-import { isSupabaseConfigured } from "@/lib/env";
+import { useIsDemo } from "@/lib/auth/context";
 import { formatCurrency } from "@/lib/utils";
 import { Loader2, X } from "lucide-react";
 
@@ -66,7 +66,8 @@ const movimientos = [
 export default function InventarioPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
-  const { execute, isExecuting } = useCrudAction();
+  const isDemo = useIsDemo();
+  const { execute, isExecuting } = useCrudAction(isDemo);
   const { exportExcel, isExporting } = useExport();
   const { data: inventario = [], isLoading } = useInventarioItems();
   const [search, setSearch] = useState("");
@@ -83,7 +84,7 @@ export default function InventarioPage() {
   const [ingProveedor, setIngProveedor] = useState("");
 
   const handleRegistrarIngreso = () => {
-    if (!isSupabaseConfigured()) {
+    if (isDemo) {
       showDemo("Registrar ingreso de stock");
       return;
     }
@@ -318,7 +319,7 @@ export default function InventarioPage() {
           </div>
 
           {/* Movimientos recientes (demo mode only) */}
-          {!isSupabaseConfigured() && (
+          {isDemo && (
             <div className="bg-white border border-border rounded-lg overflow-hidden">
               <div className="px-5 py-4 border-b border-border">
                 <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
