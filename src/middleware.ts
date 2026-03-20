@@ -19,6 +19,35 @@ function sanitizeRedirect(value: string | null): string {
   return "/dashboard";
 }
 
+// ─── SH-07: Generate per-request CSP nonce ───────────────────
+function generateNonce(): string {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return btoa(Array.from(array, (b) => String.fromCharCode(b)).join(""));
+}
+
+function buildCspHeader(nonce: string): string {
+  return [
+    "default-src 'self'",
+    // strict-dynamic makes CSP3 browsers trust scripts loaded by nonce'd scripts.
+    // unsafe-inline is a fallback for older browsers (ignored when strict-dynamic present).
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o4507.ingest.sentry.io https://*.daily.co wss://*.daily.co https://api.mercadopago.com https://*.upstash.io https://api.anthropic.com https://www.googleapis.com https://accounts.google.com https://*.posthog.com https://us.i.posthog.com https://*.sentry.io https://www.doctoraliar.com",
+    "frame-src 'self' https://*.daily.co",
+    "media-src 'self' blob:",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+    "report-uri /api/csp-report",
+  ].join("; ");
+}
+
 // ─── Middleware ───────────────────────────────────────────────
 // IMPORTANT: Dashboard pages are ALWAYS accessible without login.
 // They render with demo/mock data. Write operations are gated by
@@ -28,9 +57,19 @@ function sanitizeRedirect(value: string | null): string {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public API routes — skip all checks
+  // ── SH-07: Generate CSP nonce for every request ──
+  const nonce = generateNonce();
+  const cspHeader = buildCspHeader(nonce);
+
+  // Pass nonce to server components via request header
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+
+  // Public API routes — skip auth checks, still apply CSP
   if (PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
   }
 
   // ── Supabase auth (when configured) ──────────────────────
@@ -53,13 +92,17 @@ export async function middleware(request: NextRequest) {
         pathname.startsWith("/api/") && !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p));
 
       if (!user && isProtectedApi) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        const r = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        r.headers.set("Content-Security-Policy", cspHeader);
+        return r;
       }
 
       // Redirect authenticated users away from auth pages (login/register)
       if (user && AUTH_ROUTES.includes(pathname)) {
         const redirectTo = sanitizeRedirect(request.nextUrl.searchParams.get("redirect"));
-        return NextResponse.redirect(new URL(redirectTo, request.url));
+        const r = NextResponse.redirect(new URL(redirectTo, request.url));
+        r.headers.set("Content-Security-Policy", cspHeader);
+        return r;
       }
 
       // RBAC: role-based dashboard sub-route access (authenticated users only)
@@ -72,19 +115,27 @@ export async function middleware(request: NextRequest) {
           if (
             !canAccessRoute(userRole as "admin" | "medico" | "facturacion" | "recepcion", pathname)
           ) {
-            return NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
+            const r = NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
+            r.headers.set("Content-Security-Policy", cspHeader);
+            return r;
           }
         }
       }
 
+      // SH-07: Apply CSP header to the Supabase-refreshed response
+      response.headers.set("Content-Security-Policy", cspHeader);
       return response;
     } catch {
       // If Supabase auth fails, allow page access (demo-browsable)
       // but block API routes as a precaution
       if (pathname.startsWith("/api/")) {
-        return NextResponse.json({ error: "Auth service unavailable" }, { status: 503 });
+        const r = NextResponse.json({ error: "Auth service unavailable" }, { status: 503 });
+        r.headers.set("Content-Security-Policy", cspHeader);
+        return r;
       }
-      return NextResponse.next();
+      const r = NextResponse.next({ request: { headers: requestHeaders } });
+      r.headers.set("Content-Security-Policy", cspHeader);
+      return r;
     }
   }
 
@@ -96,10 +147,14 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api/") &&
     !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))
   ) {
-    return NextResponse.json({ error: "Auth backend not configured" }, { status: 503 });
+    const r = NextResponse.json({ error: "Auth backend not configured" }, { status: 503 });
+    r.headers.set("Content-Security-Policy", cspHeader);
+    return r;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set("Content-Security-Policy", cspHeader);
+  return response;
 }
 
 export const config = {

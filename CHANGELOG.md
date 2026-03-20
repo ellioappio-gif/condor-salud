@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-03-20
+
+### Security — Phase 2 Auth & Safety
+
+- **SH-07: Nonce-based Content Security Policy** — Replaced static `unsafe-inline` script-src with per-request cryptographic nonces generated in middleware. Uses `'strict-dynamic'` for CSP Level 3 browsers (auto-trusts scripts loaded by nonce'd scripts), with `'unsafe-inline'` as a fallback for older browsers (ignored when `strict-dynamic` present). Removed static CSP from `next.config.mjs`; now set dynamically by middleware on every response.
+- **I-05: Production env validation hardened** — Added `notPlaceholder` Zod refinement that rejects values containing `your-project`, `placeholder`, `xxxx`, or `YOUR_`. Applied to 6 critical env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SUPABASE_JWT_SECRET`. Both server and client schemas now reject placeholder credentials.
+
+### Audit Verification — Items Already Resolved in Prior Releases
+
+- **D-01** (chatbot links to `/dashboard/*`): Already fixed — all URLs point to `/paciente/*`
+- **D-03** (no patient portal error boundary): Already fixed — `error.tsx` exists at `/paciente/error.tsx`
+- **SH-01** (no CSRF on OAuth): Already fixed — `verifyState()` with state cookie
+- **SH-02** (no rate limit on auth): Already fixed — `rateLimit()` on google callback
+- **SH-03** (Google OAuth assigns admin): Already fixed — assigns `"medico"` role
+- **SH-06** (weak password policy): Already fixed — register requires 12+ chars, upper, lower, number, special
+- **SH-08** (no file validation on triage upload): Already fixed — `ALLOWED_PHOTO_TYPES` + `MAX_PHOTO_SIZE`
+
 ## [0.11.0] — 2026-03-21
 
 ### Security — Phase 1 CRITICAL Hardening

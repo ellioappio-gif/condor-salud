@@ -2,6 +2,20 @@ import { z } from "zod";
 
 // ─── Server-side Environment Variables ───────────────────────
 // These are only available on the server (Node.js runtime).
+
+/** I-05: Reject known placeholder values that would silently break production */
+const notPlaceholder = (field: string) =>
+  z
+    .string()
+    .refine(
+      (val) =>
+        !val.includes("your-project") &&
+        !val.includes("placeholder") &&
+        !val.includes("xxxx") &&
+        !val.includes("YOUR_"),
+      { message: `${field} contains a placeholder value — set a real credential` },
+    );
+
 const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 
@@ -9,10 +23,17 @@ const serverSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z
     .string()
     .url("NEXT_PUBLIC_SUPABASE_URL must be a valid URL")
+    .pipe(notPlaceholder("NEXT_PUBLIC_SUPABASE_URL"))
     .optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z
     .string()
     .min(1, "NEXT_PUBLIC_SUPABASE_ANON_KEY is required")
+    .pipe(notPlaceholder("NEXT_PUBLIC_SUPABASE_ANON_KEY"))
+    .optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z
+    .string()
+    .min(1)
+    .pipe(notPlaceholder("SUPABASE_SERVICE_ROLE_KEY"))
     .optional(),
 
   // ── Sentry ──────────────────────────────────────────────────
@@ -67,11 +88,14 @@ const serverSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
 
   // ── Google OAuth ────────────────────────────────────────────
-  NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: z
+    .string()
+    .pipe(notPlaceholder("NEXT_PUBLIC_GOOGLE_CLIENT_ID"))
+    .optional(),
+  GOOGLE_CLIENT_SECRET: z.string().pipe(notPlaceholder("GOOGLE_CLIENT_SECRET")).optional(),
 
   // ── Supabase JWT (for API route auth) ──────────────────────
-  SUPABASE_JWT_SECRET: z.string().optional(),
+  SUPABASE_JWT_SECRET: z.string().pipe(notPlaceholder("SUPABASE_JWT_SECRET")).optional(),
 
   // ── Session Encryption (for Google OAuth tokens) ───────────
   SESSION_ENCRYPTION_KEY: z
@@ -96,8 +120,16 @@ const serverSchema = z.object({
 // ─── Client-side Environment Variables ───────────────────────
 // Only NEXT_PUBLIC_* variables are available in the browser.
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_SUPABASE_URL: z
+    .string()
+    .url()
+    .pipe(notPlaceholder("NEXT_PUBLIC_SUPABASE_URL"))
+    .optional(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z
+    .string()
+    .min(1)
+    .pipe(notPlaceholder("NEXT_PUBLIC_SUPABASE_ANON_KEY"))
+    .optional(),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
   NEXT_PUBLIC_MP_PUBLIC_KEY: z.string().optional(),
