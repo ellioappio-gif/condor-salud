@@ -245,10 +245,10 @@ export default function DashboardPage() {
               <BookOpen className="w-6 h-6 text-celeste-dark" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-sm font-bold text-ink">Recorrido guiado de la plataforma</h2>
+              <h2 className="text-sm font-bold text-ink">Configurá tu clínica</h2>
               <p className="text-xs text-ink-muted mt-0.5 leading-relaxed">
-                Descubrí las 15 funcionalidades clave de Condor Salud en un recorrido interactivo de
-                5 minutos. Ideal para conocer todo lo que la plataforma puede hacer por tu clinica.
+                Completá 3 pasos simples para dejar tu clínica operativa: datos básicos,
+                configuración y activación.
               </p>
             </div>
             <div className="flex gap-2 shrink-0">
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                 href="/dashboard/wizard"
                 className="px-5 py-2.5 text-xs font-semibold bg-celeste-dark text-white rounded-lg hover:bg-celeste transition"
               >
-                Iniciar recorrido
+                Empezar
               </Link>
               <a
                 href={whatsappUrl("Hola, quiero agendar una demo en vivo de Cóndor Salud.")}

@@ -15,13 +15,6 @@ export interface ClinicOnboardingInput {
   telefono?: string;
   email?: string;
   especialidades?: string[];
-  cantidadProfesionales?: number;
-  sistemaAnterior?: string;
-  logoUrl?: string;
-  plan?: string;
-  whatsappNumber?: string;
-  enableWhatsapp?: boolean;
-  enableTelemedicina?: boolean;
   financiadores?: string[];
 }
 
@@ -74,10 +67,7 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
           telefono: input.telefono ?? null,
           email: input.email ?? null,
           especialidades: input.especialidades ?? [],
-          cantidad_profesionales: input.cantidadProfesionales ?? 1,
-          sistema_anterior: input.sistemaAnterior ?? null,
-          logo_url: input.logoUrl ?? null,
-          plan: input.plan ?? "esencial",
+          financiadores: input.financiadores ?? [],
           onboarding_completed: true,
           onboarding_step: -1, // -1 = finished
           updated_at: new Date().toISOString(),
@@ -101,10 +91,7 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
         telefono: input.telefono ?? null,
         email: input.email ?? null,
         especialidades: input.especialidades ?? [],
-        cantidad_profesionales: input.cantidadProfesionales ?? 1,
-        sistema_anterior: input.sistemaAnterior ?? null,
-        logo_url: input.logoUrl ?? null,
-        plan: input.plan ?? "esencial",
+        financiadores: input.financiadores ?? [],
         onboarding_completed: true,
         onboarding_step: -1,
       })

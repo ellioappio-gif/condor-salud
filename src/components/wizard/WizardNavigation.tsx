@@ -1,6 +1,6 @@
 "use client";
 
-import { useWizard, WIZARD_STEPS } from "./WizardData";
+import { useWizard } from "./WizardData";
 
 export function WizardNavigation() {
   const { currentStep, totalSteps, canPrev, canNext, prev, next } = useWizard();
@@ -36,9 +36,7 @@ export function WizardNavigation() {
               d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
             />
           </svg>
-          <span className="hidden sm:inline">
-            {canPrev ? WIZARD_STEPS[currentStep - 1]?.title : "Anterior"}
-          </span>
+          Anterior
         </button>
 
         {/* Step indicator */}
@@ -46,7 +44,7 @@ export function WizardNavigation() {
           Paso {currentStep + 1} de {totalSteps}
         </span>
 
-        {/* Next (hidden on last step — confirmation button is in the step content) */}
+        {/* Next (hidden on last step — activation button is in step content) */}
         {!isLast ? (
           <button
             onClick={next}
@@ -54,8 +52,7 @@ export function WizardNavigation() {
             className="flex items-center gap-2 rounded-[4px] bg-celeste-dark px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-celeste-700 active:bg-celeste-800 disabled:opacity-50"
             aria-label="Siguiente paso"
           >
-            <span className="hidden sm:inline">{WIZARD_STEPS[currentStep + 1]?.title}</span>
-            <span className="sm:hidden">Siguiente</span>
+            Siguiente
             <svg
               className="h-4 w-4"
               fill="none"

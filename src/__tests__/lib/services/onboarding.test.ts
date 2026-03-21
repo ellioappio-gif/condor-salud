@@ -29,10 +29,7 @@ describe("onboarding service (demo mode)", () => {
         telefono: "+5411555555",
         email: "info@clinica.com",
         especialidades: ["Cardiología", "Pediatría"],
-        cantidadProfesionales: 5,
-        sistemaAnterior: "Excel",
-        logoUrl: "https://example.com/logo.png",
-        plan: "profesional",
+        financiadores: ["OSDE", "PAMI"],
       });
       expect(result.success).toBe(true);
     });

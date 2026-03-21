@@ -7,17 +7,13 @@ export function WizardProgress() {
 
   return (
     <div className="border-b border-gray-200 bg-white px-8 py-4">
-      {/* Top row */}
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {(() => {
             const I = WIZARD_ICON_MAP[step.icon];
-            return I ? <I className="w-6 h-6 text-celeste-600" /> : null;
+            return I ? <I className="w-5 h-5 text-celeste-600" /> : null;
           })()}
           <div>
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-              {step.category}
-            </p>
             <h1 className="text-lg font-bold text-ink-900">{step.title}</h1>
           </div>
         </div>
