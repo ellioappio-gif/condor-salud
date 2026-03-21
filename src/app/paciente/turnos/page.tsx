@@ -14,9 +14,16 @@ import {
   ChevronRight,
   Check,
   User,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
-import { useMyAppointments } from "@/hooks/use-patient-data";
+import {
+  useMyAppointments,
+  useDoctorDirectory,
+  useAvailableSlots,
+  useCreateBooking,
+  useCancelBooking,
+} from "@/hooks/use-patient-data";
 import type { PatientAppointment } from "@/lib/services/patient-data";
 import RideOptionsCard from "@/components/RideOptionsCard";
 import RideChatbot from "@/components/RideChatbot";
@@ -41,23 +48,6 @@ const specialties = [
   "Nutrición",
 ];
 
-const timeSlots = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-];
-
 /* ── status badge ─────────────────────────────────────── */
 function StatusBadge({ status }: { status: AppointmentStatus }) {
   const map: Record<AppointmentStatus, { label: string; cls: string }> = {
@@ -74,12 +64,25 @@ function StatusBadge({ status }: { status: AppointmentStatus }) {
 export default function TurnosPage() {
   const { showToast } = useToast();
   const { data: fetchedAppointments } = useMyAppointments();
+  const { data: doctors } = useDoctorDirectory();
+  const { trigger: doCreateBooking } = useCreateBooking();
+  const { trigger: doCancelBooking } = useCancelBooking();
+
   const [tab, setTab] = useState<Tab>("proximos");
   const [showBooking, setShowBooking] = useState(false);
   const [bookingStep, setBookingStep] = useState(1);
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string | undefined>();
+  const [bookingType, setBookingType] = useState<"presencial" | "teleconsulta">("presencial");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch real available slots when specialty + date are chosen
+  const { data: availableSlots, isLoading: slotsLoading } = useAvailableSlots(
+    selectedSpecialty,
+    selectedDate,
+  );
 
   const [localAppointments, setLocalAppointments] = useState<PatientAppointment[]>([]);
   const [showChatbot, setShowChatbot] = useState(false);
@@ -96,6 +99,11 @@ export default function TurnosPage() {
     if (fetchedAppointments) setLocalAppointments(fetchedAppointments);
   }, [fetchedAppointments]);
 
+  // Filtered doctors for the selected specialty
+  const filteredDoctors =
+    doctors?.filter((d) => d.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase())) ??
+    [];
+
   const upcoming = localAppointments.filter(
     (a) => a.status === "confirmado" || a.status === "pendiente",
   );
@@ -109,6 +117,9 @@ export default function TurnosPage() {
     setSelectedSpecialty("");
     setSelectedDate("");
     setSelectedTime("");
+    setSelectedDoctorId(undefined);
+    setBookingType("presencial");
+    setIsSubmitting(false);
   };
 
   return (
@@ -223,13 +234,24 @@ export default function TurnosPage() {
                   </button>
                 )}
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    // Optimistic: update local state immediately
                     setLocalAppointments((prev) =>
                       prev.map((a) =>
                         a.id === apt.id ? { ...a, status: "cancelado" as AppointmentStatus } : a,
                       ),
                     );
                     showToast("Turno cancelado. Te enviamos un email de confirmación.");
+                    // Fire real API call
+                    try {
+                      await doCancelBooking(apt.id, "Cancelado por el paciente");
+                    } catch {
+                      // Revert on failure
+                      setLocalAppointments((prev) =>
+                        prev.map((a) => (a.id === apt.id ? { ...a, status: apt.status } : a)),
+                      );
+                      showToast("Error al cancelar el turno. Intentá de nuevo.");
+                    }
                   }}
                   className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-[4px] hover:bg-red-100 transition"
                 >
@@ -370,24 +392,36 @@ export default function TurnosPage() {
                       month: "long",
                     })}
                   </p>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {timeSlots.map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => {
-                          setSelectedTime(t);
-                          setBookingStep(4);
-                        }}
-                        className={`text-sm px-3 py-2 rounded-lg border transition ${
-                          selectedTime === t
-                            ? "border-celeste-dark bg-celeste-50 text-celeste-dark font-semibold"
-                            : "border-border-light hover:border-celeste-200 text-ink-500"
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
+                  {slotsLoading ? (
+                    <div className="flex items-center justify-center py-8 text-ink-muted">
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      Cargando horarios…
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {(availableSlots ?? []).map((t) => (
+                        <button
+                          key={t}
+                          onClick={() => {
+                            setSelectedTime(t);
+                            setBookingStep(4);
+                          }}
+                          className={`text-sm px-3 py-2 rounded-lg border transition ${
+                            selectedTime === t
+                              ? "border-celeste-dark bg-celeste-50 text-celeste-dark font-semibold"
+                              : "border-border-light hover:border-celeste-200 text-ink-500"
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                      {(availableSlots ?? []).length === 0 && !slotsLoading && (
+                        <p className="col-span-full text-sm text-ink-muted text-center py-4">
+                          No hay horarios disponibles para esta fecha
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -395,6 +429,46 @@ export default function TurnosPage() {
               {bookingStep === 4 && (
                 <div className="space-y-4">
                   <p className="text-sm text-ink-muted">Confirmá tu turno</p>
+
+                  {/* Doctor picker */}
+                  {filteredDoctors.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-ink-muted">
+                        Profesional (opcional)
+                      </label>
+                      <select
+                        value={selectedDoctorId ?? ""}
+                        onChange={(e) => setSelectedDoctorId(e.target.value || undefined)}
+                        className="w-full border border-border-light rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark bg-white"
+                      >
+                        <option value="">A asignar</option>
+                        {filteredDoctors.map((doc) => (
+                          <option key={doc.id} value={doc.id}>
+                            {doc.name} — {doc.location}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Appointment type */}
+                  <div className="flex gap-2">
+                    {(["presencial", "teleconsulta"] as const).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setBookingType(t)}
+                        className={`flex-1 text-sm px-3 py-2 rounded-xl border transition ${
+                          bookingType === t
+                            ? "border-celeste-dark bg-celeste-50 text-celeste-dark font-semibold"
+                            : "border-border-light text-ink-muted hover:border-celeste-200"
+                        }`}
+                      >
+                        {t === "presencial" ? "Presencial" : "Teleconsulta"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Summary */}
                   <div className="bg-surface rounded-xl p-4 space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-ink-muted">Especialidad</span>
@@ -415,18 +489,46 @@ export default function TurnosPage() {
                       <span className="font-semibold text-ink">{selectedTime}</span>
                     </div>
                     <div className="flex justify-between">
+                      <span className="text-ink-muted">Modalidad</span>
+                      <span className="font-semibold text-ink">
+                        {bookingType === "teleconsulta" ? "Teleconsulta" : "Presencial"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-ink-muted">Profesional</span>
-                      <span className="font-semibold text-ink">A asignar</span>
+                      <span className="font-semibold text-ink">
+                        {selectedDoctorId
+                          ? (filteredDoctors.find((d) => d.id === selectedDoctorId)?.name ??
+                            "A asignar")
+                          : "A asignar"}
+                      </span>
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      showToast("¡Turno confirmado! Te enviamos un recordatorio por email.");
-                      resetBooking();
+                    disabled={isSubmitting}
+                    onClick={async () => {
+                      setIsSubmitting(true);
+                      try {
+                        const newApt = await doCreateBooking({
+                          specialty: selectedSpecialty,
+                          date: selectedDate,
+                          time: selectedTime,
+                          type: bookingType,
+                          doctorId: selectedDoctorId,
+                        });
+                        // Optimistic local update
+                        setLocalAppointments((prev) => [newApt, ...prev]);
+                        showToast("¡Turno confirmado! Te enviamos un recordatorio por email.");
+                        resetBooking();
+                      } catch {
+                        showToast("Error al confirmar el turno. Intentá de nuevo.");
+                        setIsSubmitting(false);
+                      }
                     }}
-                    className="w-full bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
+                    className="w-full bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    Confirmar turno
+                    {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {isSubmitting ? "Confirmando…" : "Confirmar turno"}
                   </button>
                 </div>
               )}

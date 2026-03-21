@@ -95,7 +95,7 @@ describe("reportes service (demo mode)", () => {
       expect(Array.isArray(cats)).toBe(true);
       expect(cats.length).toBeGreaterThan(0);
       for (let i = 1; i < cats.length; i++) {
-        expect(cats[i] >= cats[i - 1]).toBe(true);
+        expect(cats[i]! >= cats[i - 1]!).toBe(true);
       }
     });
 

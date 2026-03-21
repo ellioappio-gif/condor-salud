@@ -128,6 +128,9 @@ CREATE TABLE IF NOT EXISTS doctors (
   experience TEXT, -- e.g., "18 años"
   languages JSONB NOT NULL DEFAULT '["Español"]',
   bio TEXT,
+  lat DOUBLE PRECISION,              -- latitude (WGS84)
+  lng DOUBLE PRECISION,              -- longitude (WGS84)
+  photo_url TEXT,                     -- profile photo URL
   active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

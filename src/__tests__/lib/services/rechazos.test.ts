@@ -30,7 +30,7 @@ describe("rechazos service (demo mode)", () => {
     it("filters by financiador", async () => {
       const all = await getRechazosFiltered();
       if (all.length === 0) return;
-      const target = all[0].financiador;
+      const target = all[0]!.financiador;
       const filtered = await getRechazosFiltered({ financiador: target });
       expect(filtered.every((r) => r.financiador === target)).toBe(true);
     });
@@ -44,7 +44,7 @@ describe("rechazos service (demo mode)", () => {
     it("filters by estado", async () => {
       const all = await getRechazosFiltered();
       if (all.length === 0) return;
-      const target = all[0].estado;
+      const target = all[0]!.estado;
       const filtered = await getRechazosFiltered({ estado: target });
       expect(filtered.every((r) => r.estado === target)).toBe(true);
     });
@@ -52,7 +52,7 @@ describe("rechazos service (demo mode)", () => {
     it("filters by motivo", async () => {
       const all = await getRechazosFiltered();
       if (all.length === 0) return;
-      const target = all[0].motivo;
+      const target = all[0]!.motivo;
       const filtered = await getRechazosFiltered({ motivo: target });
       expect(filtered.every((r) => r.motivo === target)).toBe(true);
     });
@@ -62,9 +62,9 @@ describe("rechazos service (demo mode)", () => {
     it("returns rechazo for valid id", async () => {
       const all = await getRechazosFiltered();
       if (all.length === 0) return;
-      const found = await getRechazoById(all[0].id);
+      const found = await getRechazoById(all[0]!.id);
       expect(found).not.toBeNull();
-      expect(found?.id).toBe(all[0].id);
+      expect(found?.id).toBe(all[0]!.id);
     });
 
     it("returns null for unknown id", async () => {

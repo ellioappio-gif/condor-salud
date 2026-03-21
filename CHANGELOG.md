@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] — 2026-03-21
+
+### Added
+
+- **End-to-end booking flow** — `/paciente/turnos` "Confirmar turno" button now calls `POST /api/bookings` creating a real `appointments` row in Supabase (or a demo booking in demo mode). Cancel button calls `DELETE /api/bookings` setting status to `cancelled`.
+- **`POST /api/bookings` route** — Creates appointment in the `appointments` table (migration 005), fires SendGrid `sendBookingConfirmation()` email, and returns the new appointment for optimistic SWR updates.
+- **`DELETE /api/bookings` route** — Cancels an appointment by ID, fires SendGrid `sendBookingCancellation()` email.
+- **`GET /api/bookings/slots` route** — Returns available time slots for a specialty + date. Queries `doctor_availability` table in Supabase, falls back to demo slots.
+- **Dynamic time slots** — Step 3 of the booking modal fetches real availability from `/api/bookings/slots` with a loading spinner, instead of a hardcoded array.
+- **Doctor picker** — Step 4 shows a dropdown of doctors filtered by the selected specialty (from the doctor directory SWR cache). Defaults to "A asignar".
+- **Appointment type selector** — Step 4 includes Presencial / Teleconsulta toggle.
+- **SWR mutation hooks** — `useCreateBooking()` and `useCancelBooking()` with optimistic updates that prepend/update the appointment list. `useAvailableSlots(specialty, date)` fetches slots.
+- **`createBooking()`, `cancelBooking()`, `getAvailableSlots()`** — New service functions in `patient-data.ts` that call the API routes.
+- **Migration 009** — `009_doctors_geo_photo.sql` adds `lat`, `lng`, `photo_url` columns to `doctors` table with Buenos Aires backfill and geo index.
+
+### Fixed
+
+- **18 TypeScript test errors** — Added non-null assertions (`!`) to all `array[0].prop` and `array[i]` accesses across 7 test files (`facturacion`, `financiadores`, `inflacion`, `inventario`, `nomenclador`, `rechazos`, `reportes`).
+- **`full_setup.sql` schema sync** — Added `lat`, `lng`, `photo_url` columns to the `doctors` table in the consolidated setup script.
+
+### Changed
+
+- **Cancel is real** — Cancel button on upcoming appointments now calls the API (with optimistic revert on failure) instead of only updating local state.
+- **Booking confirm shows loading** — Submit button shows a spinner and disables while the API call is in flight.
+
 ## [0.18.2] — 2026-03-21
 
 ### Removed

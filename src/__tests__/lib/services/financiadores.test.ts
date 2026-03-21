@@ -38,7 +38,7 @@ describe("financiadores service (demo mode)", () => {
     it("filters by search", async () => {
       const items = await getFinanciadoresExtended({ search: "PAMI" });
       expect(items.length).toBe(1);
-      expect(items[0].name).toBe("PAMI");
+      expect(items[0]!.name).toBe("PAMI");
     });
 
     it("search is case-insensitive", async () => {

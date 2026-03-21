@@ -128,6 +128,22 @@ export interface PatientProfile {
   currentMedications: string[];
 }
 
+// ─── Booking Types ───────────────────────────────────────────
+
+export interface CreateBookingPayload {
+  specialty: string;
+  date: string;
+  time: string;
+  type: "presencial" | "teleconsulta";
+  doctorId?: string;
+  notes?: string;
+}
+
+export interface CancelBookingPayload {
+  appointmentId: string;
+  reason?: string;
+}
+
 // ─── Demo Data ───────────────────────────────────────────────
 
 const SIM_DELAY = process.env.NODE_ENV === "development" ? 120 : 0;
@@ -916,4 +932,49 @@ export async function getMyProfile(cookieName?: string): Promise<PatientProfile>
   }
   await delay(SIM_DELAY);
   return { ...DEMO_PROFILE, name: cookieName ?? "Paciente" };
+}
+
+// ─── Booking CRUD ────────────────────────────────────────────
+
+/**
+ * Create a new appointment via POST /api/bookings.
+ * Returns the created appointment for optimistic SWR updates.
+ */
+export async function createBooking(payload: CreateBookingPayload): Promise<PatientAppointment> {
+  const res = await fetch("/api/bookings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as Record<string, string>).error || "Failed to create booking");
+  }
+  return res.json() as Promise<PatientAppointment>;
+}
+
+/**
+ * Cancel an existing appointment via DELETE /api/bookings.
+ */
+export async function cancelBooking(appointmentId: string, reason?: string): Promise<void> {
+  const res = await fetch("/api/bookings", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ appointmentId, reason }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as Record<string, string>).error || "Failed to cancel booking");
+  }
+}
+
+/**
+ * Fetch available time slots for a specialty + date via GET /api/bookings/slots.
+ */
+export async function getAvailableSlots(specialty: string, date: string): Promise<string[]> {
+  const params = new URLSearchParams({ specialty, date });
+  const res = await fetch(`/api/bookings/slots?${params}`);
+  if (!res.ok) return [];
+  const data = (await res.json()) as { slots: string[] };
+  return data.slots;
 }

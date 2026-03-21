@@ -52,7 +52,7 @@ describe("inventario service (demo mode)", () => {
     it("filters by search", async () => {
       const items = await getInventarioItems({ search: "Enalapril" });
       expect(items.length).toBe(1);
-      expect(items[0].nombre).toContain("Enalapril");
+      expect(items[0]!.nombre).toContain("Enalapril");
     });
 
     it("search is case-insensitive", async () => {
@@ -110,7 +110,7 @@ describe("inventario service (demo mode)", () => {
       expect(cats.length).toBeGreaterThan(0);
       // Verify sorted
       for (let i = 1; i < cats.length; i++) {
-        expect(cats[i] >= cats[i - 1]).toBe(true);
+        expect(cats[i]! >= cats[i - 1]!).toBe(true);
       }
     });
 

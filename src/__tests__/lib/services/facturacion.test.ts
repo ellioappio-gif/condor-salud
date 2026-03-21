@@ -30,7 +30,7 @@ describe("facturacion service (demo mode)", () => {
     it("filters by financiador", async () => {
       const all = await getFacturasFiltered();
       if (all.length === 0) return;
-      const target = all[0].financiador;
+      const target = all[0]!.financiador;
       const filtered = await getFacturasFiltered({ financiador: target });
       expect(filtered.every((f) => f.financiador === target)).toBe(true);
     });
@@ -44,7 +44,7 @@ describe("facturacion service (demo mode)", () => {
     it("filters by estado", async () => {
       const all = await getFacturasFiltered();
       if (all.length === 0) return;
-      const target = all[0].estado;
+      const target = all[0]!.estado;
       const filtered = await getFacturasFiltered({ estado: target });
       expect(filtered.every((f) => f.estado === target)).toBe(true);
     });
@@ -54,9 +54,9 @@ describe("facturacion service (demo mode)", () => {
     it("returns a factura for valid id", async () => {
       const all = await getFacturasFiltered();
       if (all.length === 0) return;
-      const found = await getFacturaById(all[0].id);
+      const found = await getFacturaById(all[0]!.id);
       expect(found).not.toBeNull();
-      expect(found?.id).toBe(all[0].id);
+      expect(found?.id).toBe(all[0]!.id);
     });
 
     it("returns null for unknown id", async () => {

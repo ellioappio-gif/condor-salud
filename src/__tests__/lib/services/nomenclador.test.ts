@@ -50,7 +50,7 @@ describe("nomenclador service (demo mode)", () => {
     it("filters by search (codigo)", async () => {
       const items = await getNomencladorEntries({ search: "420101" });
       expect(items.length).toBe(1);
-      expect(items[0].codigo).toBe("420101");
+      expect(items[0]!.codigo).toBe("420101");
     });
 
     it("filters by search (descripcion)", async () => {
@@ -107,7 +107,7 @@ describe("nomenclador service (demo mode)", () => {
       expect(caps.length).toBeGreaterThan(0);
       // Verify sorted
       for (let i = 1; i < caps.length; i++) {
-        expect(caps[i] >= caps[i - 1]).toBe(true);
+        expect(caps[i]! >= caps[i - 1]!).toBe(true);
       }
     });
 

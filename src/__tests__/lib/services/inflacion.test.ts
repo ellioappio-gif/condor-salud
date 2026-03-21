@@ -67,7 +67,7 @@ describe("inflacion service (demo mode)", () => {
     it("filters by financiador name", async () => {
       const items = await getFinanciadoresInflacion("PAMI");
       expect(items.length).toBe(1);
-      expect(items[0].name).toBe("PAMI");
+      expect(items[0]!.name).toBe("PAMI");
     });
 
     it("'Todos' returns all", async () => {

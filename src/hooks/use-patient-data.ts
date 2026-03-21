@@ -3,7 +3,8 @@
 
 "use client";
 
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
+import { useCallback } from "react";
 import {
   getMyAppointments,
   getMyMedications,
@@ -14,7 +15,11 @@ import {
   getMyTeleAppointments,
   getDoctorDirectory,
   getMyProfile,
+  createBooking,
+  cancelBooking,
+  getAvailableSlots,
 } from "@/lib/services/patient-data";
+import type { CreateBookingPayload, PatientAppointment } from "@/lib/services/patient-data";
 
 // Shared config: revalidate on focus, retry twice
 const opts = { revalidateOnFocus: true, errorRetryCount: 2 } as const;
@@ -57,4 +62,62 @@ export function useMyProfile(cookieName?: string) {
     () => getMyProfile(cookieName),
     opts,
   );
+}
+
+// ─── Booking mutations ───────────────────────────────────────
+
+/** SWR-aware hook to fetch available time slots */
+export function useAvailableSlots(specialty: string, date: string) {
+  return useSWR(
+    specialty && date ? ["patient:slots", specialty, date] : null,
+    () => getAvailableSlots(specialty, date),
+    { ...opts, revalidateOnFocus: false },
+  );
+}
+
+/** Mutation hook: create a booking + optimistically update the appointment list */
+export function useCreateBooking() {
+  const { mutate } = useSWRConfig();
+
+  const trigger = useCallback(
+    async (payload: CreateBookingPayload) => {
+      const newApt = await createBooking(payload);
+
+      // Optimistically prepend the new appointment
+      await mutate(
+        "patient:appointments",
+        (prev: PatientAppointment[] | undefined) => (prev ? [newApt, ...prev] : [newApt]),
+        { revalidate: true },
+      );
+
+      return newApt;
+    },
+    [mutate],
+  );
+
+  return { trigger };
+}
+
+/** Mutation hook: cancel a booking + optimistically update the appointment list */
+export function useCancelBooking() {
+  const { mutate } = useSWRConfig();
+
+  const trigger = useCallback(
+    async (appointmentId: string, reason?: string) => {
+      await cancelBooking(appointmentId, reason);
+
+      // Optimistically set status to cancelado
+      await mutate(
+        "patient:appointments",
+        (prev: PatientAppointment[] | undefined) =>
+          prev
+            ? prev.map((a) => (a.id === appointmentId ? { ...a, status: "cancelado" as const } : a))
+            : prev,
+        { revalidate: true },
+      );
+    },
+    [mutate],
+  );
+
+  return { trigger };
 }
