@@ -289,9 +289,10 @@ A full-featured marketing site composed of 14 section components:
 - Doctor profiles: name, specialty, address, rating (1-5), review count
 - Patient reviews and ratings
 - Appointment booking links
-- Doctoraliar.com (Docplanner) integration for external profiles, slot availability, and appointment booking
+- Google Places API integration for doctor discovery, ratings, photos, and coordinates
+- Web scraping enrichment for WhatsApp, booking links, insurance coverage
 
-**Integrates with:** Doctoraliar.com (Docplanner API v3)
+**Integrates with:** Google Places API + custom web scraping pipeline
 
 #### Triage (`/dashboard/triage`)
 
@@ -537,7 +538,7 @@ All POST endpoints use input sanitization and structured logging via the API gua
 | **Resend**               | Transactional email                                    | SDK installed                     |
 | **Upstash Redis**        | Production rate limiting and caching                   | SDK installed, in-memory fallback |
 | **Nubix Cloud**          | RIS/PACS medical imaging (188-line HTTP client)        | Full client + mock fallback       |
-| **Doctoraliar.com**      | Doctor directory, slots, booking (Docplanner API v3)   | Full OAuth2 API client            |
+| **Google Places API**    | Doctor directory, photos, ratings, coordinates         | Full server-side proxy            |
 | **PAMI**                 | Argentine public health insurance API                  | Env vars defined, stub ready      |
 | **AFIP WSFE**            | Argentine electronic invoicing                         | Env vars defined, stub ready      |
 

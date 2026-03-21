@@ -258,7 +258,7 @@ src/
 | `/dashboard/alertas`        | Mod 13 | Alert center with SWR live data, mark-read/dismiss via API            |
 | `/dashboard/farmacia`       | Mod 14 | Online pharmacy (catalog, prescriptions, delivery, copago)            |
 | `/dashboard/telemedicina`   | Mod 15 | Telemedicine (waiting room, video, auto-billing, prescriptions)       |
-| `/dashboard/directorio`     | Mod 16 | Medical directory (search, availability, Doctoraliar API integration) |
+| `/dashboard/directorio`     | Mod 16 | Medical directory (search, availability, Google Places + scraping)    |
 | `/dashboard/triage`         | Mod 17 | AI triage system (symptoms, routing, clinical notes)                  |
 | `/dashboard/interconsultas` | Mod 18 | Physician referral network (interconsultas, study requests)           |
 | `/dashboard/nubix`          | Mod 19 | RIS/PACS imaging (studies, DICOM viewer, reports)                     |
@@ -308,19 +308,19 @@ src/
 
 ### Core Domain APIs
 
-| Endpoint                | Methods | Auth | Rate Limit | Description                                                             |
-| ----------------------- | ------- | ---- | ---------- | ----------------------------------------------------------------------- |
-| `POST /api/chatbot`     | POST    | —    | 20/60s     | AI chatbot (Claude AI + rule-based fallback + Google Places enrichment) |
-| `GET /api/triage`       | GET     | ✅   | 15/60s     | Triage list or KPIs (by `action` param)                                 |
-| `POST /api/triage`      | POST    | ✅   | 15/60s     | Create triage entries or save clinical notes                            |
-| `GET /api/directorio`   | GET     | ✅   | —          | Doctor directory (filter by specialty/location/financiador)             |
-| `GET /api/doctoraliar`  | GET     | ✅   | 60/60s     | Doctoraliar API proxy (facilities, doctors, slots, insurances)          |
-| `POST /api/doctoraliar` | POST    | ✅   | 10/60s     | Doctoraliar booking actions (book slot, cancel booking)                 |
-| `GET /api/farmacia`     | GET     | ✅   | 10/60s     | Pharmacy data (medications, prescriptions, deliveries, KPIs)            |
-| `POST /api/farmacia`    | POST    | ✅   | 10/60s     | Create prescriptions or update delivery status                          |
-| `GET /api/coverage`     | GET     | —    | 30/60s     | Insurance coverage lookup (Supabase + static fallback)                  |
-| `GET /api/nubix`        | GET     | ✅   | 10/60s     | Nubix RIS/PACS data (studies, reports, viewer, KPIs)                    |
-| `POST /api/nubix`       | POST    | ✅   | 10/60s     | Nubix actions (send results, upsert appointments)                       |
+| Endpoint                  | Methods | Auth | Rate Limit | Description                                                             |
+| ------------------------- | ------- | ---- | ---------- | ----------------------------------------------------------------------- |
+| `POST /api/chatbot`       | POST    | —    | 20/60s     | AI chatbot (Claude AI + rule-based fallback + Google Places enrichment) |
+| `GET /api/triage`         | GET     | ✅   | 15/60s     | Triage list or KPIs (by `action` param)                                 |
+| `POST /api/triage`        | POST    | ✅   | 15/60s     | Create triage entries or save clinical notes                            |
+| `GET /api/directorio`     | GET     | ✅   | —          | Doctor directory (filter by specialty/location/financiador)             |
+| `GET /api/doctors/search` | GET     | —    | 30/60s     | Google Places doctor search with scraping enrichment                    |
+| `GET /api/photos/:ref`    | GET     | —    | —          | Google Places photo proxy (hides API key, 24h cache)                    |
+| `GET /api/farmacia`       | GET     | ✅   | 10/60s     | Pharmacy data (medications, prescriptions, deliveries, KPIs)            |
+| `POST /api/farmacia`      | POST    | ✅   | 10/60s     | Create prescriptions or update delivery status                          |
+| `GET /api/coverage`       | GET     | —    | 30/60s     | Insurance coverage lookup (Supabase + static fallback)                  |
+| `GET /api/nubix`          | GET     | ✅   | 10/60s     | Nubix RIS/PACS data (studies, reports, viewer, KPIs)                    |
+| `POST /api/nubix`         | POST    | ✅   | 10/60s     | Nubix actions (send results, upsert appointments)                       |
 
 ### Telemedicine APIs
 
@@ -741,7 +741,7 @@ Matches all routes except: `_next/static`, `_next/image`, `favicon.ico`, `logos/
 2. **Disponibilidad** — Real-time availability calendar
 3. **Perfiles** — Doctor detail with reviews, bio, languages
 4. **Cobertura** — Coverage verification per financiador
-5. **Recomendaciones** — Doctoraliar.com (Docplanner) integration for external booking, real-time slot availability, and appointment scheduling
+5. **Recomendaciones** — Symptom-based specialty recommendation with matched doctors
 
 ### Module 17: Triage (`/dashboard/triage`)
 
@@ -1152,7 +1152,7 @@ Logger auto-redacts: email, DNI, CUIL, password, token, secret, authorization
 | **Sentry**             | Error tracking, performance       | `SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`                  |
 | **Upstash Redis**      | Rate limiting                     | `UPSTASH_REDIS_URL`, `UPSTASH_REDIS_TOKEN`                                         |
 | **Nubix Cloud**        | RIS/PACS DICOM imaging            | `NUBIX_API_URL`, `NUBIX_API_KEY`, `NUBIX_TENANT_ID`                                |
-| **Doctoraliar**        | Doctor directory & booking        | `DOCTORALIAR_CLIENT_ID`, `DOCTORALIAR_CLIENT_SECRET` (OAuth2 client_credentials)   |
+| **Google Places**      | Doctor search, photos, ratings    | `GOOGLE_PLACES_API_KEY`, `GOOGLE_MAPS_API_KEY`                                     |
 | **PAMI API**           | National health insurance         | `PAMI_API_URL`, `PAMI_API_TOKEN`                                                   |
 | **AFIP WSFEV1**        | Electronic invoicing              | `AFIP_CERT_PATH`, `AFIP_KEY_PATH`, `AFIP_CUIT`                                     |
 | **Swiss Medical**      | Private insurance API             | `SWISS_MEDICAL_CLIENT_ID`, `SWISS_MEDICAL_CLIENT_SECRET`                           |
@@ -1451,7 +1451,7 @@ condor-salud/
 │   └── lib/
 │       ├── analytics.ts, chatbot-engine.ts, env.ts, google.ts
 │       ├── logger.ts, plan-config.ts, plan-context.tsx, posthog.tsx
-│       ├── doctoraliar.ts, segments.ts, swr.tsx, types.ts, utils.ts
+│       ├── doctor-search.ts, segments.ts, swr.tsx, types.ts, utils.ts
 │       ├── ai/ (claude.ts)
 │       ├── auth/ (context.tsx, rbac.ts)
 │       ├── hooks/ (useGeolocation, useModules, useNearbyServices, usePatientName)

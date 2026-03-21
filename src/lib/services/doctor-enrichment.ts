@@ -3,7 +3,7 @@
  *
  * Scrapes doctor websites to extract:
  * - WhatsApp number (4 strategies)
- * - Booking link (Calendly, Doctoralia, TurnoMed, etc.)
+ * - Booking link (Calendly, TurnoMed, Reservo, etc.)
  * - English-speaking indicator
  * - Insurance / obra social coverage
  * - Telehealth availability
@@ -54,14 +54,15 @@ const INSURANCE_NAMES = [
 ];
 
 // ── Booking platform patterns ────────────────────────────────
+// Detects external booking links on doctor websites during scraping.
 
 const BOOKING_PLATFORMS: { re: RegExp; type: string }[] = [
   { re: /(?:https?:\/\/)?(?:www\.)?calendly\.com\/[\w-]+(\/[\w-]+)?/i, type: "Calendly" },
   { re: /(?:https?:\/\/)?(?:www\.)?cal\.com\/[\w-]+(\/[\w-]+)?/i, type: "Cal.com" },
-  { re: /(?:https?:\/\/)?(?:www\.)?doctoralia\.com\.ar[^\s"'<>]*/i, type: "Doctoralia" },
+  { re: /(?:https?:\/\/)?(?:www\.)?doctoralia\.com\.ar[^\s"'<>]*/i, type: "Docplanner" },
   {
     re: /(?:https?:\/\/)?(?:www\.)?doctoraliar?\.com[^\s"'<>]*turnos[^\s"'<>]*/i,
-    type: "Doctoralia",
+    type: "Docplanner",
   },
   { re: /(?:https?:\/\/)?turno\.med\.ec[^\s"'<>]*/i, type: "TurnoMed" },
   { re: /(?:https?:\/\/)?reservo\.online[^\s"'<>]*/i, type: "Reservo" },

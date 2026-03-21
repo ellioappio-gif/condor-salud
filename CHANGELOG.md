@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.2] — 2026-03-21
+
+### Removed
+
+- **Doctoraliar / Doctoralia integration** — Removed all references: env vars (`DOCTORALIAR_CLIENT_ID`, `DOCTORALIAR_CLIENT_SECRET`), i18n banner text, JSDoc comments. The scraper still detects Docplanner booking URLs on doctor websites as an external booking platform.
+
+### Changed
+
+- **Booking buttons route internally** — All "Sacar turno" and "Reservar" buttons in `/paciente/medicos` and `/dashboard/directorio` now navigate to `/paciente/turnos` instead of opening Google Maps search URLs. Google Maps links remain as a separate "Ver ubicación" option.
+- **Doctor photos wired to UI** — Added `photoUrl` field to `PatientDoctor` and `Doctor` interfaces. Both `paciente/medicos/page.tsx` and `dashboard/directorio/page.tsx` now display real doctor photos (from Google Places proxy or database) with graceful fallback to initials/icon.
+- **`getDoctorDirectory()` lat/lng fix** — Reads real `lat`/`lng` coordinates from Supabase `doctors` table instead of hardcoding all doctors to `-34.6037, -58.3816`. Falls back to Buenos Aires center if columns not present.
+- **`mapDoctor()` reads `photo_url`** — Directorio service now maps `photo_url` column from database to `Doctor.photoUrl`.
+- **Docs updated** — Replaced all Doctoraliar references in `API_REFERENCE.md`, `FEATURES.md`, and `FULL_AUDIT_DOC.md` with Google Places API documentation.
+- **Scraper booking types** — Renamed Doctoralia booking type label to "Docplanner" for clarity.
+
 ## [0.14.0] — 2026-03-20
 
 ### UX & Quality — Phase 4

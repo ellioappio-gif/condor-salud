@@ -276,6 +276,7 @@ function mapDoctor(r: Record<string, unknown>): Doctor {
     experience: (r.experience as string) || "",
     languages: (r.languages as string[]) || ["Español"],
     source: "local",
+    photoUrl: (r.photo_url as string) || undefined,
   };
 }
 

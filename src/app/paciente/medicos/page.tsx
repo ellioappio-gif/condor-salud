@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Search,
   MapPin,
@@ -46,6 +47,46 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): nu
 function formatDistance(km: number): string {
   if (km < 1) return `${Math.round(km * 1000)} m`;
   return `${km.toFixed(1)} km`;
+}
+
+/* ── Doctor avatar with photo or fallback initials ─────── */
+function DoctorAvatar({ doctor, size = 56 }: { doctor: Doctor; size?: number }) {
+  const initials = doctor.name
+    .split(" ")
+    .slice(1)
+    .map((n) => n[0])
+    .join("");
+
+  if (doctor.photoUrl) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src={doctor.photoUrl}
+        alt={doctor.name}
+        width={size}
+        height={size}
+        className="rounded-2xl object-cover shrink-0"
+        style={{ width: size, height: size }}
+        onError={(e) => {
+          // Fallback to initials on load error
+          const el = e.currentTarget;
+          el.style.display = "none";
+          el.parentElement?.querySelector(".avatar-fallback")?.classList.remove("hidden");
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="rounded-2xl bg-celeste-50 flex items-center justify-center shrink-0 font-bold text-celeste-dark"
+      style={{ width: size, height: size, fontSize: size * 0.3 }}
+    >
+      {initials || (
+        <User className="text-celeste-dark" style={{ width: size * 0.5, height: size * 0.5 }} />
+      )}
+    </div>
+  );
 }
 
 /* ── demo data removed — using SWR hooks ──────────────── */
@@ -216,9 +257,7 @@ export default function MedicosPage() {
           >
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Avatar */}
-              <div className="w-14 h-14 rounded-2xl bg-celeste-50 flex items-center justify-center shrink-0">
-                <User className="w-7 h-7 text-celeste-dark" />
-              </div>
+              <DoctorAvatar doctor={doctor} size={56} />
 
               {/* Info */}
               <div className="flex-1 min-w-0">
@@ -315,14 +354,12 @@ export default function MedicosPage() {
               >
                 Ver perfil
               </button>
-              <a
-                href={getGoogleMapsSearchUrl(doctor.name)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => router.push("/paciente/turnos")}
                 className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition text-center"
               >
                 Sacar turno
-              </a>
+              </button>
               {doctor.teleconsulta && (
                 <button
                   onClick={() => router.push("/paciente/teleconsulta")}
@@ -358,9 +395,7 @@ export default function MedicosPage() {
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-celeste-50 flex items-center justify-center shrink-0">
-                  <User className="w-8 h-8 text-celeste-dark" />
-                </div>
+                <DoctorAvatar doctor={selectedDoctor} size={64} />
                 <div>
                   <h2 className="text-lg font-bold text-ink">{selectedDoctor.name}</h2>
                   <p className="text-sm text-ink-muted">{selectedDoctor.specialty}</p>
@@ -395,7 +430,7 @@ export default function MedicosPage() {
                   className="flex items-center gap-2 text-celeste-dark hover:underline text-sm"
                 >
                   <ExternalLink className="w-4 h-4 shrink-0" />
-                  Ver perfil en Google Maps
+                  Ver ubicación en Google Maps
                 </a>
               </div>
 
@@ -406,14 +441,15 @@ export default function MedicosPage() {
                 >
                   Cerrar
                 </button>
-                <a
-                  href={getGoogleMapsSearchUrl(selectedDoctor.name)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => {
+                    setSelectedDoctor(null);
+                    router.push("/paciente/turnos");
+                  }}
                   className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition text-center"
                 >
-                  Sacar turno vía Google Maps
-                </a>
+                  Sacar turno
+                </button>
               </div>
             </div>
           </div>

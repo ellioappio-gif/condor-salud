@@ -1,8 +1,8 @@
 /**
  * Doctor Search — Google Places + Web Scraping
  *
- * Replaces Doctoraliar integration. Uses Google Places API for doctor discovery
- * and website scraping for enrichment (WhatsApp, booking links, insurance, etc.).
+ * Uses Google Places API for doctor discovery and website scraping for
+ * enrichment (WhatsApp, booking links, insurance, telehealth, etc.).
  *
  * Backend API routes handle Google API calls to keep the API key server-side.
  */

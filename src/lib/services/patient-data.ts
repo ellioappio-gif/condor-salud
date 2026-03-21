@@ -104,6 +104,8 @@ export interface PatientDoctor {
   education: string;
   insurance: string[];
   nextSlot: string;
+  /** Photo URL from Google Places (proxied via /api/photos/) or database */
+  photoUrl?: string;
 }
 
 export interface PatientProfile {
@@ -861,23 +863,28 @@ export async function getDoctorDirectory(): Promise<PatientDoctor[]> {
 
       if (!data || data.length === 0) return DEMO_DOCTORS;
 
-      return data.map((r) => ({
-        id: r.id,
-        name: r.name,
-        specialty: r.specialty,
-        subspecialty: undefined,
-        rating: r.rating,
-        reviews: r.review_count,
-        location: r.location,
-        address: r.address ?? "",
-        lat: -34.6037,
-        lng: -58.3816,
-        availableToday: r.available,
-        teleconsulta: r.teleconsulta,
-        education: r.experience ?? "",
-        insurance: Array.isArray(r.financiadores) ? (r.financiadores as string[]) : [],
-        nextSlot: r.next_slot ?? "",
-      }));
+      return data.map((r) => {
+        // Cast to access optional columns that may not be in generated types yet
+        const row = r as Record<string, unknown>;
+        return {
+          id: r.id,
+          name: r.name,
+          specialty: r.specialty,
+          subspecialty: undefined,
+          rating: r.rating,
+          reviews: r.review_count,
+          location: r.location,
+          address: r.address ?? "",
+          lat: typeof row.lat === "number" ? row.lat : -34.6037,
+          lng: typeof row.lng === "number" ? row.lng : -58.3816,
+          availableToday: r.available,
+          teleconsulta: r.teleconsulta,
+          education: r.experience ?? "",
+          insurance: Array.isArray(r.financiadores) ? (r.financiadores as string[]) : [],
+          nextSlot: r.next_slot ?? "",
+          photoUrl: typeof row.photo_url === "string" ? row.photo_url : undefined,
+        };
+      });
     } catch {
       return DEMO_DOCTORS;
     }

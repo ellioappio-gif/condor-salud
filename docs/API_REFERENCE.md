@@ -19,7 +19,7 @@
 11. [Nubix Cloud (RIS/PACS — Medical Imaging)](#11-nubix-cloud)
 12. [AFIP WSFE v1 (Electronic Invoicing — Argentina)](#12-afip-wsfe-v1)
 13. [PAMI (Public Health Insurance — Argentina)](#13-pami)
-14. [Doctoraliar / Docplanner](#14-doctoraliar-docplanner)
+14. [Google Places API (Doctor Search)](#14-google-places-api-doctor-search)
 
 ---
 
@@ -1079,73 +1079,66 @@ SISA may be a better integration point for coverage verification:
 
 ---
 
-## 14. Doctoraliar (Docplanner)
+## 14. Google Places API (Doctor Search)
 
-**Website**: <https://www.doctoraliar.com>
-**API Docs**: <https://integrations.docplanner.com/docs/>
-**Guide**: <https://integrations.docplanner.com/guide/>
-**Used for**: Doctor directory, appointment slots, booking, insurance verification
+**Website**: <https://developers.google.com/maps/documentation/places/web-service>
+**Used for**: Doctor discovery, ratings, photos, coordinates, opening hours
 
 ### 14.1 API Overview
 
-Doctoraliar is the Argentine branch of Docplanner Group (110,000+ professionals).
-The REST API v3 uses OAuth2 `client_credentials` flow.
+Google Places API (New) is used for doctor search. Results are enriched via
+custom web scraping (WhatsApp, booking links, insurance coverage, telehealth).
 
-| Detail          | Value                                                       |
-| --------------- | ----------------------------------------------------------- |
-| Base URL        | `https://www.doctoraliar.com/api/v3/integration/{resource}` |
-| Token URL       | `https://www.doctoraliar.com/oauth/v2/token`                |
-| Auth            | OAuth2 `client_credentials` (24h token)                     |
-| Rate Limit GET  | 8,000 req/hour                                              |
-| Rate Limit POST | 40 req/minute (2,400/hour)                                  |
-| Content-Type    | `application/vnd.docplanner+json; charset=UTF-8`            |
+| Detail      | Value                                                |
+| ----------- | ---------------------------------------------------- |
+| Base URL    | `https://places.googleapis.com/v1/places:searchText` |
+| Photo Proxy | `/api/photos/:photoRef` (hides API key, 24h cache)   |
+| Auth        | API Key (`X-Goog-Api-Key` header)                    |
+| Rate Limit  | Varies by plan (see Google Cloud Console)            |
 
-### 14.2 Resources
+### 14.2 Internal API Routes
 
-| Endpoint                                                              | Method | Description                            |
-| --------------------------------------------------------------------- | ------ | -------------------------------------- |
-| `/facilities`                                                         | GET    | List partner facilities                |
-| `/facilities/{fid}/doctors`                                           | GET    | List doctors in a facility             |
-| `/facilities/{fid}/doctors/{did}`                                     | GET    | Doctor detail (profile URL, addresses) |
-| `/facilities/{fid}/doctors/{did}/addresses`                           | GET    | Doctor office locations                |
-| `/facilities/{fid}/doctors/{did}/addresses/{aid}/services`            | GET    | Services offered at address            |
-| `/facilities/{fid}/doctors/{did}/addresses/{aid}/slots`               | GET    | Available appointment slots            |
-| `/facilities/{fid}/doctors/{did}/addresses/{aid}/slots/{start}/book`  | POST   | Book a slot                            |
-| `/facilities/{fid}/doctors/{did}/addresses/{aid}/bookings`            | GET    | List bookings                          |
-| `/facilities/{fid}/doctors/{did}/addresses/{aid}/bookings/{bid}`      | DELETE | Cancel booking                         |
-| `/facilities/{fid}/doctors/{did}/addresses/{aid}/bookings/{bid}/move` | POST   | Move booking                           |
-| `/insurance-providers`                                                | GET    | List insurance providers               |
-| `/insurance-providers/{pid}/plans`                                    | GET    | Plans for a provider                   |
-| `/facilities/{fid}/doctors/{did}/addresses/{aid}/insurance-providers` | GET    | Insurance at address                   |
-| `/notifications/multiple`                                             | GET    | Pull notification queue                |
+| Endpoint                | Method | Description                                  |
+| ----------------------- | ------ | -------------------------------------------- |
+| `/api/doctors/search`   | GET    | Search doctors by specialty + city + filters |
+| `/api/doctors/:placeId` | GET    | Doctor detail with enrichment data           |
+| `/api/photos/:photoRef` | GET    | Proxy Google Places photo (hides API key)    |
 
-### 14.3 Extensions (query param `with`)
+### 14.3 Search Parameters
 
-- `doctor.profile_url` — Doctor's Doctoraliar profile URL
-- `doctor.specializations` — Specialization list
-- `doctor.addresses` — All addresses for a doctor
-- `address.online_only` — Video consultation flag
-- `address.insurance_support` — Insurance type (`private`, `insurance`, `private_and_insurance`)
-- `slot.services` — Services attached to slots
-- `booking.patient` — Patient data on bookings
-- `booking.address_service` — Service details on bookings
+| Param        | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| specialty    | string  | e.g. "Cardiología"               |
+| city         | string  | default "Buenos Aires"           |
+| neighborhood | string  | e.g. "Palermo", "Recoleta"       |
+| insurance    | string  | e.g. "OSDE", "Swiss Medical"     |
+| english      | boolean | only English-speaking doctors    |
+| whatsapp     | boolean | only doctors with WhatsApp       |
+| booking      | boolean | only doctors with online booking |
+| telehealth   | boolean | only doctors with teleconsulta   |
+| nearby       | boolean | requires lat + lng params        |
+| lat / lng    | number  | patient GPS coordinates          |
+| radius       | number  | metres, default 2000             |
+| limit        | number  | max results, default 20          |
 
-### 14.4 Environment Variables
+### 14.4 Enrichment (Web Scraping)
+
+The `DoctorEnrichmentService` scrapes doctor websites to extract:
+
+- WhatsApp number (4 detection strategies)
+- Booking URLs (Calendly, Cal.com, TurnoMed, Reservo, MiTurno, etc.)
+- Insurance / obra social coverage
+- English-speaking indicator
+- Telehealth availability
+
+Results cached in-memory (2h TTL).
+
+### 14.5 Environment Variables
 
 ```env
-DOCTORALIAR_CLIENT_ID=          # OAuth2 client ID from Docplanner
-DOCTORALIAR_CLIENT_SECRET=      # OAuth2 client secret
+GOOGLE_PLACES_API_KEY=         # Google Places API key (server-side)
+GOOGLE_MAPS_API_KEY=           # Google Maps API key (photo proxy)
 ```
-
-### 14.5 Internal API Route
-
-`/api/doctoraliar` — Proxies requests to Doctoraliar API with auth + rate limiting.
-
-| Param      | GET Resources                                                                                                       |
-| ---------- | ------------------------------------------------------------------------------------------------------------------- |
-| `resource` | `facilities`, `doctors`, `doctor`, `addresses`, `services`, `slots`, `bookings`, `insurances`, `address-insurances` |
-
-POST actions: `book` (book a slot), `cancel` (cancel a booking).
 
 ---
 
@@ -1202,25 +1195,25 @@ AFIP_WSAA_URL=
 AFIP_WSFE_URL=
 AFIP_ENVIRONMENT=              # "production" or "homologacion"
 
-# Doctoraliar (Docplanner)
-DOCTORALIAR_CLIENT_ID=
-DOCTORALIAR_CLIENT_SECRET=
+# Google Places (Doctor Search)
+GOOGLE_PLACES_API_KEY=
+GOOGLE_MAPS_API_KEY=
 ```
 
 ---
 
 ## Rate Limits Summary
 
-| Service         | Limit                                        | Notes                                    |
-| --------------- | -------------------------------------------- | ---------------------------------------- |
-| **Daily.co**    | 20 req/s (most), 2 req/s (delete/recordings) | Per API key                              |
-| **Resend**      | 2 req/s                                      | Per team, increasable                    |
-| **MercadoPago** | Varies by endpoint                           | See MP docs                              |
-| **Supabase**    | Depends on plan                              | Free: 500 req/s                          |
-| **Google APIs** | Varies by API                                | Calendar: 1M queries/day, Places: varies |
-| **Twilio**      | 1 msg/s (WhatsApp sandbox)                   | Higher in production                     |
-| **Upstash**     | 1000 req/s (free), higher on paid            | Per database                             |
-| **Doctoraliar** | 8,000 GET/hour, 40 POST/minute               | Per OAuth2 client, adjustable on request |
+| Service           | Limit                                        | Notes                                    |
+| ----------------- | -------------------------------------------- | ---------------------------------------- |
+| **Daily.co**      | 20 req/s (most), 2 req/s (delete/recordings) | Per API key                              |
+| **Resend**        | 2 req/s                                      | Per team, increasable                    |
+| **MercadoPago**   | Varies by endpoint                           | See MP docs                              |
+| **Supabase**      | Depends on plan                              | Free: 500 req/s                          |
+| **Google APIs**   | Varies by API                                | Calendar: 1M queries/day, Places: varies |
+| **Twilio**        | 1 msg/s (WhatsApp sandbox)                   | Higher in production                     |
+| **Upstash**       | 1000 req/s (free), higher on paid            | Per database                             |
+| **Google Places** | Varies by plan                               | See Google Cloud Console quotas          |
 
 ---
 
@@ -1239,4 +1232,4 @@ DOCTORALIAR_CLIENT_SECRET=
 | **Sentry**        | DSN + Auth Token               | DSN in client config, Auth Token for API            |
 | **Nubix**         | API Key + Tenant               | `Authorization: Bearer {key}`, `X-Tenant-ID: {id}`  |
 | **AFIP**          | X.509 Certificate + WSAA Token | SOAP headers with Token + Sign                      |
-| **Doctoraliar**   | OAuth2 Bearer                  | `Authorization: Bearer {access_token}`              |
+| **Google Places** | API Key                        | `X-Goog-Api-Key: {key}`                             |

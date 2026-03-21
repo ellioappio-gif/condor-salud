@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
-import { ExternalLink, Star, StarHalf } from "lucide-react";
+import { ExternalLink, Star, StarHalf, User } from "lucide-react";
 import RideQuickLinks from "@/components/RideQuickLinks";
 import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
 import type { Doctor } from "@/lib/types";
@@ -39,8 +40,41 @@ export default function DirectorioPage() {
   // ─── SWR data hooks ─────────────────────────────────────────
   const { data: doctors = [] } = useDoctors();
   const { data: kpis } = useDirectorioKPIs();
+  const router = useRouter();
 
   const docs = doctors;
+
+  /* ── Doctor avatar with photo or fallback initials ─────── */
+  const DoctorAvatarRound = ({ doc, size = 48 }: { doc: Doctor; size?: number }) => {
+    const initials = doc.name
+      .split(" ")
+      .slice(1)
+      .map((n: string) => n[0])
+      .join("");
+
+    if (doc.photoUrl) {
+      return (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={doc.photoUrl}
+          alt={doc.name}
+          width={size}
+          height={size}
+          className="rounded-full object-cover shrink-0"
+          style={{ width: size, height: size }}
+        />
+      );
+    }
+
+    return (
+      <div
+        className="rounded-full bg-celeste-pale flex items-center justify-center text-celeste-dark font-bold shrink-0"
+        style={{ width: size, height: size, fontSize: size * 0.28 }}
+      >
+        {initials || <User style={{ width: size * 0.5, height: size * 0.5 }} />}
+      </div>
+    );
+  };
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "busqueda", label: "Búsqueda" },
@@ -316,10 +350,8 @@ export default function DirectorioPage() {
                       >
                         <ExternalLink className="w-3 h-3" /> Google Maps
                       </a>
-                      <a
-                        href={doc.profileUrl || getGoogleMapsSearchUrl(doc.name)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => router.push("/paciente/turnos")}
                         className={`px-4 py-1.5 text-xs font-semibold rounded transition inline-block text-center ${
                           doc.available
                             ? "bg-celeste-dark text-white hover:bg-celeste"
@@ -327,7 +359,7 @@ export default function DirectorioPage() {
                         }`}
                       >
                         Reservar
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -444,13 +476,7 @@ export default function DirectorioPage() {
                   onClick={() => setSelectedDoctor(doc)}
                   className="w-full text-left bg-white border border-border rounded-lg p-5 hover:border-celeste-dark/30 transition flex items-center gap-4"
                 >
-                  <div className="w-12 h-12 rounded-full bg-celeste-pale flex items-center justify-center text-celeste-dark font-bold text-sm shrink-0">
-                    {doc.name
-                      .split(" ")
-                      .slice(1)
-                      .map((n: string) => n[0])
-                      .join("")}
-                  </div>
+                  <DoctorAvatarRound doc={doc} size={48} />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm text-ink">{doc.name}</p>
                     <p className="text-xs text-celeste-dark">{doc.specialty}</p>
@@ -478,13 +504,7 @@ export default function DirectorioPage() {
               </button>
               <div className="bg-white border border-border rounded-lg p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-full bg-celeste-pale flex items-center justify-center text-celeste-dark font-bold text-lg shrink-0">
-                    {selectedDoctor.name
-                      .split(" ")
-                      .slice(1)
-                      .map((n: string) => n[0])
-                      .join("")}
-                  </div>
+                  <DoctorAvatarRound doc={selectedDoctor} size={64} />
                   <div className="flex-1">
                     <h2 className="text-lg font-display font-bold text-ink">
                       {selectedDoctor.name}
@@ -580,14 +600,12 @@ export default function DirectorioPage() {
                   ))}
                 </div>
 
-                <a
-                  href={selectedDoctor.profileUrl || getGoogleMapsSearchUrl(selectedDoctor.name)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => router.push("/paciente/turnos")}
                   className="mt-6 inline-block px-6 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition text-center"
                 >
-                  Reservar turno vía Google Maps
-                </a>
+                  Reservar turno
+                </button>
                 <a
                   href={selectedDoctor.profileUrl || getGoogleMapsSearchUrl(selectedDoctor.name)}
                   target="_blank"
@@ -595,7 +613,7 @@ export default function DirectorioPage() {
                   className="mt-3 inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  Ver perfil en Google Maps
+                  Ver ubicación en Google Maps
                 </a>
 
                 <div className="mt-4 p-3 bg-surface rounded-lg">
@@ -818,14 +836,12 @@ export default function DirectorioPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-xs font-medium text-success-600 mb-2">{doc.nextSlot}</p>
-                    <a
-                      href={doc.profileUrl || getGoogleMapsSearchUrl(doc.name)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => router.push("/paciente/turnos")}
                       className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition inline-block text-center"
                     >
                       Reservar
-                    </a>
+                    </button>
                   </div>
                 </div>
               ))}

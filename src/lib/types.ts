@@ -207,6 +207,8 @@ export interface Doctor {
   profileUrl?: string;
   /** Source of the listing */
   source?: "local" | "google_places";
+  /** Doctor photo URL (Google Places proxy or database) */
+  photoUrl?: string;
 }
 
 export interface DoctorReview {
