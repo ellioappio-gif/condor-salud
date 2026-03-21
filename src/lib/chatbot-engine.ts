@@ -2309,7 +2309,7 @@ function generateSharedLocationResponse(
           { label: "Doctor nearby", value: "Find a doctor near me" },
           { label: "Pharmacy nearby", value: "Pharmacy near me" },
           { label: "Nearest ER", value: "Nearest emergency room" },
-          { label: "Directions to...", value: "How do I get to Hospital Italiano" },
+          { label: "🚗 Get a ride", value: "I need a ride to the doctor" },
         ],
       };
     }
@@ -2328,7 +2328,7 @@ function generateSharedLocationResponse(
         { label: "Médico cerca", value: "Buscar médico cerca mío" },
         { label: "Farmacia cerca", value: "Farmacia cerca mío" },
         { label: "Guardia más cercana", value: "Guardia más cercana" },
-        { label: "Cómo llego a...", value: "Cómo llego al Hospital Italiano" },
+        { label: "🚗 Transporte", value: "Necesito transporte al médico" },
       ],
     };
   }
@@ -2524,6 +2524,9 @@ function generateRideResponse(
       text: isEn
         ? "🚗 I can help you get a ride to your doctor or health center!\n\nTo show you Uber, Cabify, InDrive and Remis options with pre-filled addresses, I need your location first.\n\nPlease share your location using the 📍 button below."
         : "🚗 ¡Te puedo ayudar a pedir un viaje al médico o centro de salud!\n\nPara mostrarte opciones de Uber, Cabify, InDrive y Remis con la dirección precargada, necesito tu ubicación primero.\n\nCompartí tu ubicación con el botón 📍 abajo del chat.",
+      // Tag with ride context so the client can auto-send a ride
+      // message after the user shares their location
+      triageContext: "ride_transport",
       quickReplies: isEn
         ? [
             { label: "Share location", value: "I want to share my location" },

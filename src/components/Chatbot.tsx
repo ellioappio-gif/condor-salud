@@ -493,12 +493,26 @@ export default function Chatbot() {
     [isTyping, messages, isEn, locale],
   );
 
+  // Track last bot context for the geolocation effect (avoid stale closure)
+  const lastBotContextRef = useRef<string | undefined>();
+  useEffect(() => {
+    const lastBot = [...messages].reverse().find((m) => m.role === "bot");
+    lastBotContextRef.current = lastBot?.triageContext;
+  }, [messages]);
+
   // When geolocation resolves after user requested it, send confirmation to Cora
   useEffect(() => {
     if (!locationRequested) return;
     if (geo.coords && !isTyping) {
       setLocationRequested(false);
-      sendMessage(isEn ? "I shared my location" : "Compartí mi ubicación");
+      // If the user was asking about rides before sharing location,
+      // send a transport message so Cora returns ride cards immediately
+      const wasRideRequest = lastBotContextRef.current === "ride_transport";
+      if (wasRideRequest) {
+        sendMessage(isEn ? "I need a ride to the doctor" : "Necesito transporte al médico");
+      } else {
+        sendMessage(isEn ? "I shared my location" : "Compartí mi ubicación");
+      }
     } else if (geo.error && !geo.loading) {
       setLocationRequested(false);
       // Show the geolocation error as a bot message so the user knows what went wrong
