@@ -19,7 +19,11 @@ import {
   cancelBooking,
   getAvailableSlots,
 } from "@/lib/services/patient-data";
-import type { CreateBookingPayload, PatientAppointment } from "@/lib/services/patient-data";
+import type {
+  CreateBookingPayload,
+  PatientAppointment,
+  BookingResponse,
+} from "@/lib/services/patient-data";
 
 // Shared config: revalidate on focus, retry twice
 const opts = { revalidateOnFocus: true, errorRetryCount: 2 } as const;
@@ -75,22 +79,23 @@ export function useAvailableSlots(specialty: string, date: string) {
   );
 }
 
-/** Mutation hook: create a booking + optimistically update the appointment list */
+/** Mutation hook: create a booking + optimistically update the appointment list.
+ *  Returns the booking response which may include a paymentUrl for MercadoPago. */
 export function useCreateBooking() {
   const { mutate } = useSWRConfig();
 
   const trigger = useCallback(
-    async (payload: CreateBookingPayload) => {
-      const newApt = await createBooking(payload);
+    async (payload: CreateBookingPayload): Promise<BookingResponse> => {
+      const result = await createBooking(payload);
 
       // Optimistically prepend the new appointment
       await mutate(
         "patient:appointments",
-        (prev: PatientAppointment[] | undefined) => (prev ? [newApt, ...prev] : [newApt]),
+        (prev: PatientAppointment[] | undefined) => (prev ? [result, ...prev] : [result]),
         { revalidate: true },
       );
 
-      return newApt;
+      return result;
     },
     [mutate],
   );

@@ -1,0 +1,126 @@
+// ─── GET / POST / DELETE  /api/availability ──────────────────
+// CRUD for doctor_availability table (admin side).
+
+import { NextRequest, NextResponse } from "next/server";
+import { isSupabaseConfigured } from "@/lib/env";
+import { logger } from "@/lib/logger";
+
+export const runtime = "nodejs";
+
+/* ── GET — list availability for a doctor ─────────────── */
+
+export async function GET(req: NextRequest) {
+  const doctorId = req.nextUrl.searchParams.get("doctorId");
+  const weekStart = req.nextUrl.searchParams.get("weekStart"); // YYYY-MM-DD
+
+  if (isSupabaseConfigured()) {
+    const { createClient } = await import("@/lib/supabase/server");
+    const sb = createClient();
+
+    let query = sb
+      .from("doctor_availability")
+      .select("*")
+      .order("date", { ascending: true })
+      .order("time_slot", { ascending: true });
+
+    if (doctorId) query = query.eq("doctor_id", doctorId);
+    if (weekStart) {
+      const end = new Date(weekStart);
+      end.setDate(end.getDate() + 7);
+      query = query.gte("date", weekStart).lt("date", end.toISOString().split("T")[0]);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      logger.error({ err: error }, "GET /api/availability failed");
+      return NextResponse.json({ error: "Query failed" }, { status: 500 });
+    }
+    return NextResponse.json({ slots: data ?? [] });
+  }
+
+  // Demo mode
+  return NextResponse.json({ slots: [] });
+}
+
+/* ── POST — create availability slots (bulk) ──────────── */
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { doctorId, date, timeSlots } = body as {
+      doctorId: string;
+      date: string;
+      timeSlots: string[];
+    };
+
+    if (!doctorId || !date || !timeSlots?.length) {
+      return NextResponse.json(
+        { error: "doctorId, date and timeSlots[] are required" },
+        { status: 400 },
+      );
+    }
+
+    if (isSupabaseConfigured()) {
+      const { createClient } = await import("@/lib/supabase/server");
+      const sb = createClient();
+
+      const rows = timeSlots.map((ts: string) => ({
+        doctor_id: doctorId,
+        date,
+        time_slot: ts,
+        booked: false,
+      }));
+
+      const { data, error } = await sb
+        .from("doctor_availability")
+        .upsert(rows, { onConflict: "doctor_id,date,time_slot", ignoreDuplicates: true })
+        .select();
+
+      if (error) {
+        logger.error({ err: error }, "POST /api/availability failed");
+        return NextResponse.json({ error: "Insert failed" }, { status: 500 });
+      }
+      return NextResponse.json({ created: data?.length ?? 0 });
+    }
+
+    return NextResponse.json({ created: timeSlots.length });
+  } catch (err) {
+    logger.error({ err }, "POST /api/availability error");
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+/* ── DELETE — remove an availability slot ─────────────── */
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { slotId } = body as { slotId: string };
+
+    if (!slotId) {
+      return NextResponse.json({ error: "slotId is required" }, { status: 400 });
+    }
+
+    if (isSupabaseConfigured()) {
+      const { createClient } = await import("@/lib/supabase/server");
+      const sb = createClient();
+
+      const { error } = await sb
+        .from("doctor_availability")
+        .delete()
+        .eq("id", slotId)
+        .eq("booked", false); // Can only delete unbooked slots
+
+      if (error) {
+        logger.error({ err: error }, "DELETE /api/availability failed");
+        return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+      }
+      return NextResponse.json({ success: true });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "DELETE /api/availability error");
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}

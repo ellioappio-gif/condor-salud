@@ -137,6 +137,11 @@ export interface CreateBookingPayload {
   type: "presencial" | "teleconsulta";
   doctorId?: string;
   notes?: string;
+  consultationFee?: number; // ARS — if > 0 triggers MercadoPago checkout
+}
+
+export interface BookingResponse extends PatientAppointment {
+  paymentUrl?: string | null;
 }
 
 export interface CancelBookingPayload {
@@ -940,7 +945,7 @@ export async function getMyProfile(cookieName?: string): Promise<PatientProfile>
  * Create a new appointment via POST /api/bookings.
  * Returns the created appointment for optimistic SWR updates.
  */
-export async function createBooking(payload: CreateBookingPayload): Promise<PatientAppointment> {
+export async function createBooking(payload: CreateBookingPayload): Promise<BookingResponse> {
   const res = await fetch("/api/bookings", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -950,7 +955,7 @@ export async function createBooking(payload: CreateBookingPayload): Promise<Pati
     const err = await res.json().catch(() => ({}));
     throw new Error((err as Record<string, string>).error || "Failed to create booking");
   }
-  return res.json() as Promise<PatientAppointment>;
+  return res.json() as Promise<BookingResponse>;
 }
 
 /**

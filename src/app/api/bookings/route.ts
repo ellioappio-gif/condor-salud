@@ -15,6 +15,7 @@ interface BookingPayload {
   type: "presencial" | "teleconsulta";
   doctorId?: string; // optional — assigned later if omitted
   notes?: string;
+  consultationFee?: number; // ARS whole units — if > 0 triggers MercadoPago
 }
 
 interface CancelPayload {
@@ -105,6 +106,55 @@ export async function POST(req: NextRequest) {
         logger.warn({ err: emailErr }, "Email send failed (non-blocking)");
       }
 
+      // ── Fire-and-forget: send push notification ──────────
+      try {
+        const { pushBookingConfirmed, isPushConfigured } =
+          await import("@/lib/services/push-notifications");
+        if (isPushConfigured()) {
+          const { data: subs } = await sbAny
+            .from("push_subscriptions")
+            .select("endpoint, keys")
+            .eq("user_id", user.id);
+          if (subs && subs.length > 0) {
+            const pushSubs = subs.map(
+              (s: { endpoint: string; keys: { p256dh: string; auth: string } }) => ({
+                endpoint: s.endpoint,
+                keys: s.keys,
+              }),
+            );
+            await pushBookingConfirmed(pushSubs, {
+              doctor: doctorName,
+              date,
+              time,
+            });
+          }
+        }
+      } catch (pushErr) {
+        logger.warn({ err: pushErr }, "Push notification failed (non-blocking)");
+      }
+
+      // ── MercadoPago: create payment preference if fee > 0 ──
+      let paymentUrl: string | null = null;
+      if (body.consultationFee && body.consultationFee > 0) {
+        try {
+          const { isMercadoPagoConfigured, createPreference } =
+            await import("@/lib/services/mercadopago");
+          if (isMercadoPagoConfigured()) {
+            const pref = await createPreference({
+              bookingId: apt.id,
+              doctorId: body.doctorId || "unassigned",
+              doctorName,
+              patientEmail: user.email ?? "",
+              consultationFee: body.consultationFee,
+              description: `Consulta de ${specialty} — ${doctorName}`,
+            });
+            paymentUrl = pref.initPoint || pref.sandboxPoint || null;
+          }
+        } catch (mpErr) {
+          logger.warn({ err: mpErr }, "MercadoPago preference creation failed (non-blocking)");
+        }
+      }
+
       return NextResponse.json({
         id: apt.id,
         doctor: doctorName,
@@ -114,6 +164,7 @@ export async function POST(req: NextRequest) {
         type,
         location: type === "teleconsulta" ? "Videollamada" : "A confirmar",
         status: "confirmado",
+        paymentUrl,
       });
     }
 
@@ -128,6 +179,7 @@ export async function POST(req: NextRequest) {
       type,
       location: type === "teleconsulta" ? "Videollamada" : "Consultorio 3 - Sede Belgrano",
       status: "confirmado",
+      paymentUrl: null,
     });
   } catch (err) {
     logger.error({ err }, "POST /api/bookings failed");
@@ -193,6 +245,34 @@ export async function DELETE(req: NextRequest) {
         });
       } catch (emailErr) {
         logger.warn({ err: emailErr }, "Cancel email send failed (non-blocking)");
+      }
+
+      // Fire-and-forget: send push notification for cancellation
+      try {
+        const { pushBookingCancelled, isPushConfigured } =
+          await import("@/lib/services/push-notifications");
+        if (isPushConfigured()) {
+          const sbAny2 = sb as unknown as { from: (t: string) => ReturnType<typeof sb.from> };
+          const { data: subs } = await sbAny2
+            .from("push_subscriptions")
+            .select("endpoint, keys")
+            .eq("user_id", user.id);
+          if (subs && subs.length > 0) {
+            const aptRow2 = apt as Record<string, unknown>;
+            const pushSubs = subs.map(
+              (s: { endpoint: string; keys: { p256dh: string; auth: string } }) => ({
+                endpoint: s.endpoint,
+                keys: s.keys,
+              }),
+            );
+            await pushBookingCancelled(pushSubs, {
+              doctor: "Profesional",
+              date: String(aptRow2.appointment_date ?? ""),
+            });
+          }
+        }
+      } catch (pushErr) {
+        logger.warn({ err: pushErr }, "Cancel push notification failed (non-blocking)");
       }
 
       return NextResponse.json({ success: true });

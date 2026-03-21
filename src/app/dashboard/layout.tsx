@@ -37,6 +37,7 @@ import {
   UserSearch,
   Stethoscope,
   Network,
+  CalendarClock,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -61,6 +62,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/directorio": UserSearch,
   "/dashboard/interconsultas": Network,
   "/dashboard/triage": Stethoscope,
+  "/dashboard/disponibilidad": CalendarClock,
 };
 
 const navSections = [
@@ -75,6 +77,7 @@ const navSections = [
     items: [
       { label: "Pacientes", href: "/dashboard/pacientes", tKey: "nav.patients" },
       { label: "Agenda", href: "/dashboard/agenda", tKey: "nav.appointments" },
+      { label: "Disponibilidad", href: "/dashboard/disponibilidad", tKey: "nav.availability" },
       { label: "Verificacion", href: "/dashboard/verificacion", tKey: "" },
       { label: "Inventario", href: "/dashboard/inventario", tKey: "nav.inventory" },
     ],
@@ -145,6 +148,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/directorio": "directorio",
   "/dashboard/interconsultas": "interconsultas",
   "/dashboard/triage": "triage",
+  "/dashboard/disponibilidad": "agenda",
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

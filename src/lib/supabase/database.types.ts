@@ -401,6 +401,9 @@ export interface Database {
           languages: Json;
           bio: string | null;
           active: boolean;
+          lat: number | null;
+          lng: number | null;
+          photo_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -420,6 +423,9 @@ export interface Database {
           languages?: Json;
           bio?: string | null;
           active?: boolean;
+          lat?: number | null;
+          lng?: number | null;
+          photo_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -439,6 +445,9 @@ export interface Database {
           languages?: Json;
           bio?: string | null;
           active?: boolean;
+          lat?: number | null;
+          lng?: number | null;
+          photo_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -1196,6 +1205,87 @@ export interface Database {
       };
 
       // ─── Migration 004 tables ───────────────────────────────
+
+      appointments: {
+        Row: {
+          id: string;
+          slot_id: string | null;
+          patient_id: string;
+          clinic_id: string | null;
+          doctor_profile_id: string | null;
+          specialty: string;
+          appointment_date: string;
+          appointment_time: string;
+          is_telemedicine: boolean;
+          status: string;
+          notes: string | null;
+          booked_via: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slot_id?: string | null;
+          patient_id: string;
+          clinic_id?: string | null;
+          doctor_profile_id?: string | null;
+          specialty: string;
+          appointment_date: string;
+          appointment_time: string;
+          is_telemedicine?: boolean;
+          status?: string;
+          notes?: string | null;
+          booked_via?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slot_id?: string | null;
+          patient_id?: string;
+          clinic_id?: string | null;
+          doctor_profile_id?: string | null;
+          specialty?: string;
+          appointment_date?: string;
+          appointment_time?: string;
+          is_telemedicine?: boolean;
+          status?: string;
+          notes?: string | null;
+          booked_via?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+
+      push_subscriptions: {
+        Row: {
+          id: string;
+          endpoint: string;
+          keys: Json;
+          user_agent: string | null;
+          user_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          endpoint: string;
+          keys: Json;
+          user_agent?: string | null;
+          user_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          endpoint?: string;
+          keys?: Json;
+          user_agent?: string | null;
+          user_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+
       network_doctors: {
         Row: {
           id: string;

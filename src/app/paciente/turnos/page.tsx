@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Calendar,
   Clock,
@@ -63,6 +64,7 @@ function StatusBadge({ status }: { status: AppointmentStatus }) {
 /* ── component ────────────────────────────────────────── */
 export default function TurnosPage() {
   const { showToast } = useToast();
+  const router = useRouter();
   const { data: fetchedAppointments } = useMyAppointments();
   const { data: doctors } = useDoctorDirectory();
   const { trigger: doCreateBooking } = useCreateBooking();
@@ -509,7 +511,7 @@ export default function TurnosPage() {
                     onClick={async () => {
                       setIsSubmitting(true);
                       try {
-                        const newApt = await doCreateBooking({
+                        const result = await doCreateBooking({
                           specialty: selectedSpecialty,
                           date: selectedDate,
                           time: selectedTime,
@@ -517,7 +519,16 @@ export default function TurnosPage() {
                           doctorId: selectedDoctorId,
                         });
                         // Optimistic local update
-                        setLocalAppointments((prev) => [newApt, ...prev]);
+                        setLocalAppointments((prev) => [result, ...prev]);
+
+                        // If a payment URL was returned, redirect to MercadoPago
+                        if (result.paymentUrl) {
+                          showToast("Redirigiendo al pago…");
+                          resetBooking();
+                          router.push(`/paciente/pagos?bookingId=${result.id}`);
+                          return;
+                        }
+
                         showToast("¡Turno confirmado! Te enviamos un recordatorio por email.");
                         resetBooking();
                       } catch {
