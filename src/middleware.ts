@@ -16,6 +16,8 @@ const PUBLIC_API_PREFIXES = [
   "/api/patients/reset-password",
   "/api/payments/webhook", // MercadoPago (auth via HMAC signature)
   "/api/admin/login",
+  "/api/rides", // Ride deep links (public — no auth needed)
+  "/api/chat", // AI chatbot (public — no auth needed)
 ];
 
 /** SM-01: Validate redirect param — only allow relative paths to prevent open redirects */
@@ -41,8 +43,8 @@ function buildCspHeader(nonce: string): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o4507.ingest.sentry.io https://*.daily.co wss://*.daily.co https://api.mercadopago.com https://*.upstash.io https://api.anthropic.com https://www.googleapis.com https://accounts.google.com https://*.posthog.com https://us.i.posthog.com https://*.sentry.io https://maps.googleapis.com https://firestore.googleapis.com https://storage.googleapis.com https://api.sendgrid.com",
-    "frame-src 'self' https://*.daily.co https://*.mercadopago.com.ar https://*.mercadopago.com https://meet.google.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://o4507.ingest.sentry.io https://*.daily.co wss://*.daily.co https://api.mercadopago.com https://*.upstash.io https://api.anthropic.com https://www.googleapis.com https://accounts.google.com https://*.posthog.com https://us.i.posthog.com https://*.sentry.io https://maps.googleapis.com https://firestore.googleapis.com https://storage.googleapis.com https://api.sendgrid.com https://api.uber.com https://indrive.com",
+    "frame-src 'self' https://*.daily.co https://*.mercadopago.com.ar https://*.mercadopago.com https://meet.google.com https://m.uber.com https://cabify.com https://indrive.com https://wa.me",
     "media-src 'self' blob:",
     "worker-src 'self' blob:",
     "object-src 'none'",

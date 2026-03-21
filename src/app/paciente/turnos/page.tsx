@@ -18,6 +18,9 @@ import {
 import { useToast } from "@/components/Toast";
 import { useMyAppointments } from "@/hooks/use-patient-data";
 import type { PatientAppointment } from "@/lib/services/patient-data";
+import RideOptionsCard from "@/components/RideOptionsCard";
+import RideChatbot from "@/components/RideChatbot";
+import { MessageCircle } from "lucide-react";
 
 /* ── types ────────────────────────────────────────────── */
 type Tab = "proximos" | "historial";
@@ -79,6 +82,14 @@ export default function TurnosPage() {
   const [selectedTime, setSelectedTime] = useState("");
 
   const [localAppointments, setLocalAppointments] = useState<PatientAppointment[]>([]);
+  const [showChatbot, setShowChatbot] = useState(false);
+  const [chatContext, setChatContext] = useState<{
+    doctorName: string;
+    address: string;
+    specialty?: string;
+    bookingDate?: string;
+    bookingTime?: string;
+  } | null>(null);
 
   // Sync fetched data into local state for optimistic updates
   useEffect(() => {
@@ -193,6 +204,24 @@ export default function TurnosPage() {
                     Unirse
                   </button>
                 )}
+                {apt.type === "presencial" && (
+                  <button
+                    onClick={() => {
+                      setChatContext({
+                        doctorName: apt.doctor,
+                        address: apt.location,
+                        specialty: apt.specialty,
+                        bookingDate: apt.date,
+                        bookingTime: apt.time,
+                      });
+                      setShowChatbot(true);
+                    }}
+                    className="text-xs font-medium bg-celeste-50 text-celeste-dark px-3 py-1.5 rounded-[4px] hover:bg-celeste-100 transition flex items-center gap-1"
+                  >
+                    <MessageCircle className="w-3 h-3" />
+                    Transporte
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     setLocalAppointments((prev) =>
@@ -208,6 +237,16 @@ export default function TurnosPage() {
                 </button>
               </div>
             )}
+            {/* Ride options for confirmed in-person appointments */}
+            {apt.status === "confirmado" && apt.type === "presencial" && (
+              <div className="w-full mt-2">
+                <RideOptionsCard
+                  doctor={{ name: apt.doctor, address: apt.location }}
+                  booking={{ specialty: apt.specialty, date: apt.date, time: apt.time }}
+                  compact
+                />
+              </div>
+            )}
           </div>
         ))}
         {(tab === "proximos" ? upcoming : history).length === 0 && (
@@ -216,6 +255,19 @@ export default function TurnosPage() {
           </div>
         )}
       </div>
+
+      {/* ── Ride Chatbot modal ─────────────────────────── */}
+      {showChatbot && chatContext && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => e.target === e.currentTarget && setShowChatbot(false)}
+          onKeyDown={(e) => e.key === "Escape" && setShowChatbot(false)}
+        >
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-xl h-[70vh] flex flex-col overflow-hidden">
+            <RideChatbot preloadContext={chatContext} onClose={() => setShowChatbot(false)} />
+          </div>
+        </div>
+      )}
 
       {/* ── Booking modal ────────────────────────────────── */}
       {showBooking && (

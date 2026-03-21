@@ -26,6 +26,7 @@ import { useGeolocation, type GeoCoords } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
 import { useDoctorDirectory } from "@/hooks/use-patient-data";
 import type { PatientDoctor } from "@/lib/services/patient-data";
+import RideChatbot from "@/components/RideChatbot";
 
 /* ── types ────────────────────────────────────────────── */
 type Doctor = PatientDoctor;
@@ -71,6 +72,8 @@ export default function MedicosPage() {
   const [availableOnly, setAvailableOnly] = useState(false);
   const [sortByDistance, setSortByDistance] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [showChat, setShowChat] = useState(false);
+  const [chatDoctor, setChatDoctor] = useState<Doctor | null>(null);
   const geo = useGeolocation({ lazy: true });
 
   // Compute distances when geolocation is available
@@ -324,6 +327,16 @@ export default function MedicosPage() {
                   Virtual
                 </button>
               )}
+              <button
+                onClick={() => {
+                  setChatDoctor(doctor);
+                  setShowChat(true);
+                }}
+                className="text-sm font-medium text-celeste-dark bg-celeste-50 hover:bg-celeste-100 px-4 py-2 rounded-[4px] transition flex items-center gap-1"
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                Transporte
+              </button>
             </div>
           </div>
         ))}
@@ -398,6 +411,27 @@ export default function MedicosPage() {
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* ── Ride Chatbot modal ─────────────────────────── */}
+      {showChat && chatDoctor && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => e.target === e.currentTarget && setShowChat(false)}
+          onKeyDown={(e) => e.key === "Escape" && setShowChat(false)}
+        >
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-xl h-[70vh] flex flex-col overflow-hidden">
+            <RideChatbot
+              preloadContext={{
+                doctorName: chatDoctor.name,
+                address: chatDoctor.address,
+                destLat: chatDoctor.lat,
+                destLng: chatDoctor.lng,
+                specialty: chatDoctor.specialty,
+              }}
+              onClose={() => setShowChat(false)}
+            />
           </div>
         </div>
       )}
