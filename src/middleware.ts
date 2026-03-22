@@ -18,6 +18,8 @@ const PUBLIC_API_PREFIXES = [
   "/api/admin/login",
   "/api/rides", // Ride deep links (public — no auth needed)
   "/api/chat", // AI chatbot (public — no auth needed)
+  "/api/demo", // Demo admin panel (auth via JWT)
+  "/api/billing", // Billing endpoints (auth via plan context)
 ];
 
 /** SM-01: Validate redirect param — only allow relative paths to prevent open redirects */
@@ -174,6 +176,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public files (images, logos, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|logos/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|logos/|demo\\.html).*)",
   ],
 };
