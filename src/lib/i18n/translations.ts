@@ -501,8 +501,8 @@ const translations: Dict = {
     en: "How do I find a doctor nearby?",
   },
   "faq.a1@tourist": {
-    es: "Usá el buscador con GPS o hablá con Cora (nuestro chatbot). Te mostramos médicos disponibles por especialidad, distancia y horario, con mapa y cómo llegar.",
-    en: "Use the GPS-powered search or talk to Cora (our chatbot). We show available doctors by specialty, distance and schedule, with a map and directions.",
+    es: "Usá el buscador con GPS o hablá con Cora (nuestro chatbot). Te mostramos médicos por especialidad, distancia y horario, con mapa, cómo llegar y opciones de Uber, Cabify e InDrive.",
+    en: "Use the GPS-powered search or talk to Cora (our chatbot). We show doctors by specialty, distance and schedule, with a map, directions and Uber, Cabify & InDrive ride options.",
   },
   "faq.q2@tourist": { es: "¿Cómo funciona la teleconsulta?", en: "How does teleconsult work?" },
   "faq.a2@tourist": {
@@ -787,8 +787,8 @@ const translations: Dict = {
     en: "I need a GP near Palermo available today",
   },
   "hero.mockCoraReply@tourist": {
-    es: "Encontré 3 clínicos disponibles hoy a menos de 1 km. El más cercano es la Dra. López en Av. Santa Fe 3200, con turno a las 16:30. ¿Reservo?",
-    en: "I found 3 GPs available today within 1 km. The closest is Dr. López at Av. Santa Fe 3200, with a slot at 4:30 PM. Shall I book?",
+    es: "Encontré 3 clínicos disponibles hoy a menos de 1 km. El más cercano es la Dra. López en Av. Santa Fe 3200, turno a las 16:30. ¿Reservo? También podés pedir un Uber o Cabify para llegar.",
+    en: "I found 3 GPs available today within 1 km. The closest is Dr. López at Av. Santa Fe 3200, slot at 4:30 PM. Shall I book? You can also grab an Uber or Cabify to get there.",
   },
   "hero.mockCoverageTitle@tourist": { es: "Tu cobertura", en: "Your coverage" },
   "hero.mockCoveragePlan@tourist": { es: "OSDE 310", en: "OSDE 310" },
@@ -813,8 +813,8 @@ const translations: Dict = {
     en: "Cora — Your health assistant",
   },
   "hero.mockCoraMsg@tourist": {
-    es: "¡Hola! Soy Cora. ¿En qué te puedo ayudar hoy? Puedo buscar médicos, verificar tu cobertura o pedir medicamentos.",
-    en: "Hi! I'm Cora. How can I help today? I can find doctors, verify your coverage or order medication.",
+    es: "¡Hola! Soy Cora. ¿En qué te puedo ayudar? Puedo buscar médicos, verificar cobertura, pedir remedios o llamarte un Uber al consultorio.",
+    en: "Hi! I'm Cora. How can I help? I can find doctors, verify coverage, order meds or get you an Uber to the clinic.",
   },
   "hero.mockCoraInput@tourist": {
     es: "Necesito un médico cerca mío...",
@@ -909,12 +909,12 @@ const translations: Dict = {
   },
   "problem.card3.title@tourist": { es: "Emergencias sin GPS", en: "Emergencies without GPS" },
   "problem.card3.desc@tourist": {
-    es: "Necesitás una guardia YA y no sabés dónde queda la más cercana ni si acepta tu cobertura. Cada minuto cuenta.",
-    en: "You need an ER NOW and don't know where the closest one is or if it accepts your insurance. Every minute counts.",
+    es: "Necesitás una guardia YA y no sabés dónde queda la más cercana ni si acepta tu cobertura. Con Cóndor encontrás la guardia y pedís un Uber en segundos.",
+    en: "You need an ER NOW and don't know where the closest one is or if it accepts your insurance. With Cóndor you find the ER and grab an Uber in seconds.",
   },
   "problem.card3.stats@tourist": {
-    es: "Guardias · Farmacias 24h · Ubicación GPS",
-    en: "Emergency rooms · 24h pharmacies · GPS location",
+    es: "Guardias · Farmacias 24h · GPS + Uber/Cabify",
+    en: "Emergency rooms · 24h pharmacies · GPS + Uber/Cabify",
   },
 
   "problem.consequence.title@tourist": {
@@ -988,17 +988,17 @@ const translations: Dict = {
   "features.core3.hl@tourist": { es: "Rappi · PedidosYa", en: "Rappi · PedidosYa" },
   "features.core4.title@tourist": { es: "Guardias y farmacias 24h", en: "ERs & 24h pharmacies" },
   "features.core4.desc@tourist": {
-    es: "Encontrá la guardia o farmacia más cercana en tiempo real. Con dirección, teléfono y cómo llegar en Google Maps.",
-    en: "Find the nearest ER or pharmacy in real time. With address, phone and Google Maps directions.",
+    es: "Encontrá la guardia o farmacia más cercana en tiempo real. Con dirección, teléfono, Google Maps y opción de pedir Uber, Cabify o InDrive.",
+    en: "Find the nearest ER or pharmacy in real time. With address, phone, Google Maps and Uber, Cabify or InDrive ride options.",
   },
-  "features.core4.hl@tourist": { es: "GPS en tiempo real", en: "Real-time GPS" },
+  "features.core4.hl@tourist": { es: "GPS + Uber/Cabify/InDrive", en: "GPS + Uber/Cabify/InDrive" },
   "features.core5.title@tourist": {
     es: "Cora — Tu enfermera virtual",
     en: "Cora — Your virtual nurse",
   },
   "features.core5.desc@tourist": {
-    es: "Contale a Cora qué te pasa y te orienta al médico indicado, te recomienda qué tomar y te busca atención cerca. Como hablar con una enfermera.",
-    en: "Tell Cora what's wrong and she'll guide you to the right doctor, recommend what to take, and find care nearby. Like talking to a nurse.",
+    es: "Contale a Cora qué te pasa y te orienta al médico indicado, te recomienda qué tomar, te busca atención cerca y te pide un Uber o Cabify para llegar. Como hablar con una enfermera.",
+    en: "Tell Cora what's wrong and she'll guide you to the right doctor, recommend what to take, find care nearby and get you an Uber or Cabify to get there. Like talking to a nurse.",
   },
   "features.core5.hl@tourist": { es: "Chat 24/7 en ES + EN", en: "24/7 chat in ES + EN" },
   "features.cta@tourist": { es: "Probá el chatbot ahora", en: "Try the chatbot now" },
@@ -1047,8 +1047,8 @@ const translations: Dict = {
   },
   "how.step1.title@tourist": { es: "Te conectamos con atención", en: "We connect you with care" },
   "how.step1.desc@tourist": {
-    es: "Cora te orienta al médico indicado, verifica tu cobertura y te muestra opciones cerca tuyo con Google Maps.",
-    en: "Cora guides you to the right doctor, verifies your coverage and shows options near you with Google Maps.",
+    es: "Cora te orienta al médico indicado, verifica tu cobertura y te muestra opciones cerca tuyo con Google Maps y transporte (Uber, Cabify, InDrive).",
+    en: "Cora guides you to the right doctor, verifies your coverage and shows options near you with Google Maps and rides (Uber, Cabify, InDrive).",
   },
   "how.step2.title@tourist": { es: "Reservá, pagá y listo", en: "Book, pay & done" },
   "how.step2.desc@tourist": {
@@ -1071,8 +1071,8 @@ const translations: Dict = {
     en: "Find care in minutes.",
   },
   "cta.subtitle@tourist": {
-    es: "Hablá con Cora, buscá un médico cerca o hacé una teleconsulta. Todo gratis, todo ahora.",
-    en: "Talk to Cora, find a doctor nearby or do a teleconsult. All free, all now.",
+    es: "Hablá con Cora, buscá un médico cerca, pedí un Uber al consultorio o hacé una teleconsulta. Todo gratis, todo ahora.",
+    en: "Talk to Cora, find a doctor nearby, grab an Uber to the clinic or do a teleconsult. All free, all now.",
   },
   "cta.hl0@tourist": { es: "Turnos con MercadoPago", en: "Bookings + MercadoPago" },
   "cta.hl1@tourist": { es: "Push de confirmación instant", en: "Instant push confirmation" },
