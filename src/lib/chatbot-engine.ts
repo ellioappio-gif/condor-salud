@@ -1929,7 +1929,8 @@ function generateNearbyDoctorResponse(
       const status = doc.openNow === true ? " Open" : doc.openNow === false ? " Closed" : "";
       text += `\n${doc.name} — ${doc.specialty}${status}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
     }
-    text += '\nTap "Get directions" on each one to see directions in Google Maps.';
+    text +=
+      '\nTap "Get directions" for Google Maps, or choose Uber, Cabify or InDrive to get a ride.';
 
     const cards: InfoCard[] = sorted.map((doc) => {
       const status =
@@ -1963,7 +1964,8 @@ function generateNearbyDoctorResponse(
     const status = doc.openNow === true ? " Abierto" : doc.openNow === false ? " Cerrado" : "";
     text += `\n${doc.name} — ${doc.specialty}${status}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
   }
-  text += '\nTocá "Cómo llegar" en cada uno para ver las indicaciones en Google Maps.';
+  text +=
+    '\nTocá "Cómo llegar" para ver en Google Maps, o elegí Uber, Cabify o InDrive para pedir un viaje.';
 
   const cards: InfoCard[] = sorted.map((doc) => {
     const status =
@@ -2019,7 +2021,8 @@ function generateNearbyPharmacyResponse(
       const status = ph.openNow === true ? " Open" : ph.openNow === false ? " Closed" : "";
       text += `\n${ph.name}${tag}${status}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
     }
-    text += '\nTap "Get directions" to see directions in Google Maps.';
+    text +=
+      '\nTap "Get directions" for Google Maps, or choose Uber, Cabify or InDrive to get a ride.';
 
     const cards: InfoCard[] = sorted.map((ph) => {
       const status = ph.openNow === true ? " · Open now" : ph.openNow === false ? " · Closed" : "";
@@ -2052,7 +2055,7 @@ function generateNearbyPharmacyResponse(
     const status = ph.openNow === true ? " Abierta" : ph.openNow === false ? " Cerrada" : "";
     text += `\n${ph.name}${tag}${status}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
   }
-  text += '\nTocá "Cómo llegar" para ver las indicaciones en Google Maps.';
+  text += '\nTocá "Cómo llegar" para ver en Google Maps, o elegí Uber, Cabify o InDrive para ir.';
 
   const cards: InfoCard[] = sorted.map((ph) => {
     const status =
@@ -2122,7 +2125,8 @@ function generateNearbyGuardiaResponse(
       const status = g.openNow === true ? " Open" : g.openNow === false ? " Closed" : "";
       text += `\n${g.name}${status}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ${g.phone}` : ""}\n`;
     }
-    text += '\nTap "Get directions" to see the fastest route in Google Maps.';
+    text +=
+      '\nTap "Get directions" for Google Maps, or choose Uber, Cabify or InDrive to get a ride fast.';
 
     const cards: InfoCard[] = sorted.map((g) => {
       const status = g.openNow === true ? " · Open now" : g.openNow === false ? " · Closed" : "";
@@ -2154,7 +2158,8 @@ function generateNearbyGuardiaResponse(
     const status = g.openNow === true ? " Abierta" : g.openNow === false ? " Cerrada" : "";
     text += `\n${g.name}${status}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ${g.phone}` : ""}\n`;
   }
-  text += '\nTocá "Cómo llegar" para ver la ruta más rápida en Google Maps.';
+  text +=
+    '\nTocá "Cómo llegar" para Google Maps, o pedí un Uber, Cabify o InDrive para llegar rápido.';
 
   const cards: InfoCard[] = sorted.map((g) => {
     const status =
@@ -2222,7 +2227,8 @@ function generateDirectionsResponse(
             : "";
       text += `\n${p.name}${extra} — ${formatDist(p.distKm)}\n`;
     }
-    text += '\nEach card has a "Get directions" link that opens Google Maps with the route.';
+    text +=
+      '\nEach card has a "Get directions" link for Google Maps, plus Uber, Cabify and InDrive buttons to get a ride.';
 
     const cards: InfoCard[] = allPlaces.map((p) => {
       const extra = p.specialty ?? (p.emergency ? "ER" : p.open24h !== undefined ? "Pharmacy" : "");
@@ -2260,7 +2266,8 @@ function generateDirectionsResponse(
           : "";
     text += `\n${p.name}${extra} — ${formatDist(p.distKm)}\n`;
   }
-  text += '\nCada tarjeta tiene el link "Cómo llegar" que te abre Google Maps con la ruta.';
+  text +=
+    '\nCada tarjeta tiene "Cómo llegar" para Google Maps, más botones de Uber, Cabify e InDrive para pedir un viaje.';
 
   const cards: InfoCard[] = allPlaces.map((p) => {
     const extra =
