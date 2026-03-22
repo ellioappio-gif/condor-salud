@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/context";
 
 type Variant =
   | "cobrada"
@@ -45,24 +46,24 @@ const variantStyles: Record<Variant, string> = {
   default: "bg-gray-100 text-gray-700 border-gray-200",
 };
 
-const LABELS: Partial<Record<Variant, string>> = {
-  cobrada: "Cobrada",
-  presentada: "Presentada",
-  rechazada: "Rechazada",
-  pendiente: "Pendiente",
-  en_observacion: "En observación",
-  activo: "Activo",
-  inactivo: "Inactivo",
-  confirmado: "Confirmado",
-  cancelado: "Cancelado",
-  atendido: "Atendido",
-  alta: "Alta",
-  media: "Media",
-  baja: "Baja",
-  reprocesado: "Reprocesado",
-  descartado: "Descartado",
-  revisado: "Revisado",
-  resuelto: "Resuelto",
+const STATUS_KEYS: Partial<Record<Variant, string>> = {
+  cobrada: "status.collected",
+  presentada: "status.submitted",
+  rechazada: "status.rejected",
+  pendiente: "status.pending",
+  en_observacion: "status.observation",
+  activo: "status.active",
+  inactivo: "status.inactive",
+  confirmado: "status.confirmed",
+  cancelado: "status.cancelled",
+  atendido: "status.attended",
+  alta: "status.high",
+  media: "status.medium",
+  baja: "status.low",
+  reprocesado: "status.reprocessed",
+  descartado: "status.discarded",
+  revisado: "status.reviewed",
+  resuelto: "status.resolved",
 };
 
 interface StatusBadgeProps {
@@ -72,7 +73,9 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ variant, label, className }: StatusBadgeProps) {
-  const displayLabel = label || LABELS[variant] || variant;
+  const { t } = useLocale();
+  const translationKey = STATUS_KEYS[variant];
+  const displayLabel = label || (translationKey ? t(translationKey) : variant);
 
   return (
     <span

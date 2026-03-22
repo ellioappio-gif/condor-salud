@@ -7,6 +7,7 @@ import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
 import { useInventarioItems } from "@/hooks/use-data";
 import { useIsDemo } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 import { formatCurrency } from "@/lib/utils";
 import { EmptyState } from "@/components/ui";
 import { Loader2, X } from "lucide-react";
@@ -68,6 +69,7 @@ export default function InventarioPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
+  const { t } = useLocale();
   const { execute, isExecuting } = useCrudAction(isDemo);
   const { exportExcel, isExporting } = useExport();
   const { data: inventario = [], isLoading } = useInventarioItems();
@@ -94,7 +96,7 @@ export default function InventarioPage() {
 
   const handleCrearIngreso = async () => {
     if (!ingNombre || !ingStock) {
-      showToast("❌ Completá nombre y cantidad");
+      showToast(`❌ ${t("inventory.completeFields")}`);
       return;
     }
     const result = await execute({
@@ -110,8 +112,8 @@ export default function InventarioPage() {
           proveedor: ingProveedor,
         });
       },
-      successMessage: `${ingNombre} registrado en inventario`,
-      errorMessage: "Error al registrar ingreso",
+      successMessage: `${ingNombre} ${t("inventory.register").toLowerCase()}`,
+      errorMessage: t("inventory.errorRegistering"),
       demoLabel: "Registrar ingreso de stock",
       mutateKeys: ["inventario-items", "kpi-inventario"],
     });
@@ -143,17 +145,15 @@ export default function InventarioPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-celeste" />
-          <span className="ml-2 text-sm text-ink-muted">Cargando inventario...</span>
+          <span className="ml-2 text-sm text-ink-muted">{t("inventory.loading")}</span>
         </div>
       )}
       {!isLoading && (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-ink">Inventario</h1>
-              <p className="text-sm text-ink-muted mt-0.5">
-                Gestión de medicamentos, insumos y descartables
-              </p>
+              <h1 className="text-2xl font-bold text-ink">{t("inventory.title")}</h1>
+              <p className="text-sm text-ink-muted mt-0.5">{t("inventory.subtitle")}</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -161,13 +161,13 @@ export default function InventarioPage() {
                 disabled={isExporting}
                 className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
               >
-                {isExporting ? "Exportando..." : "Exportar"}
+                {isExporting ? t("action.exporting") : t("action.export")}
               </button>
               <button
                 onClick={handleRegistrarIngreso}
                 className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
               >
-                + Registrar ingreso
+                {t("inventory.registerEntry")}
               </button>
             </div>
           </div>
@@ -175,11 +175,15 @@ export default function InventarioPage() {
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Ítems totales", value: inventario.length, color: "border-celeste" },
-              { label: "Stock crítico", value: criticos, color: "border-red-400" },
-              { label: "Stock bajo", value: bajos, color: "border-amber-400" },
               {
-                label: "Valor inventario",
+                label: t("inventory.totalItems"),
+                value: inventario.length,
+                color: "border-celeste",
+              },
+              { label: t("inventory.criticalStock"), value: criticos, color: "border-red-400" },
+              { label: t("inventory.lowStock"), value: bajos, color: "border-amber-400" },
+              {
+                label: t("inventory.inventoryValue"),
                 value: formatCurrency(valorTotal),
                 color: "border-green-400",
               },
@@ -219,7 +223,7 @@ export default function InventarioPage() {
               </svg>
               <div>
                 <p className="text-sm font-semibold text-red-700">
-                  {criticos} ítem{criticos > 1 ? "s" : ""} en estado crítico
+                  {criticos} ítem{criticos > 1 ? "s" : ""} {t("inventory.critical")}
                 </p>
                 <p className="text-xs text-red-600 mt-0.5">
                   {inventario
@@ -235,8 +239,8 @@ export default function InventarioPage() {
           <div className="flex flex-wrap gap-3 items-center">
             <input
               type="text"
-              placeholder="Buscar por nombre o código..."
-              aria-label="Buscar por nombre o código"
+              placeholder={t("inventory.searchPlaceholder")}
+              aria-label={t("inventory.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-64 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition"
@@ -244,22 +248,22 @@ export default function InventarioPage() {
             <select
               value={catFilter}
               onChange={(e) => setCatFilter(e.target.value)}
-              aria-label="Filtrar por categoría"
+              aria-label={t("inventory.filterByCategory")}
               className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
             >
               {categorias.map((c) => (
                 <option key={c} value={c}>
-                  {c === "Todos" ? "Todas las categorías" : c + "s"}
+                  {c === "Todos" ? t("inventory.allCategories") : c + "s"}
                 </option>
               ))}
             </select>
             <select
               value={estadoFilter}
               onChange={(e) => setEstadoFilter(e.target.value)}
-              aria-label="Filtrar por estado"
+              aria-label={t("inventory.filterByStatus")}
               className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
             >
-              <option value="Todos">Todos los estados</option>
+              <option value="Todos">{t("inventory.allStatuses")}</option>
               <option value="OK">OK</option>
               <option value="Bajo">Bajo</option>
               <option value="Crítico">Crítico</option>
@@ -272,34 +276,34 @@ export default function InventarioPage() {
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Código
+                    {t("label.code")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Nombre
+                    {t("label.name")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Categoría
+                    {t("label.category")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Presentación
+                    {t("inventory.presentation")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Stock
+                    {t("label.stock")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Mín.
+                    {t("inventory.min")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Precio Unit.
+                    {t("inventory.unitPrice")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Proveedor
+                    {t("label.supplier")}
                   </th>
                   <th scope="col" className="text-center px-5 py-2.5">
-                    Vto.
+                    {t("label.expiry")}
                   </th>
                   <th scope="col" className="text-center px-5 py-2.5">
-                    Estado
+                    {t("label.status")}
                   </th>
                 </tr>
               </thead>
@@ -308,8 +312,8 @@ export default function InventarioPage() {
                   <tr>
                     <td colSpan={10} className="p-0">
                       <EmptyState
-                        title="Sin resultados"
-                        description="No se encontraron ítems con los filtros aplicados"
+                        title={t("label.noResults")}
+                        description={t("inventory.noResultsDesc")}
                       />
                     </td>
                   </tr>
@@ -357,7 +361,7 @@ export default function InventarioPage() {
             <div className="bg-white border border-border rounded-lg overflow-hidden">
               <div className="px-5 py-4 border-b border-border">
                 <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-                  Últimos Movimientos
+                  {t("inventory.recentMovements")}
                 </h3>
               </div>
               <table className="w-full text-sm">
@@ -390,22 +394,24 @@ export default function InventarioPage() {
           className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Registrar ingreso"
+          aria-label={t("inventory.registerEntryModal")}
         >
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h2 className="text-lg font-bold text-ink">Registrar ingreso</h2>
+              <h2 className="text-lg font-bold text-ink">{t("inventory.registerEntryModal")}</h2>
               <button
                 onClick={() => setShowIngreso(false)}
                 className="text-ink-muted hover:text-ink"
-                aria-label="Cerrar"
+                aria-label={t("action.close")}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="px-6 py-4 space-y-3">
               <div>
-                <label className="block text-xs font-medium text-ink-muted mb-1">Nombre *</label>
+                <label className="block text-xs font-medium text-ink-muted mb-1">
+                  {t("inventory.nameRequired")}
+                </label>
                 <input
                   value={ingNombre}
                   onChange={(e) => setIngNombre(e.target.value)}
@@ -414,7 +420,9 @@ export default function InventarioPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-ink-muted mb-1">Categoría</label>
+                <label className="block text-xs font-medium text-ink-muted mb-1">
+                  {t("label.category")}
+                </label>
                 <select
                   value={ingCategoria}
                   onChange={(e) => setIngCategoria(e.target.value)}
@@ -432,7 +440,7 @@ export default function InventarioPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-ink-muted mb-1">
-                    Cantidad *
+                    {t("inventory.quantityRequired")}
                   </label>
                   <input
                     type="number"
@@ -444,7 +452,7 @@ export default function InventarioPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-ink-muted mb-1">
-                    Stock mínimo
+                    {t("inventory.minStock")}
                   </label>
                   <input
                     type="number"
@@ -457,7 +465,7 @@ export default function InventarioPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-ink-muted mb-1">
-                  Precio unitario
+                  {t("inventory.unitPriceLabel")}
                 </label>
                 <input
                   type="number"
@@ -468,7 +476,9 @@ export default function InventarioPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-ink-muted mb-1">Proveedor</label>
+                <label className="block text-xs font-medium text-ink-muted mb-1">
+                  {t("label.supplier")}
+                </label>
                 <input
                   value={ingProveedor}
                   onChange={(e) => setIngProveedor(e.target.value)}
@@ -482,14 +492,14 @@ export default function InventarioPage() {
                 onClick={() => setShowIngreso(false)}
                 className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark transition"
               >
-                Cancelar
+                {t("action.cancel")}
               </button>
               <button
                 onClick={handleCrearIngreso}
                 disabled={isExecuting}
                 className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
               >
-                {isExecuting ? "Guardando..." : "Registrar"}
+                {isExecuting ? t("action.saving") : t("inventory.register")}
               </button>
             </div>
           </div>

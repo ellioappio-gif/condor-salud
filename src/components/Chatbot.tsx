@@ -29,12 +29,13 @@ declare global {
 
 // ─── Subcomponents ───────────────────────────────────────────
 
-function TypingIndicator({ isEn }: { isEn: boolean }) {
+function TypingIndicator() {
+  const { t } = useLocale();
   return (
     <div
       className="flex items-end gap-2 animate-chatMsg"
       role="status"
-      aria-label={isEn ? "Cora is typing" : "Cora está escribiendo"}
+      aria-label={t("chatbot.coraTyping")}
     >
       <div className="w-7 h-7 rounded-full bg-celeste flex items-center justify-center flex-shrink-0">
         <Image
@@ -185,11 +186,14 @@ const RIDE_APP_ICONS: Record<string, string> = {
 };
 
 function RideCards({ options }: { options: RideOptionCard[] }) {
+  const { t } = useLocale();
   return (
     <div className="pl-9 animate-chatMsg">
       <div className="border border-border rounded-xl overflow-hidden bg-white">
         <div className="flex items-center gap-2 px-3 py-2 bg-surface/60 border-b border-border">
-          <span className="text-[12px] font-semibold text-ink">Transporte disponible</span>
+          <span className="text-[12px] font-semibold text-ink">
+            {t("chatbot.transportAvailable")}
+          </span>
         </div>
         <div className="divide-y divide-border-light">
           {options.map((opt) => (
@@ -239,17 +243,16 @@ function RideCards({ options }: { options: RideOptionCard[] }) {
 function QuickReplies({
   replies,
   onSelect,
-  isEn,
 }: {
   replies: QuickReply[];
   onSelect: (v: string) => void;
-  isEn: boolean;
 }) {
+  const { t } = useLocale();
   return (
     <div
       className="pl-9 flex flex-wrap gap-1.5 animate-chatMsg"
       role="group"
-      aria-label={isEn ? "Quick replies" : "Respuestas rápidas"}
+      aria-label={t("chatbot.quickReplies")}
     >
       {replies.map((r, i) => (
         <button
@@ -268,7 +271,7 @@ function QuickReplies({
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const { locale, isEn } = useLocale();
+  const { t, locale } = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     // UM-08: Restore from sessionStorage if available
     if (typeof window !== "undefined" && typeof sessionStorage !== "undefined") {
@@ -449,22 +452,11 @@ export default function Chatbot() {
             id: errorBody?.id ?? `bot-err-${Date.now()}`,
             role: "bot",
             timestamp: errorBody?.timestamp ?? Date.now(),
-            text:
-              errorBody?.text ??
-              (isEn
-                ? "Sorry, something went wrong. Could you try again in a moment?"
-                : "Disculpá, ocurrió un error. ¿Podés intentar de nuevo en un momento?"),
-            quickReplies:
-              errorBody?.quickReplies ??
-              (isEn
-                ? [
-                    { label: "Try again", value: "Hello" },
-                    { label: "Talk to someone", value: "I want to speak with an agent" },
-                  ]
-                : [
-                    { label: "Reintentar", value: "Hola" },
-                    { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
-                  ]),
+            text: errorBody?.text ?? t("chatbot.errorRetry"),
+            quickReplies: errorBody?.quickReplies ?? [
+              { label: t("action.retry"), value: "Hola" },
+              { label: t("chatbot.talkToAgent"), value: t("chatbot.wantAgent") },
+            ],
           };
           setMessages((prev) => [...prev, errorMsg]);
           return;
@@ -486,9 +478,7 @@ export default function Chatbot() {
           {
             id: `bot-err-${Date.now()}`,
             role: "bot",
-            text: isEn
-              ? "Sorry, something went wrong. Could you try again?"
-              : "Disculpá, ocurrió un error. ¿Podrías intentar de nuevo?",
+            text: t("chatbot.errorRetry"),
             timestamp: Date.now(),
           },
         ]);
@@ -496,7 +486,7 @@ export default function Chatbot() {
         setIsTyping(false);
       }
     },
-    [isTyping, messages, isEn, locale],
+    [isTyping, messages, t, locale],
   );
 
   // Track last bot context for the geolocation effect (avoid stale closure)
@@ -515,9 +505,9 @@ export default function Chatbot() {
       // send a transport message so Cora returns ride cards immediately
       const wasRideRequest = lastBotContextRef.current === "ride_transport";
       if (wasRideRequest) {
-        sendMessage(isEn ? "I need a ride to the doctor" : "Necesito transporte al médico");
+        sendMessage(t("chatbot.needTransport"));
       } else {
-        sendMessage(isEn ? "I shared my location" : "Compartí mi ubicación");
+        sendMessage(t("chatbot.sharedLocation"));
       }
     } else if (geo.error && !geo.loading) {
       setLocationRequested(false);
@@ -529,19 +519,14 @@ export default function Chatbot() {
           role: "bot" as const,
           timestamp: Date.now(),
           text: geo.error!,
-          quickReplies: isEn
-            ? [
-                { label: "Try again", value: "I want to share my location" },
-                { label: "Search directory", value: "I want to see the doctor directory" },
-              ]
-            : [
-                { label: "Reintentar", value: "Quiero compartir mi ubicación" },
-                { label: "Buscar en directorio", value: "Quiero ver el directorio médico" },
-              ],
+          quickReplies: [
+            { label: t("action.retry"), value: t("chatbot.shareLocation") },
+            { label: t("chatbot.searchDirectory"), value: t("chatbot.wantDirectory") },
+          ],
         },
       ]);
     }
-  }, [locationRequested, geo.coords, geo.error, geo.loading, isTyping, isEn, sendMessage]);
+  }, [locationRequested, geo.coords, geo.error, geo.loading, isTyping, t, sendMessage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -562,11 +547,7 @@ export default function Chatbot() {
       {isOpen && (
         <div
           role="dialog"
-          aria-label={
-            isEn
-              ? "Chat with Cora, Cóndor Salud virtual assistant"
-              : "Chat con Cora, asistente virtual de Cóndor Salud"
-          }
+          aria-label={t("chatbot.chatTitle")}
           aria-modal="false"
           className="fixed bottom-24 right-6 z-[95] w-[380px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-2xl border border-border flex flex-col animate-chatOpen overflow-hidden"
           style={{ height: "min(580px, calc(100vh - 140px))" }}
@@ -585,9 +566,7 @@ export default function Chatbot() {
               </div>
               <div>
                 <p className="text-white font-semibold text-[14px] leading-tight">Cora</p>
-                <p className="text-white/70 text-[11px]">
-                  {isEn ? "Cóndor Salud virtual assistant" : "Asistente virtual de Cóndor Salud"}
-                </p>
+                <p className="text-white/70 text-[11px]">{t("chatbot.assistantTitle")}</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -607,8 +586,8 @@ export default function Chatbot() {
                   sessionStorage.removeItem("condor_chat_messages");
                 }}
                 className="ml-2 p-1 text-white/50 hover:text-white transition rounded"
-                aria-label={isEn ? "Clear conversation" : "Limpiar conversación"}
-                title={isEn ? "Clear conversation" : "Limpiar conversación"}
+                aria-label={t("chatbot.clearChat")}
+                title={t("chatbot.clearChat")}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -631,7 +610,7 @@ export default function Chatbot() {
             ref={scrollRef}
             role="log"
             aria-live="polite"
-            aria-label={isEn ? "Message history" : "Historial de mensajes"}
+            aria-label={t("chatbot.messageHistory")}
             className="flex-1 overflow-y-auto px-4 py-4 space-y-3 scrollbar-thin"
           >
             {messages.map((msg) => (
@@ -646,21 +625,17 @@ export default function Chatbot() {
                   msg.quickReplies &&
                   msg.id === lastBotMessage?.id &&
                   !isTyping && (
-                    <QuickReplies
-                      replies={msg.quickReplies}
-                      onSelect={handleQuickReply}
-                      isEn={isEn}
-                    />
+                    <QuickReplies replies={msg.quickReplies} onSelect={handleQuickReply} />
                   )}
               </div>
             ))}
-            {isTyping && <TypingIndicator isEn={isEn} />}
+            {isTyping && <TypingIndicator />}
           </div>
 
           {/* Input */}
           <form
             onSubmit={handleSubmit}
-            aria-label={isEn ? "Send message to Cora" : "Enviar mensaje a Cora"}
+            aria-label={t("chatbot.sendMessage")}
             className="border-t border-border px-4 py-3 flex gap-2 flex-shrink-0 bg-white"
           >
             {/* Location share button */}
@@ -673,15 +648,7 @@ export default function Chatbot() {
                 }
               }}
               disabled={geo.loading}
-              title={
-                hasLocation
-                  ? isEn
-                    ? "Location shared"
-                    : "Ubicación compartida"
-                  : isEn
-                    ? "Share my location"
-                    : "Compartir mi ubicación"
-              }
+              title={hasLocation ? t("chatbot.locationShared") : t("chatbot.shareMyLocation")}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition flex-shrink-0 ${
                 hasLocation
                   ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
@@ -689,15 +656,7 @@ export default function Chatbot() {
                     ? "bg-amber-50 text-amber-500 border border-amber-200 animate-pulse"
                     : "bg-surface text-ink-muted border border-border hover:bg-celeste-pale hover:text-celeste-dark"
               }`}
-              aria-label={
-                hasLocation
-                  ? isEn
-                    ? "Location shared"
-                    : "Ubicación compartida"
-                  : isEn
-                    ? "Share my location"
-                    : "Compartir mi ubicación"
-              }
+              aria-label={hasLocation ? t("chatbot.locationShared") : t("chatbot.shareMyLocation")}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -718,29 +677,13 @@ export default function Chatbot() {
                 type="button"
                 onClick={toggleVoice}
                 disabled={isTyping}
-                title={
-                  isListening
-                    ? isEn
-                      ? "Stop listening"
-                      : "Dejar de escuchar"
-                    : isEn
-                      ? "Voice input"
-                      : "Entrada por voz"
-                }
+                title={isListening ? t("chatbot.stopListening") : t("chatbot.voiceInput")}
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition flex-shrink-0 ${
                   isListening
                     ? "bg-red-50 text-red-500 border border-red-300 animate-pulse"
                     : "bg-surface text-ink-muted border border-border hover:bg-celeste-pale hover:text-celeste-dark"
                 }`}
-                aria-label={
-                  isListening
-                    ? isEn
-                      ? "Stop listening"
-                      : "Dejar de escuchar"
-                    : isEn
-                      ? "Voice input"
-                      : "Entrada por voz"
-                }
+                aria-label={isListening ? t("chatbot.stopListening") : t("chatbot.voiceInput")}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -763,13 +706,9 @@ export default function Chatbot() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isEn ? "Type your question..." : "Escribí tu consulta..."}
+              placeholder={t("chatbot.placeholder")}
               maxLength={2000}
-              aria-label={
-                isEn
-                  ? "Type your question for the virtual assistant"
-                  : "Escribí tu consulta al asistente virtual"
-              }
+              aria-label={t("chatbot.inputLabel")}
               className="flex-1 text-[13px] bg-surface rounded-full px-4 py-2.5 outline-none focus:ring-2 focus:ring-celeste/30 border border-border placeholder:text-ink-muted"
               disabled={isTyping}
             />
@@ -777,7 +716,7 @@ export default function Chatbot() {
               type="submit"
               disabled={!input.trim() || isTyping}
               className="w-10 h-10 rounded-full bg-celeste-dark hover:bg-celeste text-white flex items-center justify-center transition disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-              aria-label={isEn ? "Send message" : "Enviar mensaje"}
+              aria-label={t("chatbot.sendButton")}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -797,9 +736,7 @@ export default function Chatbot() {
           {/* Footer disclaimer */}
           <div className="px-4 pb-2 flex-shrink-0">
             <p className="text-[10px] text-ink-muted text-center leading-tight">
-              {isEn
-                ? "Cora is a virtual assistant. It does not replace professional medical diagnosis."
-                : "Cora es una asistente virtual. No reemplaza el diagnóstico médico profesional."}
+              {t("chatbot.disclaimer")}
             </p>
           </div>
         </div>
@@ -827,15 +764,7 @@ export default function Chatbot() {
         }`}
         aria-expanded={isOpen ? "true" : "false"}
         aria-haspopup="dialog"
-        aria-label={
-          isOpen
-            ? isEn
-              ? "Close chat"
-              : "Cerrar chat"
-            : isEn
-              ? "Open virtual assistant"
-              : "Abrir asistente virtual"
-        }
+        aria-label={isOpen ? t("chatbot.closeChat") : t("chatbot.openAssistant")}
       >
         {isOpen ? (
           <svg
@@ -887,11 +816,7 @@ export default function Chatbot() {
           }}
           className="fixed bottom-[84px] right-6 z-[96] bg-white border border-border rounded-xl shadow-lg px-4 py-2.5 max-w-[220px] cursor-pointer hover:shadow-xl transition animate-chatMsg"
         >
-          <p className="text-[12px] text-ink font-medium">
-            {isEn
-              ? "Need help? Chat with Cora, your health assistant."
-              : "¿Necesitás ayuda? Chateá con Cora, tu asistente de salud."}
-          </p>
+          <p className="text-[12px] text-ink font-medium">{t("chatbot.helpPrompt")}</p>
           <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-white border-r border-b border-border rotate-45" />
         </div>
       )}

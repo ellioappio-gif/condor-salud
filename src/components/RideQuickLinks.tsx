@@ -12,6 +12,7 @@
 
 import { useMemo } from "react";
 import { Car } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 interface Props {
   /** Destination display name */
@@ -79,6 +80,7 @@ function buildLinks(address: string, lat?: number | null, lng?: number | null): 
 }
 
 export default function RideQuickLinks({ name, address, lat, lng, label, showIcon = true }: Props) {
+  const { t } = useLocale();
   const links = useMemo(() => buildLinks(address, lat, lng), [address, lat, lng]);
 
   if (!address) return null;
@@ -86,7 +88,7 @@ export default function RideQuickLinks({ name, address, lat, lng, label, showIco
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {showIcon && <Car className="w-3.5 h-3.5 text-ink-300 shrink-0" />}
-      <span className="text-[11px] text-ink-400 shrink-0">{label ?? "Ir con:"}</span>
+      <span className="text-[11px] text-ink-400 shrink-0">{label ?? t("ride.goWith")}</span>
       {links.map((link) => (
         <a
           key={link.app}
@@ -94,7 +96,7 @@ export default function RideQuickLinks({ name, address, lat, lng, label, showIco
           target="_blank"
           rel="noopener noreferrer"
           className={`text-[10px] font-semibold px-2 py-0.5 rounded-full transition ${link.className}`}
-          title={`Ir a ${name} con ${link.app}`}
+          title={t("ride.goToWith").replace("{name}", name).replace("{app}", link.app)}
         >
           {link.app}
         </a>

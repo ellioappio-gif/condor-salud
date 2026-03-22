@@ -105,7 +105,7 @@ const locations = ["Todas", "Belgrano", "Palermo", "Recoleta", "Microcentro", "C
 export default function MedicosPage() {
   const { showToast } = useToast();
   const router = useRouter();
-  const { locale } = useLocale();
+  const { t, locale } = useLocale();
   const { data: doctors } = useDoctorDirectory();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState("Todas");
@@ -152,8 +152,8 @@ export default function MedicosPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Buscar Médico</h1>
-        <p className="text-sm text-ink-muted mt-0.5">Encontrá el profesional ideal para vos</p>
+        <h1 className="text-2xl font-display font-bold text-ink">{t("patient.searchDoctor")}</h1>
+        <p className="text-sm text-ink-muted mt-0.5">{t("patient.searchDoctorSubtitle")}</p>
       </div>
 
       {/* Search & filters */}
@@ -162,8 +162,8 @@ export default function MedicosPage() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" />
           <input
             type="text"
-            placeholder="Buscar por nombre o especialidad..."
-            aria-label="Buscar por nombre o especialidad"
+            placeholder={t("patient.searchByNameOrSpecialty")}
+            aria-label={t("patient.searchByNameOrSpecialty")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 border border-border-light rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
@@ -173,7 +173,7 @@ export default function MedicosPage() {
           <select
             value={specialty}
             onChange={(e) => setSpecialty(e.target.value)}
-            title="Filtrar por especialidad"
+            title={t("patient.filterBySpecialty")}
             className="border border-border-light rounded-lg px-3 py-1.5 text-sm text-ink-500 focus:outline-none focus:ring-2 focus:ring-celeste-200"
           >
             {specialties.map((s) => (
@@ -185,7 +185,7 @@ export default function MedicosPage() {
           <select
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            title="Filtrar por zona"
+            title={t("patient.filterByZone")}
             className="border border-border-light rounded-lg px-3 py-1.5 text-sm text-ink-500 focus:outline-none focus:ring-2 focus:ring-celeste-200"
           >
             {locations.map((l) => (
@@ -201,7 +201,7 @@ export default function MedicosPage() {
               onChange={(e) => setTeleconsultaOnly(e.target.checked)}
               className="rounded border-border-light text-celeste-dark focus:ring-celeste-200"
             />
-            Teleconsulta
+            {t("patient.teleconsultaType")}
           </label>
           <label className="flex items-center gap-1.5 text-xs text-ink-500 cursor-pointer">
             <input
@@ -210,7 +210,7 @@ export default function MedicosPage() {
               onChange={(e) => setAvailableOnly(e.target.checked)}
               className="rounded border-border-light text-celeste-dark focus:ring-celeste-200"
             />
-            Disponible hoy
+            {t("patient.availableTodayLabel")}
           </label>
           {/* Geolocation sort toggle */}
           {!geo.coords && !geo.loading && (
@@ -223,13 +223,13 @@ export default function MedicosPage() {
               title="Ordenar por cercanía"
             >
               <Navigation className="w-3 h-3" />
-              Cerca mío
+              {t("patient.nearMe")}
             </button>
           )}
           {geo.loading && (
             <span className="flex items-center gap-1.5 text-xs text-ink-muted ml-1">
               <Loader2 className="w-3 h-3 animate-spin" />
-              Ubicando…
+              {t("patient.locating")}
             </span>
           )}
           {geo.coords && (
@@ -241,10 +241,12 @@ export default function MedicosPage() {
                 className="rounded border-border-light text-celeste-dark focus:ring-celeste-200"
               />
               <Navigation className="w-3 h-3 text-celeste-dark" />
-              Más cercanos
+              {t("patient.closest")}
             </label>
           )}
-          <span className="text-xs text-ink-muted ml-auto">{filtered.length} profesionales</span>
+          <span className="text-xs text-ink-muted ml-auto">
+            {filtered.length} {t("patient.professionals")}
+          </span>
         </div>
       </div>
 
@@ -272,9 +274,9 @@ export default function MedicosPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() => showToast(`${doctor.name} agregado a favoritos`)}
+                    onClick={() => showToast(`${doctor.name} ${t("patient.addedToFavorites")}`)}
                     className="p-2 text-ink-200 hover:text-red-500 transition shrink-0"
-                    aria-label={`Agregar a ${doctor.name} a favoritos`}
+                    aria-label={`${t("patient.addToFavorites")} ${doctor.name}`}
                   >
                     <Heart className="w-4 h-4" />
                   </button>
@@ -284,7 +286,7 @@ export default function MedicosPage() {
                   <span className="flex items-center gap-1">
                     <Star className="w-3 h-3 text-gold fill-gold" />
                     <span className="font-semibold text-ink">{doctor.rating}</span>({doctor.reviews}{" "}
-                    opiniones)
+                    {t("patient.opinions")})
                   </span>
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
@@ -319,7 +321,7 @@ export default function MedicosPage() {
                   )}
                   {doctor.availableToday && (
                     <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-celeste-50 text-celeste-dark px-2 py-0.5 rounded-full">
-                      <Clock className="w-3 h-3" /> Disponible hoy
+                      <Clock className="w-3 h-3" /> {t("patient.availableTodayLabel")}
                     </span>
                   )}
                   {doctor.insurance.slice(0, 3).map((ins) => (
@@ -339,7 +341,7 @@ export default function MedicosPage() {
                 <div className="flex items-center gap-3 mt-3">
                   <span className="text-xs text-ink-muted flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    Próximo turno:{" "}
+                    {t("patient.nextSlot")}{" "}
                     <span className="font-semibold text-celeste-dark">{doctor.nextSlot}</span>
                   </span>
                 </div>
@@ -352,13 +354,13 @@ export default function MedicosPage() {
                 onClick={() => setSelectedDoctor(doctor)}
                 className="flex-1 text-sm font-medium text-celeste-dark bg-celeste-50 hover:bg-celeste-100 py-2 rounded-[4px] transition"
               >
-                Ver perfil
+                {t("patient.viewProfile")}
               </button>
               <button
                 onClick={() => router.push("/paciente/turnos")}
                 className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition text-center"
               >
-                Sacar turno
+                {t("patient.bookAppointmentAction")}
               </button>
               {doctor.teleconsulta && (
                 <button

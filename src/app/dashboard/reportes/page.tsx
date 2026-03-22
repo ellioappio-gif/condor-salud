@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useExport } from "@/lib/services/export";
+import { useLocale } from "@/lib/i18n/context";
 import { useReportesList } from "@/hooks/use-data";
 import { EmptyState } from "@/components/ui";
 import { useIsDemo } from "@/lib/auth/context";
@@ -114,6 +115,7 @@ const historialGeneraciones = [
 ];
 
 export default function ReportesPage() {
+  const { t } = useLocale();
   const { isExporting, exportError, exportPDF, exportExcel } = useExport();
   const { data: reportes = [], isLoading } = useReportesList();
   const isDemo = useIsDemo();
@@ -130,7 +132,7 @@ export default function ReportesPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-celeste" />
-          <span className="ml-2 text-sm text-ink-muted">Cargando reportes...</span>
+          <span className="ml-2 text-sm text-ink-muted">{t("reports.loadingReports")}</span>
         </div>
       )}
       {!isLoading && (
@@ -138,16 +140,14 @@ export default function ReportesPage() {
           {/* Export error banner */}
           {exportError && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              Error al exportar: {exportError}
+              {t("reports.exportError")}: {exportError}
             </div>
           )}
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-ink">Reportes</h1>
-              <p className="text-sm text-ink-muted mt-0.5">
-                Reportes predefinidos y herramientas de exportación
-              </p>
+              <h1 className="text-2xl font-bold text-ink">{t("reports.title")}</h1>
+              <p className="text-sm text-ink-muted mt-0.5">{t("reports.predefinedAndExport")}</p>
             </div>
             <div className="flex gap-2">
               <select
@@ -172,7 +172,7 @@ export default function ReportesPage() {
                 ) : (
                   <Download className="w-4 h-4" />
                 )}
-                Generar todos
+                {t("reports.generateAll")}
               </button>
             </div>
           </div>
@@ -192,10 +192,7 @@ export default function ReportesPage() {
 
           {/* Report grid */}
           {filtered.length === 0 ? (
-            <EmptyState
-              title="Sin resultados"
-              description="No se encontraron reportes con los filtros aplicados"
-            />
+            <EmptyState title={t("label.noResults")} description={t("reports.noResultsDesc")} />
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((r) => (
@@ -215,8 +212,12 @@ export default function ReportesPage() {
                   <h3 className="text-sm font-bold text-ink mb-1">{r.nombre}</h3>
                   <p className="text-xs text-ink-muted leading-relaxed mb-4">{r.descripcion}</p>
                   <div className="flex items-center justify-between text-[10px] text-ink-muted mb-3">
-                    <span>Frecuencia: {r.frecuencia}</span>
-                    <span>Último: {r.ultimaGeneracion}</span>
+                    <span>
+                      {t("reports.frequency")}: {r.frecuencia}
+                    </span>
+                    <span>
+                      {t("reports.lastGenerated")}: {r.ultimaGeneracion}
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -224,7 +225,7 @@ export default function ReportesPage() {
                       disabled={isExporting}
                       className="flex-1 px-3 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
                     >
-                      {isExporting ? "..." : "Generar PDF"}
+                      {isExporting ? "..." : t("reports.generatePdf")}
                     </button>
                     {excelTypeMap[r.id] ? (
                       <button
@@ -244,7 +245,7 @@ export default function ReportesPage() {
                       href={reportLinkMap[r.id] || "/dashboard"}
                       className="px-3 py-2 text-xs font-medium text-celeste-dark hover:underline flex items-center"
                     >
-                      Ver
+                      {t("action.view")}
                     </Link>
                   </div>
                 </div>
@@ -257,29 +258,29 @@ export default function ReportesPage() {
             <div className="bg-white border border-border rounded-lg overflow-hidden">
               <div className="px-5 py-4 border-b border-border">
                 <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-                  Historial de Generaciones
+                  {t("reports.historyTitle")}
                 </h3>
               </div>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                     <th scope="col" className="text-left px-5 py-2.5">
-                      Fecha
+                      {t("label.date")}
                     </th>
                     <th scope="col" className="text-left px-5 py-2.5">
-                      Reporte
+                      {t("reports.report")}
                     </th>
                     <th scope="col" className="text-center px-5 py-2.5">
-                      Formato
+                      {t("reports.format")}
                     </th>
                     <th scope="col" className="text-left px-5 py-2.5">
-                      Usuario
+                      {t("reports.user")}
                     </th>
                     <th scope="col" className="text-center px-5 py-2.5">
-                      Estado
+                      {t("label.status")}
                     </th>
                     <th scope="col" className="text-right px-5 py-2.5">
-                      Acción
+                      {t("label.action")}
                     </th>
                   </tr>
                 </thead>
@@ -313,7 +314,7 @@ export default function ReportesPage() {
                           disabled={isExporting}
                           className="text-xs text-celeste-dark font-medium hover:underline disabled:opacity-50"
                         >
-                          {isExporting ? "..." : "Descargar"}
+                          {isExporting ? "..." : t("reports.download")}
                         </button>
                       </td>
                     </tr>

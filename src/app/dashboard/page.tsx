@@ -20,6 +20,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useExport } from "@/lib/services/export";
+import { useLocale } from "@/lib/i18n/context";
 import {
   useDashboardKPIs,
   useFinanciadores,
@@ -106,6 +107,7 @@ const quickLinks = [
 ];
 
 export default function DashboardPage() {
+  const { t } = useLocale();
   const { user } = useAuth();
   const plan = usePlanSafe();
   const [showWizardBanner, setShowWizardBanner] = useState(true);
@@ -211,14 +213,22 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between bg-celeste-pale/40 border border-celeste-100 rounded-lg px-4 py-2.5">
         <p className="text-xs text-ink">
           <span className="font-semibold">
-            {activePresetDef ? `Plan ${activePresetDef.name}` : "Plan personalizado"}
+            {activePresetDef
+              ? `${t("label.plan")} ${activePresetDef.name}`
+              : t("dashboard.customPlan")}
           </span>
           {" — "}
-          {plan.selectedModules.length} módulos activos
-          {plan.total > 0 && <span className="text-ink-muted"> · {formatARS(plan.total)}/mes</span>}
+          {plan.selectedModules.length} {t("dashboard.activeModules")}
+          {plan.total > 0 && (
+            <span className="text-ink-muted">
+              {" "}
+              · {formatARS(plan.total)}
+              {t("label.month")}
+            </span>
+          )}
         </p>
         <Link href="/planes" className="text-xs font-semibold text-celeste-dark hover:underline">
-          Modificar
+          {t("dashboard.modify")}
         </Link>
       </div>
 
@@ -228,7 +238,7 @@ export default function DashboardPage() {
           <button
             onClick={() => setShowWizardBanner(false)}
             className="absolute top-3 right-3 text-celeste-400 hover:text-celeste-700 transition"
-            aria-label="Cerrar banner"
+            aria-label={t("dashboard.closeBanner")}
           >
             <svg
               className="w-4 h-4"
@@ -245,10 +255,9 @@ export default function DashboardPage() {
               <BookOpen className="w-6 h-6 text-celeste-dark" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-sm font-bold text-ink">Configurá tu clínica</h2>
+              <h2 className="text-sm font-bold text-ink">{t("dashboard.configureCta")}</h2>
               <p className="text-xs text-ink-muted mt-0.5 leading-relaxed">
-                Completá 3 pasos simples para dejar tu clínica operativa: datos básicos,
-                configuración y activación.
+                {t("dashboard.configureDesc")}
               </p>
             </div>
             <div className="flex gap-2 shrink-0">
@@ -256,7 +265,7 @@ export default function DashboardPage() {
                 href="/dashboard/wizard"
                 className="px-5 py-2.5 text-xs font-semibold bg-celeste-dark text-white rounded-lg hover:bg-celeste transition"
               >
-                Empezar
+                {t("dashboard.startSetup")}
               </Link>
               <a
                 href={whatsappUrl("Hola, quiero agendar una demo en vivo de Cóndor Salud.")}
@@ -271,7 +280,7 @@ export default function DashboardPage() {
                 >
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
-                Demo en vivo
+                {t("dashboard.liveDemo")}
               </a>
             </div>
           </div>
@@ -280,9 +289,9 @@ export default function DashboardPage() {
       {/* Page title */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Panel principal</h1>
+          <h1 className="text-2xl font-bold text-ink">{t("dashboard.mainPanel")}</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            Vista ejecutiva · {user?.clinicName || "Mi Clínica"}
+            {t("dashboard.executiveView")} · {user?.clinicName || "Mi Clínica"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -296,19 +305,19 @@ export default function DashboardPage() {
             ) : (
               <Download className="w-4 h-4" />
             )}
-            KPI PDF
+            {t("dashboard.kpiPdf")}
           </button>
           <Link
             href="/dashboard/reportes"
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
-            Generar reporte
+            {t("dashboard.generateReport")}
           </Link>
           <Link
             href="/dashboard/facturacion"
             className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
           >
-            Ver facturación
+            {t("dashboard.viewBilling")}
           </Link>
         </div>
       </div>
@@ -317,7 +326,7 @@ export default function DashboardPage() {
       <div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         role="region"
-        aria-label="Indicadores clave"
+        aria-label={t("dashboard.kpiTitle")}
       >
         {kpis.map((kpi) => (
           <Link
@@ -337,7 +346,7 @@ export default function DashboardPage() {
               className="text-[10px] text-celeste-dark font-medium mt-2 inline-block opacity-0 group-hover:opacity-100 transition"
               aria-hidden="true"
             >
-              Ver detalle
+              {t("dashboard.viewDetail")}
             </span>
           </Link>
         ))}
@@ -347,7 +356,7 @@ export default function DashboardPage() {
       <div
         className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
         role="navigation"
-        aria-label="Accesos rápidos"
+        aria-label={t("dashboard.shortcuts")}
       >
         {quickLinks.map((q) => (
           <Link
@@ -375,12 +384,12 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2">
           <CardContent className="pt-5">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-xs text-ink-muted">Ingresos vs. cobros (últimos 6 meses)</div>
+              <div className="text-xs text-ink-muted">{t("dashboard.revenueVsCollection")}</div>
               <Link
                 href="/dashboard/financiadores"
                 className="text-[10px] text-celeste-dark font-medium hover:underline"
               >
-                Ver financiadores
+                {t("dashboard.viewInsurers")}
               </Link>
             </div>
             <div
@@ -406,11 +415,12 @@ export default function DashboardPage() {
             </div>
             <div className="flex gap-4 mt-3 text-[10px] text-ink-muted">
               <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 bg-celeste rounded-sm" aria-hidden="true" /> Facturado
+                <span className="w-2.5 h-2.5 bg-celeste rounded-sm" aria-hidden="true" />{" "}
+                {t("dashboard.billed")}
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2.5 h-2.5 bg-celeste-light rounded-sm" aria-hidden="true" />{" "}
-                Cobrado
+                {t("dashboard.collected")}
               </span>
             </div>
           </CardContent>
@@ -420,12 +430,12 @@ export default function DashboardPage() {
         <Card>
           <CardContent className="pt-5">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-xs text-ink-muted">Alertas recientes</div>
+              <div className="text-xs text-ink-muted">{t("dashboard.recentAlerts")}</div>
               <Link
                 href="/dashboard/alertas"
                 className="text-[10px] text-celeste-dark font-medium hover:underline"
               >
-                Ver todas
+                {t("action.viewAll")}
               </Link>
             </div>
             <div className="space-y-3" role="list" aria-label="Alertas recientes">
@@ -474,13 +484,13 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="text-xs text-ink-muted font-normal">
-            Rendimiento por financiador
+            {t("dashboard.performanceByInsurer")}
           </CardTitle>
           <Link
             href="/dashboard/financiadores"
             className="text-[10px] text-celeste-dark font-medium hover:underline"
           >
-            Analisis completo
+            {t("dashboard.fullAnalysis")}
           </Link>
         </CardHeader>
         <div className="overflow-x-auto">
@@ -488,19 +498,19 @@ export default function DashboardPage() {
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-2.5">
-                  Financiador
+                  {t("billing.insurer")}
                 </th>
                 <th scope="col" className="text-right px-5 py-2.5">
-                  Facturado
+                  {t("dashboard.billed")}
                 </th>
                 <th scope="col" className="text-right px-5 py-2.5">
-                  Cobrado
+                  {t("dashboard.collected")}
                 </th>
                 <th scope="col" className="text-right px-5 py-2.5">
-                  Rechazo
+                  {t("dashboard.rejection")}
                 </th>
                 <th scope="col" className="text-right px-5 py-2.5">
-                  Días pago
+                  {t("dashboard.paymentDays")}
                 </th>
               </tr>
             </thead>
@@ -546,29 +556,31 @@ export default function DashboardPage() {
           <CardContent className="pt-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-                Agenda de Hoy
+                {t("dashboard.todayAgenda")}
               </h3>
               <Link
                 href="/dashboard/agenda"
                 className="text-[10px] text-celeste-dark font-medium hover:underline"
               >
-                Ver agenda
+                {t("action.viewSchedule")}
               </Link>
             </div>
             <div className="space-y-2" role="list" aria-label="Turnos de hoy">
-              {todayAgenda.map((t, i) => (
+              {todayAgenda.map((turno, i) => (
                 <Link
                   key={i}
                   href="/dashboard/agenda"
                   className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
                   role="listitem"
                 >
-                  <span className="font-mono text-[10px] text-ink-muted w-10">{t.hora}</span>
-                  <span className="text-xs font-semibold text-ink flex-1">{t.pac}</span>
-                  <span className="text-[10px] text-ink-light">{t.tipo}</span>
+                  <span className="font-mono text-[10px] text-ink-muted w-10">{turno.hora}</span>
+                  <span className="text-xs font-semibold text-ink flex-1">{turno.pac}</span>
+                  <span className="text-[10px] text-ink-light">{turno.tipo}</span>
                   <StatusBadge
-                    variant={t.estado}
-                    label={t.estado === "confirmado" ? "Confirmado" : "Pendiente"}
+                    variant={turno.estado}
+                    label={
+                      turno.estado === "confirmado" ? t("status.confirmed") : t("status.pending")
+                    }
                   />
                 </Link>
               ))}
@@ -579,13 +591,13 @@ export default function DashboardPage() {
           <CardContent className="pt-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-                Auditoría Pendiente
+                {t("dashboard.pendingAudit")}
               </h3>
               <Link
                 href="/dashboard/auditoria"
                 className="text-[10px] text-celeste-dark font-medium hover:underline"
               >
-                Ver auditoria
+                {t("action.viewAudit")}
               </Link>
             </div>
             <div className="space-y-2" role="list" aria-label="Items de auditoría pendientes">

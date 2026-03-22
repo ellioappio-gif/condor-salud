@@ -78,7 +78,7 @@ const navSections = [
       { label: "Pacientes", href: "/dashboard/pacientes", tKey: "nav.patients" },
       { label: "Agenda", href: "/dashboard/agenda", tKey: "nav.appointments" },
       { label: "Disponibilidad", href: "/dashboard/disponibilidad", tKey: "nav.availability" },
-      { label: "Verificacion", href: "/dashboard/verificacion", tKey: "" },
+      { label: "Verificacion", href: "/dashboard/verificacion", tKey: "nav.verification" },
       { label: "Inventario", href: "/dashboard/inventario", tKey: "nav.inventory" },
     ],
   },
@@ -89,8 +89,8 @@ const navSections = [
       { label: "Facturacion", href: "/dashboard/facturacion", tKey: "nav.billing" },
       { label: "Rechazos", href: "/dashboard/rechazos", tKey: "nav.rejections" },
       { label: "Financiadores", href: "/dashboard/financiadores", tKey: "nav.insurers" },
-      { label: "Inflacion", href: "/dashboard/inflacion", tKey: "" },
-      { label: "Pagos", href: "/dashboard/pagos", tKey: "" },
+      { label: "Inflacion", href: "/dashboard/inflacion", tKey: "nav.inflation" },
+      { label: "Pagos", href: "/dashboard/pagos", tKey: "nav.payments" },
     ],
   },
   {
@@ -98,7 +98,7 @@ const navSections = [
     titleKey: "nav.intelligence",
     items: [
       { label: "Auditoria", href: "/dashboard/auditoria", tKey: "nav.audit" },
-      { label: "Nomenclador", href: "/dashboard/nomenclador", tKey: "" },
+      { label: "Nomenclador", href: "/dashboard/nomenclador", tKey: "nav.nomenclator" },
       { label: "Reportes", href: "/dashboard/reportes", tKey: "nav.analytics" },
     ],
   },
@@ -106,15 +106,15 @@ const navSections = [
     title: "SERVICIOS",
     titleKey: "nav.services",
     items: [
-      { label: "Farmacia Online", href: "/dashboard/farmacia", tKey: "" },
+      { label: "Farmacia Online", href: "/dashboard/farmacia", tKey: "nav.pharmacy" },
       { label: "Telemedicina", href: "/dashboard/telemedicina", tKey: "nav.telemedicine" },
-      { label: "Directorio Medico", href: "/dashboard/directorio", tKey: "" },
+      { label: "Directorio Medico", href: "/dashboard/directorio", tKey: "nav.directory" },
       {
         label: "Red Interconsultas",
         href: "/dashboard/interconsultas",
         tKey: "nav.interconsultas",
       },
-      { label: "Triage", href: "/dashboard/triage", tKey: "" },
+      { label: "Triage", href: "/dashboard/triage", tKey: "nav.triage" },
     ],
   },
   {
@@ -123,7 +123,7 @@ const navSections = [
     items: [
       { label: "Alertas", href: "/dashboard/alertas", tKey: "nav.alerts" },
       { label: "Configuracion", href: "/dashboard/configuracion", tKey: "nav.settings" },
-      { label: "Configuración inicial", href: "/dashboard/wizard", tKey: "" },
+      { label: "Configuración inicial", href: "/dashboard/wizard", tKey: "nav.wizard" },
     ],
   },
 ];
@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
   const plan = usePlanSafe();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isNavVisible = (href: string): boolean => {
@@ -203,7 +203,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-celeste-dark focus:text-white focus:rounded-[4px] focus:text-sm focus:font-semibold"
       >
-        Ir al contenido principal
+        {t("aria.skipToContent")}
       </a>
 
       {/* Mobile backdrop */}
@@ -212,7 +212,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
           role="button"
-          aria-label="Cerrar menú lateral"
+          aria-label={t("aria.closeSidebar")}
           tabIndex={0}
           onKeyDown={(e) => e.key === "Escape" && setSidebarOpen(false)}
         />
@@ -224,15 +224,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
         role="navigation"
-        aria-label="Navegación principal"
+        aria-label={t("aria.mainNav")}
       >
         {/* Brand */}
         <div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5"
-            aria-label="Ir al inicio — Cóndor Salud"
-          >
+          <Link href="/" className="flex items-center gap-2.5" aria-label={t("aria.goHome")}>
             <Image
               src="/condor.png"
               alt="Cóndor Salud"
@@ -249,7 +245,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden p-1 text-gray-400 hover:text-gray-700 transition"
-            aria-label="Cerrar menú"
+            aria-label={t("aria.closeMenu")}
           >
             <svg
               className="w-5 h-5"
@@ -269,7 +265,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-3 px-3 overflow-y-auto" aria-label="Menú del dashboard">
+        <nav className="flex-1 py-3 px-3 overflow-y-auto" aria-label={t("aria.dashboardMenu")}>
           {navSections.map((section, si) => {
             const visibleItems = section.items.filter((item) => isNavVisible(item.href));
             if (visibleItems.length === 0) return null;
@@ -278,7 +274,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={si}
                 className={si > 0 ? "mt-5" : ""}
                 role="group"
-                aria-label={section.title || "Principal"}
+                aria-label={section.titleKey ? t(section.titleKey) : t("aria.mainSection")}
               >
                 {section.title && (
                   <div
@@ -343,7 +339,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Modificar plan
+              {t("action.modifyPlan")}
             </Link>
           </div>
         </nav>
@@ -389,7 +385,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-2 -ml-2 text-ink-light hover:text-ink transition"
-            aria-label="Abrir menú de navegación"
+            aria-label={t("aria.openNavMenu")}
             aria-expanded={sidebarOpen ? "true" : "false"}
             aria-controls="sidebar"
           >
@@ -410,7 +406,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
 
           <div className="text-sm text-ink-light hidden sm:block">
-            {new Date().toLocaleDateString("es-AR", {
+            {new Date().toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
               weekday: "long",
               year: "numeric",
               month: "long",

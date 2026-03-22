@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useLocale } from "@/lib/i18n/context";
 import {
   Building,
   Users,
@@ -26,77 +27,87 @@ const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "Tu Plan": LayoutGrid,
 };
 
-const sections = [
-  {
-    title: "Mi Clinica",
-    desc: "Datos de la clinica, logo, direccion, CUIT, informacion fiscal y de contacto.",
-    href: "/dashboard/configuracion/clinica",
-    badge: null,
-  },
-  {
-    title: "Equipo",
-    desc: "Gestion de usuarios, roles, permisos y profesionales del equipo medico.",
-    href: "/dashboard/configuracion/equipo",
-    badge: "4 usuarios",
-  },
-  {
-    title: "Integraciones",
-    desc: "Conexiones con PAMI, AFIP, obras sociales y servicios externos.",
-    href: "/dashboard/configuracion/integraciones",
-    badge: "6 activas",
-  },
-  {
-    title: "Facturacion & Plan",
-    desc: "Tu suscripcion actual, historial de pagos y configuracion de facturacion.",
-    href: "/dashboard/configuracion/facturacion",
-    badge: "Plan Pro",
-  },
-  {
-    title: "Nomenclador",
-    desc: "Configuracion de codigos, modulos y valores personalizados.",
-    href: "/dashboard/nomenclador",
-    badge: null,
-  },
-  {
-    title: "Notificaciones",
-    desc: "Preferencias de alertas por email, push y frecuencia de reportes.",
-    href: "/dashboard/configuracion/notificaciones",
-    badge: null,
-  },
-  {
-    title: "WhatsApp Turnos",
-    desc: "Recordatorios automáticos 24hs antes, confirmaciones y Google Maps integrado.",
-    href: "/dashboard/configuracion/whatsapp",
-    badge: "Conectado",
-  },
-  {
-    title: "Pagos y Cobros",
-    desc: "MercadoPago, métodos de pago guardados, cobro automático de copagos.",
-    href: "/dashboard/configuracion/pagos",
-    badge: "MercadoPago",
-  },
-  {
-    title: "Recordatorios",
-    desc: "Configuración de recordatorios automáticos para pacientes y equipo médico.",
-    href: "/dashboard/configuracion/recordatorios",
-    badge: null,
-  },
-  {
-    title: "Tu Plan",
-    desc: "Modificá los módulos activos o cambiá de plan.",
-    href: "/planes",
-    badge: null,
-  },
-];
-
 export default function ConfiguracionPage() {
+  const { t } = useLocale();
+
+  const sections = [
+    {
+      title: t("settings.myClinic"),
+      desc: t("settings.myClinicDesc"),
+      href: "/dashboard/configuracion/clinica",
+      badge: null,
+      iconKey: "Mi Clinica",
+    },
+    {
+      title: t("settings.team"),
+      desc: t("settings.teamDesc"),
+      href: "/dashboard/configuracion/equipo",
+      badge: null,
+      iconKey: "Equipo",
+    },
+    {
+      title: t("settings.integrations"),
+      desc: t("settings.integrationsDesc"),
+      href: "/dashboard/configuracion/integraciones",
+      badge: null,
+      iconKey: "Integraciones",
+    },
+    {
+      title: t("settings.billingPlan"),
+      desc: t("settings.billingPlanDesc"),
+      href: "/dashboard/configuracion/facturacion",
+      badge: null,
+      iconKey: "Facturacion & Plan",
+    },
+    {
+      title: t("settings.nomenclatorTitle"),
+      desc: t("settings.nomenclatorDesc"),
+      href: "/dashboard/nomenclador",
+      badge: null,
+      iconKey: "Nomenclador",
+    },
+    {
+      title: t("settings.notifications"),
+      desc: t("settings.notificationsDesc"),
+      href: "/dashboard/configuracion/notificaciones",
+      badge: null,
+      iconKey: "Notificaciones",
+    },
+    {
+      title: t("settings.whatsAppAppointments"),
+      desc: t("settings.whatsAppDesc"),
+      href: "/dashboard/configuracion/whatsapp",
+      badge: null,
+      iconKey: "WhatsApp Turnos",
+    },
+    {
+      title: t("settings.paymentsTitle"),
+      desc: t("settings.paymentsDesc"),
+      href: "/dashboard/configuracion/pagos",
+      badge: null,
+      iconKey: "Pagos y Cobros",
+    },
+    {
+      title: t("settings.remindersTitle"),
+      desc: t("settings.remindersDesc"),
+      href: "/dashboard/configuracion/recordatorios",
+      badge: null,
+      iconKey: "Recordatorios",
+    },
+    {
+      title: t("settings.yourPlan"),
+      desc: t("settings.yourPlanDesc"),
+      href: "/planes",
+      badge: null,
+      iconKey: "Tu Plan",
+    },
+  ];
+
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Configuración</h1>
-        <p className="text-sm text-ink-muted mt-0.5">
-          Ajustes generales de la clínica y la plataforma
-        </p>
+        <h1 className="text-2xl font-bold text-ink">{t("settings.title")}</h1>
+        <p className="text-sm text-ink-muted mt-0.5">{t("settings.subtitle")}</p>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -108,7 +119,7 @@ export default function ConfiguracionPage() {
           >
             <div className="flex items-start justify-between mb-3">
               {(() => {
-                const I = sectionIcons[s.title];
+                const I = sectionIcons[s.iconKey];
                 return I ? <I className="w-6 h-6 text-celeste-dark" /> : null;
               })()}
               {s.badge && (
@@ -122,7 +133,7 @@ export default function ConfiguracionPage() {
             </h3>
             <p className="text-xs text-ink-muted leading-relaxed">{s.desc}</p>
             <span className="text-xs text-celeste-dark font-medium mt-3 inline-block group-hover:underline">
-              Configurar
+              {t("settings.configure")}
             </span>
           </Link>
         ))}
@@ -132,20 +143,26 @@ export default function ConfiguracionPage() {
       <div className="bg-celeste-pale/30 border border-border rounded-lg p-5">
         <div className="grid sm:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">Clínica</p>
+            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              {t("settings.clinic")}
+            </p>
             <p className="font-semibold text-ink mt-0.5">Centro Médico San Martín</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">CUIT</p>
+            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              {t("settings.cuit")}
+            </p>
             <p className="font-mono text-ink mt-0.5">30-71234567-8</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">Plan</p>
+            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              {t("label.plan")}
+            </p>
             <p className="font-semibold text-celeste-dark mt-0.5">Pro — $75.000/mes</p>
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              Próx. facturación
+              {t("settings.nextBilling")}
             </p>
             <p className="font-semibold text-ink mt-0.5">01/04/2026</p>
           </div>

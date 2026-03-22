@@ -4,6 +4,7 @@ import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
 import { useExport } from "@/lib/services/export";
 import { useNomencladorEntries } from "@/hooks/use-data";
+import { useLocale } from "@/lib/i18n/context";
 import { formatCurrency } from "@/lib/utils";
 import { EmptyState } from "@/components/ui";
 import { Loader2 } from "lucide-react";
@@ -11,6 +12,7 @@ import { Loader2 } from "lucide-react";
 export default function NomencladorPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { t } = useLocale();
   const { exportExcel, isExporting } = useExport();
   const { data: nomenclador = [], isLoading } = useNomencladorEntries();
   const [search, setSearch] = useState("");
@@ -31,16 +33,16 @@ export default function NomencladorPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-celeste" />
-          <span className="ml-2 text-sm text-ink-muted">Cargando nomenclador...</span>
+          <span className="ml-2 text-sm text-ink-muted">{t("nomenclator.loading")}</span>
         </div>
       )}
       {!isLoading && (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-ink">Nomenclador</h1>
+              <h1 className="text-2xl font-bold text-ink">{t("nomenclator.title")}</h1>
               <p className="text-sm text-ink-muted mt-0.5">
-                Códigos SSS / PAMI — Valores actualizados marzo 2026
+                {t("nomenclator.subtitle")} marzo 2026
               </p>
             </div>
             <div className="flex gap-2">
@@ -48,14 +50,14 @@ export default function NomencladorPage() {
                 onClick={() => setComparar(!comparar)}
                 className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${comparar ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
               >
-                {comparar ? "Comparar financiadores (activo)" : "Comparar financiadores"}
+                {comparar ? t("nomenclator.compareActive") : t("nomenclator.compareInsurers")}
               </button>
               <button
                 onClick={() => exportExcel("nomenclador")}
                 disabled={isExporting}
                 className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
               >
-                {isExporting ? "Exportando..." : "Exportar Excel"}
+                {isExporting ? t("action.exporting") : t("action.exportExcel")}
               </button>
             </div>
           </div>
@@ -63,10 +65,18 @@ export default function NomencladorPage() {
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Total prestaciones", value: nomenclador.length, color: "border-celeste" },
-              { label: "Capítulos", value: capitulos.length - 1, color: "border-gold" },
               {
-                label: "Valor medio SSS",
+                label: t("nomenclator.totalServices"),
+                value: nomenclador.length,
+                color: "border-celeste",
+              },
+              {
+                label: t("nomenclator.chapters"),
+                value: capitulos.length - 1,
+                color: "border-gold",
+              },
+              {
+                label: t("nomenclator.avgValueSSS"),
                 value: nomenclador.length
                   ? formatCurrency(
                       Math.round(
@@ -76,7 +86,7 @@ export default function NomencladorPage() {
                   : "—",
                 color: "border-green-400",
               },
-              { label: "Última actualización", value: "01/03/2026", color: "border-celeste" },
+              { label: t("nomenclator.lastUpdate"), value: "01/03/2026", color: "border-celeste" },
             ].map((k) => (
               <div
                 key={k.label}
@@ -94,8 +104,8 @@ export default function NomencladorPage() {
           <div className="flex flex-wrap gap-3 items-center">
             <input
               type="text"
-              placeholder="Buscar por código o descripción..."
-              aria-label="Buscar por código o descripción"
+              placeholder={t("nomenclator.searchPlaceholder")}
+              aria-label={t("nomenclator.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-80 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition"
@@ -103,17 +113,18 @@ export default function NomencladorPage() {
             <select
               value={capFilter}
               onChange={(e) => setCapFilter(e.target.value)}
-              aria-label="Filtrar por capítulo"
+              aria-label={t("nomenclator.filterByChapter")}
               className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
             >
               {capitulos.map((c) => (
                 <option key={c} value={c}>
-                  {c === "Todos" ? "Todos los capítulos" : c}
+                  {c === "Todos" ? t("nomenclator.allChapters") : c}
                 </option>
               ))}
             </select>
             <span className="text-xs text-ink-muted ml-auto">
-              {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
+              {filtered.length}{" "}
+              {filtered.length !== 1 ? t("nomenclator.results") : t("nomenclator.result")}
             </span>
           </div>
 
@@ -123,16 +134,16 @@ export default function NomencladorPage() {
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Código
+                    {t("label.code")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Prestación
+                    {t("nomenclator.service")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Capítulo
+                    {t("nomenclator.chapter")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Módulo
+                    {t("nomenclator.module")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
                     Valor SSS
@@ -162,8 +173,8 @@ export default function NomencladorPage() {
                   <tr>
                     <td colSpan={comparar ? 8 : 5} className="p-0">
                       <EmptyState
-                        title="Sin resultados"
-                        description="No se encontraron prestaciones con los filtros aplicados"
+                        title={t("label.noResults")}
+                        description={t("nomenclator.noResultsDesc")}
                       />
                     </td>
                   </tr>
@@ -221,16 +232,16 @@ export default function NomencladorPage() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="bg-celeste-pale/40 border border-border rounded-lg p-5">
               <h3 className="text-xs font-bold tracking-wider text-celeste-dark uppercase mb-3">
-                Referencia Rápida — Módulos SSS
+                {t("nomenclator.quickReference")}
               </h3>
               <div className="space-y-2 text-xs">
                 {[
-                  { mod: "Módulo 1", desc: "Consultas médicas" },
-                  { mod: "Módulo 4", desc: "Cardiología / Diagnóstico" },
-                  { mod: "Módulo 5", desc: "Cirugías" },
-                  { mod: "Módulo 6", desc: "Laboratorio" },
-                  { mod: "Módulo 8", desc: "Diagnóstico por imágenes" },
-                  { mod: "Módulo 9", desc: "Rehabilitación" },
+                  { mod: "Módulo 1", desc: t("nomenclator.medicalConsultations") },
+                  { mod: "Módulo 4", desc: t("nomenclator.cardiologyDiag") },
+                  { mod: "Módulo 5", desc: t("nomenclator.surgeries") },
+                  { mod: "Módulo 6", desc: t("nomenclator.laboratory") },
+                  { mod: "Módulo 8", desc: t("nomenclator.diagnosticImaging") },
+                  { mod: "Módulo 9", desc: t("nomenclator.rehabilitation") },
                 ].map((m) => (
                   <div key={m.mod} className="flex items-center gap-2">
                     <span className="font-mono font-bold text-celeste-dark w-20">{m.mod}</span>
@@ -241,16 +252,14 @@ export default function NomencladorPage() {
             </div>
             <div className="bg-gold-pale/40 border border-border rounded-lg p-5">
               <h3 className="text-xs font-bold tracking-wider text-[#B8860B] uppercase mb-3">
-                Notas Importantes
+                {t("nomenclator.importantNotes")}
               </h3>
               <ul className="space-y-2 text-xs text-ink-light">
-                <li>• Los valores PAMI se actualizan por Resolución trimestral</li>
-                <li>• Valores SSS según Nomenclador Nacional vigente (Res. 2024/2026)</li>
-                <li>
-                  • OSDE y Swiss Medical son valores convenio directo (pueden variar por plan)
-                </li>
-                <li>• Para prestaciones no listadas, consultar con Auditoría</li>
-                <li>• Las diferencias PAMI vs SSS suelen oscilar entre -12% y -18%</li>
+                <li>• {t("nomenclator.note1")}</li>
+                <li>• {t("nomenclator.note2")}</li>
+                <li>• {t("nomenclator.note3")}</li>
+                <li>• {t("nomenclator.note4")}</li>
+                <li>• {t("nomenclator.note5")}</li>
               </ul>
             </div>
           </div>

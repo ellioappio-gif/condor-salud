@@ -17,6 +17,7 @@ import {
   Filter,
   ChevronDown,
 } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -60,6 +61,7 @@ const RADIUS_OPTIONS = [
 ];
 
 export default function MapaPage() {
+  const { t } = useLocale();
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -131,7 +133,7 @@ export default function MapaPage() {
         strokeColor: "#fff",
         strokeWeight: 2,
       },
-      title: "Tu ubicación",
+      title: t("mapa.yourLocation"),
     });
 
     googleMapRef.current = map;
@@ -237,7 +239,7 @@ export default function MapaPage() {
             value={specialty}
             onChange={(e) => setSpecialty(e.target.value)}
             className="flex-1 bg-transparent py-2 text-sm outline-none"
-            aria-label="Especialidad"
+            aria-label={t("mapa.specialty")}
           >
             {SPECIALTIES.map((s) => (
               <option key={s} value={s}>
@@ -248,7 +250,7 @@ export default function MapaPage() {
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="rounded-lg bg-celeste-50 p-2 text-celeste-dark"
-            aria-label="Filtros"
+            aria-label={t("mapa.filters")}
           >
             <Filter className="h-4 w-4" />
           </button>
@@ -256,7 +258,7 @@ export default function MapaPage() {
 
         {showFilters && (
           <div className="rounded-xl bg-white p-3 shadow-lg">
-            <p className="mb-2 text-xs font-medium text-gray-500">Radio de búsqueda</p>
+            <p className="mb-2 text-xs font-medium text-gray-500">{t("mapa.searchRadius")}</p>
             <div className="flex gap-2">
               {RADIUS_OPTIONS.map((r) => (
                 <button
@@ -281,7 +283,7 @@ export default function MapaPage() {
         <div className="absolute left-1/2 top-20 z-20 -translate-x-1/2 rounded-full bg-white px-4 py-2 shadow-lg">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Buscando médicos cercanos...
+            {t("mapa.searching")}
           </div>
         </div>
       )}
@@ -290,8 +292,9 @@ export default function MapaPage() {
       {!loading && doctors.length > 0 && (
         <div className="absolute bottom-24 left-4 z-10">
           <div className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-600 shadow">
-            {doctors.length} médico{doctors.length !== 1 ? "s" : ""} encontrado
-            {doctors.length !== 1 ? "s" : ""}
+            {doctors.length}{" "}
+            {doctors.length !== 1 ? t("mapa.doctorPlural") : t("mapa.doctorSingular")}{" "}
+            {doctors.length !== 1 ? t("mapa.foundPlural") : t("mapa.foundSingular")}
           </div>
         </div>
       )}
@@ -302,7 +305,7 @@ export default function MapaPage() {
           <button
             onClick={() => setSelectedDoctor(null)}
             className="absolute right-3 top-3 rounded-full bg-gray-100 p-1"
-            aria-label="Cerrar"
+            aria-label={t("mapa.close")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -328,7 +331,7 @@ export default function MapaPage() {
                 href={`tel:${selectedDoctor.phone}`}
                 className="flex items-center gap-1.5 rounded-lg bg-celeste-50 px-3 py-2 text-xs font-medium text-celeste-dark"
               >
-                <Phone className="h-3.5 w-3.5" /> Llamar
+                <Phone className="h-3.5 w-3.5" /> {t("mapa.call")}
               </a>
             )}
             {selectedDoctor.website && (
@@ -338,7 +341,7 @@ export default function MapaPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700"
               >
-                <Globe className="h-3.5 w-3.5" /> Web
+                <Globe className="h-3.5 w-3.5" /> {t("mapa.web")}
               </a>
             )}
             <a
@@ -347,7 +350,7 @@ export default function MapaPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-700"
             >
-              <Navigation className="h-3.5 w-3.5" /> Cómo llegar
+              <Navigation className="h-3.5 w-3.5" /> {t("mapa.directions")}
             </a>
           </div>
         </div>
@@ -359,9 +362,9 @@ export default function MapaPage() {
           <div className="text-center">
             <MapPin className="mx-auto h-12 w-12 text-gray-300" />
             <p className="mt-2 text-sm text-gray-500">
-              Google Maps no está configurado.
+              {t("mapa.noApiKey")}
               <br />
-              Agregue NEXT_PUBLIC_GOOGLE_MAPS_KEY a las variables de entorno.
+              {t("mapa.addApiKey")}
             </p>
           </div>
         </div>

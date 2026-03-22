@@ -18,6 +18,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import {
   useMyAppointments,
   useDoctorDirectory,
@@ -51,11 +52,12 @@ const specialties = [
 
 /* ── status badge ─────────────────────────────────────── */
 function StatusBadge({ status }: { status: AppointmentStatus }) {
+  const { t } = useLocale();
   const map: Record<AppointmentStatus, { label: string; cls: string }> = {
-    confirmado: { label: "Confirmado", cls: "bg-success-50 text-success-700" },
-    pendiente: { label: "Pendiente", cls: "bg-amber-50 text-amber-700" },
-    cancelado: { label: "Cancelado", cls: "bg-red-50 text-red-600" },
-    completado: { label: "Completado", cls: "bg-ink-50 text-ink-400" },
+    confirmado: { label: t("patient.confirmed"), cls: "bg-success-50 text-success-700" },
+    pendiente: { label: t("patient.pendingStatus"), cls: "bg-amber-50 text-amber-700" },
+    cancelado: { label: t("patient.cancelledStatus"), cls: "bg-red-50 text-red-600" },
+    completado: { label: t("patient.completedStatus"), cls: "bg-ink-50 text-ink-400" },
   };
   const { label, cls } = map[status];
   return <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${cls}`}>{label}</span>;
@@ -64,6 +66,7 @@ function StatusBadge({ status }: { status: AppointmentStatus }) {
 /* ── component ────────────────────────────────────────── */
 export default function TurnosPage() {
   const { showToast } = useToast();
+  const { t, locale } = useLocale();
   const router = useRouter();
   const { data: fetchedAppointments } = useMyAppointments();
   const { data: doctors } = useDoctorDirectory();
@@ -129,15 +132,17 @@ export default function TurnosPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Mis Turnos</h1>
-          <p className="text-sm text-ink-muted mt-0.5">Gestioná tus consultas médicas</p>
+          <h1 className="text-2xl font-display font-bold text-ink">
+            {t("patient.myAppointments")}
+          </h1>
+          <p className="text-sm text-ink-muted mt-0.5">{t("patient.manageAppointments")}</p>
         </div>
         <button
           onClick={() => setShowBooking(true)}
           className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Nuevo turno
+          {t("patient.bookAppointment")}
         </button>
       </div>
 
@@ -145,8 +150,8 @@ export default function TurnosPage() {
       <div className="flex gap-1 bg-ink-50 rounded-xl p-1 w-fit">
         {(
           [
-            ["proximos", "Próximos"],
-            ["historial", "Historial"],
+            ["proximos", t("patient.upcoming")],
+            ["historial", t("patient.history")],
           ] as [Tab, string][]
         ).map(([key, label]) => (
           <button
@@ -188,7 +193,7 @@ export default function TurnosPage() {
               <div className="flex items-center gap-3 mt-1 text-xs text-ink-muted">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
-                  {new Date(apt.date).toLocaleDateString("es-AR", {
+                  {new Date(apt.date).toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
                     weekday: "short",
                     day: "numeric",
                     month: "short",
@@ -209,12 +214,12 @@ export default function TurnosPage() {
                 {apt.type === "teleconsulta" && (
                   <button
                     onClick={() => {
-                      showToast("Conectando a la sala de teleconsulta…");
+                      showToast(t("patient.connectingTeleconsulta"));
                       window.location.href = "/paciente/teleconsulta";
                     }}
                     className="text-xs font-medium bg-success-50 text-success-700 px-3 py-1.5 rounded-[4px] hover:bg-success-100 transition"
                   >
-                    Unirse
+                    {t("patient.joinCall")}
                   </button>
                 )}
                 {apt.type === "presencial" && (
@@ -232,7 +237,7 @@ export default function TurnosPage() {
                     className="text-xs font-medium bg-celeste-50 text-celeste-dark px-3 py-1.5 rounded-[4px] hover:bg-celeste-100 transition flex items-center gap-1"
                   >
                     <MessageCircle className="w-3 h-3" />
-                    Transporte
+                    {t("patient.transport")}
                   </button>
                 )}
                 <button
@@ -243,21 +248,21 @@ export default function TurnosPage() {
                         a.id === apt.id ? { ...a, status: "cancelado" as AppointmentStatus } : a,
                       ),
                     );
-                    showToast("Turno cancelado. Te enviamos un email de confirmación.");
+                    showToast(t("patient.appointmentCancelled"));
                     // Fire real API call
                     try {
-                      await doCancelBooking(apt.id, "Cancelado por el paciente");
+                      await doCancelBooking(apt.id, t("patient.cancelledByPatient"));
                     } catch {
                       // Revert on failure
                       setLocalAppointments((prev) =>
                         prev.map((a) => (a.id === apt.id ? { ...a, status: apt.status } : a)),
                       );
-                      showToast("Error al cancelar el turno. Intentá de nuevo.");
+                      showToast(t("patient.cancelError"));
                     }
                   }}
                   className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-[4px] hover:bg-red-100 transition"
                 >
-                  Cancelar
+                  {t("patient.cancelAppointment")}
                 </button>
               </div>
             )}
@@ -275,7 +280,7 @@ export default function TurnosPage() {
         ))}
         {(tab === "proximos" ? upcoming : history).length === 0 && (
           <div className="px-5 py-12 text-center text-sm text-ink-muted">
-            {tab === "proximos" ? "No tenés turnos próximos" : "No hay historial de turnos"}
+            {tab === "proximos" ? t("patient.noUpcoming") : t("patient.noHistory")}
           </div>
         )}
       </div>
@@ -303,15 +308,15 @@ export default function TurnosPage() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Nuevo turno"
+            aria-label={t("patient.newAppointmentTitle")}
             className="bg-white rounded-2xl max-w-lg w-full shadow-xl max-h-[90vh] overflow-y-auto"
           >
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
-              <h2 className="text-lg font-bold text-ink">Nuevo turno</h2>
+              <h2 className="text-lg font-bold text-ink">{t("patient.newAppointmentTitle")}</h2>
               <button
                 onClick={resetBooking}
-                aria-label="Cerrar"
+                aria-label={t("patient.closeModal")}
                 className="p-1 text-ink-muted hover:text-ink transition"
               >
                 <X className="w-5 h-5" />
@@ -320,7 +325,12 @@ export default function TurnosPage() {
 
             {/* Steps indicator */}
             <div className="px-6 py-3 flex items-center gap-2 text-xs font-medium">
-              {["Especialidad", "Fecha", "Horario", "Confirmar"].map((s, i) => (
+              {[
+                t("patient.stepSpecialty"),
+                t("patient.stepDate"),
+                t("patient.stepTime"),
+                t("patient.stepConfirm"),
+              ].map((s, i) => (
                 <div key={s} className="flex items-center gap-2">
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${
@@ -343,7 +353,9 @@ export default function TurnosPage() {
               {/* Step 1: Specialty */}
               {bookingStep === 1 && (
                 <div className="space-y-2">
-                  <p className="text-sm text-ink-muted mb-3">Seleccioná la especialidad</p>
+                  <p className="text-sm text-ink-muted mb-3">
+                    {t("patient.selectSpecialtyPrompt")}
+                  </p>
                   <div className="grid grid-cols-2 gap-2">
                     {specialties.map((sp) => (
                       <button
@@ -368,10 +380,12 @@ export default function TurnosPage() {
               {/* Step 2: Date */}
               {bookingStep === 2 && (
                 <div className="space-y-3">
-                  <p className="text-sm text-ink-muted">Elegí una fecha para {selectedSpecialty}</p>
+                  <p className="text-sm text-ink-muted">
+                    {t("patient.selectDateFor")} {selectedSpecialty}
+                  </p>
                   <input
                     type="date"
-                    aria-label="Fecha del turno"
+                    aria-label={t("patient.appointmentDate")}
                     value={selectedDate}
                     onChange={(e) => {
                       setSelectedDate(e.target.value);
@@ -387,17 +401,20 @@ export default function TurnosPage() {
               {bookingStep === 3 && (
                 <div className="space-y-3">
                   <p className="text-sm text-ink-muted">
-                    Horarios disponibles para{" "}
-                    {new Date(selectedDate + "T12:00").toLocaleDateString("es-AR", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                    })}
+                    {t("patient.timeSlotsFor")}{" "}
+                    {new Date(selectedDate + "T12:00").toLocaleDateString(
+                      locale === "en" ? "en-US" : "es-AR",
+                      {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                      },
+                    )}
                   </p>
                   {slotsLoading ? (
                     <div className="flex items-center justify-center py-8 text-ink-muted">
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      Cargando horarios…
+                      {t("patient.loadingTimes")}
                     </div>
                   ) : (
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -419,7 +436,7 @@ export default function TurnosPage() {
                       ))}
                       {(availableSlots ?? []).length === 0 && !slotsLoading && (
                         <p className="col-span-full text-sm text-ink-muted text-center py-4">
-                          No hay horarios disponibles para esta fecha
+                          {t("patient.noTimesAvailable")}
                         </p>
                       )}
                     </div>
@@ -430,20 +447,20 @@ export default function TurnosPage() {
               {/* Step 4: Confirm */}
               {bookingStep === 4 && (
                 <div className="space-y-4">
-                  <p className="text-sm text-ink-muted">Confirmá tu turno</p>
+                  <p className="text-sm text-ink-muted">{t("patient.confirmAppointment")}</p>
 
                   {/* Doctor picker */}
                   {filteredDoctors.length > 0 && (
                     <div className="space-y-2">
                       <label className="text-xs font-medium text-ink-muted">
-                        Profesional (opcional)
+                        {t("patient.professionalOptional")}
                       </label>
                       <select
                         value={selectedDoctorId ?? ""}
                         onChange={(e) => setSelectedDoctorId(e.target.value || undefined)}
                         className="w-full border border-border-light rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark bg-white"
                       >
-                        <option value="">A asignar</option>
+                        <option value="">{t("patient.toBeAssigned")}</option>
                         {filteredDoctors.map((doc) => (
                           <option key={doc.id} value={doc.id}>
                             {doc.name} — {doc.location}
@@ -455,17 +472,19 @@ export default function TurnosPage() {
 
                   {/* Appointment type */}
                   <div className="flex gap-2">
-                    {(["presencial", "teleconsulta"] as const).map((t) => (
+                    {(["presencial", "teleconsulta"] as const).map((tp) => (
                       <button
-                        key={t}
-                        onClick={() => setBookingType(t)}
+                        key={tp}
+                        onClick={() => setBookingType(tp)}
                         className={`flex-1 text-sm px-3 py-2 rounded-xl border transition ${
-                          bookingType === t
+                          bookingType === tp
                             ? "border-celeste-dark bg-celeste-50 text-celeste-dark font-semibold"
                             : "border-border-light text-ink-muted hover:border-celeste-200"
                         }`}
                       >
-                        {t === "presencial" ? "Presencial" : "Teleconsulta"}
+                        {tp === "presencial"
+                          ? t("patient.inPerson")
+                          : t("patient.teleconsultaType")}
                       </button>
                     ))}
                   </div>
@@ -473,36 +492,41 @@ export default function TurnosPage() {
                   {/* Summary */}
                   <div className="bg-surface rounded-xl p-4 space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">Especialidad</span>
+                      <span className="text-ink-muted">{t("patient.specialty")}</span>
                       <span className="font-semibold text-ink">{selectedSpecialty}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">Fecha</span>
+                      <span className="text-ink-muted">{t("patient.dateLabel")}</span>
                       <span className="font-semibold text-ink">
-                        {new Date(selectedDate + "T12:00").toLocaleDateString("es-AR", {
-                          weekday: "long",
-                          day: "numeric",
-                          month: "long",
-                        })}
+                        {new Date(selectedDate + "T12:00").toLocaleDateString(
+                          locale === "en" ? "en-US" : "es-AR",
+                          {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                          },
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">Horario</span>
+                      <span className="text-ink-muted">{t("patient.timeLabel")}</span>
                       <span className="font-semibold text-ink">{selectedTime}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">Modalidad</span>
+                      <span className="text-ink-muted">{t("patient.modality")}</span>
                       <span className="font-semibold text-ink">
-                        {bookingType === "teleconsulta" ? "Teleconsulta" : "Presencial"}
+                        {bookingType === "teleconsulta"
+                          ? t("patient.teleconsultaType")
+                          : t("patient.inPerson")}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">Profesional</span>
+                      <span className="text-ink-muted">{t("patient.professional")}</span>
                       <span className="font-semibold text-ink">
                         {selectedDoctorId
                           ? (filteredDoctors.find((d) => d.id === selectedDoctorId)?.name ??
-                            "A asignar")
-                          : "A asignar"}
+                            t("patient.toBeAssigned"))
+                          : t("patient.toBeAssigned")}
                       </span>
                     </div>
                   </div>
@@ -523,23 +547,23 @@ export default function TurnosPage() {
 
                         // If a payment URL was returned, redirect to MercadoPago
                         if (result.paymentUrl) {
-                          showToast("Redirigiendo al pago…");
+                          showToast(t("patient.redirectingToPayment"));
                           resetBooking();
                           router.push(`/paciente/pagos?bookingId=${result.id}`);
                           return;
                         }
 
-                        showToast("¡Turno confirmado! Te enviamos un recordatorio por email.");
+                        showToast(t("patient.appointmentConfirmed"));
                         resetBooking();
                       } catch {
-                        showToast("Error al confirmar el turno. Intentá de nuevo.");
+                        showToast(t("patient.appointmentError"));
                         setIsSubmitting(false);
                       }
                     }}
                     className="w-full bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {isSubmitting ? "Confirmando…" : "Confirmar turno"}
+                    {isSubmitting ? t("patient.confirming") : t("patient.confirmBooking")}
                   </button>
                 </div>
               )}
@@ -553,7 +577,7 @@ export default function TurnosPage() {
                   className="flex items-center gap-1 text-xs text-ink-muted hover:text-ink transition"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
-                  Volver
+                  {t("patient.back")}
                 </button>
               </div>
             )}

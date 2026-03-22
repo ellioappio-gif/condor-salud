@@ -57,13 +57,18 @@ const ALL_TIME_SLOTS = [
   "19:30",
 ];
 
-const DAYS_OF_WEEK = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const DAYS_OF_WEEK_ES = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const DAYS_OF_WEEK_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // ── Helpers ──────────────────────────────────────────────────
-function getWeekDates(offset: number): { label: string; date: string; dayName: string }[] {
+function getWeekDates(
+  offset: number,
+  locale?: string,
+): { label: string; date: string; dayName: string }[] {
   const today = new Date();
   const monday = new Date(today);
   monday.setDate(today.getDate() - today.getDay() + 1 + offset * 7);
+  const days = locale === "en" ? DAYS_OF_WEEK_EN : DAYS_OF_WEEK_ES;
 
   return Array.from({ length: 6 }, (_, i) => {
     const d = new Date(monday);
@@ -71,7 +76,7 @@ function getWeekDates(offset: number): { label: string; date: string; dayName: s
     return {
       label: `${d.getDate()}/${d.getMonth() + 1}`,
       date: d.toISOString().split("T")[0] ?? "",
-      dayName: DAYS_OF_WEEK[i] ?? "Lun",
+      dayName: days[i] ?? days[0] ?? "",
     };
   });
 }
@@ -91,7 +96,7 @@ const DEMO_DOCTORS: Doctor[] = [
 ];
 
 export default function DisponibilidadPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   const [doctors, setDoctors] = useState<Doctor[]>(DEMO_DOCTORS);
@@ -104,7 +109,7 @@ export default function DisponibilidadPage() {
   const [pendingAdds, setPendingAdds] = useState<Map<string, Set<string>>>(new Map());
   const [pendingDeletes, setPendingDeletes] = useState<Set<string>>(new Set());
 
-  const weekDates = getWeekDates(weekOffset);
+  const weekDates = getWeekDates(weekOffset, locale);
   const weekStart = weekDates[0]?.date ?? "";
 
   // ── Fetch doctors ──────────────────────────────────────────
@@ -220,9 +225,9 @@ export default function DisponibilidadPage() {
       setPendingAdds(new Map());
       setPendingDeletes(new Set());
       await fetchSlots();
-      setToast({ message: "Disponibilidad guardada", type: "success" });
+      setToast({ message: t("availability.saved"), type: "success" });
     } catch {
-      setToast({ message: "Error al guardar", type: "error" });
+      setToast({ message: t("availability.errorSaving"), type: "error" });
     } finally {
       setSaving(false);
     }
@@ -245,11 +250,9 @@ export default function DisponibilidadPage() {
         <div>
           <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
             <Calendar className="h-6 w-6 text-celeste-dark" />
-            Disponibilidad Médica
+            {t("availability.title")}
           </h1>
-          <p className="text-sm text-ink/60 mt-1">
-            Gestione los horarios de atención de cada profesional
-          </p>
+          <p className="text-sm text-ink/60 mt-1">{t("availability.subtitleManage")}</p>
         </div>
 
         {hasChanges && (
@@ -259,7 +262,7 @@ export default function DisponibilidadPage() {
             className="flex items-center gap-2 rounded-[4px] bg-celeste-dark px-4 py-2 text-sm font-medium text-white hover:bg-celeste-dark/90 disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Guardar cambios
+            {t("availability.saveChanges")}
           </button>
         )}
       </div>
@@ -267,13 +270,15 @@ export default function DisponibilidadPage() {
       {/* Doctor selector + week nav */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white rounded-[4px] border border-ink/10 p-4">
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-ink/70">Profesional:</label>
+          <label className="text-sm font-medium text-ink/70">
+            {t("availability.professional")}
+          </label>
           <select
             value={selectedDoctor}
             onChange={(e) => setSelectedDoctor(e.target.value)}
             className="rounded-[4px] border border-ink/20 bg-white px-3 py-2 text-sm text-ink focus:border-celeste-dark focus:ring-1 focus:ring-celeste-dark"
           >
-            <option value="">Seleccionar...</option>
+            <option value="">{t("availability.select")}</option>
             {doctors.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name} — {d.specialty}
@@ -286,7 +291,7 @@ export default function DisponibilidadPage() {
           <button
             onClick={() => setWeekOffset((p) => p - 1)}
             className="rounded-[4px] border border-ink/20 p-2 hover:bg-ink/5 transition-colors"
-            aria-label="Semana anterior"
+            aria-label={t("availability.previousWeek")}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -296,7 +301,7 @@ export default function DisponibilidadPage() {
           <button
             onClick={() => setWeekOffset((p) => p + 1)}
             className="rounded-[4px] border border-ink/20 p-2 hover:bg-ink/5 transition-colors"
-            aria-label="Semana siguiente"
+            aria-label={t("availability.nextWeek")}
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -305,7 +310,7 @@ export default function DisponibilidadPage() {
               onClick={() => setWeekOffset(0)}
               className="ml-2 text-xs text-celeste-dark hover:underline"
             >
-              Hoy
+              {t("availability.today")}
             </button>
           )}
         </div>
@@ -325,9 +330,7 @@ export default function DisponibilidadPage() {
       {/* Grid */}
       {!selectedDoctor ? (
         <div className="flex items-center justify-center rounded-[4px] border border-dashed border-ink/20 bg-white p-12">
-          <p className="text-ink/50 text-sm">
-            Seleccione un profesional para gestionar su disponibilidad
-          </p>
+          <p className="text-ink/50 text-sm">{t("availability.selectPrompt")}</p>
         </div>
       ) : loading ? (
         <div className="flex items-center justify-center rounded-[4px] border border-ink/10 bg-white p-12">
@@ -340,7 +343,7 @@ export default function DisponibilidadPage() {
               <tr className="bg-ink/5">
                 <th className="border-b border-ink/10 p-2 text-left font-medium text-ink/60 w-20">
                   <Clock className="h-4 w-4 inline mr-1" />
-                  Hora
+                  {t("availability.hour")}
                 </th>
                 {weekDates.map((d) => (
                   <th
@@ -382,27 +385,27 @@ export default function DisponibilidadPage() {
                           }`}
                           title={
                             state === "booked"
-                              ? "Reservado"
+                              ? t("availability.bookedTooltip")
                               : state === "available"
-                                ? "Disponible — click para eliminar"
+                                ? t("availability.availableTooltip")
                                 : state === "pending-add"
-                                  ? "Se agregará — click para deshacer"
+                                  ? t("availability.pendingAddTooltip")
                                   : state === "pending-delete"
-                                    ? "Se eliminará — click para deshacer"
-                                    : "Vacío — click para agregar"
+                                    ? t("availability.pendingDeleteTooltip")
+                                    : t("availability.emptyTooltip")
                           }
                         >
                           {state === "booked" ? (
-                            "Reservado"
+                            t("availability.booked")
                           ) : state === "available" ? (
-                            "Disponible"
+                            t("availability.available")
                           ) : state === "pending-add" ? (
                             <span className="flex items-center justify-center gap-1">
-                              <Plus className="h-3 w-3" /> Agregar
+                              <Plus className="h-3 w-3" /> {t("availability.add")}
                             </span>
                           ) : state === "pending-delete" ? (
                             <span className="flex items-center justify-center gap-1">
-                              <Trash2 className="h-3 w-3" /> Eliminar
+                              <Trash2 className="h-3 w-3" /> {t("availability.remove")}
                             </span>
                           ) : (
                             "—"
@@ -422,19 +425,19 @@ export default function DisponibilidadPage() {
       <div className="flex flex-wrap items-center gap-4 text-xs text-ink/60">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded bg-green-100 border border-green-300" />
-          Disponible
+          {t("availability.legendAvailable")}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded bg-red-100 border border-red-300" />
-          Reservado
+          {t("availability.legendBooked")}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded bg-celeste-dark/20 border border-celeste-dark border-dashed" />
-          Por agregar
+          {t("availability.legendPendingAdd")}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded bg-red-50 border border-red-400 border-dashed" />
-          Por eliminar
+          {t("availability.legendPendingDelete")}
         </span>
       </div>
     </div>

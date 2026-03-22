@@ -6,10 +6,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { isSupabaseConfigured } from "@/lib/env";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 export default function VerifyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLocale();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function VerifyPage() {
         {status === "loading" && (
           <>
             <Loader2 className="w-12 h-12 text-celeste-dark animate-spin mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-ink mb-2">Verificando tu email...</h2>
+            <h2 className="text-2xl font-bold text-ink mb-2">{t("auth.verifyTitle")}</h2>
             <p className="text-sm text-ink-muted">Esto tomará solo un momento</p>
           </>
         )}
@@ -86,7 +88,7 @@ export default function VerifyPage() {
             <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-ink mb-2">¡Email verificado!</h2>
+            <h2 className="text-2xl font-bold text-ink mb-2">{t("auth.verifySuccess")}</h2>
             <p className="text-sm text-ink-muted mb-6">
               Tu cuenta fue verificada exitosamente. Redirigiendo al panel...
             </p>

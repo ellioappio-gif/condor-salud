@@ -6,6 +6,7 @@ import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
+import { useLocale } from "@/lib/i18n/context";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useRechazos } from "@/hooks/use-data";
@@ -23,6 +24,7 @@ const motivoLabels: Record<RechazoMotivo, string> = {
 };
 
 export default function RechazosPage() {
+  const { t } = useLocale();
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
@@ -97,9 +99,12 @@ export default function RechazosPage() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Gestión de Rechazos"
-        description="Auditoría y reprocesamiento de facturas rechazadas"
-        breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Rechazos" }]}
+        title={t("rejections.title")}
+        description={t("rejections.description")}
+        breadcrumbs={[
+          { label: t("dashboard.mainPanel"), href: "/dashboard" },
+          { label: t("rejections.title") },
+        ]}
         actions={
           <div className="flex gap-2">
             <button
@@ -134,34 +139,37 @@ export default function RechazosPage() {
       <div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         role="region"
-        aria-label="Resumen de rechazos"
+        aria-label={t("rejections.rejectionSummary")}
       >
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
-          <div className="text-xs text-ink-muted mb-1">Total rechazado</div>
+          <div className="text-xs text-ink-muted mb-1">{t("rejections.totalRejected")}</div>
           <div className="text-2xl font-bold text-red-600">
             {formatCurrency(stats.totalRechazado)}
           </div>
-          <div className="text-xs mt-1 text-ink-muted">{rechazos.length} rechazos</div>
+          <div className="text-xs mt-1 text-ink-muted">
+            {rechazos.length} {t("rejections.rejections")}
+          </div>
         </div>
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-amber-400">
-          <div className="text-xs text-ink-muted mb-1">Pendientes de gestión</div>
+          <div className="text-xs text-ink-muted mb-1">{t("rejections.pendingManagement")}</div>
           <div className="text-2xl font-bold text-amber-600">{stats.pendientes.length}</div>
           <div className="text-xs mt-1 text-ink-muted">
             {formatCurrency(stats.pendientes.reduce((s, r) => s + r.monto, 0))}
           </div>
         </div>
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
-          <div className="text-xs text-ink-muted mb-1">Reprocesables</div>
+          <div className="text-xs text-ink-muted mb-1">{t("rejections.reprocessable")}</div>
           <div className="text-2xl font-bold text-celeste-dark">{stats.reprocesables.length}</div>
           <div className="text-xs mt-1 text-green-600">
-            Recuperables: {formatCurrency(stats.reprocesables.reduce((s, r) => s + r.monto, 0))}
+            {t("rejections.recoverable")}:{" "}
+            {formatCurrency(stats.reprocesables.reduce((s, r) => s + r.monto, 0))}
           </div>
         </div>
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-green-400">
-          <div className="text-xs text-ink-muted mb-1">Tasa de recupero</div>
+          <div className="text-xs text-ink-muted mb-1">{t("rejections.recoveryRate")}</div>
           <div className="text-2xl font-bold text-celeste-dark">{stats.tasaRecupero}%</div>
           <div className="text-xs mt-1 text-green-600">
-            {stats.reprocesados.length} reprocesados
+            {stats.reprocesados.length} {t("rejections.reprocessed")}
           </div>
         </div>
       </div>
@@ -170,8 +178,8 @@ export default function RechazosPage() {
       <div className="grid lg:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-5">
-            <div className="text-xs text-ink-muted mb-3">Rechazos por motivo</div>
-            <div className="space-y-3" role="list" aria-label="Distribución de rechazos por motivo">
+            <div className="text-xs text-ink-muted mb-3">{t("rejections.byReason")}</div>
+            <div className="space-y-3" role="list" aria-label={t("rejections.byReasonDist")}>
               {Object.entries(motivoCounts)
                 .sort(([, a], [, b]) => b - a)
                 .map(([motivo, count]) => (
@@ -200,7 +208,7 @@ export default function RechazosPage() {
         <div className="lg:col-span-2">
           <Card>
             <CardContent className="pt-5">
-              <div className="text-xs text-ink-muted mb-3">Rechazos por financiador</div>
+              <div className="text-xs text-ink-muted mb-3">{t("rejections.byInsurer")}</div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {["PAMI", "IOMA"].map((fin) => {
                   const finRechazos = rechazos.filter((r) => r.financiador === fin);
@@ -211,15 +219,16 @@ export default function RechazosPage() {
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-ink">{fin}</span>
                         <span className="text-xs font-semibold text-red-600">
-                          {finRechazos.length} rechazos
+                          {finRechazos.length} {t("rejections.rejections")}
                         </span>
                       </div>
                       <div className="text-xl font-bold text-ink mb-1">
                         {formatCurrency(finMonto)}
                       </div>
                       <div className="text-xs text-ink-muted">
-                        {finPendientes.length} pendientes ·{" "}
-                        {finRechazos.filter((r) => r.reprocesable).length} reprocesables
+                        {finPendientes.length} {t("rejections.pending")} ·{" "}
+                        {finRechazos.filter((r) => r.reprocesable).length}{" "}
+                        {t("rejections.reprocessableItems")}
                       </div>
                     </div>
                   );
@@ -236,10 +245,10 @@ export default function RechazosPage() {
           <div
             className="flex flex-wrap gap-4 items-end"
             role="search"
-            aria-label="Filtros de rechazos"
+            aria-label={t("rejections.rejectionFilters")}
           >
             <Select
-              label="Financiador"
+              label={t("billing.insurer")}
               options={[
                 { value: "Todos", label: "Todos" },
                 { value: "PAMI", label: "PAMI" },
@@ -249,7 +258,7 @@ export default function RechazosPage() {
               onChange={(e) => setFiltroFinanciador(e.target.value)}
             />
             <Select
-              label="Estado"
+              label={t("label.status")}
               options={[
                 { value: "todos", label: "Todos" },
                 { value: "pendiente", label: "Pendiente" },
@@ -260,14 +269,14 @@ export default function RechazosPage() {
               onChange={(e) => setFiltroEstado(e.target.value)}
             />
             <div className="ml-auto text-xs text-ink-muted self-center">
-              {filtered.length} de {rechazos.length} rechazos
+              {filtered.length} de {rechazos.length} {t("rejections.rejections")}
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Rechazos list */}
-      <div className="space-y-3" role="list" aria-label="Lista de rechazos">
+      <div className="space-y-3" role="list" aria-label={t("rejections.rejectionsList")}>
         {filtered.map((r) => (
           <Card key={r.id} role="listitem">
             <CardContent className="pt-4 pb-4">
@@ -287,15 +296,15 @@ export default function RechazosPage() {
                         variant={r.estado}
                         label={
                           r.estado === "pendiente"
-                            ? "Pendiente"
+                            ? t("status.pending")
                             : r.estado === "reprocesado"
-                              ? "Reprocesado"
-                              : "Descartado"
+                              ? t("rejections.reprocessed")
+                              : t("rejections.discarded")
                         }
                       />
                       {r.reprocesable && (
                         <span className="text-[10px] px-1.5 py-0.5 bg-green-100 text-green-700 font-bold rounded">
-                          Reprocesable
+                          {t("rejections.reprocessable")}
                         </span>
                       )}
                     </div>
@@ -303,13 +312,14 @@ export default function RechazosPage() {
                       {r.paciente} — {r.prestacion}
                     </div>
                     <div className="text-xs text-ink-muted mt-0.5">
-                      {r.financiador} · {motivoLabels[r.motivo]} · Rechazado: {r.fechaRechazo}
+                      {r.financiador} · {motivoLabels[r.motivo]} · {t("rejections.rejected")}:{" "}
+                      {r.fechaRechazo}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-ink">{formatCurrency(r.monto)}</div>
                     <div className="text-[10px] text-ink-muted">
-                      Presentado: {r.fechaPresentacion}
+                      {t("rejections.submitted")}: {r.fechaPresentacion}
                     </div>
                   </div>
                   <svg
@@ -335,14 +345,14 @@ export default function RechazosPage() {
                 >
                   <div className="bg-amber-50 rounded-lg p-4 mb-3">
                     <div className="text-xs font-semibold text-amber-700 mb-1">
-                      Motivo de rechazo
+                      {t("rejections.rejectionReason")}
                     </div>
                     <div className="text-sm text-ink">{r.motivoDetalle}</div>
                   </div>
                   <div className="flex gap-2">
                     {r.reprocesable && r.estado === "pendiente" && (
                       <Button size="sm" onClick={() => handleReprocesar(r)} disabled={isExecuting}>
-                        {isExecuting ? "..." : "Reprocesar"}
+                        {isExecuting ? "..." : t("rejections.reprocess")}
                       </Button>
                     )}
                     {r.estado === "pendiente" && (
@@ -352,11 +362,11 @@ export default function RechazosPage() {
                         onClick={() => handleDescartar(r)}
                         disabled={isExecuting}
                       >
-                        Descartar
+                        {t("rejections.discard")}
                       </Button>
                     )}
                     <Button size="sm" variant="ghost" onClick={() => handleVerFacturaOriginal(r)}>
-                      Ver factura original
+                      {t("rejections.viewOriginalInvoice")}
                     </Button>
                   </div>
                 </div>
@@ -368,7 +378,7 @@ export default function RechazosPage() {
           <Card>
             <CardContent className="pt-12 pb-12 text-center">
               <div className="text-sm text-ink-muted">
-                No se encontraron rechazos con los filtros seleccionados.
+                No se encontraron {t("rejections.rejections")} con los filtros seleccionados.
               </div>
             </CardContent>
           </Card>

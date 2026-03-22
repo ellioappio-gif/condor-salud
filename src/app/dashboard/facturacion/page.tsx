@@ -6,6 +6,7 @@ import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
+import { useLocale } from "@/lib/i18n/context";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button, Input } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useFacturas } from "@/hooks/use-data";
@@ -39,6 +40,7 @@ const estadosFilter = [
 ];
 
 export default function FacturacionPage() {
+  const { t } = useLocale();
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
@@ -68,7 +70,7 @@ export default function FacturacionPage() {
 
   const handleCrearFactura = async () => {
     if (!nfNumero || !nfPaciente || !nfMonto) {
-      showToast("❌ Completá los campos obligatorios");
+      showToast(`❌ ${t("billing.fillRequired")}`);
       return;
     }
     const result = await execute({
@@ -132,28 +134,28 @@ export default function FacturacionPage() {
 
   const kpis = [
     {
-      label: "Total facturado",
+      label: t("billing.totalBilled"),
       value: formatCurrency(totals.totalFacturado),
-      sub: `${facturas.length} facturas`,
+      sub: `${facturas.length} ${t("billing.invoices")}`,
       accent: "border-l-celeste",
     },
     {
-      label: "Cobrado",
+      label: t("billing.totalCollected"),
       value: formatCurrency(totals.totalCobrado),
-      sub: `${totals.totalFacturado ? Math.round((totals.totalCobrado / totals.totalFacturado) * 100) : 0}% del total`,
+      sub: `${totals.totalFacturado ? Math.round((totals.totalCobrado / totals.totalFacturado) * 100) : 0}% ${t("billing.ofTotal")}`,
       accent: "border-l-green-400",
       subColor: "text-green-600",
     },
     {
-      label: "Pendiente de cobro",
+      label: t("billing.pendingCollection"),
       value: formatCurrency(totals.totalPendiente),
-      sub: `${facturas.filter((f) => ["presentada", "pendiente", "en_observacion"].includes(f.estado)).length} facturas`,
+      sub: `${facturas.filter((f) => ["presentada", "pendiente", "en_observacion"].includes(f.estado)).length} ${t("billing.invoices")}`,
       accent: "border-l-amber-400",
     },
     {
-      label: "Rechazado",
+      label: t("label.rejected"),
       value: formatCurrency(totals.totalRechazado),
-      sub: `${totals.totalFacturado ? Math.round((totals.totalRechazado / totals.totalFacturado) * 100) : 0}% del total`,
+      sub: `${totals.totalFacturado ? Math.round((totals.totalRechazado / totals.totalFacturado) * 100) : 0}% ${t("billing.ofTotal")}`,
       accent: "border-l-red-400",
       subColor: "text-red-600",
     },
@@ -162,9 +164,12 @@ export default function FacturacionPage() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Facturación"
-        description="Gestión de facturas por financiador"
-        breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Facturación" }]}
+        title={t("billing.title")}
+        description={t("billing.description")}
+        breadcrumbs={[
+          { label: t("dashboard.mainPanel"), href: "/dashboard" },
+          { label: t("billing.title") },
+        ]}
         actions={
           <div className="flex gap-2">
             <button
@@ -191,7 +196,7 @@ export default function FacturacionPage() {
               )}
               Excel
             </button>
-            <Button onClick={handleNuevaFactura}>Nueva factura</Button>
+            <Button onClick={handleNuevaFactura}>{t("billing.newInvoice")}</Button>
           </div>
         }
       />
@@ -200,7 +205,7 @@ export default function FacturacionPage() {
       <div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         role="region"
-        aria-label="Resumen de facturación"
+        aria-label={t("billing.billingSummary")}
       >
         {kpis.map((kpi) => (
           <div
@@ -220,22 +225,22 @@ export default function FacturacionPage() {
           <div
             className="flex flex-wrap gap-4 items-end"
             role="search"
-            aria-label="Filtros de facturación"
+            aria-label={t("billing.billingFilters")}
           >
             <Select
-              label="Financiador"
+              label={t("billing.insurer")}
               options={financiadoresFilter}
               value={filtroFinanciador}
               onChange={(e) => setFiltroFinanciador(e.target.value)}
             />
             <Select
-              label="Estado"
+              label={t("label.status")}
               options={estadosFilter}
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value)}
             />
             <div className="ml-auto text-xs text-ink-muted self-center">
-              Mostrando {filtered.length} de {facturas.length} facturas
+              Mostrando {filtered.length} de {facturas.length} {t("billing.invoices")}
             </div>
           </div>
         </CardContent>
@@ -248,28 +253,28 @@ export default function FacturacionPage() {
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-3">
-                  Número
+                  {t("label.number")}
                 </th>
                 <th scope="col" className="text-left px-5 py-3">
-                  Fecha
+                  {t("label.date")}
                 </th>
                 <th scope="col" className="text-left px-5 py-3">
-                  Financiador
+                  {t("billing.insurer")}
                 </th>
                 <th scope="col" className="text-left px-5 py-3">
-                  Paciente
+                  {t("label.patient")}
                 </th>
                 <th scope="col" className="text-left px-5 py-3">
-                  Prestación
+                  {t("billing.service")}
                 </th>
                 <th scope="col" className="text-right px-5 py-3">
-                  Monto
+                  {t("label.amount")}
                 </th>
                 <th scope="col" className="text-center px-5 py-3">
-                  Estado
+                  {t("label.status")}
                 </th>
                 <th scope="col" className="text-center px-5 py-3">
-                  Acción
+                  {t("label.action")}
                 </th>
               </tr>
             </thead>
@@ -298,7 +303,7 @@ export default function FacturacionPage() {
                       className="text-[10px] text-celeste-dark font-medium hover:underline"
                       aria-label={`Ver detalle de factura ${f.numero}`}
                     >
-                      Ver
+                      {t("action.view")}
                     </button>
                   </td>
                 </tr>
@@ -306,7 +311,7 @@ export default function FacturacionPage() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-5 py-12 text-center text-sm text-ink-muted">
-                    No se encontraron facturas con los filtros seleccionados.
+                    No se encontraron {t("billing.invoices")} con los filtros seleccionados.
                   </td>
                 </tr>
               )}
@@ -325,7 +330,7 @@ export default function FacturacionPage() {
         >
           <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h2 className="text-lg font-bold text-ink">Nueva factura</h2>
+              <h2 className="text-lg font-bold text-ink">{t("billing.newInvoice")}</h2>
               <button
                 onClick={() => setShowNuevaFactura(false)}
                 className="text-ink-muted hover:text-ink"
@@ -336,37 +341,37 @@ export default function FacturacionPage() {
             </div>
             <div className="px-6 py-4 space-y-3">
               <Input
-                label="Número *"
+                label={`${t("label.number")} *`}
                 placeholder="FAC-0001"
                 value={nfNumero}
                 onChange={(e) => setNfNumero(e.target.value)}
               />
               <Input
-                label="Paciente *"
-                placeholder="Nombre del paciente"
+                label={`${t("label.patient")} *`}
+                placeholder={t("schedule.patientNamePlaceholder")}
                 value={nfPaciente}
                 onChange={(e) => setNfPaciente(e.target.value)}
               />
               <Select
-                label="Financiador"
+                label={t("billing.insurer")}
                 options={financiadoresFilter}
                 value={nfFinanciador}
                 onChange={(e) => setNfFinanciador(e.target.value)}
               />
               <Input
-                label="Prestación"
-                placeholder="Consulta, laboratorio..."
+                label={t("billing.service")}
+                placeholder={t("billing.servicePlaceholder")}
                 value={nfPrestacion}
                 onChange={(e) => setNfPrestacion(e.target.value)}
               />
               <Input
-                label="Código nomenclador"
+                label={t("billing.nomenclatorCode")}
                 placeholder="420101"
                 value={nfCodigo}
                 onChange={(e) => setNfCodigo(e.target.value)}
               />
               <Input
-                label="Monto *"
+                label={`${t("label.amount")} *`}
                 placeholder="18500"
                 type="number"
                 value={nfMonto}
@@ -375,10 +380,10 @@ export default function FacturacionPage() {
             </div>
             <div className="flex justify-end gap-2 px-6 py-4 border-t border-border">
               <Button variant="outline" onClick={() => setShowNuevaFactura(false)}>
-                Cancelar
+                {t("action.cancel")}
               </Button>
               <Button onClick={handleCrearFactura} disabled={isExecuting}>
-                {isExecuting ? "Creando..." : "Crear factura"}
+                {isExecuting ? t("billing.creating") : t("billing.createInvoice")}
               </Button>
             </div>
           </div>
@@ -389,7 +394,9 @@ export default function FacturacionPage() {
       {detalleFactura && (
         <div className="fixed inset-y-0 right-0 w-96 bg-white border-l border-border shadow-xl z-50 overflow-y-auto">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <h3 className="font-bold text-ink">Factura {detalleFactura.numero}</h3>
+            <h3 className="font-bold text-ink">
+              {t("billing.invoiceDetail")} {detalleFactura.numero}
+            </h3>
             <button
               onClick={() => setDetalleFactura(null)}
               className="text-ink-muted hover:text-ink"
@@ -401,29 +408,29 @@ export default function FacturacionPage() {
           <div className="p-5 space-y-4">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-ink-muted">Fecha</span>
+                <span className="text-ink-muted">{t("label.date")}</span>
                 <span className="text-ink">{detalleFactura.fecha}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Financiador</span>
+                <span className="text-ink-muted">{t("billing.insurer")}</span>
                 <span className="text-ink font-medium">{detalleFactura.financiador}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Paciente</span>
+                <span className="text-ink-muted">{t("label.patient")}</span>
                 <span className="text-ink">{detalleFactura.paciente}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Prestación</span>
+                <span className="text-ink-muted">{t("billing.service")}</span>
                 <span className="text-ink">{detalleFactura.prestacion}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Monto</span>
+                <span className="text-ink-muted">{t("label.amount")}</span>
                 <span className="text-ink font-bold text-lg">
                   {formatCurrency(detalleFactura.monto)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-ink-muted">Estado</span>
+                <span className="text-ink-muted">{t("label.status")}</span>
                 <StatusBadge
                   variant={detalleFactura.estado}
                   label={estadoConfig[detalleFactura.estado]}
@@ -432,7 +439,7 @@ export default function FacturacionPage() {
             </div>
             {detalleFactura.estado === "rechazada" && (
               <div className="bg-red-50 rounded-lg p-3 text-xs text-red-700">
-                Esta factura fue rechazada. Podés gestionarla desde la sección de Rechazos.
+                {t("billing.rejectedNote")}
               </div>
             )}
           </div>

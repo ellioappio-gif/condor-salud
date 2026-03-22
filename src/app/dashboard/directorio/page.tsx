@@ -28,7 +28,7 @@ export default function DirectorioPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
   const isDemo = useIsDemo();
-  const { locale } = useLocale();
+  const { t, locale } = useLocale();
   const [tab, setTab] = useState<Tab>("busqueda");
   const [search, setSearch] = useState("");
   const [specialtyFilter, setSpecialtyFilter] = useState("Todas");
@@ -77,11 +77,11 @@ export default function DirectorioPage() {
   };
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "busqueda", label: "Búsqueda" },
-    { key: "disponibilidad", label: "Disponibilidad" },
-    { key: "perfiles", label: "Perfiles" },
-    { key: "cobertura", label: "Cobertura" },
-    { key: "recomendaciones", label: "Recomendaciones" },
+    { key: "busqueda", label: t("directory.search") },
+    { key: "disponibilidad", label: t("directory.availability") },
+    { key: "perfiles", label: t("directory.profiles") },
+    { key: "cobertura", label: t("directory.coverageTab") },
+    { key: "recomendaciones", label: t("directory.recommendations") },
   ];
 
   const filtered = useMemo(
@@ -127,45 +127,55 @@ export default function DirectorioPage() {
   const kpiCards = kpis
     ? [
         {
-          label: "Médicos activos",
+          label: t("directory.activeDoctors"),
           value: String(kpis.totalDoctors),
-          change: "En directorio",
+          change: t("directory.inDirectory"),
           color: "text-celeste-dark",
         },
         {
-          label: "Especialidades",
+          label: t("directory.specialties"),
           value: String(kpis.totalSpecialties),
-          change: "Cobertura total",
+          change: t("directory.totalCoverage"),
           color: "text-celeste-dark",
         },
         {
-          label: "Turnos hoy",
+          label: t("directory.appointmentsToday"),
           value: String(kpis.availableToday),
-          change: "Disponibles",
+          change: t("directory.availableLabel"),
           color: "text-success-600",
         },
         {
-          label: "Rating promedio",
+          label: t("directory.avgRating"),
           value: String(kpis.avgRating),
-          change: "Reviews",
+          change: t("directory.reviews"),
           color: "text-gold",
         },
       ]
     : [
         {
-          label: "Médicos activos",
+          label: t("directory.activeDoctors"),
           value: "0",
-          change: "En directorio",
+          change: t("directory.inDirectory"),
           color: "text-celeste-dark",
         },
         {
-          label: "Especialidades",
+          label: t("directory.specialties"),
           value: "0",
-          change: "Cobertura total",
+          change: t("directory.totalCoverage"),
           color: "text-celeste-dark",
         },
-        { label: "Turnos hoy", value: "0", change: "Disponibles", color: "text-success-600" },
-        { label: "Rating promedio", value: "—", change: "Sin reviews", color: "text-gold" },
+        {
+          label: t("directory.appointmentsToday"),
+          value: "0",
+          change: t("directory.availableLabel"),
+          color: "text-success-600",
+        },
+        {
+          label: t("directory.avgRating"),
+          value: "—",
+          change: t("directory.noReviews"),
+          color: "text-gold",
+        },
       ];
 
   return (
@@ -173,10 +183,8 @@ export default function DirectorioPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Directorio Médico</h1>
-          <p className="text-sm text-ink-light mt-1">
-            Buscar médicos por especialidad, ubicación, financiador y disponibilidad
-          </p>
+          <h1 className="text-2xl font-display font-bold text-ink">{t("directory.title")}</h1>
+          <p className="text-sm text-ink-light mt-1">{t("directory.searchSubtitle")}</p>
         </div>
         <button
           onClick={() =>
@@ -186,7 +194,7 @@ export default function DirectorioPage() {
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
-          + Agregar médico
+          {t("directory.addDoctor")}
         </button>
       </div>
 
@@ -203,7 +211,7 @@ export default function DirectorioPage() {
 
       {/* Google Maps attribution */}
       <div className="flex items-center gap-2 text-[11px] text-ink-muted">
-        <span>Datos de profesionales vía</span>
+        <span>{t("directory.dataVia")}</span>
         <a
           href="https://www.google.com/maps"
           target="_blank"
@@ -237,8 +245,8 @@ export default function DirectorioPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <input
               type="text"
-              placeholder="Buscar médico o especialidad..."
-              aria-label="Buscar médico o especialidad"
+              placeholder={t("directory.searchPlaceholder")}
+              aria-label={t("directory.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
@@ -246,7 +254,7 @@ export default function DirectorioPage() {
             <select
               value={specialtyFilter}
               onChange={(e) => setSpecialtyFilter(e.target.value)}
-              aria-label="Filtrar por especialidad"
+              aria-label={t("directory.filterBySpecialty")}
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {specialties.map((s) => (
@@ -256,7 +264,7 @@ export default function DirectorioPage() {
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
-              aria-label="Filtrar por ubicación"
+              aria-label={t("directory.filterByLocation")}
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {locations.map((l) => (
@@ -266,7 +274,7 @@ export default function DirectorioPage() {
             <select
               value={financiadorFilter}
               onChange={(e) => setFinanciadorFilter(e.target.value)}
-              aria-label="Filtrar por financiador"
+              aria-label={t("directory.filterByInsurer")}
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {financiadores.map((f) => (
@@ -275,13 +283,13 @@ export default function DirectorioPage() {
             </select>
           </div>
 
-          <p className="text-xs text-ink-muted">{filtered.length} resultados</p>
+          <p className="text-xs text-ink-muted">
+            {filtered.length} {t("label.results")}
+          </p>
 
           {filtered.length === 0 ? (
             <div className="text-center py-12 bg-white border border-border rounded-lg">
-              <p className="text-sm text-ink-muted">
-                No se encontraron médicos con los filtros seleccionados.
-              </p>
+              <p className="text-sm text-ink-muted">{t("directory.noResults")}</p>
               <button
                 onClick={() => {
                   setSearch("");
@@ -339,7 +347,9 @@ export default function DirectorioPage() {
                     <span
                       className={`text-xs font-medium ${doc.available ? "text-success-600" : "text-ink-muted"}`}
                     >
-                      {doc.available ? `Próximo: ${doc.nextSlot}` : "Sin disponibilidad"}
+                      {doc.available
+                        ? `${t("directory.next")} ${doc.nextSlot}`
+                        : t("directory.noAvailability")}
                     </span>
                     <div className="flex items-center gap-2">
                       <a
@@ -358,7 +368,7 @@ export default function DirectorioPage() {
                             : "bg-gray-100 text-gray-400 pointer-events-none"
                         }`}
                       >
-                        Reservar
+                        {t("directory.book")}
                       </button>
                     </div>
                   </div>
@@ -372,9 +382,7 @@ export default function DirectorioPage() {
       {/* ─── 13.2 Real-time Availability ─── */}
       {tab === "disponibilidad" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Calendario de disponibilidad en tiempo real. Turnos disponibles con reserva instantánea.
-          </p>
+          <p className="text-sm text-ink-light">{t("directory.realTimeDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <div className="bg-[#F8FAFB] px-5 py-3 border-b border-border flex items-center justify-between">
@@ -464,9 +472,7 @@ export default function DirectorioPage() {
       {/* ─── 13.3 Doctor Profiles ─── */}
       {tab === "perfiles" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Perfiles completos de médicos con calificaciones y reviews verificadas de pacientes.
-          </p>
+          <p className="text-sm text-ink-light">{t("directory.profilesDesc")}</p>
 
           {!selectedDoctor ? (
             <div className="space-y-3">
@@ -500,7 +506,7 @@ export default function DirectorioPage() {
                 onClick={() => setSelectedDoctor(null)}
                 className="text-xs text-celeste-dark hover:text-celeste font-medium mb-4"
               >
-                Volver al listado
+                {t("directory.backToList")}
               </button>
               <div className="bg-white border border-border rounded-lg p-6">
                 <div className="flex items-start gap-4">
@@ -566,7 +572,7 @@ export default function DirectorioPage() {
 
                 {/* Reviews */}
                 <h3 className="text-sm font-semibold text-ink mt-6 mb-3">
-                  Reviews de pacientes verificados
+                  {t("directory.verifiedReviews")}
                 </h3>
                 <div className="space-y-3">
                   {[
@@ -604,7 +610,7 @@ export default function DirectorioPage() {
                   onClick={() => router.push("/paciente/turnos")}
                   className="mt-6 inline-block px-6 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition text-center"
                 >
-                  Reservar turno
+                  {t("directory.bookAppointment")}
                 </button>
                 <a
                   href={selectedDoctor.profileUrl || getGoogleMapsSearchUrl(selectedDoctor.name)}
@@ -613,11 +619,13 @@ export default function DirectorioPage() {
                   className="mt-3 inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  Ver ubicación en Google Maps
+                  {t("directory.viewOnMaps")}
                 </a>
 
                 <div className="mt-4 p-3 bg-surface rounded-lg">
-                  <p className="text-xs font-semibold text-ink mb-2">Transporte al consultorio</p>
+                  <p className="text-xs font-semibold text-ink mb-2">
+                    {t("directory.transportToOffice")}
+                  </p>
                   <RideQuickLinks
                     name={selectedDoctor.name}
                     address={selectedDoctor.address}
@@ -633,14 +641,11 @@ export default function DirectorioPage() {
       {/* ─── 13.4 Coverage-Aware Booking ─── */}
       {tab === "cobertura" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Al reservar un turno, el sistema verifica automáticamente la cobertura del paciente con
-            su obra social o prepaga.
-          </p>
+          <p className="text-sm text-ink-light">{t("directory.coverageDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg p-6">
             <h3 className="text-sm font-semibold text-ink mb-4">
-              Simulador de reserva con verificación
+              {t("directory.bookingSimulator")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -683,7 +688,7 @@ export default function DirectorioPage() {
               }
               className="mt-4 px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >
-              Verificar cobertura y reservar
+              {t("directory.verifyCoverage")}
             </button>
           </div>
 
@@ -780,14 +785,11 @@ export default function DirectorioPage() {
       {/* ─── 13.5 Specialty Recommendations ─── */}
       {tab === "recomendaciones" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            El paciente describe su síntoma y el sistema recomienda la especialidad y médicos
-            disponibles.
-          </p>
+          <p className="text-sm text-ink-light">{t("directory.recommendDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg p-6">
             <h3 className="text-sm font-semibold text-ink mb-3">
-              ¿Qué síntoma o necesidad tiene el paciente?
+              {t("directory.patientQuestion")}
             </h3>
             <select
               value={selectedSymptom}
@@ -816,7 +818,7 @@ export default function DirectorioPage() {
           {recommendedDoctors.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-ink">
-                Médicos recomendados para &quot;{selectedSymptom}&quot;
+                {t("directory.recommendedDoctorsFor")} &quot;{selectedSymptom}&quot;
               </h3>
               {recommendedDoctors.map((doc) => (
                 <div

@@ -4,6 +4,7 @@ import { useAuth, type Permission, type UserRole } from "@/lib/auth/context";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { canAccessRoute } from "@/lib/auth/rbac";
+import { useLocale } from "@/lib/i18n/context";
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
@@ -87,21 +88,19 @@ export function RouteGuard({ children }: RouteGuardProps) {
 // ─── Access Denied Page ──────────────────────────────────────
 
 function AccessDenied() {
+  const { t } = useLocale();
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6">
         <ShieldAlert className="w-8 h-8 text-red-500" />
       </div>
-      <h2 className="text-xl font-bold text-ink mb-2">Acceso restringido</h2>
-      <p className="text-sm text-ink-muted mb-6 max-w-md">
-        No tenés permisos para acceder a esta sección. Contactá al administrador de tu clínica para
-        solicitar acceso.
-      </p>
+      <h2 className="text-xl font-bold text-ink mb-2">{t("permission.restricted")}</h2>
+      <p className="text-sm text-ink-muted mb-6 max-w-md">{t("permission.noAccess")}</p>
       <Link
         href="/dashboard"
         className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
       >
-        Volver al Dashboard
+        {t("permission.backToDashboard")}
       </Link>
     </div>
   );

@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { RequirePermission } from "@/components/RequirePermission";
+import { useLocale } from "@/lib/i18n/context";
 import {
   getAuditoriaFiltered,
   updateAuditItem,
@@ -32,6 +33,7 @@ const estadoColors: Record<string, string> = {
 // ─── Component ───────────────────────────────────────────────
 
 export default function AuditoriaPage() {
+  const { t } = useLocale();
   const { showToast } = useToast();
   const [items, setItems] = useState<AuditoriaItem[]>([]);
   const [stats, setStats] = useState<AuditStats | null>(null);
@@ -113,10 +115,8 @@ export default function AuditoriaPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Auditoría</h1>
-          <p className="text-sm text-ink-muted mt-0.5">
-            Pre-auditoría automática de facturas antes de presentación
-          </p>
+          <h1 className="text-2xl font-bold text-ink">{t("audit.title")}</h1>
+          <p className="text-sm text-ink-muted mt-0.5">{t("audit.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <RequirePermission permission="auditoria:read">
@@ -130,7 +130,7 @@ export default function AuditoriaPage() {
               ) : (
                 <Play className="w-4 h-4" />
               )}
-              Ejecutar auditoría
+              {t("audit.runAuditAction")}
             </button>
           </RequirePermission>
         </div>
@@ -139,10 +139,18 @@ export default function AuditoriaPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total observaciones", value: stats?.total ?? "...", color: "border-celeste" },
-          { label: "Pendientes", value: stats?.pendientes ?? "...", color: "border-gold" },
-          { label: "Severidad alta", value: stats?.alta ?? "...", color: "border-red-400" },
-          { label: "Resueltos", value: stats?.resueltos ?? "...", color: "border-green-400" },
+          {
+            label: t("audit.totalFindings"),
+            value: stats?.total ?? "...",
+            color: "border-celeste",
+          },
+          { label: t("status.pending"), value: stats?.pendientes ?? "...", color: "border-gold" },
+          { label: t("audit.highSeverity"), value: stats?.alta ?? "...", color: "border-red-400" },
+          {
+            label: t("audit.resolvedCount"),
+            value: stats?.resueltos ?? "...",
+            color: "border-green-400",
+          },
         ].map((k) => (
           <div
             key={k.label}
@@ -162,15 +170,15 @@ export default function AuditoriaPage() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" />
           <input
             type="text"
-            placeholder="Buscar..."
-            aria-label="Buscar en auditoría"
+            placeholder={t("action.search")}
+            aria-label={t("audit.searchAudit")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 pr-4 py-1.5 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-48"
           />
         </div>
         <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
-          Severidad:
+          {t("audit.severity")}:
         </span>
         {["Todos", "Alta", "Media", "Baja"].map((s) => (
           <button
@@ -182,7 +190,7 @@ export default function AuditoriaPage() {
           </button>
         ))}
         <span className="text-xs font-bold text-ink-muted uppercase tracking-wider ml-2">
-          Estado:
+          {t("label.status")}:
         </span>
         {["Todos", "Pendiente", "Revisado", "Resuelto"].map((e) => (
           <button
@@ -199,7 +207,7 @@ export default function AuditoriaPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 text-celeste-dark animate-spin" />
-          <span className="ml-2 text-sm text-ink-muted">Cargando auditoría...</span>
+          <span className="ml-2 text-sm text-ink-muted">{t("audit.loadingAudit")}</span>
         </div>
       )}
 
@@ -252,7 +260,7 @@ export default function AuditoriaPage() {
                 <div className="px-5 pb-5 pt-0 border-t border-border-light">
                   <div className="mt-4">
                     <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1">
-                      Detalle
+                      {t("audit.detail")}
                     </p>
                     <p className="text-xs text-ink-light leading-relaxed">{a.detalle}</p>
                   </div>
@@ -261,13 +269,13 @@ export default function AuditoriaPage() {
                       href="/dashboard/facturacion"
                       className="text-xs text-celeste-dark font-medium hover:underline"
                     >
-                      Ver facturas
+                      {t("audit.viewInvoices")}
                     </Link>
                     <Link
                       href="/dashboard/nomenclador"
                       className="text-xs text-celeste-dark font-medium hover:underline"
                     >
-                      Consultar nomenclador
+                      {t("audit.consultNomenclator")}
                     </Link>
                     <div className="ml-auto flex gap-2">
                       {a.estado === "pendiente" && (
@@ -280,13 +288,13 @@ export default function AuditoriaPage() {
                                 onClick={() => handleMarkReviewed(a.id)}
                                 className="px-3 py-1.5 text-xs font-medium border border-celeste rounded-[4px] text-celeste-dark hover:bg-celeste-pale transition flex items-center gap-1"
                               >
-                                <Eye className="w-3 h-3" /> Marcar revisado
+                                <Eye className="w-3 h-3" /> {t("audit.markReviewed")}
                               </button>
                               <button
                                 onClick={() => handleMarkResolved(a.id)}
                                 className="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition flex items-center gap-1"
                               >
-                                <Check className="w-3 h-3" /> Resolver
+                                <Check className="w-3 h-3" /> {t("audit.resolve")}
                               </button>
                             </>
                           )}
@@ -301,7 +309,7 @@ export default function AuditoriaPage() {
                               onClick={() => handleMarkResolved(a.id)}
                               className="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition flex items-center gap-1"
                             >
-                              <Check className="w-3 h-3" /> Resolver
+                              <Check className="w-3 h-3" /> {t("audit.resolve")}
                             </button>
                           )}
                         </>
@@ -316,11 +324,11 @@ export default function AuditoriaPage() {
           {items.length === 0 && (
             <div className="bg-white border border-border rounded-lg px-5 py-12 text-center">
               <Shield className="w-8 h-8 text-green-500 mx-auto mb-3" />
-              <p className="text-sm font-semibold text-ink">Sin observaciones</p>
+              <p className="text-sm font-semibold text-ink">{t("audit.noFindings")}</p>
               <p className="text-xs text-ink-muted mt-1">
                 {sevFilter !== "Todos" || estadoFilter !== "Todos"
-                  ? "No hay observaciones con los filtros seleccionados"
-                  : "Todas las facturas pasaron la auditoría automática"}
+                  ? t("audit.noFindingsFiltered")
+                  : t("audit.allPassed")}
               </p>
             </div>
           )}
@@ -332,7 +340,7 @@ export default function AuditoriaPage() {
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="bg-white border border-border rounded-lg p-5">
             <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase mb-3">
-              Por Severidad
+              {t("audit.bySeverity")}
             </h3>
             {(["alta", "media", "baja"] as const).map((sev) => {
               const count = items.filter((a) => a.severidad === sev).length;
@@ -349,7 +357,7 @@ export default function AuditoriaPage() {
           </div>
           <div className="bg-white border border-border rounded-lg p-5">
             <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase mb-3">
-              Por Estado
+              {t("audit.byStatus")}
             </h3>
             {(["pendiente", "revisado", "resuelto"] as const).map((est) => {
               const count = items.filter((a) => a.estado === est).length;
@@ -366,11 +374,11 @@ export default function AuditoriaPage() {
           </div>
           <div className="bg-celeste-pale/40 border border-border rounded-lg p-5">
             <h3 className="text-xs font-bold tracking-wider text-celeste-dark uppercase mb-3">
-              Resumen
+              {t("audit.summary")}
             </h3>
             <div className="space-y-3">
               <div>
-                <p className="text-[10px] text-ink-muted">Tasa de resolución</p>
+                <p className="text-[10px] text-ink-muted">{t("audit.resolutionRate")}</p>
                 <p className="text-lg font-bold text-green-600">
                   {stats && stats.total > 0
                     ? `${Math.round((stats.resueltos / stats.total) * 100)}%`
@@ -378,7 +386,7 @@ export default function AuditoriaPage() {
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-ink-muted">Alertas alta pendientes</p>
+                <p className="text-[10px] text-ink-muted">{t("audit.pendingHighAlerts")}</p>
                 <p className="text-lg font-bold text-red-600">{stats?.alta ?? 0}</p>
               </div>
             </div>

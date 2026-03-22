@@ -39,9 +39,11 @@ export default function WizardPage() {
 // ─── Mobile sidebar drawer ───────────────────────────────────
 
 import { useState } from "react";
+import { useLocale } from "@/lib/i18n/context";
 
 function MobileTocToggle() {
   const [open, setOpen] = useState(false);
+  const { t } = useLocale();
 
   return (
     <div className="lg:hidden">
@@ -60,7 +62,7 @@ function MobileTocToggle() {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
-        <span>{open ? "Ocultar índice" : "Mostrar índice"}</span>
+        <span>{open ? t("wizard.hideToc") : t("wizard.showToc")}</span>
       </button>
       {open && (
         <div id="mobile-wizard-toc" className="max-h-64 overflow-y-auto border-b border-gray-100">

@@ -20,6 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useMyTeleAppointments } from "@/hooks/use-patient-data";
 import type { TeleAppointment } from "@/lib/services/patient-data";
 
@@ -28,15 +29,16 @@ type View = "list" | "waiting" | "call";
 
 /* ── demo data removed — using SWR hooks ──────────────── */
 
-const tips = [
-  { icon: Wifi, text: "Asegurate de tener buena conexión a internet" },
-  { icon: Mic, text: "Probá el micrófono y cámara antes de la consulta" },
-  { icon: Monitor, text: "Buscá un lugar tranquilo y bien iluminado" },
-  { icon: Shield, text: "Tu consulta es 100% privada y encriptada" },
+const tipsConfig = [
+  { icon: Wifi, key: "patient.goodConnection" },
+  { icon: Mic, key: "patient.testMicAndCamera" },
+  { icon: Monitor, key: "patient.quietPlace" },
+  { icon: Shield, key: "patient.privateEncrypted" },
 ];
 
 export default function TeleconsultaPage() {
   const { showToast } = useToast();
+  const { t } = useLocale();
   const { data: teleAppointments } = useMyTeleAppointments();
   const [view, setView] = useState<View>("list");
   const [micOn, setMicOn] = useState(true);
@@ -71,7 +73,7 @@ export default function TeleconsultaPage() {
               <p className="text-white/60 text-sm">{selectedApt?.specialty}</p>
               <p className="text-white/40 text-xs mt-2 flex items-center justify-center gap-1">
                 <Clock className="w-3 h-3" />
-                Conectando...
+                {t("patient.connecting")}
               </p>
             </div>
           </div>
@@ -83,7 +85,7 @@ export default function TeleconsultaPage() {
                 <div className="w-10 h-10 rounded-full bg-celeste-dark/50 flex items-center justify-center mx-auto">
                   <User className="w-5 h-5 text-white" />
                 </div>
-                <p className="text-white/60 text-[10px] mt-1">Vos</p>
+                <p className="text-white/60 text-[10px] mt-1">{t("patient.you")}</p>
               </div>
             ) : (
               <VideoOff className="w-6 h-6 text-white/40" />
@@ -95,7 +97,7 @@ export default function TeleconsultaPage() {
         <div className="bg-ink-900/90 backdrop-blur px-6 py-5 flex items-center justify-center gap-4">
           <button
             onClick={() => setMicOn(!micOn)}
-            aria-label={micOn ? "Silenciar micrófono" : "Activar micrófono"}
+            aria-label={micOn ? t("patient.muteMic") : t("patient.unmuteMic")}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition ${
               micOn ? "bg-white/10 text-white hover:bg-white/20" : "bg-red-500 text-white"
             }`}
@@ -104,7 +106,7 @@ export default function TeleconsultaPage() {
           </button>
           <button
             onClick={() => setCamOn(!camOn)}
-            aria-label={camOn ? "Desactivar cámara" : "Activar cámara"}
+            aria-label={camOn ? t("patient.disableCamera") : t("patient.enableCamera")}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition ${
               camOn ? "bg-white/10 text-white hover:bg-white/20" : "bg-red-500 text-white"
             }`}
@@ -118,19 +120,19 @@ export default function TeleconsultaPage() {
               ) as HTMLButtonElement;
               if (chatBtn) chatBtn.click();
             }}
-            aria-label="Abrir chat"
+            aria-label={t("patient.openChat")}
             className="w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition"
           >
             <MessageSquare className="w-5 h-5" />
           </button>
           <button
             onClick={() => {
-              if (window.confirm("¿Seguro querés finalizar la consulta?")) {
+              if (window.confirm(t("patient.endCallConfirm"))) {
                 setView("list");
                 setSelectedApt(null);
               }
             }}
-            aria-label="Finalizar llamada"
+            aria-label={t("patient.endCall")}
             className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition"
           >
             <Phone className="w-6 h-6 rotate-[135deg]" />
@@ -147,9 +149,9 @@ export default function TeleconsultaPage() {
           <Video className="w-10 h-10 text-celeste-dark animate-pulse" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-ink">Sala de espera</h2>
+          <h2 className="text-xl font-bold text-ink">{t("patient.waitingRoom")}</h2>
           <p className="text-sm text-ink-muted mt-1">
-            Tu consulta con {selectedApt?.doctor} está por comenzar
+            {t("patient.aboutToStart")} — {selectedApt?.doctor}
           </p>
         </div>
 
@@ -161,7 +163,7 @@ export default function TeleconsultaPage() {
                 <div className="w-16 h-16 rounded-full bg-celeste-100 flex items-center justify-center mx-auto">
                   <User className="w-8 h-8 text-celeste-dark" />
                 </div>
-                <p className="text-xs text-ink-muted mt-2">Vista previa de tu cámara</p>
+                <p className="text-xs text-ink-muted mt-2">{t("patient.cameraPreview")}</p>
               </div>
             ) : (
               <VideoOff className="w-8 h-8 text-ink-300" />
@@ -175,7 +177,7 @@ export default function TeleconsultaPage() {
               }`}
             >
               {micOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
-              {micOn ? "Micrófono" : "Silenciado"}
+              {micOn ? t("patient.mic") : t("patient.muted")}
             </button>
             <button
               onClick={() => setCamOn(!camOn)}
@@ -184,7 +186,7 @@ export default function TeleconsultaPage() {
               }`}
             >
               {camOn ? <Video className="w-4 h-4" /> : <VideoOff className="w-4 h-4" />}
-              {camOn ? "Cámara" : "Sin cámara"}
+              {camOn ? t("patient.camera") : t("patient.noCamera")}
             </button>
           </div>
         </div>
@@ -197,13 +199,13 @@ export default function TeleconsultaPage() {
             }}
             className="flex-1 border border-border-light text-ink-500 text-sm font-medium py-3 rounded-xl hover:bg-ink-50 transition"
           >
-            Cancelar
+            {t("patient.cancelButton")}
           </button>
           <button
             onClick={handleStartCall}
             className="flex-1 bg-success-600 hover:bg-success-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
           >
-            Ingresar a la consulta
+            {t("patient.enterConsultation")}
           </button>
         </div>
       </div>
@@ -214,25 +216,25 @@ export default function TeleconsultaPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Teleconsulta</h1>
-        <p className="text-sm text-ink-muted mt-0.5">
-          Consultá con tu médico desde cualquier lugar
-        </p>
+        <h1 className="text-2xl font-display font-bold text-ink">
+          {t("patient.teleconsultTitle")}
+        </h1>
+        <p className="text-sm text-ink-muted mt-0.5">{t("patient.teleconsultSubtitle")}</p>
       </div>
 
       {/* Tips */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {tips.map((tip) => {
+        {tipsConfig.map((tip) => {
           const Icon = tip.icon;
           return (
             <div
-              key={tip.text}
+              key={tip.key}
               className="flex items-start gap-3 bg-white rounded-xl border border-border-light p-3"
             >
               <div className="w-8 h-8 rounded-lg bg-celeste-50 flex items-center justify-center shrink-0">
                 <Icon className="w-4 h-4 text-celeste-dark" />
               </div>
-              <p className="text-xs text-ink-muted leading-relaxed">{tip.text}</p>
+              <p className="text-xs text-ink-muted leading-relaxed">{t(tip.key)}</p>
             </div>
           );
         })}
@@ -243,7 +245,7 @@ export default function TeleconsultaPage() {
         <div className="px-5 py-4 border-b border-border-light">
           <h2 className="text-sm font-bold text-ink flex items-center gap-2">
             <Video className="w-4 h-4 text-success-600" />
-            Teleconsultas programadas
+            {t("patient.scheduledTeleconsults")}
           </h2>
         </div>
         <div className="divide-y divide-border-light">
@@ -271,13 +273,13 @@ export default function TeleconsultaPage() {
                 className="inline-flex items-center gap-2 bg-success-600 hover:bg-success-700 text-white text-sm font-semibold px-4 py-2 rounded-[4px] transition shrink-0"
               >
                 <Video className="w-4 h-4" />
-                Ingresar
+                {t("patient.enterButton")}
               </button>
             </div>
           ))}
           {upcoming.length === 0 && (
             <div className="px-5 py-8 text-center text-sm text-ink-muted">
-              No tenés teleconsultas programadas
+              {t("patient.noTeleconsults")}
             </div>
           )}
         </div>
@@ -286,7 +288,7 @@ export default function TeleconsultaPage() {
       {/* Past teleconsultas */}
       <div className="bg-white rounded-2xl border border-border-light">
         <div className="px-5 py-4 border-b border-border-light">
-          <h2 className="text-sm font-bold text-ink">Consultas anteriores</h2>
+          <h2 className="text-sm font-bold text-ink">{t("patient.previousConsults")}</h2>
         </div>
         <div className="divide-y divide-border-light">
           {past.map((apt) => (

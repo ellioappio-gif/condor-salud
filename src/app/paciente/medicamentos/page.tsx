@@ -17,6 +17,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useMyMedications, useMyMedOrders } from "@/hooks/use-patient-data";
 import type { PatientMedication, PatientMedOrder } from "@/lib/services/patient-data";
 
@@ -26,11 +27,24 @@ type Tab = "activos" | "historial" | "pedidos";
 /* ── demo data removed — using SWR hooks ──────────────── */
 
 function OrderStatusBadge({ status }: { status: PatientMedOrder["status"] }) {
+  const { t } = useLocale();
   const map = {
-    entregado: { label: "Entregado", cls: "bg-success-50 text-success-700", icon: CheckCircle2 },
-    "en-camino": { label: "En camino", cls: "bg-celeste-50 text-celeste-dark", icon: Truck },
-    preparando: { label: "Preparando", cls: "bg-amber-50 text-amber-700", icon: Package },
-    cancelado: { label: "Cancelado", cls: "bg-red-50 text-red-600", icon: AlertTriangle },
+    entregado: {
+      label: t("patient.delivered"),
+      cls: "bg-success-50 text-success-700",
+      icon: CheckCircle2,
+    },
+    "en-camino": {
+      label: t("patient.enRoute"),
+      cls: "bg-celeste-50 text-celeste-dark",
+      icon: Truck,
+    },
+    preparando: { label: t("patient.preparing"), cls: "bg-amber-50 text-amber-700", icon: Package },
+    cancelado: {
+      label: t("patient.cancelledStatus"),
+      cls: "bg-red-50 text-red-600",
+      icon: AlertTriangle,
+    },
   };
   const entry = map[status] ?? map.preparando;
   const { label, cls, icon: Icon } = entry;
@@ -46,6 +60,7 @@ function OrderStatusBadge({ status }: { status: PatientMedOrder["status"] }) {
 
 export default function MedicamentosPage() {
   const { showToast } = useToast();
+  const { t } = useLocale();
   const { data: medications } = useMyMedications();
   const { data: orders } = useMyMedOrders();
   const [tab, setTab] = useState<Tab>("activos");
@@ -64,17 +79,15 @@ export default function MedicamentosPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Mis Medicamentos</h1>
-          <p className="text-sm text-ink-muted mt-0.5">Recetas, pedidos y seguimiento</p>
+          <h1 className="text-2xl font-display font-bold text-ink">{t("patient.myMedications")}</h1>
+          <p className="text-sm text-ink-muted mt-0.5">{t("patient.prescriptionsAndTracking")}</p>
         </div>
         <button
-          onClick={() =>
-            showToast("Pedido enviado a tu farmacia. Te enviaremos un WhatsApp cuando esté listo.")
-          }
+          onClick={() => showToast(t("patient.orderSent"))}
           className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
         >
           <ShoppingCart className="w-4 h-4" />
-          Pedir medicamentos
+          {t("patient.orderMeds")}
         </button>
       </div>
 
@@ -83,13 +96,13 @@ export default function MedicamentosPage() {
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
           <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
-            <p className="font-semibold">Medicamentos por acabarse</p>
+            <p className="font-semibold">{t("patient.medsRunningLow")}</p>
             <p className="text-xs mt-0.5">
               {active
                 .filter((m) => m.remaining <= 7)
                 .map((m) => m.name)
                 .join(", ")}{" "}
-              — te quedan pocos días de tratamiento.
+              — {t("patient.fewDaysLeft")}
             </p>
           </div>
         </div>
@@ -100,9 +113,9 @@ export default function MedicamentosPage() {
         <div className="flex gap-1 bg-ink-50 rounded-xl p-1 w-fit">
           {(
             [
-              ["activos", "Activos"],
-              ["historial", "Historial"],
-              ["pedidos", "Pedidos"],
+              ["activos", t("patient.activeMeds")],
+              ["historial", t("patient.pastMeds")],
+              ["pedidos", t("patient.orders")],
             ] as [Tab, string][]
           ).map(([key, label]) => (
             <button
@@ -121,8 +134,8 @@ export default function MedicamentosPage() {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" />
             <input
               type="text"
-              placeholder="Buscar medicamento..."
-              aria-label="Buscar medicamento"
+              placeholder={t("patient.searchMedication")}
+              aria-label={t("patient.searchMedication")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 pr-4 py-2 border border-border-light rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-64"
@@ -163,8 +176,12 @@ export default function MedicamentosPage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-ink-muted">
-                      <span>Recetado por: {med.prescribedBy}</span>
-                      <span>Desde: {med.startDate}</span>
+                      <span>
+                        {t("patient.prescribedBy")} {med.prescribedBy}
+                      </span>
+                      <span>
+                        {t("patient.since")} {med.startDate}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -178,30 +195,30 @@ export default function MedicamentosPage() {
                             : "bg-success-50 text-success-700"
                         }`}
                       >
-                        {med.remaining} días restantes
+                        {med.remaining} {t("patient.daysLeft")}
                       </span>
                       <div className="flex items-center gap-2 text-xs">
-                        <span className="text-ink-muted">Cobertura: {med.coverage}</span>
-                        <span className="text-ink font-medium">Copago: {med.copay}</span>
+                        <span className="text-ink-muted">
+                          {t("patient.coverageLabel")} {med.coverage}
+                        </span>
+                        <span className="text-ink font-medium">
+                          {t("patient.copay")} {med.copay}
+                        </span>
                       </div>
                       {med.refillable && (
                         <button
-                          onClick={() =>
-                            showToast(
-                              "✅ Renovación de receta enviada a tu médico. Te notificamos cuando esté lista.",
-                            )
-                          }
+                          onClick={() => showToast(`✅ ${t("patient.renewalSent")}`)}
                           className="flex items-center gap-1 text-xs font-medium text-celeste-dark hover:text-celeste-700 transition"
                         >
                           <RefreshCw className="w-3 h-3" />
-                          Renovar receta
+                          {t("patient.renewPrescription")}
                         </button>
                       )}
                     </>
                   )}
                   {med.status === "finalizado" && (
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-ink-50 text-ink-400">
-                      Finalizado
+                      {t("patient.finished")}
                     </span>
                   )}
                 </div>
@@ -210,7 +227,7 @@ export default function MedicamentosPage() {
           ))}
           {filtered.length === 0 && (
             <div className="bg-white rounded-2xl border border-border-light px-5 py-12 text-center text-sm text-ink-muted">
-              No se encontraron medicamentos
+              {t("patient.noMedsFound")}
             </div>
           )}
         </div>
@@ -223,7 +240,9 @@ export default function MedicamentosPage() {
             <div key={order.id} className="px-5 py-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-ink">Pedido #{order.id}</span>
+                  <span className="text-sm font-bold text-ink">
+                    {t("patient.orderNumber")} #{order.id}
+                  </span>
                   <OrderStatusBadge status={order.status} />
                 </div>
                 <span className="text-sm font-medium text-ink">{order.total}</span>
@@ -238,7 +257,9 @@ export default function MedicamentosPage() {
             </div>
           ))}
           {allOrders.length === 0 && (
-            <div className="px-5 py-12 text-center text-sm text-ink-muted">No hay pedidos</div>
+            <div className="px-5 py-12 text-center text-sm text-ink-muted">
+              {t("patient.noOrders")}
+            </div>
           )}
         </div>
       )}

@@ -7,10 +7,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CreditCard, CheckCircle2, XCircle, Clock, Loader2, ArrowLeft, Shield } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 type PaymentState = "loading" | "checkout" | "success" | "failure" | "pending";
 
 export default function PagoPage() {
+  const { t } = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -59,10 +61,10 @@ export default function PagoPage() {
       }
 
       // No existing payment — might need to create one via preference
-      setError("No se encontró información de pago para este turno.");
+      setError(t("pagos.errorNotFound"));
       setState("failure");
     } catch {
-      setError("Error al cargar la información de pago");
+      setError(t("pagos.errorLoading"));
       setState("failure");
     }
   }
@@ -72,7 +74,7 @@ export default function PagoPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
           <Loader2 className="mx-auto h-8 w-8 animate-spin text-celeste" />
-          <p className="mt-3 text-sm text-gray-500">Cargando pago...</p>
+          <p className="mt-3 text-sm text-gray-500">{t("pagos.loading")}</p>
         </div>
       </div>
     );
@@ -83,15 +85,13 @@ export default function PagoPage() {
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
           <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
-          <h2 className="mt-4 text-xl font-bold text-gray-900">¡Pago exitoso!</h2>
-          <p className="mt-2 text-sm text-gray-500">
-            Tu turno ha sido confirmado. Recibirás un email con los detalles.
-          </p>
+          <h2 className="mt-4 text-xl font-bold text-gray-900">{t("pagos.success")}</h2>
+          <p className="mt-2 text-sm text-gray-500">{t("pagos.successDesc")}</p>
           <button
             onClick={() => router.push("/paciente/turnos")}
             className="mt-6 w-full rounded-xl bg-celeste px-4 py-3 text-sm font-semibold text-white transition hover:bg-celeste-dark"
           >
-            Ver mis turnos
+            {t("pagos.viewAppointments")}
           </button>
         </div>
       </div>
@@ -103,16 +103,14 @@ export default function PagoPage() {
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
           <XCircle className="mx-auto h-16 w-16 text-red-500" />
-          <h2 className="mt-4 text-xl font-bold text-gray-900">Pago no procesado</h2>
-          <p className="mt-2 text-sm text-gray-500">
-            {error || "Hubo un problema con tu pago. Podés intentar nuevamente."}
-          </p>
+          <h2 className="mt-4 text-xl font-bold text-gray-900">{t("pagos.failure")}</h2>
+          <p className="mt-2 text-sm text-gray-500">{error || t("pagos.failureDesc")}</p>
           <div className="mt-6 flex gap-3">
             <button
               onClick={() => router.back()}
               className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700"
             >
-              Volver
+              {t("pagos.back")}
             </button>
             <button
               onClick={() => {
@@ -121,7 +119,7 @@ export default function PagoPage() {
               }}
               className="flex-1 rounded-xl bg-celeste px-4 py-3 text-sm font-semibold text-white"
             >
-              Reintentar
+              {t("pagos.retry")}
             </button>
           </div>
         </div>
@@ -134,15 +132,13 @@ export default function PagoPage() {
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
           <Clock className="mx-auto h-16 w-16 text-amber-500" />
-          <h2 className="mt-4 text-xl font-bold text-gray-900">Pago pendiente</h2>
-          <p className="mt-2 text-sm text-gray-500">
-            Tu pago está siendo procesado. Te notificaremos cuando se confirme.
-          </p>
+          <h2 className="mt-4 text-xl font-bold text-gray-900">{t("pagos.pending")}</h2>
+          <p className="mt-2 text-sm text-gray-500">{t("pagos.pendingDesc")}</p>
           <button
             onClick={() => router.push("/paciente/turnos")}
             className="mt-6 w-full rounded-xl bg-celeste px-4 py-3 text-sm font-semibold text-white transition hover:bg-celeste-dark"
           >
-            Ver mis turnos
+            {t("pagos.viewAppointments")}
           </button>
         </div>
       </div>
@@ -156,13 +152,13 @@ export default function PagoPage() {
         onClick={() => router.back()}
         className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
       >
-        <ArrowLeft className="h-4 w-4" /> Volver
+        <ArrowLeft className="h-4 w-4" /> {t("pagos.back")}
       </button>
 
       <div className="rounded-2xl bg-white shadow-lg">
         <div className="flex items-center gap-3 border-b border-gray-100 p-4">
           <CreditCard className="h-5 w-5 text-celeste" />
-          <h1 className="text-lg font-bold text-gray-900">Pagar consulta</h1>
+          <h1 className="text-lg font-bold text-gray-900">{t("pagos.title")}</h1>
         </div>
 
         {initPoint ? (
@@ -182,7 +178,7 @@ export default function PagoPage() {
 
         <div className="flex items-center gap-2 border-t border-gray-100 px-4 py-3">
           <Shield className="h-4 w-4 text-green-500" />
-          <span className="text-xs text-gray-400">Pago seguro procesado por MercadoPago</span>
+          <span className="text-xs text-gray-400">{t("pagos.securePayment")}</span>
         </div>
       </div>
     </div>

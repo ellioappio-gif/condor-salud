@@ -7,6 +7,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { Camera, Upload, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 import NextImage from "next/image";
 
 interface PhotoUploadProps {
@@ -24,6 +25,7 @@ export function PhotoUpload({
   onDeleted,
   className = "",
 }: PhotoUploadProps) {
+  const { t } = useLocale();
   const [preview, setPreview] = useState<string | null>(currentPhotoUrl || null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,11 +39,11 @@ export function PhotoUpload({
       // Validate client-side
       const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
       if (!allowed.includes(file.type)) {
-        setError("Solo se permiten imágenes JPEG, PNG o WebP");
+        setError(t("photo.onlyImages"));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setError("La imagen no puede superar 5 MB");
+        setError(t("photo.maxSize"));
         return;
       }
 
@@ -64,20 +66,20 @@ export function PhotoUpload({
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || "Error al subir foto");
+          throw new Error(data.error || t("photo.uploadError"));
         }
 
         const data = await res.json();
         setPreview(data.url);
         onUploaded?.(data.url);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Error al subir foto");
+        setError(err instanceof Error ? err.message : t("photo.uploadError"));
         setPreview(currentPhotoUrl || null);
       } finally {
         setUploading(false);
       }
     },
-    [token, currentPhotoUrl, onUploaded],
+    [token, currentPhotoUrl, onUploaded, t],
   );
 
   const handleDelete = useCallback(async () => {
@@ -90,16 +92,16 @@ export function PhotoUpload({
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Error al eliminar foto");
+        throw new Error(data.error || t("photo.deleteError"));
       }
       setPreview(null);
       onDeleted?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al eliminar foto");
+      setError(err instanceof Error ? err.message : t("photo.deleteError"));
     } finally {
       setUploading(false);
     }
-  }, [token, onDeleted]);
+  }, [token, onDeleted, t]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -134,7 +136,7 @@ export function PhotoUpload({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={preview}
-              alt="Foto de perfil"
+              alt={t("photo.profileAlt")}
               className="h-32 w-32 rounded-full object-cover shadow-lg"
             />
             {uploading && (
@@ -146,8 +148,8 @@ export function PhotoUpload({
         ) : (
           <div className="text-center">
             <ImageIcon className="mx-auto h-10 w-10 text-gray-300" />
-            <p className="mt-2 text-sm text-gray-500">Arrastrá una imagen o hacé clic para subir</p>
-            <p className="mt-1 text-xs text-gray-400">JPEG, PNG o WebP • Máx. 5 MB</p>
+            <p className="mt-2 text-sm text-gray-500">{t("photo.dragOrClick")}</p>
+            <p className="mt-1 text-xs text-gray-400">{t("photo.formats")}</p>
           </div>
         )}
       </div>
@@ -165,11 +167,11 @@ export function PhotoUpload({
         >
           {preview ? (
             <>
-              <Camera className="h-3.5 w-3.5" /> Cambiar
+              <Camera className="h-3.5 w-3.5" /> {t("photo.change")}
             </>
           ) : (
             <>
-              <Upload className="h-3.5 w-3.5" /> Subir foto
+              <Upload className="h-3.5 w-3.5" /> {t("photo.upload")}
             </>
           )}
         </button>
@@ -181,7 +183,7 @@ export function PhotoUpload({
             disabled={uploading}
             className="flex items-center gap-1.5 rounded-lg bg-red-50 px-4 py-2 text-xs font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50"
           >
-            <Trash2 className="h-3.5 w-3.5" /> Eliminar
+            <Trash2 className="h-3.5 w-3.5" /> {t("photo.remove")}
           </button>
         )}
       </div>

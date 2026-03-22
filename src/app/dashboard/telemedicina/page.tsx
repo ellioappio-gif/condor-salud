@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useIsDemo } from "@/lib/auth/context";
 import {
   useWaitingRoom,
@@ -14,6 +15,7 @@ import {
 type Tab = "sala" | "consultas" | "facturacion" | "recetas" | "resumen";
 
 export default function TelemedicinPage() {
+  const { t } = useLocale();
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
   const isDemo = useIsDemo();
@@ -26,55 +28,65 @@ export default function TelemedicinPage() {
   const { data: kpis } = useTelemedicinaKPIs();
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "sala", label: "Sala de espera" },
-    { key: "consultas", label: "Consultas" },
-    { key: "facturacion", label: "Facturación auto" },
-    { key: "recetas", label: "Receta digital" },
-    { key: "resumen", label: "Resumen WhatsApp" },
+    { key: "sala", label: t("telemedicine.waitingRoom") },
+    { key: "consultas", label: t("telemedicine.consultations") },
+    { key: "facturacion", label: t("telemedicine.autoBilling") },
+    { key: "recetas", label: t("telemedicine.digitalPrescription") },
+    { key: "resumen", label: t("telemedicine.whatsAppSummary") },
   ];
 
   const kpiCards = kpis
     ? [
         {
-          label: "En sala de espera",
+          label: t("telemedicine.inWaitingRoom"),
           value: String(kpis.inWaiting),
-          change: "Conectados",
+          change: t("telemedicine.connected"),
           color: "text-celeste-dark",
         },
         {
-          label: "Consultas hoy",
+          label: t("telemedicine.consultationsToday"),
           value: String(kpis.todayCount),
-          change: "Completadas",
+          change: t("telemedicine.completed"),
           color: "text-celeste-dark",
         },
         {
-          label: "Facturadas auto",
+          label: t("telemedicine.autoBilled"),
           value: String(kpis.billed),
-          change: "Facturación auto",
+          change: t("telemedicine.autoBilling"),
           color: "text-green-600",
         },
         {
-          label: "Recetas enviadas",
+          label: t("telemedicine.prescriptionsSent"),
           value: String(kpis.prescriptionsSent),
-          change: "Con farmacia",
+          change: t("telemedicine.withPharmacy"),
           color: "text-gold",
         },
       ]
     : [
         {
-          label: "En sala de espera",
+          label: t("telemedicine.inWaitingRoom"),
           value: "3",
           change: "1 sin intake",
           color: "text-celeste-dark",
         },
         {
-          label: "Consultas hoy",
+          label: t("telemedicine.consultationsToday"),
           value: "11",
           change: "8 completadas",
           color: "text-celeste-dark",
         },
-        { label: "Facturadas auto", value: "8", change: "$186.400 total", color: "text-green-600" },
-        { label: "Recetas enviadas", value: "6", change: "4 con farmacia", color: "text-gold" },
+        {
+          label: t("telemedicine.autoBilled"),
+          value: "8",
+          change: "$186.400 total",
+          color: "text-green-600",
+        },
+        {
+          label: t("telemedicine.prescriptionsSent"),
+          value: "6",
+          change: "4 con farmacia",
+          color: "text-gold",
+        },
       ];
 
   const wr = waitingRoom;
@@ -86,10 +98,8 @@ export default function TelemedicinPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Telemedicina</h1>
-          <p className="text-sm text-ink-light mt-1">
-            Videoconsultas, sala de espera virtual, facturación automática y recetas digitales
-          </p>
+          <h1 className="text-2xl font-display font-bold text-ink">{t("telemedicine.title")}</h1>
+          <p className="text-sm text-ink-light mt-1">{t("telemedicine.subtitle")}</p>
         </div>
         <button
           onClick={() =>
@@ -99,7 +109,7 @@ export default function TelemedicinPage() {
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
-          + Nueva consulta
+          + {t("telemedicine.newConsultation")}
         </button>
       </div>
 
@@ -116,17 +126,17 @@ export default function TelemedicinPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
-        {tabs.map((t) => (
+        {tabs.map((tabItem) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={tabItem.key}
+            onClick={() => setTab(tabItem.key)}
             className={`px-4 py-2.5 text-sm font-medium transition border-b-2 -mb-px ${
-              tab === t.key
+              tab === tabItem.key
                 ? "border-celeste-dark text-celeste-dark"
                 : "border-transparent text-ink-muted hover:text-ink"
             }`}
           >
-            {t.label}
+            {tabItem.label}
           </button>
         ))}
       </div>
@@ -134,10 +144,7 @@ export default function TelemedicinPage() {
       {/* ─── 12.2 Virtual Waiting Room ─── */}
       {tab === "sala" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Pacientes en la sala de espera virtual. Formularios de intake se completan antes de la
-            consulta.
-          </p>
+          <p className="text-sm text-ink-light">{t("telemedicine.waitingRoomDesc")}</p>
 
           <div className="space-y-3">
             {wr.map((p) => (
@@ -159,14 +166,17 @@ export default function TelemedicinPage() {
                   <p className="text-xs text-ink-light mt-0.5">{p.reason}</p>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-[10px] text-ink-muted">
-                      Ingresó: {p.joinedAt} - Espera: {p.waitTime}
+                      {t("telemedicine.joined")}: {p.joinedAt} - {t("telemedicine.waiting")}:{" "}
+                      {p.waitTime}
                     </span>
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                         p.intakeComplete ? "bg-green-50 text-green-700" : "bg-gold-pale text-gold"
                       }`}
                     >
-                      {p.intakeComplete ? "Intake completo" : "Intake pendiente"}
+                      {p.intakeComplete
+                        ? t("telemedicine.intakeComplete")
+                        : t("telemedicine.intakePending")}
                     </span>
                   </div>
                 </div>
@@ -180,7 +190,7 @@ export default function TelemedicinPage() {
                       }
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-gold hover:text-gold transition"
                     >
-                      Enviar intake
+                      {t("telemedicine.sendIntake")}
                     </button>
                   )}
                   <button
@@ -195,7 +205,7 @@ export default function TelemedicinPage() {
                     }
                     className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                   >
-                    Iniciar video
+                    {t("telemedicine.startVideo")}
                   </button>
                 </div>
               </div>
@@ -203,25 +213,27 @@ export default function TelemedicinPage() {
           </div>
 
           {/* Upcoming */}
-          <h3 className="text-sm font-semibold text-ink mt-6">Próximas programadas</h3>
+          <h3 className="text-sm font-semibold text-ink mt-6">
+            {t("telemedicine.upcomingScheduled")}
+          </h3>
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Paciente
+                    {t("label.patient")}
                   </th>
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Doctor
+                    {t("telemedicine.doctor")}
                   </th>
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Especialidad
+                    {t("telemedicine.specialty")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Hora
+                    {t("label.time")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Financiador
+                    {t("billing.insurer")}
                   </th>
                   <th scope="col" className="text-right font-medium px-5 py-3"></th>
                 </tr>
@@ -250,7 +262,7 @@ export default function TelemedicinPage() {
                         }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                       >
-                        Copiar link
+                        {t("telemedicine.copyLink")}
                       </button>
                     </td>
                   </tr>
@@ -264,16 +276,15 @@ export default function TelemedicinPage() {
       {/* ─── 12.1 Video Consultations ─── */}
       {tab === "consultas" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Historial de videoconsultas. Desde el navegador, sin descargas. Incluye compartir
-            pantalla y grabación de sesión.
-          </p>
+          <p className="text-sm text-ink-light">{t("telemedicine.consultationsDesc")}</p>
 
           {/* Active session card */}
           <div className="bg-celeste-pale border border-celeste-dark/20 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs font-bold text-green-700">SESIÓN ACTIVA</span>
+              <span className="text-xs font-bold text-green-700">
+                {t("telemedicine.activeSession")}
+              </span>
             </div>
             <p className="font-medium text-ink">
               Dra. Fernández con Elena Martínez — Control cardiológico
@@ -288,7 +299,7 @@ export default function TelemedicinPage() {
                 }
                 className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
               >
-                Unirse a sesión
+                {t("telemedicine.joinSession")}
               </button>
               <button
                 onClick={() =>
@@ -298,7 +309,7 @@ export default function TelemedicinPage() {
                 }
                 className="px-4 py-2 text-xs font-semibold border border-celeste-dark text-celeste-dark rounded hover:bg-celeste-pale transition"
               >
-                Grabar sesión
+                {t("telemedicine.recordSession")}
               </button>
               <button
                 onClick={() =>
@@ -308,7 +319,7 @@ export default function TelemedicinPage() {
                 }
                 className="px-4 py-2 text-xs font-semibold border border-red-300 text-red-600 rounded hover:bg-red-50 transition"
               >
-                Finalizar
+                {t("telemedicine.endSession")}
               </button>
             </div>
           </div>
@@ -376,7 +387,7 @@ export default function TelemedicinPage() {
                         }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                       >
-                        Ver detalle
+                        {t("dashboard.viewDetail")}
                       </button>
                     </td>
                   </tr>
@@ -390,10 +401,7 @@ export default function TelemedicinPage() {
       {/* ─── 12.3 Auto-billing ─── */}
       {tab === "facturacion" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Al finalizar una teleconsulta, se genera automáticamente la facturación con el código
-            nomenclador correcto.
-          </p>
+          <p className="text-sm text-ink-light">{t("telemedicine.autoBillingDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
@@ -436,11 +444,11 @@ export default function TelemedicinPage() {
                       <td className="px-5 py-3 text-center">
                         {c.billed ? (
                           <span className="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded">
-                            Facturado
+                            {t("dashboard.billed")}
                           </span>
                         ) : (
                           <span className="text-[10px] font-bold bg-gold-pale text-gold px-2 py-0.5 rounded">
-                            Pendiente
+                            {t("status.pending")}
                           </span>
                         )}
                       </td>
@@ -458,7 +466,7 @@ export default function TelemedicinPage() {
                             }
                             className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                           >
-                            Facturar ahora
+                            {t("telemedicine.billNow")}
                           </button>
                         )}
                       </td>
@@ -469,9 +477,8 @@ export default function TelemedicinPage() {
           </div>
 
           <div className="border-l-[3px] border-celeste-dark bg-celeste-pale p-4 text-sm text-ink-light">
-            <strong className="text-ink">Facturación automática:</strong> Al cerrar la teleconsulta,
-            el sistema detecta la especialidad del médico, asigna el código nomenclador (ej. 420101
-            — Consulta médica virtual) y genera el comprobante para el financiador del paciente.
+            <strong className="text-ink">{t("telemedicine.autoBilling")}:</strong>{" "}
+            {t("telemedicine.autoBillingNote")}
           </div>
         </div>
       )}
@@ -479,10 +486,7 @@ export default function TelemedicinPage() {
       {/* ─── 12.4 Receta Digital → Farmacia ─── */}
       {tab === "recetas" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Ciclo completo: teleconsulta → receta digital → farmacia online. Atención remota sin
-            salir de casa.
-          </p>
+          <p className="text-sm text-ink-light">{t("telemedicine.prescriptionDesc")}</p>
 
           <div className="space-y-3">
             {rc
@@ -497,11 +501,11 @@ export default function TelemedicinPage() {
                       <span className="text-xs font-mono text-ink-muted">{c.id}</span>
                       {c.prescriptionSent ? (
                         <span className="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded">
-                          Receta enviada
+                          {t("telemedicine.prescriptionSent")}
                         </span>
                       ) : (
                         <span className="text-[10px] font-bold bg-gold-pale text-gold px-2 py-0.5 rounded">
-                          Sin receta
+                          {t("telemedicine.noPrescription")}
                         </span>
                       )}
                     </div>
@@ -522,7 +526,7 @@ export default function TelemedicinPage() {
                         }
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                       >
-                        Generar receta
+                        {t("telemedicine.generatePrescription")}
                       </button>
                     )}
                     {c.prescriptionSent && (
@@ -538,7 +542,7 @@ export default function TelemedicinPage() {
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
-                        Enviar a Farmacia
+                        {t("telemedicine.sendToPharmacy")}
                       </button>
                     )}
                   </div>
@@ -549,15 +553,19 @@ export default function TelemedicinPage() {
           {/* Flow diagram */}
           <div className="bg-white border border-border rounded-lg p-6">
             <h4 className="text-sm font-semibold text-ink mb-4">
-              Flujo de atención remota completa
+              {t("telemedicine.remoteFlowTitle")}
             </h4>
             <div className="flex items-center gap-3 overflow-x-auto pb-2">
               {[
-                { step: "1", label: "Teleconsulta", color: "bg-celeste-dark" },
+                { step: "1", label: t("telemedicine.teleconsultation"), color: "bg-celeste-dark" },
                 { step: "", label: "→", color: "" },
-                { step: "2", label: "Receta digital", color: "bg-celeste-dark" },
+                {
+                  step: "2",
+                  label: t("telemedicine.digitalPrescription"),
+                  color: "bg-celeste-dark",
+                },
                 { step: "", label: "→", color: "" },
-                { step: "3", label: "Farmacia Online", color: "bg-green-600" },
+                { step: "3", label: t("telemedicine.onlinePharmacy"), color: "bg-green-600" },
                 { step: "", label: "→", color: "" },
                 { step: "4", label: "Delivery", color: "bg-gold" },
               ].map((s, i) =>
@@ -566,7 +574,9 @@ export default function TelemedicinPage() {
                     key={i}
                     className={`${s.color} text-white px-4 py-3 rounded-lg text-center min-w-[120px] shrink-0`}
                   >
-                    <p className="text-xs opacity-80">Paso {s.step}</p>
+                    <p className="text-xs opacity-80">
+                      {t("telemedicine.step")} {s.step}
+                    </p>
                     <p className="text-sm font-semibold">{s.label}</p>
                   </div>
                 ) : (
@@ -583,10 +593,7 @@ export default function TelemedicinPage() {
       {/* ─── 12.5 Post-consultation WhatsApp Summary ─── */}
       {tab === "resumen" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Resumen post-consulta enviado al paciente via WhatsApp: diagnóstico, indicaciones,
-            próximos pasos.
-          </p>
+          <p className="text-sm text-ink-light">{t("telemedicine.whatsAppSummaryDesc")}</p>
 
           <div className="space-y-3">
             {rc
@@ -601,11 +608,11 @@ export default function TelemedicinPage() {
                       <span className="text-xs font-mono text-ink-muted">{c.id}</span>
                       {c.summarySent ? (
                         <span className="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded">
-                          Resumen enviado
+                          {t("telemedicine.summarySent")}
                         </span>
                       ) : (
                         <span className="text-[10px] font-bold bg-gold-pale text-gold px-2 py-0.5 rounded">
-                          Pendiente
+                          {t("status.pending")}
                         </span>
                       )}
                     </div>
@@ -630,7 +637,7 @@ export default function TelemedicinPage() {
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
-                        Enviar por WhatsApp
+                        {t("telemedicine.sendViaWhatsApp")}
                       </button>
                     )}
                     <button
@@ -641,7 +648,7 @@ export default function TelemedicinPage() {
                       }
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                     >
-                      Ver resumen
+                      {t("telemedicine.viewSummary")}
                     </button>
                   </div>
                 </div>
@@ -650,7 +657,9 @@ export default function TelemedicinPage() {
 
           {/* Preview card */}
           <div className="bg-white border border-border rounded-lg p-6 max-w-md">
-            <h4 className="text-sm font-semibold text-ink mb-3">Vista previa del mensaje</h4>
+            <h4 className="text-sm font-semibold text-ink mb-3">
+              {t("telemedicine.previewTitle")}
+            </h4>
             <div className="bg-[#DCF8C6] rounded-lg p-4 text-sm text-ink space-y-2 font-mono">
               <p className="font-bold">Cóndor Salud — Resumen de consulta</p>
               <p>Paciente: Jorge Álvarez</p>

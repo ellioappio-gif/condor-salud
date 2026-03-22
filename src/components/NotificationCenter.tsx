@@ -8,6 +8,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Bell, Check, CheckCheck, ExternalLink, X } from "lucide-react";
 import { useAlertas } from "@/hooks/use-data";
+import { useLocale } from "@/lib/i18n/context";
 import type { Alerta } from "@/lib/types";
 
 interface NotifItem {
@@ -27,6 +28,7 @@ function toSeveridad(tipo: Alerta["tipo"]): NotifItem["severidad"] {
 
 export default function NotificationCenter() {
   const { data: alertas } = useAlertas();
+  const { t, locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const ref = useRef<HTMLDivElement>(null);
@@ -75,7 +77,7 @@ export default function NotificationCenter() {
       <button
         onClick={() => setOpen(!open)}
         className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        aria-label={`Notificaciones${count > 0 ? ` (${count} nuevas)` : ""}`}
+        aria-label={`${t("notif.title")}${count > 0 ? ` (${count} ${t("notif.new")})` : ""}`}
       >
         <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         {count > 0 && (
@@ -90,14 +92,16 @@ export default function NotificationCenter() {
         <div className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800 z-50">
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3 dark:border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Notificaciones</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              {t("notif.title")}
+            </h3>
             {count > 0 && (
               <button
                 onClick={markAllRead}
                 className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
               >
                 <CheckCheck className="h-3.5 w-3.5" />
-                Marcar todas
+                {t("notif.markAllRead")}
               </button>
             )}
           </div>
@@ -107,7 +111,7 @@ export default function NotificationCenter() {
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-gray-400">
                 <Bell className="h-8 w-8 mb-2 opacity-40" />
-                <p className="text-sm">No hay notificaciones</p>
+                <p className="text-sm">{t("notif.empty")}</p>
               </div>
             ) : (
               items.slice(0, 15).map((item) => {
@@ -129,14 +133,14 @@ export default function NotificationCenter() {
                         {item.mensaje}
                       </p>
                       <p className="mt-0.5 text-xs text-gray-400">
-                        {item.tipo} · {formatRelative(item.fecha)}
+                        {item.tipo} · {formatRelative(item.fecha, t, locale)}
                       </p>
                     </div>
                     {!isRead && (
                       <button
                         onClick={() => markRead(item.id)}
                         className="mt-1 p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
-                        title="Marcar como leída"
+                        title={t("notif.markRead")}
                       >
                         <Check className="h-3.5 w-3.5 text-gray-400" />
                       </button>
@@ -154,7 +158,7 @@ export default function NotificationCenter() {
               onClick={() => setOpen(false)}
               className="flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400"
             >
-              Ver todas las alertas
+              {t("notif.viewAllAlerts")}
               <ExternalLink className="h-3 w-3" />
             </Link>
           </div>
@@ -166,20 +170,25 @@ export default function NotificationCenter() {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function formatRelative(dateStr: string): string {
+function formatRelative(dateStr: string, t: (key: string) => string, locale: string): string {
   if (!dateStr) return "";
   try {
     const d = new Date(dateStr);
     const now = new Date();
     const diff = now.getTime() - d.getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "ahora";
-    if (mins < 60) return `hace ${mins}m`;
+    if (mins < 1) return t("notif.now");
+    const fmt = (val: number, unit: string) =>
+      t("notif.agoTemplate").replace("{time}", `${val}${t(unit)}`);
+    if (mins < 60) return fmt(mins, "notif.minutesAgo");
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `hace ${hours}h`;
+    if (hours < 24) return fmt(hours, "notif.hoursAgo");
     const days = Math.floor(hours / 24);
-    if (days < 7) return `hace ${days}d`;
-    return d.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
+    if (days < 7) return fmt(days, "notif.daysAgo");
+    return d.toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
+      day: "numeric",
+      month: "short",
+    });
   } catch {
     return dateStr;
   }

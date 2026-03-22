@@ -9,6 +9,7 @@
 
 import { useEffect } from "react";
 import { useRideOptions, type RideOption } from "@/hooks/useRideOptions";
+import { useLocale } from "@/lib/i18n/context";
 import { Car, Loader2, ExternalLink } from "lucide-react";
 
 const APP_LOGOS: Record<string, string> = {
@@ -39,6 +40,7 @@ interface Props {
 }
 
 export default function RideOptionsCard({ doctor, booking, compact = false }: Props) {
+  const { t } = useLocale();
   const { rideOptions, loading, error, fetchOptions } = useRideOptions();
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function RideOptionsCard({ doctor, booking, compact = false }: Pr
       return (
         <div className="flex items-center gap-2 py-2">
           <Loader2 className="w-4 h-4 animate-spin text-celeste-dark" />
-          <span className="text-xs text-ink-muted">Cargando transporte...</span>
+          <span className="text-xs text-ink-muted">{t("ride.loading")}</span>
         </div>
       );
     }
@@ -80,7 +82,7 @@ export default function RideOptionsCard({ doctor, booking, compact = false }: Pr
     const available = rideOptions.options.filter((o) => o.available);
     return (
       <div className="flex flex-wrap items-center gap-2 py-2">
-        <span className="text-xs font-medium text-ink-500">Llegá al consultorio:</span>
+        <span className="text-xs font-medium text-ink-500">{t("ride.getToOffice")}</span>
         {available.map((option) => (
           <button
             key={option.app}
@@ -101,7 +103,7 @@ export default function RideOptionsCard({ doctor, booking, compact = false }: Pr
       <div className="px-4 py-3 border-b border-border-light">
         <div className="flex items-center gap-2">
           <Car className="w-4 h-4 text-celeste-dark" />
-          <h3 className="text-sm font-semibold text-ink">¿Cómo llegás al consultorio?</h3>
+          <h3 className="text-sm font-semibold text-ink">{t("ride.howToGetToOffice")}</h3>
         </div>
         <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">{doctor.address}</p>
       </div>
@@ -110,14 +112,14 @@ export default function RideOptionsCard({ doctor, booking, compact = false }: Pr
       {rideOptions?.fareEstimate && (
         <div className="px-4 py-2.5 bg-success-50 border-b border-border-light">
           <p className="text-xs font-medium text-success-700">
-            Uber estimado: {rideOptions.fareEstimate.display}
+            {t("ride.uberEstimated")} {rideOptions.fareEstimate.display}
             {rideOptions.fareEstimate.duration
               ? `  ·  ${formatDuration(rideOptions.fareEstimate.duration)}`
               : ""}
           </p>
           {rideOptions.fareEstimate.surge && (
             <p className="text-[11px] text-amber-600 mt-0.5">
-              ⚡ Demanda alta ×{rideOptions.fareEstimate.surge.toFixed(1)}
+              ⚡ {t("ride.highDemand")} ×{rideOptions.fareEstimate.surge.toFixed(1)}
             </p>
           )}
         </div>
@@ -127,7 +129,7 @@ export default function RideOptionsCard({ doctor, booking, compact = false }: Pr
       {loading && (
         <div className="flex items-center gap-2 px-4 py-4">
           <Loader2 className="w-4 h-4 animate-spin text-celeste-dark" />
-          <span className="text-xs text-ink-muted">Preparando opciones...</span>
+          <span className="text-xs text-ink-muted">{t("ride.preparingOptions")}</span>
         </div>
       )}
 
@@ -173,11 +175,9 @@ export default function RideOptionsCard({ doctor, booking, compact = false }: Pr
       {booking.date && (
         <div className="px-4 py-2.5 bg-surface text-center">
           <p className="text-xs font-medium text-ink-500">
-            Turno: {booking.date} a las {booking.time}
+            {t("ride.appointmentLabel")} {booking.date} {t("ride.atTime")} {booking.time}
           </p>
-          <p className="text-[11px] text-ink-muted">
-            La dirección del consultorio ya está precargada
-          </p>
+          <p className="text-[11px] text-ink-muted">{t("ride.addressPreloaded")}</p>
         </div>
       )}
     </div>

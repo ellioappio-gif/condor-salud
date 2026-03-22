@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useToast } from "@/components/Toast";
 import { RequirePermission } from "@/components/RequirePermission";
 import { useExport } from "@/lib/services/export";
+import { useLocale } from "@/lib/i18n/context";
 import {
   createTurno,
   cancelTurno,
@@ -132,10 +133,13 @@ const financiadoresOptions = [
 // ─── Component ───────────────────────────────────────────────
 
 export default function AgendaPage() {
+  const { t, locale } = useLocale();
   const { showToast } = useToast();
   const { data: turnos, isLoading, mutate } = useTurnos();
   const { exportPDF, exportExcel, isExporting } = useExport();
   const { events: gCalEvents } = useGoogleCalendarEvents();
+
+  const localeDays = locale === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] : diasSemana;
   const [vista, setVista] = useState<"semana" | "lista">("semana");
   const [profFilter, setProfFilter] = useState("");
   const [showNewModal, setShowNewModal] = useState(false);
@@ -145,7 +149,10 @@ export default function AgendaPage() {
   const gCalTurnos: Turno[] = gCalEvents.map((e) => ({
     id: `gcal-${e.id}`,
     hora: e.start
-      ? new Date(e.start).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })
+      ? new Date(e.start).toLocaleTimeString(locale === "en" ? "en-US" : "es-AR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
       : "",
     paciente: e.title,
     tipo: e.meetLink ? "Teleconsulta" : "Google Calendar",
@@ -168,7 +175,7 @@ export default function AgendaPage() {
   const lunes = new Date(hoy);
   lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
 
-  const fechasDias = diasSemana.map((_, i) => {
+  const fechasDias = localeDays.map((_, i) => {
     const d = new Date(lunes);
     d.setDate(lunes.getDate() + i);
     return `${d.getDate()}/${d.getMonth() + 1}`;
@@ -187,13 +194,13 @@ export default function AgendaPage() {
       const result = await confirmTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast("✅ Turno confirmado");
+        showToast(`✅ ${t("schedule.appointmentConfirmed")}`);
         mutate();
       } else {
         showToast(`❌ ${result.error}`);
       }
     },
-    [mutate, showToast],
+    [mutate, showToast, t],
   );
 
   const handleAttend = useCallback(
@@ -202,36 +209,36 @@ export default function AgendaPage() {
       const result = await attendTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast("✅ Paciente atendido");
+        showToast(`✅ ${t("schedule.patientAttended")}`);
         mutate();
       } else {
         showToast(`❌ ${result.error}`);
       }
     },
-    [mutate, showToast],
+    [mutate, showToast, t],
   );
 
   const handleCancel = useCallback(
     async (id: string) => {
-      if (!confirm("¿Cancelar este turno?")) return;
+      if (!confirm(t("schedule.cancelConfirm"))) return;
       setActionLoading(id);
       const result = await cancelTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast("Turno cancelado");
+        showToast(t("schedule.appointmentCancelled"));
         mutate();
       } else {
         showToast(`❌ ${result.error}`);
       }
     },
-    [mutate, showToast],
+    [mutate, showToast, t],
   );
 
   const handleCreate = useCallback(
     async (input: CreateTurnoInput) => {
       const result = await createTurno(input);
       if (result.success) {
-        showToast("✅ Turno creado exitosamente");
+        showToast(`✅ ${t("schedule.appointmentCreated")}`);
         mutate();
         setShowNewModal(false);
       } else {
@@ -239,7 +246,7 @@ export default function AgendaPage() {
       }
       return result;
     },
-    [mutate, showToast],
+    [mutate, showToast, t],
   );
 
   return (
@@ -247,9 +254,9 @@ export default function AgendaPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Agenda</h1>
+          <h1 className="text-2xl font-bold text-ink">{t("nav.appointments")}</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            Semana del {fechasDias[0]} al {fechasDias[5]}
+            {t("schedule.weekOfRange")} {fechasDias[0]} {t("schedule.to")} {fechasDias[5]}
           </p>
         </div>
         <div className="flex gap-2">
@@ -273,20 +280,20 @@ export default function AgendaPage() {
             onClick={() => setVista("semana")}
             className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "semana" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
           >
-            Semana
+            {t("label.week")}
           </button>
           <button
             onClick={() => setVista("lista")}
             className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "lista" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
           >
-            Lista
+            {t("label.list")}
           </button>
           <RequirePermission permission="agenda:write">
             <button
               onClick={() => setShowNewModal(true)}
               className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition flex items-center gap-1.5"
             >
-              <Plus className="w-4 h-4" /> Nuevo turno
+              <Plus className="w-4 h-4" /> {t("schedule.newAppointment")}
             </button>
           </RequirePermission>
         </div>
@@ -295,14 +302,26 @@ export default function AgendaPage() {
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total turnos", value: isLoading ? "..." : total, color: "border-celeste" },
           {
-            label: "Confirmados",
+            label: t("schedule.totalAppointments"),
+            value: isLoading ? "..." : total,
+            color: "border-celeste",
+          },
+          {
+            label: t("status.confirmed"),
             value: isLoading ? "..." : confirmados,
             color: "border-green-400",
           },
-          { label: "Pendientes", value: isLoading ? "..." : pendientes, color: "border-amber-400" },
-          { label: "Atendidos", value: isLoading ? "..." : atendidos, color: "border-celeste" },
+          {
+            label: t("status.pending"),
+            value: isLoading ? "..." : pendientes,
+            color: "border-amber-400",
+          },
+          {
+            label: t("label.attended"),
+            value: isLoading ? "..." : atendidos,
+            color: "border-celeste",
+          },
         ].map((k) => (
           <div
             key={k.label}
@@ -319,13 +338,13 @@ export default function AgendaPage() {
       {/* Prof filter */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
-          Profesional:
+          {t("label.professional")}:
         </span>
         <button
           onClick={() => setProfFilter("")}
           className={`px-3 py-1.5 text-xs rounded-[4px] transition ${!profFilter ? "bg-ink text-white" : "border border-border text-ink-light hover:border-ink"}`}
         >
-          Todos
+          {t("label.all")}
         </button>
         {profesionales.map((p) => (
           <button
@@ -342,7 +361,7 @@ export default function AgendaPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 text-celeste-dark animate-spin" />
-          <span className="ml-2 text-sm text-ink-muted">Cargando agenda...</span>
+          <span className="ml-2 text-sm text-ink-muted">{t("schedule.loading")}</span>
         </div>
       )}
 
@@ -353,78 +372,78 @@ export default function AgendaPage() {
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-2.5">
-                  Hora
+                  {t("label.time")}
                 </th>
                 <th scope="col" className="text-left px-5 py-2.5">
-                  Paciente
+                  {t("label.patient")}
                 </th>
                 <th scope="col" className="text-left px-5 py-2.5">
-                  Profesional
+                  {t("label.professional")}
                 </th>
                 <th scope="col" className="text-left px-5 py-2.5">
-                  Tipo
+                  {t("label.type")}
                 </th>
                 <th scope="col" className="text-left px-5 py-2.5">
-                  Financiador
+                  {t("billing.insurer")}
                 </th>
                 <th scope="col" className="text-center px-5 py-2.5">
-                  Estado
+                  {t("label.status")}
                 </th>
                 <th scope="col" className="text-center px-5 py-2.5">
-                  Acciones
+                  {t("label.actions")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {filtered
                 .sort((a: Turno, b: Turno) => a.hora.localeCompare(b.hora))
-                .map((t: Turno) => (
+                .map((turno: Turno) => (
                   <tr
-                    key={t.id}
+                    key={turno.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
                   >
-                    <td className="px-5 py-3 font-mono text-xs text-ink">{t.hora}</td>
-                    <td className="px-5 py-3 text-xs font-semibold text-ink">{t.paciente}</td>
-                    <td className="px-5 py-3 text-xs text-ink-light">{t.profesional}</td>
-                    <td className="px-5 py-3 text-xs text-ink-light">{t.tipo}</td>
-                    <td className="px-5 py-3 text-xs text-ink-light">{t.financiador}</td>
+                    <td className="px-5 py-3 font-mono text-xs text-ink">{turno.hora}</td>
+                    <td className="px-5 py-3 text-xs font-semibold text-ink">{turno.paciente}</td>
+                    <td className="px-5 py-3 text-xs text-ink-light">{turno.profesional}</td>
+                    <td className="px-5 py-3 text-xs text-ink-light">{turno.tipo}</td>
+                    <td className="px-5 py-3 text-xs text-ink-light">{turno.financiador}</td>
                     <td className="px-5 py-3 text-center">
                       <span
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded capitalize ${estadoColor[t.estado] ?? "bg-gray-50 text-gray-500"}`}
+                        className={`px-2 py-0.5 text-[10px] font-bold rounded capitalize ${estadoColor[turno.estado] ?? "bg-gray-50 text-gray-500"}`}
                       >
-                        {t.estado}
+                        {turno.estado}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-center">
                       <RequirePermission permission="agenda:write">
                         <div className="flex items-center justify-center gap-1">
-                          {actionLoading === t.id ? (
+                          {actionLoading === turno.id ? (
                             <Loader2 className="w-4 h-4 animate-spin text-ink-muted" />
                           ) : (
                             <>
-                              {t.estado === "pendiente" && (
+                              {turno.estado === "pendiente" && (
                                 <button
-                                  onClick={() => handleConfirm(t.id)}
+                                  onClick={() => handleConfirm(turno.id)}
                                   className="p-1 text-green-600 hover:bg-green-50 rounded transition"
-                                  title="Confirmar"
+                                  title={t("action.confirm")}
                                 >
                                   <Check className="w-3.5 h-3.5" />
                                 </button>
                               )}
-                              {(t.estado === "confirmado" || t.estado === "pendiente") && (
+                              {(turno.estado === "confirmado" || turno.estado === "pendiente") && (
                                 <button
-                                  onClick={() => handleAttend(t.id)}
+                                  onClick={() => handleAttend(turno.id)}
                                   className="p-1 text-celeste-dark hover:bg-celeste-pale rounded transition"
-                                  title="Marcar atendido"
+                                  title={t("label.attended")}
                                 >
                                   <Clock className="w-3.5 h-3.5" />
                                 </button>
                               )}
-                              {t.estado !== "cancelado" && t.estado !== "atendido" && (
+                              {turno.estado !== "cancelado" && turno.estado !== "atendido" && (
                                 <button
-                                  onClick={() => handleCancel(t.id)}
+                                  onClick={() => handleCancel(turno.id)}
                                   className="p-1 text-red-500 hover:bg-red-50 rounded transition"
-                                  title="Cancelar"
+                                  title={t("action.cancel")}
                                 >
                                   <Ban className="w-3.5 h-3.5" />
                                 </button>
@@ -440,7 +459,7 @@ export default function AgendaPage() {
           </table>
           {filtered.length === 0 && (
             <div className="px-5 py-10 text-center text-sm text-ink-muted">
-              No hay turnos para mostrar
+              {t("schedule.noAppointments")}
             </div>
           )}
         </div>
@@ -456,9 +475,9 @@ export default function AgendaPage() {
                   scope="col"
                   className="w-16 px-3 py-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase bg-[#F8FAFB]"
                 >
-                  Hora
+                  {t("label.time")}
                 </th>
-                {diasSemana.map((d, i) => (
+                {localeDays.map((d, i) => (
                   <th
                     key={d}
                     className={`px-2 py-2 text-[10px] font-bold tracking-wider uppercase ${i === (hoy.getDay() + 6) % 7 ? "text-celeste-dark bg-celeste-pale/40" : "text-ink-muted bg-[#F8FAFB]"}`}
@@ -533,6 +552,7 @@ function NewTurnoModal({
   onClose: () => void;
   onCreate: (input: CreateTurnoInput) => Promise<{ success: boolean; error?: string }>;
 }) {
+  const { t } = useLocale();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState<CreateTurnoInput>({
@@ -549,7 +569,7 @@ function NewTurnoModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.paciente.trim()) {
-      setError("Ingresá el nombre del paciente");
+      setError(t("schedule.enterPatientName"));
       return;
     }
     setLoading(true);
@@ -557,7 +577,7 @@ function NewTurnoModal({
     const result = await onCreate(form);
     setLoading(false);
     if (!result.success) {
-      setError(result.error ?? "Error al crear turno");
+      setError(result.error ?? t("schedule.errorCreating"));
     }
   };
 
@@ -573,7 +593,7 @@ function NewTurnoModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-lg font-bold text-ink flex items-center gap-2">
             <Calendar className="w-5 h-5 text-celeste-dark" />
-            Nuevo Turno
+            {t("schedule.newAppointment")}
           </h2>
           <button onClick={onClose} className="p-1 text-ink-muted hover:text-ink transition">
             <X className="w-5 h-5" />
@@ -590,7 +610,7 @@ function NewTurnoModal({
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-                Fecha
+                {t("label.date")}
               </label>
               <input
                 type="date"
@@ -601,7 +621,7 @@ function NewTurnoModal({
             </div>
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-                Hora
+                {t("label.time")}
               </label>
               <select
                 value={form.hora}
@@ -619,11 +639,11 @@ function NewTurnoModal({
 
           <div>
             <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-              Paciente
+              {t("label.patient")}
             </label>
             <input
               type="text"
-              placeholder="Nombre del paciente"
+              placeholder={t("schedule.patientNamePlaceholder")}
               value={form.paciente}
               onChange={(e) => setForm({ ...form, paciente: e.target.value })}
               className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
@@ -633,7 +653,7 @@ function NewTurnoModal({
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-                Profesional
+                {t("label.professional")}
               </label>
               <select
                 value={form.profesionalId}
@@ -656,7 +676,7 @@ function NewTurnoModal({
             </div>
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-                Tipo
+                {t("label.type")}
               </label>
               <select
                 value={form.tipo}
@@ -674,7 +694,7 @@ function NewTurnoModal({
 
           <div>
             <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-              Financiador
+              {t("billing.insurer")}
             </label>
             <select
               value={form.financiador}
@@ -691,13 +711,13 @@ function NewTurnoModal({
 
           <div>
             <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-              Notas (opcional)
+              {t("label.notes")} ({t("label.optional")})
             </label>
             <textarea
               rows={2}
               value={form.notas}
               onChange={(e) => setForm({ ...form, notas: e.target.value })}
-              placeholder="Observaciones adicionales..."
+              placeholder={t("schedule.additionalObservations")}
               className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark resize-none"
             />
           </div>
@@ -708,7 +728,7 @@ function NewTurnoModal({
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-ink transition"
             >
-              Cancelar
+              {t("action.cancel")}
             </button>
             <button
               type="submit"
@@ -716,7 +736,7 @@ function NewTurnoModal({
               className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50 flex items-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Crear turno
+              {t("schedule.createAppointment")}
             </button>
           </div>
         </form>

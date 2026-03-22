@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { GOOGLE_CLIENT_ID } from "@/lib/google";
+import { useLocale } from "@/lib/i18n/context";
 
 const PROVINCIAS = [
   { value: "CABA", label: "CABA" },
@@ -49,6 +50,7 @@ export default function RegistroPage() {
   const router = useRouter();
   const { register: authRegister } = useAuth();
   const [serverError, setServerError] = useState("");
+  const { t } = useLocale();
 
   const {
     register,
@@ -164,10 +166,8 @@ export default function RegistroPage() {
             </div>
           </Link>
 
-          <h2 className="text-2xl font-bold text-ink mb-1">Crear cuenta</h2>
-          <p className="text-sm text-ink-muted mb-6">
-            Probá Cóndor Salud gratis por 14 días. Sin tarjeta.
-          </p>
+          <h2 className="text-2xl font-bold text-ink mb-1">{t("auth.registerTitle")}</h2>
+          <p className="text-sm text-ink-muted mb-6">{t("auth.registerSubtitle")}</p>
 
           {serverError && (
             <div
@@ -181,14 +181,14 @@ export default function RegistroPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="Nombre completo"
+                label={t("auth.fullName")}
                 placeholder="Martín Rodríguez"
                 autoComplete="name"
                 error={errors.name?.message}
                 {...register("name")}
               />
               <Input
-                label="Email profesional"
+                label={t("auth.professionalEmail")}
                 type="email"
                 placeholder="tu@clinica.com"
                 autoComplete="email"
@@ -197,20 +197,20 @@ export default function RegistroPage() {
               />
             </div>
             <Input
-              label="Nombre de la clínica"
+              label={t("auth.clinicName")}
               placeholder="Centro Médico San Martín"
               error={errors.clinicName?.message}
               {...register("clinicName")}
             />
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="CUIT"
+                label={t("auth.cuit")}
                 placeholder="30-12345678-9"
                 error={errors.cuit?.message}
                 {...register("cuit")}
               />
               <Select
-                label="Provincia"
+                label={t("auth.province")}
                 options={PROVINCIAS}
                 placeholder="Seleccionar"
                 error={errors.provincia?.message}
@@ -218,7 +218,7 @@ export default function RegistroPage() {
               />
             </div>
             <Select
-              label="Especialidad principal"
+              label={t("auth.mainSpecialty")}
               options={ESPECIALIDADES}
               placeholder="Seleccionar"
               error={errors.especialidad?.message}
@@ -226,17 +226,17 @@ export default function RegistroPage() {
             />
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="Contraseña"
+                label={t("label.password")}
                 type="password"
-                placeholder="Mínimo 8 caracteres"
+                placeholder={t("auth.minChars")}
                 autoComplete="new-password"
                 error={errors.password?.message}
                 {...register("password")}
               />
               <Input
-                label="Confirmar contraseña"
+                label={t("auth.repeatPassword")}
                 type="password"
-                placeholder="Repetí"
+                placeholder={t("auth.repeatPassword")}
                 autoComplete="new-password"
                 error={errors.confirmPassword?.message}
                 {...register("confirmPassword")}
@@ -272,13 +272,13 @@ export default function RegistroPage() {
                 {...register("terms")}
               />
               <span className="text-[10px] text-ink-muted leading-relaxed">
-                Acepto los{" "}
+                {t("auth.acceptTerms")}{" "}
                 <Link href="/terminos" className="text-celeste-dark underline">
-                  Términos de Servicio
+                  {t("auth.termsOfService")}
                 </Link>{" "}
-                y la{" "}
+                {t("auth.and")}{" "}
                 <Link href="/privacidad" className="text-celeste-dark underline">
-                  Política de Privacidad
+                  {t("auth.privacyPolicy")}
                 </Link>
               </span>
             </label>
@@ -288,14 +288,14 @@ export default function RegistroPage() {
               </p>
             )}
             <Button type="submit" loading={isSubmitting} className="w-full py-3 mt-2">
-              Crear cuenta gratis
+              {t("auth.createFreeAccount")}
             </Button>
           </form>
 
           {/* Google Sign-Up divider + button */}
           <div className="flex items-center gap-3 my-4">
             <span className="flex-1 h-px bg-border" />
-            <span className="text-xs text-ink-muted">o registrate con</span>
+            <span className="text-xs text-ink-muted">{t("auth.orContinueWith")}</span>
             <span className="flex-1 h-px bg-border" />
           </div>
           <button
@@ -334,14 +334,14 @@ export default function RegistroPage() {
                 fill="#EA4335"
               />
             </svg>
-            Registrarse con Google
+            {t("auth.continueGoogle")}
           </button>
 
           <div className="mt-5 pt-5 border-t border-border text-center">
             <p className="text-xs text-ink-muted">
-              ¿Ya tenés cuenta?{" "}
+              {t("auth.haveAccount")}{" "}
               <Link href="/auth/login" className="text-celeste-dark font-semibold hover:underline">
-                Iniciá sesión
+                {t("auth.signInLink")}
               </Link>
             </p>
           </div>
@@ -350,7 +350,7 @@ export default function RegistroPage() {
               href="/"
               className="text-[10px] text-ink-muted hover:text-celeste-dark transition"
             >
-              Volver al sitio
+              {t("auth.backToSite")}
             </Link>
           </div>
         </div>

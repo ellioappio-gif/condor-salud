@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { GOOGLE_CLIENT_ID } from "@/lib/google";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [serverError, setServerError] = useState("");
   const { showToast } = useToast();
+  const { t } = useLocale();
 
   const {
     register,
@@ -71,15 +73,8 @@ export default function LoginPage() {
               <span className="text-gold">SALUD</span>
             </div>
           </Link>
-          <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
-            Inteligencia financiera para
-            <br />
-            la <em className="text-celeste-dark not-italic">salud argentina</em>
-          </h1>
-          <p className="text-base text-ink-light leading-relaxed max-w-md">
-            Automatizá facturación, eliminá rechazos y protegé tus ingresos contra la inflación.
-            Todo en una sola plataforma.
-          </p>
+          <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">{t("auth.heroTitle")}</h1>
+          <p className="text-base text-ink-light leading-relaxed max-w-md">{t("auth.heroDesc")}</p>
         </div>
         <div className="relative z-10 grid grid-cols-3 gap-6">
           {[
@@ -116,8 +111,8 @@ export default function LoginPage() {
             </div>
           </Link>
 
-          <h2 className="text-2xl font-bold text-ink mb-1">Iniciar sesión</h2>
-          <p className="text-sm text-ink-muted mb-8">Ingresá a tu cuenta para acceder al panel</p>
+          <h2 className="text-2xl font-bold text-ink mb-1">{t("auth.loginTitle")}</h2>
+          <p className="text-sm text-ink-muted mb-8">{t("auth.loginSubtitle")}</p>
 
           {serverError && (
             <div
@@ -130,7 +125,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <Input
-              label="Email"
+              label={t("label.email")}
               type="email"
               placeholder="tu@clinica.com"
               autoComplete="email"
@@ -138,7 +133,7 @@ export default function LoginPage() {
               {...register("email")}
             />
             <Input
-              label="Contraseña"
+              label={t("label.password")}
               type="password"
               placeholder="••••••••"
               autoComplete="current-password"
@@ -151,17 +146,17 @@ export default function LoginPage() {
                   type="checkbox"
                   className="w-4 h-4 rounded border-border text-celeste-dark"
                 />
-                <span className="text-xs text-ink-light">Recordarme</span>
+                <span className="text-xs text-ink-light">{t("auth.rememberMe")}</span>
               </label>
               <Link
                 href="/auth/forgot-password"
                 className="text-xs text-celeste-dark font-medium hover:underline"
               >
-                ¿Olvidaste tu contraseña?
+                {t("auth.forgotPassword")}
               </Link>
             </div>
             <Button type="submit" loading={isSubmitting} className="w-full py-3">
-              Ingresar
+              {t("auth.signIn")}
             </Button>
           </form>
 
@@ -172,7 +167,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-white px-3 text-ink-muted">o continuá con</span>
+                <span className="bg-white px-3 text-ink-muted">{t("auth.orContinueWith")}</span>
               </div>
             </div>
             <button
@@ -212,18 +207,18 @@ export default function LoginPage() {
                   fill="#EA4335"
                 />
               </svg>
-              Continuar con Google
+              {t("auth.continueGoogle")}
             </button>
           </div>
 
           <div className="mt-6 pt-6 border-t border-border text-center">
             <p className="text-xs text-ink-muted">
-              ¿No tenés cuenta?{" "}
+              {t("auth.noAccount")}{" "}
               <Link
                 href="/auth/registro"
                 className="text-celeste-dark font-semibold hover:underline"
               >
-                Registrate gratis
+                {t("auth.registerFree")}
               </Link>
             </p>
           </div>
@@ -232,7 +227,7 @@ export default function LoginPage() {
               href="/"
               className="text-[10px] text-ink-muted hover:text-celeste-dark transition"
             >
-              Volver al sitio
+              {t("auth.backToSite")}
             </Link>
           </div>
         </div>

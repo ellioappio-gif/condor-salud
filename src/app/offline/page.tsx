@@ -1,6 +1,9 @@
 "use client";
 
+import { useLocale } from "@/lib/i18n/context";
+
 export default function OfflinePage() {
+  const { t } = useLocale();
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8FAFB] px-6">
       <div className="text-center max-w-md">
@@ -19,16 +22,13 @@ export default function OfflinePage() {
             />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Sin conexión</h1>
-        <p className="text-sm text-gray-500 mb-6">
-          Parece que no tenés conexión a internet. Algunas funciones podrían no estar disponibles
-          hasta que vuelvas a conectarte.
-        </p>
+        <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">{t("offline.title")}</h1>
+        <p className="text-sm text-gray-500 mb-6">{t("offline.desc")}</p>
         <button
           onClick={() => window.location.reload()}
           className="px-6 py-2.5 bg-[#75AADB] text-white font-semibold rounded-lg hover:bg-[#5a8fc0] transition"
         >
-          Reintentar
+          {t("offline.retry")}
         </button>
       </div>
     </div>

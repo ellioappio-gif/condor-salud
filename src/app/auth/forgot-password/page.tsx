@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { isSupabaseConfigured } from "@/lib/env";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 const schema = z.object({
   email: z.string().email("Ingresá un email válido"),
@@ -19,6 +20,7 @@ type FormData = z.infer<typeof schema>;
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const [serverError, setServerError] = useState("");
+  const { t } = useLocale();
 
   const {
     register,
@@ -87,9 +89,7 @@ export default function ForgotPasswordPage() {
             </div>
           </Link>
           <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
-            Recuperá tu acceso
-            <br />
-            en <em className="text-celeste-dark not-italic">segundos</em>
+            {t("auth.forgotSubtitle")}
           </h1>
           <p className="text-base text-ink-light leading-relaxed max-w-md">
             Te enviaremos un enlace seguro para restablecer tu contraseña. Revisá tu bandeja de
@@ -133,10 +133,8 @@ export default function ForgotPasswordPage() {
 
           {!sent ? (
             <>
-              <h2 className="text-2xl font-bold text-ink mb-1">¿Olvidaste tu contraseña?</h2>
-              <p className="text-sm text-ink-muted mb-8">
-                Ingresá tu email y te enviaremos un enlace para restablecerla
-              </p>
+              <h2 className="text-2xl font-bold text-ink mb-1">{t("auth.forgotTitle")}</h2>
+              <p className="text-sm text-ink-muted mb-8">{t("auth.forgotPrompt")}</p>
 
               {serverError && (
                 <div
@@ -149,7 +147,7 @@ export default function ForgotPasswordPage() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                 <Input
-                  label="Email"
+                  label={t("label.email")}
                   type="email"
                   placeholder="tu@clinica.com"
                   autoComplete="email"
@@ -158,7 +156,7 @@ export default function ForgotPasswordPage() {
                 />
                 <Button type="submit" loading={isSubmitting} className="w-full py-3">
                   <Mail className="w-4 h-4 mr-2" />
-                  Enviar enlace de recuperación
+                  {t("auth.sendResetLink")}
                 </Button>
               </form>
             </>
@@ -167,15 +165,13 @@ export default function ForgotPasswordPage() {
               <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-ink mb-2">¡Email enviado!</h2>
+              <h2 className="text-2xl font-bold text-ink mb-2">{t("auth.emailSent")}</h2>
               <p className="text-sm text-ink-muted mb-2">
                 Si existe una cuenta con{" "}
                 <span className="font-semibold text-ink">{getValues("email")}</span>, recibirás un
                 enlace para restablecer tu contraseña.
               </p>
-              <p className="text-xs text-ink-muted mb-8">
-                Revisá tu bandeja de entrada y la carpeta de spam. El enlace expira en 10 minutos.
-              </p>
+              <p className="text-xs text-ink-muted mb-8">{t("auth.checkInbox")}</p>
               <button
                 onClick={() => setSent(false)}
                 className="text-sm text-celeste-dark font-medium hover:underline"
@@ -191,7 +187,7 @@ export default function ForgotPasswordPage() {
               className="flex items-center gap-2 text-sm text-ink-muted hover:text-celeste-dark transition"
             >
               <ArrowLeft className="w-4 h-4" />
-              Volver a iniciar sesión
+              {t("auth.signInLink")}
             </Link>
           </div>
         </div>

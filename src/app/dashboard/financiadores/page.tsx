@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useExport } from "@/lib/services/export";
+import { useLocale } from "@/lib/i18n/context";
 import { formatCurrency } from "@/lib/utils";
 import { EmptyState } from "@/components/ui";
 import { useIsDemo } from "@/lib/auth/context";
@@ -26,6 +27,7 @@ function formatPorcentaje(facturado: number, cobrado: number): number {
 }
 
 export default function FinanciadoresPage() {
+  const { t } = useLocale();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
   const { execute } = useCrudAction(isDemo);
@@ -76,7 +78,7 @@ export default function FinanciadoresPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-celeste" />
-          <span className="ml-2 text-sm text-ink-muted">Cargando financiadores...</span>
+          <span className="ml-2 text-sm text-ink-muted">{t("insurers.loading")}</span>
         </div>
       )}
       {!isLoading && (
@@ -84,10 +86,8 @@ export default function FinanciadoresPage() {
           {/* Header */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-ink">Financiadores</h1>
-              <p className="text-sm text-ink-muted mt-1">
-                Rendimiento y análisis comparativo por financiador
-              </p>
+              <h1 className="text-2xl font-bold text-ink">{t("insurers.title")}</h1>
+              <p className="text-sm text-ink-muted mt-1">{t("insurers.comparativeSubtitle")}</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -96,7 +96,7 @@ export default function FinanciadoresPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" />
-                {isExporting ? "..." : "Exportar PDF"}
+                {isExporting ? "..." : `${t("action.export")} PDF`}
               </button>
               <button
                 onClick={() => exportExcel("financiadores")}
@@ -115,8 +115,8 @@ export default function FinanciadoresPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-muted" />
               <input
                 type="text"
-                placeholder="Buscar financiador..."
-                aria-label="Buscar financiador"
+                placeholder={t("insurers.searchPlaceholder")}
+                aria-label={t("insurers.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 pr-3 py-1.5 text-xs border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink w-52"
@@ -127,10 +127,10 @@ export default function FinanciadoresPage() {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-                aria-label="Filtrar por tipo de financiador"
+                aria-label={t("insurers.filterByType")}
                 className="text-xs border border-border rounded-[4px] px-2 py-1.5 outline-none focus:border-celeste-dark bg-white text-ink"
               >
-                <option value="Todos">Todos los tipos</option>
+                <option value="Todos">{t("label.allTypes")}</option>
                 <option value="pami">PAMI</option>
                 <option value="os">Obra Social</option>
                 <option value="prepaga">Prepaga</option>
@@ -141,46 +141,45 @@ export default function FinanciadoresPage() {
           {/* Global KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
-              <div className="text-xs text-ink-muted mb-1">Total facturado</div>
+              <div className="text-xs text-ink-muted mb-1">{t("billing.totalBilled")}</div>
               <div className="text-2xl font-bold text-celeste-dark">
                 {formatMonto(totalFacturado)}
               </div>
-              <div className="text-xs mt-1 text-ink-muted">{filtered.length} financiadores</div>
+              <div className="text-xs mt-1 text-ink-muted">
+                {filtered.length} {t("insurers.title").toLowerCase()}
+              </div>
             </div>
             <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-success-400">
-              <div className="text-xs text-ink-muted mb-1">Total cobrado</div>
+              <div className="text-xs text-ink-muted mb-1">{t("billing.totalCollected")}</div>
               <div className="text-2xl font-bold text-success-600">{formatMonto(totalCobrado)}</div>
               <div className="text-xs mt-1 text-success-600">
-                {totalFacturado > 0 ? formatPorcentaje(totalFacturado, totalCobrado) : 0}% del
-                facturado
+                {totalFacturado > 0 ? formatPorcentaje(totalFacturado, totalCobrado) : 0}%{" "}
+                {t("insurers.ofBilled")}
               </div>
             </div>
             <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
-              <div className="text-xs text-ink-muted mb-1">Rechazo promedio</div>
+              <div className="text-xs text-ink-muted mb-1">{t("insurers.avgRejection")}</div>
               <div
                 className={`text-2xl font-bold ${promedioRechazo > 10 ? "text-red-600" : promedioRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
               >
                 {promedioRechazo}%
               </div>
-              <div className="text-xs mt-1 text-ink-muted">Promedio ponderado</div>
+              <div className="text-xs mt-1 text-ink-muted">{t("insurers.weightedAverage")}</div>
             </div>
             <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
-              <div className="text-xs text-ink-muted mb-1">Días pago promedio</div>
+              <div className="text-xs text-ink-muted mb-1">{t("insurers.avgPayDays")}</div>
               <div
                 className={`text-2xl font-bold ${promedioDias > 60 ? "text-red-600" : "text-celeste-dark"}`}
               >
                 {promedioDias}
               </div>
-              <div className="text-xs mt-1 text-ink-muted">Promedio entre financiadores</div>
+              <div className="text-xs mt-1 text-ink-muted">{t("insurers.betweenInsurers")}</div>
             </div>
           </div>
 
           {/* Financiador cards */}
           {filtered.length === 0 ? (
-            <EmptyState
-              title="Sin resultados"
-              description="No se encontraron financiadores con los filtros aplicados"
-            />
+            <EmptyState title={t("label.noResults")} description={t("insurers.noResultsDesc")} />
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((f) => {
@@ -208,12 +207,12 @@ export default function FinanciadoresPage() {
                           <div className="text-lg font-bold text-celeste-dark">
                             {formatMonto(f.facturado)}
                           </div>
-                          <div className="text-[10px] text-ink-muted">facturado</div>
+                          <div className="text-[10px] text-ink-muted">{t("insurers.billed")}</div>
                         </div>
                       </div>
                       <div className="mb-3">
                         <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-ink-muted">Cobrado</span>
+                          <span className="text-ink-muted">{t("insurers.collected")}</span>
                           <span className="font-semibold text-ink">{porcentajeCobro}%</span>
                         </div>
                         <div className="w-full bg-border-light rounded-full h-2">
@@ -230,7 +229,9 @@ export default function FinanciadoresPage() {
                           >
                             {f.tasaRechazo}%
                           </div>
-                          <div className="text-[10px] text-ink-muted">Rechazo</div>
+                          <div className="text-[10px] text-ink-muted">
+                            {t("insurers.rejectionLabel")}
+                          </div>
                         </div>
                         <div className="text-center">
                           <div
@@ -238,11 +239,13 @@ export default function FinanciadoresPage() {
                           >
                             {f.diasPromedioPago}d
                           </div>
-                          <div className="text-[10px] text-ink-muted">Días pago</div>
+                          <div className="text-[10px] text-ink-muted">
+                            {t("insurers.paymentDaysLabel")}
+                          </div>
                         </div>
                         <div className="text-center">
                           <div className="text-sm font-bold text-ink">{f.facturasPendientes}</div>
-                          <div className="text-[10px] text-ink-muted">Pendientes</div>
+                          <div className="text-[10px] text-ink-muted">{t("status.pending")}</div>
                         </div>
                       </div>
                       <div className="mt-3 pt-3 border-t border-border-light flex gap-2">
@@ -250,14 +253,14 @@ export default function FinanciadoresPage() {
                           onClick={() => handleVerDetalle(f)}
                           className="flex-1 text-xs font-semibold text-celeste-dark hover:underline text-center"
                         >
-                          Ver detalle
+                          {t("dashboard.viewDetail")}
                         </button>
                         <button
                           onClick={() => handleContactar(f)}
                           className="flex items-center gap-1 text-xs text-ink-muted hover:text-celeste-dark transition"
                         >
                           <Mail className="w-3 h-3" />
-                          Contactar
+                          {t("insurers.contact")}
                         </button>
                       </div>
                     </div>
@@ -270,7 +273,7 @@ export default function FinanciadoresPage() {
           {/* Comparison table */}
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-              <div className="text-xs text-ink-muted">Comparativo detallado</div>
+              <div className="text-xs text-ink-muted">{t("insurers.detailedComparison")}</div>
               <button
                 onClick={() => exportExcel("facturacion")}
                 disabled={isExporting}
@@ -283,31 +286,31 @@ export default function FinanciadoresPage() {
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Financiador
+                    {t("billing.insurer")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Tipo
+                    {t("label.type")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Facturado
+                    {t("dashboard.billed")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Cobrado
+                    {t("dashboard.collected")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    % Cobro
+                    % {t("insurers.collected")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Rechazo
+                    {t("insurers.rejectionLabel")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Días pago
+                    {t("insurers.paymentDaysLabel")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Pendientes
+                    {t("status.pending")}
                   </th>
                   <th scope="col" className="text-left px-5 py-2.5">
-                    Últ. liquidación
+                    {t("insurers.lastSettlement")}
                   </th>
                 </tr>
               </thead>
@@ -375,23 +378,23 @@ export default function FinanciadoresPage() {
           <div className="p-5 space-y-4">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-ink-muted">Tipo</span>
+                <span className="text-ink-muted">{t("label.type")}</span>
                 <span className="text-ink font-medium">
                   {typeLabels[detalleFinanciador.type]?.label}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Facturado</span>
+                <span className="text-ink-muted">{t("dashboard.billed")}</span>
                 <span className="text-ink font-bold">
                   {formatMonto(detalleFinanciador.facturado)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Cobrado</span>
+                <span className="text-ink-muted">{t("dashboard.collected")}</span>
                 <span className="text-ink">{formatMonto(detalleFinanciador.cobrado)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Tasa rechazo</span>
+                <span className="text-ink-muted">{t("insurers.rejectionRateLabel")}</span>
                 <span
                   className={`font-semibold ${detalleFinanciador.tasaRechazo > 10 ? "text-red-600" : "text-ink"}`}
                 >
@@ -399,21 +402,23 @@ export default function FinanciadoresPage() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Días promedio pago</span>
-                <span className="text-ink">{detalleFinanciador.diasPromedioPago} días</span>
+                <span className="text-ink-muted">{t("insurers.avgPayDays")}</span>
+                <span className="text-ink">
+                  {detalleFinanciador.diasPromedioPago} {t("insurers.days")}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Facturas pendientes</span>
+                <span className="text-ink-muted">{t("insurers.pendingInvoices")}</span>
                 <span className="text-ink font-semibold">
                   {detalleFinanciador.facturasPendientes}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Última liquidación</span>
+                <span className="text-ink-muted">{t("insurers.lastSettlement")}</span>
                 <span className="text-ink">{detalleFinanciador.ultimaLiquidacion}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink-muted">Contacto</span>
+                <span className="text-ink-muted">{t("insurers.contactLabel")}</span>
                 <span className="text-celeste-dark">{detalleFinanciador.contacto}</span>
               </div>
             </div>
@@ -421,7 +426,7 @@ export default function FinanciadoresPage() {
               onClick={() => handleContactar(detalleFinanciador)}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
             >
-              <Mail className="w-4 h-4" /> Enviar reclamo
+              <Mail className="w-4 h-4" /> {t("insurers.sendClaim")}
             </button>
           </div>
         </div>

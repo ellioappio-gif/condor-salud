@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { Button } from "@/components/ui/Button";
+import { useLocale } from "@/lib/i18n/context";
 
 export default function GlobalError({
   error,
@@ -11,6 +12,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useLocale();
+
   useEffect(() => {
     Sentry.captureException(error, {
       tags: { boundary: "app-root" },
@@ -36,19 +39,19 @@ export default function GlobalError({
             />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-ink mb-2">Algo salió mal</h1>
-        <p className="text-sm text-ink-muted mb-2">
-          Ocurrió un error inesperado. Si el problema persiste, contactá a soporte.
-        </p>
+        <h1 className="text-2xl font-bold text-ink mb-2">{t("error.somethingWrong")}</h1>
+        <p className="text-sm text-ink-muted mb-2">{t("error.unexpectedDesc")}</p>
         {error.digest && (
-          <p className="text-xs text-ink-muted mb-6 font-mono">Código: {error.digest}</p>
+          <p className="text-xs text-ink-muted mb-6 font-mono">
+            {t("error.codeLabel")}: {error.digest}
+          </p>
         )}
         <div className="flex items-center justify-center gap-3">
           <Button onClick={reset} variant="primary">
-            Reintentar
+            {t("action.retry")}
           </Button>
           <Button onClick={() => (window.location.href = "/dashboard")} variant="outline">
-            Ir al dashboard
+            {t("action.goToDashboard")}
           </Button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Download, X } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -13,6 +14,7 @@ interface BeforeInstallPromptEvent extends Event {
  * Also registers the service worker on mount.
  */
 export default function InstallPrompt() {
+  const { t } = useLocale();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -72,29 +74,27 @@ export default function InstallPrompt() {
           <Download className="w-5 h-5 text-[#75AADB]" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[#1A1A1A]">Instalá Cóndor Salud</p>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Accedé más rápido desde tu pantalla de inicio. Funciona sin conexión.
-          </p>
+          <p className="text-sm font-semibold text-[#1A1A1A]">{t("install.title")}</p>
+          <p className="text-xs text-gray-500 mt-0.5">{t("install.desc")}</p>
           <div className="flex gap-2 mt-3">
             <button
               onClick={handleInstall}
               className="px-4 py-1.5 text-xs font-semibold bg-[#75AADB] text-white rounded-lg hover:bg-[#5a8fc0] transition"
             >
-              Instalar
+              {t("install.button")}
             </button>
             <button
               onClick={handleDismiss}
               className="px-4 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 transition"
             >
-              Ahora no
+              {t("install.notNow")}
             </button>
           </div>
         </div>
         <button
           onClick={handleDismiss}
           className="p-1 text-gray-400 hover:text-gray-600 transition"
-          aria-label="Cerrar"
+          aria-label={t("action.close")}
         >
           <X className="w-4 h-4" />
         </button>

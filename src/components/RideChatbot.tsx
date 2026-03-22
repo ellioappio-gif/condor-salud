@@ -11,6 +11,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { MessageCircle, Send, Loader2, X, MapPin } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 import type { RideOption } from "@/hooks/useRideOptions";
 
 // ─── Types ───────────────────────────────────────────────────
@@ -53,17 +54,18 @@ const APP_COLORS: Record<string, string> = {
   indrive: "bg-[#CCFF00] text-black",
 };
 
-const QUICK_REPLIES = [
-  "¿Cómo llego al consultorio?",
-  "Pedir un Uber",
-  "Pedir un Cabify",
-  "¿Cuánto cuesta el viaje?",
-  "¿Cuándo es mi turno?",
+const QUICK_REPLY_KEYS = [
+  "ride.howToGetThere",
+  "ride.requestUber",
+  "ride.requestCabify",
+  "ride.howMuch",
+  "ride.whenIsAppointment",
 ];
 
 // ─── Component ───────────────────────────────────────────────
 
 export default function RideChatbot({ preloadContext, onClose }: Props) {
+  const { t } = useLocale();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,12 +77,16 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
       id: "0",
       role: "assistant",
       text: preloadContext
-        ? `Hola, tu turno con **${preloadContext.doctorName}** es el ${preloadContext.bookingDate || "—"} a las ${preloadContext.bookingTime || "—"}. ¿Necesitás ayuda para llegar al consultorio?`
-        : "¡Hola! Soy el asistente de Cóndor Salud. Puedo ayudarte a pedir un Uber o Cabify al consultorio. ¿En qué puedo ayudarte?",
+        ? t("ride.greetingWithContext")
+            .replace("{doctor}", preloadContext.doctorName)
+            .replace("{date}", preloadContext.bookingDate || "—")
+            .replace("{time}", preloadContext.bookingTime || "—")
+        : t("ride.greetingDefault"),
       timestamp: new Date(),
     };
     setMessages([greeting]);
-  }, [preloadContext]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preloadContext, t]);
 
   const scrollToBottom = () => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -136,9 +142,9 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
 
       if (!res.ok) throw new Error("Chat error");
       const data = await res.json();
-      return data.reply || "No pude procesar tu consulta. ¿Podés reformularla?";
+      return data.reply || t("ride.cantProcess");
     },
-    [],
+    [t],
   );
 
   // ── Send message ───────────────────────────────────────────
@@ -168,7 +174,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
           const assistantMsg: Message = {
             id: (Date.now() + 1).toString(),
             role: "assistant",
-            text: `Perfecto, preparé las opciones de transporte hasta ${preloadContext.doctorName}. La dirección ya está precargada en cada app:`,
+            text: t("ride.transportReady").replace("{doctor}", preloadContext.doctorName),
             rideCard: opts,
             timestamp: new Date(),
           };
@@ -187,7 +193,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
         const errMsg: Message = {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          text: "Lo siento, hubo un error. Por favor intentá de nuevo.",
+          text: t("ride.errorRetry"),
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, errMsg]);
@@ -196,7 +202,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
         scrollToBottom();
       }
     },
-    [preloadContext, fetchRideOptions, sendToAI],
+    [preloadContext, fetchRideOptions, sendToAI, t],
   );
 
   const openRide = (option: RideOption) => {
@@ -214,7 +220,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
             <MessageCircle className="w-3.5 h-3.5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-ink">Asistente de transporte</p>
+            <p className="text-sm font-semibold text-ink">{t("ride.assistantTitle")}</p>
             <p className="text-[11px] text-ink-muted">Cóndor Salud</p>
           </div>
         </div>
@@ -222,7 +228,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
           <button
             onClick={onClose}
             className="p-1.5 text-ink-muted hover:text-ink transition"
-            aria-label="Cerrar"
+            aria-label={t("action.close")}
           >
             <X className="w-4 h-4" />
           </button>
@@ -315,15 +321,18 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
       {/* Quick reply chips */}
       {messages.length <= 2 && !loading && (
         <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-          {QUICK_REPLIES.map((reply) => (
-            <button
-              key={reply}
-              onClick={() => sendMessage(reply)}
-              className="text-xs bg-white border border-border-light rounded-full px-3 py-1.5 text-ink-500 hover:border-celeste-200 hover:text-celeste-dark transition"
-            >
-              {reply}
-            </button>
-          ))}
+          {QUICK_REPLY_KEYS.map((key) => {
+            const label = t(key);
+            return (
+              <button
+                key={key}
+                onClick={() => sendMessage(label)}
+                className="text-xs bg-white border border-border-light rounded-full px-3 py-1.5 text-ink-500 hover:border-celeste-200 hover:text-celeste-dark transition"
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -334,7 +343,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
-          placeholder="Escribí tu consulta..."
+          placeholder={t("ride.placeholder")}
           disabled={loading}
           className="flex-1 text-sm bg-surface rounded-full px-4 py-2.5 border border-border-light focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark disabled:opacity-50"
         />
@@ -342,7 +351,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
           onClick={() => sendMessage(input)}
           disabled={!input.trim() || loading}
           className="w-9 h-9 rounded-full bg-celeste-dark text-white flex items-center justify-center shrink-0 transition hover:bg-celeste-700 disabled:opacity-40"
-          aria-label="Enviar"
+          aria-label={t("ride.sendLabel")}
         >
           <Send className="w-4 h-4" />
         </button>

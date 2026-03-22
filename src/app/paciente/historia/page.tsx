@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { usePatientName } from "@/lib/hooks/usePatientName";
 import {
   getHistoriaClinica,
@@ -70,20 +71,29 @@ interface Tab {
   types?: HistoriaEventType[];
 }
 
+const tabKeyMap: Record<string, string> = {
+  todo: "patient.recordTypes.all",
+  consultas: "patient.recordTypes.consultations",
+  laboratorio: "patient.recordTypes.lab",
+  imagenes: "patient.recordTypes.imaging",
+  recetas: "patient.recordTypes.prescriptions",
+  triage: "patient.recordTypes.triages",
+};
+
 const tabs: Tab[] = [
-  { key: "todo", label: "Todo" },
-  { key: "consultas", label: "Consultas", types: ["consulta"] },
-  { key: "laboratorio", label: "Laboratorio", types: ["laboratorio"] },
-  { key: "imagenes", label: "Imágenes", types: ["imagen"] },
-  { key: "recetas", label: "Recetas", types: ["receta"] },
-  { key: "triage", label: "Triages", types: ["triage", "nota_clinica"] },
+  { key: "todo", label: "" },
+  { key: "consultas", label: "", types: ["consulta"] },
+  { key: "laboratorio", label: "", types: ["laboratorio"] },
+  { key: "imagenes", label: "", types: ["imagen"] },
+  { key: "recetas", label: "", types: ["receta"] },
+  { key: "triage", label: "", types: ["triage", "nota_clinica"] },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function formatMonth(dateStr: string): string {
+function formatMonth(dateStr: string, loc?: string): string {
   const d = new Date(dateStr + "T00:00:00");
-  const month = d.toLocaleString("es-AR", { month: "long" });
+  const month = d.toLocaleString(loc === "en" ? "en-US" : "es-AR", { month: "long" });
   return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${d.getFullYear()}`;
 }
 
@@ -100,6 +110,7 @@ function groupByMonth(events: HistoriaEvent[]): [string, HistoriaEvent[]][] {
 // ─── Component ───────────────────────────────────────────────
 
 export default function HistoriaClinicaPage() {
+  const { t, locale } = useLocale();
   const { name } = usePatientName();
   const { showToast } = useToast();
   const [events, setEvents] = useState<HistoriaEvent[]>([]);
@@ -138,8 +149,8 @@ export default function HistoriaClinicaPage() {
     <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-ink">Historia Clínica</h1>
-        <p className="text-sm text-ink-muted mt-0.5">Registro completo de atenciones y estudios</p>
+        <h1 className="text-2xl font-bold text-ink">{t("patient.medicalRecordsTitle")}</h1>
+        <p className="text-sm text-ink-muted mt-0.5">{t("patient.medicalRecordsSubtitle")}</p>
       </div>
 
       {/* Summary cards */}
@@ -180,7 +191,7 @@ export default function HistoriaClinicaPage() {
                   : "text-ink-muted hover:text-ink"
               }`}
             >
-              {tab.label}
+              {t(tabKeyMap[tab.key] ?? tab.key)}
             </button>
           ))}
         </div>
@@ -188,8 +199,8 @@ export default function HistoriaClinicaPage() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" />
           <input
             type="text"
-            placeholder="Buscar en historia..."
-            aria-label="Buscar en historia clínica"
+            placeholder={t("patient.searchInHistory")}
+            aria-label={t("patient.searchInHistory")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 pr-4 py-1.5 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-48"
@@ -201,7 +212,7 @@ export default function HistoriaClinicaPage() {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 text-celeste-dark animate-spin" />
-          <span className="ml-2 text-sm text-ink-muted">Cargando historia clínica...</span>
+          <span className="ml-2 text-sm text-ink-muted">{t("patient.loadingHistory")}</span>
         </div>
       )}
 
@@ -213,7 +224,7 @@ export default function HistoriaClinicaPage() {
               <div className="flex items-center gap-2 mb-3">
                 <Calendar className="w-4 h-4 text-ink-muted" />
                 <h2 className="text-sm font-bold text-ink-muted uppercase tracking-wider">
-                  {formatMonth(monthEvents[0]?.date ?? month)}
+                  {formatMonth(monthEvents[0]?.date ?? month, locale)}
                 </h2>
                 <span className="text-xs text-ink-300">({monthEvents.length})</span>
               </div>
@@ -267,7 +278,7 @@ export default function HistoriaClinicaPage() {
                           {event.details && event.details.length > 0 && (
                             <div className="mt-3">
                               <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1.5">
-                                Detalles
+                                {t("patient.detailsSection")}
                               </p>
                               <ul className="space-y-1">
                                 {event.details.map((d, i) => (
@@ -285,7 +296,7 @@ export default function HistoriaClinicaPage() {
                           {event.attachments && event.attachments.length > 0 && (
                             <div className="mt-3 pt-2 border-t border-border-light">
                               <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1.5">
-                                Documentos adjuntos
+                                {t("patient.attachedDocuments")}
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {event.attachments.map((att, i) => (
@@ -296,7 +307,9 @@ export default function HistoriaClinicaPage() {
                                       if (att.url) {
                                         window.open(att.url, "_blank");
                                       } else {
-                                        showToast("📎 Descargando " + att.name);
+                                        showToast(
+                                          `${t("patient.downloadingAttachment")} ` + att.name,
+                                        );
                                       }
                                     }}
                                     className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-celeste-dark border border-celeste-light rounded-[4px] hover:bg-celeste-pale transition"
@@ -335,11 +348,9 @@ export default function HistoriaClinicaPage() {
           {events.length === 0 && (
             <div className="bg-white border border-border rounded-lg px-5 py-12 text-center">
               <FileText className="w-8 h-8 text-ink-muted mx-auto mb-3" />
-              <p className="text-sm font-semibold text-ink">Sin registros</p>
+              <p className="text-sm font-semibold text-ink">{t("patient.noRecords")}</p>
               <p className="text-xs text-ink-muted mt-1">
-                {search
-                  ? "No se encontraron registros con esa búsqueda"
-                  : "No hay registros en la historia clínica"}
+                {search ? t("patient.noSearchResults") : t("patient.noHistoryRecords")}
               </p>
             </div>
           )}

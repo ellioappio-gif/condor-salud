@@ -18,6 +18,7 @@ import {
   Brain,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useMyCoverage } from "@/hooks/use-patient-data";
 
 /* ── icon map for coverage categories ─────────────────── */
@@ -34,6 +35,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default function CoberturaPage() {
   const { showToast } = useToast();
+  const { t } = useLocale();
   const { data: coverage } = useMyCoverage();
   const planInfo = coverage?.plan ?? {
     name: "",
@@ -57,8 +59,8 @@ export default function CoberturaPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Mi Cobertura</h1>
-        <p className="text-sm text-ink-muted mt-0.5">Información de tu obra social y plan médico</p>
+        <h1 className="text-2xl font-display font-bold text-ink">{t("patient.myCoverage")}</h1>
+        <p className="text-sm text-ink-muted mt-0.5">{t("patient.coverageInfo")}</p>
       </div>
 
       {/* Plan card */}
@@ -72,14 +74,22 @@ export default function CoberturaPage() {
               </span>
             </div>
             <h2 className="text-2xl font-bold">{planInfo.name}</h2>
-            <p className="text-sm opacity-80 mt-1">N° afiliado: {planInfo.memberId}</p>
-            <p className="text-sm opacity-80">Grupo: {planInfo.group}</p>
-            <p className="text-sm opacity-80">Vigencia: hasta {planInfo.validUntil}</p>
+            <p className="text-sm opacity-80 mt-1">
+              {t("patient.memberIdLabel")} {planInfo.memberId}
+            </p>
+            <p className="text-sm opacity-80">
+              {t("patient.groupLabel")} {planInfo.group}
+            </p>
+            <p className="text-sm opacity-80">
+              {t("patient.validUntil")} {planInfo.validUntil}
+            </p>
           </div>
           <div className="bg-white/10 backdrop-blur rounded-xl p-4 min-w-[180px]">
-            <p className="text-xs opacity-70">Cuota mensual</p>
+            <p className="text-xs opacity-70">{t("patient.monthlyFee")}</p>
             <p className="text-2xl font-bold mt-0.5">{planInfo.monthlyFee}</p>
-            <p className="text-xs opacity-70 mt-1">Último pago: {planInfo.lastPayment}</p>
+            <p className="text-xs opacity-70 mt-1">
+              {t("patient.lastPayment")} {planInfo.lastPayment}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-4 mt-5 pt-4 border-t border-white/20 text-sm">
@@ -95,7 +105,7 @@ export default function CoberturaPage() {
       {/* Coverage grid */}
       <div className="bg-white rounded-2xl border border-border-light">
         <div className="px-5 py-4 border-b border-border-light">
-          <h2 className="text-sm font-bold text-ink">Detalle de cobertura</h2>
+          <h2 className="text-sm font-bold text-ink">{t("patient.coverageDetail")}</h2>
         </div>
         <div className="divide-y divide-border-light">
           {coverageItems.map((item) => {
@@ -124,7 +134,7 @@ export default function CoberturaPage() {
           <div className="px-5 py-4 border-b border-border-light">
             <h2 className="text-sm font-bold text-ink flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-celeste-dark" />
-              Últimas prestaciones
+              {t("patient.recentClaims")}
             </h2>
           </div>
           <div className="divide-y divide-border-light">
@@ -152,14 +162,14 @@ export default function CoberturaPage() {
           <div className="px-5 py-4 border-b border-border-light">
             <h2 className="text-sm font-bold text-ink flex items-center gap-2">
               <FileText className="w-4 h-4 text-celeste-dark" />
-              Documentos
+              {t("patient.documents")}
             </h2>
           </div>
           <div className="divide-y divide-border-light">
             {documents.map((doc) => (
               <button
                 key={doc.name}
-                onClick={() => showToast(`✅ ${doc.name} descargado correctamente`)}
+                onClick={() => showToast(`✅ ${doc.name} ${t("patient.downloaded")}`)}
                 className="flex items-center justify-between px-5 py-3 w-full hover:bg-surface/50 transition"
               >
                 <div className="flex items-center gap-3">

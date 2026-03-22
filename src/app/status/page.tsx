@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Activity,
 } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 interface ServiceStatus {
   name: string;
@@ -27,21 +28,21 @@ interface StatusResponse {
 const statusConfig = {
   operational: {
     icon: CheckCircle2,
-    label: "Todos los sistemas operativos",
+    label: "statusPage.allOperational",
     color: "text-green-600",
     bg: "bg-green-50 border-green-200",
     dot: "bg-green-500",
   },
   partial_outage: {
     icon: AlertTriangle,
-    label: "Interrupción parcial",
+    label: "statusPage.partialOutage",
     color: "text-amber-600",
     bg: "bg-amber-50 border-amber-200",
     dot: "bg-amber-500",
   },
   major_outage: {
     icon: XCircle,
-    label: "Interrupción mayor",
+    label: "statusPage.majorOutage",
     color: "text-red-600",
     bg: "bg-red-50 border-red-200",
     dot: "bg-red-500",
@@ -49,12 +50,13 @@ const statusConfig = {
 };
 
 const serviceStatusIcons = {
-  operational: { icon: CheckCircle2, color: "text-green-500", label: "Operativo" },
-  degraded: { icon: AlertTriangle, color: "text-amber-500", label: "Degradado" },
-  down: { icon: XCircle, color: "text-red-500", label: "Caído" },
+  operational: { icon: CheckCircle2, color: "text-green-500", label: "statusPage.operational" },
+  degraded: { icon: AlertTriangle, color: "text-amber-500", label: "statusPage.degraded" },
+  down: { icon: XCircle, color: "text-red-500", label: "statusPage.down" },
 };
 
 export default function StatusPage() {
+  const { t, locale } = useLocale();
   const [data, setData] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
@@ -90,19 +92,15 @@ export default function StatusPage() {
           <div className="flex items-center gap-3">
             <Activity className="w-6 h-6 text-[#75AADB]" />
             <div>
-              <h1 className="text-lg font-bold text-[#1A1A1A]">
-                Cóndor Salud — Estado del Sistema
-              </h1>
-              <p className="text-xs text-gray-500">
-                Monitoreo en tiempo real de todos los servicios
-              </p>
+              <h1 className="text-lg font-bold text-[#1A1A1A]">{t("statusPage.title")}</h1>
+              <p className="text-xs text-gray-500">{t("statusPage.subtitle")}</p>
             </div>
           </div>
           <Link
             href="/"
             className="text-xs text-[#75AADB] font-medium hover:underline flex items-center gap-1"
           >
-            Ir al sitio <ExternalLink className="w-3 h-3" />
+            {t("statusPage.goToSite")} <ExternalLink className="w-3 h-3" />
           </Link>
         </div>
       </header>
@@ -113,11 +111,12 @@ export default function StatusPage() {
           <OverallIcon className={`w-8 h-8 ${overallConfig.color}`} />
           <div>
             <h2 className={`text-lg font-bold ${overallConfig.color}`}>
-              {loading ? "Verificando..." : overallConfig.label}
+              {loading ? t("statusPage.checking") : t(overallConfig.label)}
             </h2>
             {lastChecked && (
               <p className="text-xs text-gray-500 mt-0.5">
-                Última verificación: {lastChecked.toLocaleTimeString("es-AR")}
+                {t("statusPage.lastCheck")}{" "}
+                {lastChecked.toLocaleTimeString(locale === "en" ? "en-US" : "es-AR")}
               </p>
             )}
           </div>
@@ -125,7 +124,7 @@ export default function StatusPage() {
             onClick={refresh}
             disabled={loading}
             className="ml-auto p-2 rounded-lg hover:bg-white/60 transition disabled:opacity-50"
-            aria-label="Actualizar"
+            aria-label={t("statusPage.refresh")}
           >
             <RefreshCw className={`w-4 h-4 text-gray-500 ${loading ? "animate-spin" : ""}`} />
           </button>
@@ -144,7 +143,7 @@ export default function StatusPage() {
                   {svc.message && <p className="text-xs text-gray-500 mt-0.5">{svc.message}</p>}
                 </div>
                 <div className="text-right">
-                  <span className={`text-xs font-medium ${cfg.color}`}>{cfg.label}</span>
+                  <span className={`text-xs font-medium ${cfg.color}`}>{t(cfg.label)}</span>
                   <p className="text-[10px] text-gray-400 mt-0.5">{svc.latencyMs}ms</p>
                 </div>
               </div>
@@ -153,14 +152,14 @@ export default function StatusPage() {
 
           {!data && !loading && (
             <div className="px-6 py-8 text-center text-sm text-gray-500">
-              No se pudo obtener el estado de los servicios.
+              {t("statusPage.errorFetching")}
             </div>
           )}
 
           {loading && !data && (
             <div className="px-6 py-8 text-center">
               <RefreshCw className="w-5 h-5 animate-spin text-[#75AADB] mx-auto" />
-              <p className="text-sm text-gray-500 mt-2">Verificando servicios...</p>
+              <p className="text-sm text-gray-500 mt-2">{t("statusPage.checkingServices")}</p>
             </div>
           )}
         </div>
@@ -168,23 +167,23 @@ export default function StatusPage() {
         {/* Uptime info */}
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase mb-3">
-            Información del Sistema
+            {t("statusPage.systemInfo")}
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-gray-500 text-xs">Plataforma</p>
+              <p className="text-gray-500 text-xs">{t("statusPage.platform")}</p>
               <p className="font-semibold text-[#1A1A1A]">Vercel Edge Network</p>
             </div>
             <div>
-              <p className="text-gray-500 text-xs">Base de datos</p>
+              <p className="text-gray-500 text-xs">{t("statusPage.database")}</p>
               <p className="font-semibold text-[#1A1A1A]">Supabase (PostgreSQL)</p>
             </div>
             <div>
-              <p className="text-gray-500 text-xs">CDN</p>
+              <p className="text-gray-500 text-xs">{t("statusPage.cdn")}</p>
               <p className="font-semibold text-[#1A1A1A]">Vercel CDN Global</p>
             </div>
             <div>
-              <p className="text-gray-500 text-xs">Analytics</p>
+              <p className="text-gray-500 text-xs">{t("statusPage.analytics")}</p>
               <p className="font-semibold text-[#1A1A1A]">PostHog (US-East)</p>
             </div>
           </div>
@@ -192,9 +191,9 @@ export default function StatusPage() {
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-400 py-4">
-          <p>Auto-actualización cada 60 segundos</p>
+          <p>{t("statusPage.autoRefresh")}</p>
           <p className="mt-1">
-            ¿Problemas? Escribinos a{" "}
+            {t("statusPage.issues")}{" "}
             <a href="mailto:soporte@condorsalud.com" className="text-[#75AADB] hover:underline">
               soporte@condorsalud.com
             </a>

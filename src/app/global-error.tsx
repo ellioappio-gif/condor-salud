@@ -1,7 +1,7 @@
 "use client";
 
 import * as Sentry from "@sentry/nextjs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Next.js requires a `global-error.tsx` at the app root to catch errors
@@ -14,12 +14,19 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [isEn, setIsEn] = useState(false);
+
   useEffect(() => {
     Sentry.captureException(error);
+    // Read locale from cookie since we can't use context here
+    const match = document.cookie.match(/condor_locale=(\w+)/);
+    if (match?.[1] === "en") setIsEn(true);
   }, [error]);
 
+  const lang = isEn ? "en" : "es";
+
   return (
-    <html lang="es">
+    <html lang={lang}>
       <body>
         <div
           style={{
@@ -48,10 +55,12 @@ export default function GlobalError({
               </svg>
             </div>
             <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-              Algo salió mal
+              {isEn ? "Something went wrong" : "Algo salió mal"}
             </h1>
             <p style={{ color: "#666", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
-              Ocurrió un error inesperado. Si el problema persiste, contactá a soporte.
+              {isEn
+                ? "An unexpected error occurred. If the problem persists, contact support."
+                : "Ocurrió un error inesperado. Si el problema persiste, contactá a soporte."}
             </p>
             {error.digest && (
               <p
@@ -62,7 +71,7 @@ export default function GlobalError({
                   marginBottom: "1rem",
                 }}
               >
-                Código: {error.digest}
+                {isEn ? "Code" : "Código"}: {error.digest}
               </p>
             )}
             <button
@@ -78,7 +87,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Reintentar
+              {isEn ? "Retry" : "Reintentar"}
             </button>
           </div>
         </div>

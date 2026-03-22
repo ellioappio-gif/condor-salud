@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import useSWR from "swr";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import type { Alerta } from "@/lib/types";
 
 /* ---------- Fetcher ---------- */
@@ -59,6 +60,7 @@ const prioridadColors: Record<string, string> = {
 
 export default function AlertasPage() {
   const { showToast } = useToast();
+  const { t, locale } = useLocale();
   const { data, mutate, isLoading } = useSWR<{ alertas: Alerta[] }>("/api/alertas", fetcher, {
     revalidateOnFocus: true,
     dedupingInterval: 5000,
@@ -68,7 +70,38 @@ export default function AlertasPage() {
   const [catFilter, setCatFilter] = useState("Todas");
   const [soloNoLeidas, setSoloNoLeidas] = useState(false);
 
+  /* Internal keys stay language-independent; translate only for display */
   const categorias = ["Todas", "Pagos", "Rechazos", "Aranceles", "Vencimientos", "Sistema"];
+  const catLabel = (key: string): string => {
+    const map: Record<string, string> = {
+      Todas: t("alerts.all"),
+      Pagos: t("alerts.payments"),
+      Rechazos: t("alerts.rejections"),
+      Aranceles: t("alerts.fees"),
+      Vencimientos: t("alerts.expirations"),
+      Sistema: t("alerts.system"),
+    };
+    return map[key] ?? key;
+  };
+  const prioLabel = (key: string): string => {
+    const map: Record<string, string> = {
+      Urgente: t("alerts.urgent"),
+      Alta: t("alerts.high"),
+      Media: t("alerts.medium"),
+      Baja: t("alerts.low"),
+    };
+    return map[key] ?? key;
+  };
+  const tipoLinkLabel = (tipo: string): string => {
+    const map: Record<string, string> = {
+      pago: t("alerts.viewInsurers"),
+      rechazo: t("alerts.viewRejections"),
+      nomenclador: t("alerts.viewNomenclator"),
+      vencimiento: t("alerts.viewAudit"),
+      inflacion: t("alerts.viewInflation"),
+    };
+    return map[tipo] ?? "";
+  };
 
   const catOf = (a: Alerta) => TIPO_TO_CAT[a.tipo] ?? "Sistema";
 
@@ -91,26 +124,26 @@ export default function AlertasPage() {
         });
         mutate();
       } catch {
-        showToast("Error actualizando alertas");
+        showToast(t("alerts.errorUpdating"));
       }
     },
-    [mutate, showToast],
+    [mutate, showToast, t],
   );
 
   const markAllRead = () => {
     patchAlertas("mark_all_read");
-    showToast("Todas marcadas como leidas");
+    showToast(t("alerts.allMarkedRead"));
   };
 
   const dismiss = (id: string) => {
     patchAlertas("dismiss", [id]);
-    showToast("Alerta descartada");
+    showToast(t("alerts.dismissed"));
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-sm text-ink-muted">
-        Cargando alertas...
+        {t("alerts.loading")}
       </div>
     );
   }
@@ -119,21 +152,23 @@ export default function AlertasPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Alertas</h1>
-          <p className="text-sm text-ink-muted mt-0.5">{noLeidas} sin leer</p>
+          <h1 className="text-2xl font-bold text-ink">{t("alerts.title")}</h1>
+          <p className="text-sm text-ink-muted mt-0.5">
+            {noLeidas} {t("alerts.unread")}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setSoloNoLeidas(!soloNoLeidas)}
             className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${soloNoLeidas ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
           >
-            {soloNoLeidas ? "Solo no leidas (activo)" : "Solo no leidas"}
+            {soloNoLeidas ? t("alerts.onlyUnreadActive") : t("alerts.onlyUnread")}
           </button>
           <button
             onClick={markAllRead}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
-            Marcar todas leidas
+            {t("alerts.markAllRead")}
           </button>
         </div>
       </div>
@@ -156,7 +191,7 @@ export default function AlertasPage() {
                   className={`w-2 h-2 rounded-full inline-block ${categoriaColors[c]?.split(" ")[0] || "bg-gray-200"}`}
                 />
               )}
-              {c}
+              {catLabel(c)}
               {count > 0 && (
                 <span
                   className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${catFilter === c ? "bg-white/20 text-white" : "bg-red-500 text-white"}`}
@@ -183,7 +218,7 @@ export default function AlertasPage() {
                 <span
                   className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${categoriaColors[cat] || "bg-gray-100 text-gray-600"}`}
                 >
-                  {cat}
+                  {catLabel(cat)}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -191,21 +226,21 @@ export default function AlertasPage() {
                     <span
                       className={`px-1.5 py-0.5 text-[10px] font-bold rounded border ${prioridadColors[prio]}`}
                     >
-                      {prio}
+                      {prioLabel(prio)}
                     </span>
                     <span className="text-xs font-bold text-ink">{a.titulo}</span>
                   </div>
                   <p className="text-xs text-ink-light leading-relaxed">{a.detalle}</p>
                   <div className="flex items-center gap-3 mt-2">
                     <span className="text-[10px] text-ink-muted">
-                      {new Date(a.fecha).toLocaleDateString("es-AR")}
+                      {new Date(a.fecha).toLocaleDateString(locale === "en" ? "en-US" : "es-AR")}
                     </span>
                     {TIPO_TO_URL[a.tipo] && (
                       <Link
                         href={TIPO_TO_URL[a.tipo] as string}
                         className="text-[10px] text-celeste-dark font-semibold hover:underline"
                       >
-                        {TIPO_TO_LABEL[a.tipo]}
+                        {tipoLinkLabel(a.tipo)}
                       </Link>
                     )}
                   </div>
@@ -213,7 +248,7 @@ export default function AlertasPage() {
                 <button
                   onClick={() => dismiss(a.id)}
                   className="text-ink-muted hover:text-ink text-xs p-1"
-                  aria-label="Descartar alerta"
+                  aria-label={t("alerts.dismissAlert")}
                 >
                   <svg
                     className="w-3.5 h-3.5"
@@ -248,7 +283,7 @@ export default function AlertasPage() {
               />
             </svg>
           </div>
-          <p className="text-sm">No hay alertas que coincidan con los filtros</p>
+          <p className="text-sm">{t("alerts.noAlertsMatch")}</p>
         </div>
       )}
     </div>

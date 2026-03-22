@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { isSupabaseConfigured } from "@/lib/env";
 import { Lock, CheckCircle, AlertCircle } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 const schema = z
   .object({
@@ -25,6 +26,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const { t } = useLocale();
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState("");
   const [hasSession, setHasSession] = useState<boolean | null>(null);
@@ -163,9 +165,7 @@ export default function ResetPasswordPage() {
             </div>
           </Link>
           <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
-            Elegí una nueva
-            <br />
-            <em className="text-celeste-dark not-italic">contraseña segura</em>
+            {t("auth.resetSubtitle")}
           </h1>
           <p className="text-base text-ink-light leading-relaxed max-w-md">
             Tu contraseña debe tener al menos 8 caracteres. Recomendamos usar letras, números y
@@ -207,10 +207,8 @@ export default function ResetPasswordPage() {
 
           {!success ? (
             <>
-              <h2 className="text-2xl font-bold text-ink mb-1">Nueva contraseña</h2>
-              <p className="text-sm text-ink-muted mb-8">
-                Elegí una contraseña segura para tu cuenta
-              </p>
+              <h2 className="text-2xl font-bold text-ink mb-1">{t("auth.resetTitle")}</h2>
+              <p className="text-sm text-ink-muted mb-8">{t("auth.resetPrompt")}</p>
 
               {serverError && (
                 <div
@@ -249,7 +247,7 @@ export default function ResetPasswordPage() {
               <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-ink mb-2">¡Contraseña actualizada!</h2>
+              <h2 className="text-2xl font-bold text-ink mb-2">{t("auth.passwordUpdated")}</h2>
               <p className="text-sm text-ink-muted mb-6">
                 Tu contraseña fue cambiada exitosamente. Redirigiendo al panel...
               </p>

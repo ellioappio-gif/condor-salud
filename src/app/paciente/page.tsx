@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePatientName } from "@/lib/hooks/usePatientName";
+import { useLocale } from "@/lib/i18n/context";
 import { useNearbyServices, formatDistance } from "@/lib/hooks/useNearbyServices";
 import {
   useMyAppointments,
@@ -33,27 +34,27 @@ import {
 import RideQuickLinks from "@/components/RideQuickLinks";
 
 /* ── static data ──────────────────────────────────────── */
-const quickActions = [
+const quickActionsDef = [
   {
-    label: "Sacar turno",
+    labelKey: "patient.bookAppointmentAction",
     href: "/paciente/turnos",
     icon: Calendar,
     color: "bg-celeste-50 text-celeste-dark",
   },
   {
-    label: "Teleconsulta",
+    labelKey: "patient.teleconsultaAction",
     href: "/paciente/teleconsulta",
     icon: Video,
     color: "bg-success-50 text-success-600",
   },
   {
-    label: "Mis medicamentos",
+    labelKey: "patient.myMedsAction",
     href: "/paciente/medicamentos",
     icon: Pill,
     color: "bg-amber-50 text-amber-600",
   },
   {
-    label: "Chequear síntomas",
+    labelKey: "patient.checkSymptomsAction",
     href: "/paciente/sintomas",
     icon: Activity,
     color: "bg-red-50 text-red-600",
@@ -76,6 +77,7 @@ function TrendIcon({ trend }: { trend: string }) {
 
 /* ── component ────────────────────────────────────────── */
 export default function PatientDashboard() {
+  const { t, locale } = useLocale();
   const { firstName } = usePatientName();
   const nearby = useNearbyServices();
   const { data: appointments, isLoading: loadingApts } = useMyAppointments();
@@ -105,16 +107,22 @@ export default function PatientDashboard() {
         <div>
           <h1 className="text-2xl font-display font-bold text-ink flex items-center gap-2">
             <Sun className="w-6 h-6 text-gold" />
-            {getGreeting()}, {firstName || "Paciente"}
+            {(() => {
+              const h = new Date().getHours();
+              if (h < 12) return t("patient.goodMorning");
+              if (h < 19) return t("patient.goodAfternoon");
+              return t("patient.goodEvening");
+            })()}
+            , {firstName || t("patient.fallbackName")}
           </h1>
-          <p className="text-sm text-ink-muted mt-0.5">Acá tenés un resumen de tu salud</p>
+          <p className="text-sm text-ink-muted mt-0.5">{t("patient.healthSummary")}</p>
         </div>
         <Link
           href="/paciente/turnos"
           className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
         >
           <Calendar className="w-4 h-4" />
-          Sacar turno
+          {t("patient.bookAppointmentAction")}
         </Link>
       </div>
 
@@ -143,7 +151,7 @@ export default function PatientDashboard() {
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {quickActions.map((a) => {
+        {quickActionsDef.map((a) => {
           const Icon = a.icon;
           return (
             <Link
@@ -155,7 +163,7 @@ export default function PatientDashboard() {
                 <Icon className="w-5 h-5" />
               </div>
               <span className="text-xs font-semibold text-ink-500 group-hover:text-ink">
-                {a.label}
+                {t(a.labelKey)}
               </span>
             </Link>
           );
@@ -169,13 +177,13 @@ export default function PatientDashboard() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
             <h2 className="text-sm font-bold text-ink flex items-center gap-2">
               <Calendar className="w-4 h-4 text-celeste-dark" />
-              Próximos turnos
+              {t("patient.upcomingAppointments")}
             </h2>
             <Link
               href="/paciente/turnos"
               className="text-xs text-celeste-dark hover:underline font-medium"
             >
-              Ver todos
+              {t("patient.viewAll")}
             </Link>
           </div>
           <div className="divide-y divide-border-light">
@@ -209,7 +217,7 @@ export default function PatientDashboard() {
             ))}
             {upcomingAppointments.length === 0 && (
               <div className="px-5 py-8 text-center text-sm text-ink-muted">
-                No tenés turnos próximos
+                {t("patient.noUpcomingAppointments")}
               </div>
             )}
           </div>
@@ -219,15 +227,15 @@ export default function PatientDashboard() {
         <div className="bg-celeste-dark rounded-2xl p-5 text-white flex flex-col justify-between min-h-[200px]">
           <div>
             <Shield className="w-8 h-8 mb-3 opacity-90" />
-            <p className="text-xs font-medium opacity-80">Mi obra social</p>
+            <p className="text-xs font-medium opacity-80">{t("patient.mySocialInsurance")}</p>
             <h3 className="text-xl font-bold mt-0.5">OSDE 310</h3>
-            <p className="text-xs mt-1 opacity-80">N° afiliado: 08-29384756-3</p>
+            <p className="text-xs mt-1 opacity-80">{t("patient.memberNumber")} 08-29384756-3</p>
           </div>
           <Link
             href="/paciente/cobertura"
             className="mt-4 inline-flex items-center gap-1 text-xs font-semibold bg-white/20 hover:bg-white/30 backdrop-blur px-3 py-2 rounded-lg transition self-start"
           >
-            Ver cobertura <ChevronRight className="w-3.5 h-3.5" />
+            {t("patient.viewCoverage")} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
@@ -239,7 +247,7 @@ export default function PatientDashboard() {
           <div className="px-5 py-4 border-b border-border-light">
             <h2 className="text-sm font-bold text-ink flex items-center gap-2">
               <Heart className="w-4 h-4 text-red-500" />
-              Últimos controles
+              {t("patient.latestCheckups")}
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-px bg-border-light">
@@ -261,13 +269,13 @@ export default function PatientDashboard() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
             <h2 className="text-sm font-bold text-ink flex items-center gap-2">
               <Pill className="w-4 h-4 text-amber-600" />
-              Medicamentos activos
+              {t("patient.activeMedications")}
             </h2>
             <Link
               href="/paciente/medicamentos"
               className="text-xs text-celeste-dark hover:underline font-medium"
             >
-              Ver todos
+              {t("patient.viewAllMeds")}
             </Link>
           </div>
           <div className="divide-y divide-border-light">
@@ -285,7 +293,7 @@ export default function PatientDashboard() {
                         : "bg-success-50 text-success-700"
                     }`}
                   >
-                    {med.remaining} días
+                    {med.remaining} {t("patient.daysRemaining")}
                   </span>
                 </div>
               </div>
@@ -299,7 +307,7 @@ export default function PatientDashboard() {
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
           <h2 className="text-sm font-bold text-ink flex items-center gap-2">
             <Navigation className="w-4 h-4 text-celeste-dark" />
-            Cerca tuyo
+            {t("patient.nearYou")}
             {nearby.locationName && (
               <span className="font-normal text-ink-muted">— {nearby.locationName}</span>
             )}
@@ -311,7 +319,7 @@ export default function PatientDashboard() {
               className="text-xs text-celeste-dark hover:underline font-medium flex items-center gap-1"
             >
               <MapPin className="w-3 h-3" />
-              Activar ubicación
+              {t("patient.enableLocationAction")}
             </button>
           )}
         </div>
@@ -326,7 +334,7 @@ export default function PatientDashboard() {
                 onClick={nearby.refresh}
                 className="text-xs text-celeste-dark hover:underline mt-1 font-medium"
               >
-                Reintentar
+                {t("patient.retryLocation")}
               </button>
             </div>
           </div>
@@ -335,15 +343,13 @@ export default function PatientDashboard() {
         {!nearby.coords && !nearby.error && !nearby.loading && (
           <div className="px-5 py-8 text-center">
             <MapPin className="w-8 h-8 text-ink-200 mx-auto mb-2" />
-            <p className="text-sm text-ink-muted">
-              Habilitá tu ubicación para ver médicos, farmacias y centros de salud cercanos
-            </p>
+            <p className="text-sm text-ink-muted">{t("patient.enableLocation")}</p>
             <button
               onClick={nearby.refresh}
               className="mt-3 inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-xs font-semibold px-4 py-2 rounded-[4px] transition"
             >
               <Navigation className="w-3.5 h-3.5" />
-              Activar ubicación
+              {t("patient.enableLocationAction")}
             </button>
           </div>
         )}
@@ -355,7 +361,7 @@ export default function PatientDashboard() {
             {nearby.results.providers.length > 0 && (
               <div className="px-5 py-4">
                 <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wide mb-2">
-                  Médicos cercanos
+                  {t("patient.nearbyDoctors")}
                 </p>
                 <div className="space-y-2">
                   {nearby.results.providers.slice(0, 3).map((doc) => (
@@ -376,7 +382,9 @@ export default function PatientDashboard() {
                             {formatDistance(doc.distanceKm)}
                           </span>
                           {doc.availableToday && (
-                            <span className="text-[10px] text-success-600">Disponible hoy</span>
+                            <span className="text-[10px] text-success-600">
+                              {t("patient.availableTodayLabel")}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -395,7 +403,7 @@ export default function PatientDashboard() {
                   href="/paciente/medicos"
                   className="text-xs text-celeste-dark hover:underline font-medium mt-2 inline-block"
                 >
-                  Ver todos los médicos →
+                  {t("patient.viewAllDoctors")}
                 </Link>
               </div>
             )}
@@ -404,7 +412,7 @@ export default function PatientDashboard() {
             {nearby.results.pharmacies.length > 0 && (
               <div className="px-5 py-4">
                 <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wide mb-2">
-                  Farmacias cercanas
+                  {t("patient.nearbyPharmacies")}
                 </p>
                 <div className="space-y-2">
                   {nearby.results.pharmacies.slice(0, 3).map((ph) => (
@@ -425,7 +433,9 @@ export default function PatientDashboard() {
                             {formatDistance(ph.distanceKm)}
                           </span>
                           {ph.open24h && (
-                            <span className="text-[10px] text-success-600">24 hs</span>
+                            <span className="text-[10px] text-success-600">
+                              {t("patient.24hs")}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -447,7 +457,7 @@ export default function PatientDashboard() {
             {nearby.results.centers.length > 0 && (
               <div className="px-5 py-4">
                 <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wide mb-2">
-                  Centros de salud
+                  {t("patient.healthCenters")}
                 </p>
                 <div className="space-y-2">
                   {nearby.results.centers.slice(0, 3).map((ctr) => (
@@ -478,7 +488,9 @@ export default function PatientDashboard() {
                             {formatDistance(ctr.distanceKm)}
                           </span>
                           {ctr.emergency && (
-                            <span className="text-[10px] text-red-500">Guardia</span>
+                            <span className="text-[10px] text-red-500">
+                              {t("patient.emergencyGuard")}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -501,7 +513,7 @@ export default function PatientDashboard() {
               nearby.results.pharmacies.length === 0 &&
               nearby.results.centers.length === 0 && (
                 <div className="px-5 py-8 text-center text-sm text-ink-muted">
-                  No encontramos servicios dentro de {nearby.radiusKm} km
+                  {t("patient.noServicesInRange")} {nearby.radiusKm} {t("patient.km")}
                 </div>
               )}
           </div>

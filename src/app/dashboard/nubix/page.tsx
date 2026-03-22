@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 import {
   useNubixStudies,
   useNubixAppointments,
@@ -49,16 +50,16 @@ const statusConfig: Record<NubixStudyStatus, { label: string; color: string }> =
   cancelled: { label: "Cancelado", color: "bg-red-100 text-red-700" },
 };
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es-AR", {
+function formatDate(iso: string, loc?: string) {
+  return new Date(iso).toLocaleDateString(loc === "en" ? "en-US" : "es-AR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   });
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("es-AR", {
+function formatTime(iso: string, loc?: string) {
+  return new Date(iso).toLocaleTimeString(loc === "en" ? "en-US" : "es-AR", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -74,6 +75,7 @@ export default function NubixPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
   const isDemo = useIsDemo();
+  const { t, locale } = useLocale();
   const [tab, setTab] = useState<Tab>("estudios");
   const [search, setSearch] = useState("");
   const [modalityFilter, setModalityFilter] = useState<string>("Todas");
@@ -87,10 +89,10 @@ export default function NubixPage() {
   const { data: kpis } = useNubixKPIs();
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "estudios", label: "Estudios" },
-    { key: "turnos", label: "Turnos" },
-    { key: "entregas", label: "Entregas" },
-    { key: "visor", label: "Visor DICOM" },
+    { key: "estudios", label: t("nubix.studies") },
+    { key: "turnos", label: t("nubix.appointments") },
+    { key: "entregas", label: t("nubix.deliveries") },
+    { key: "visor", label: t("nubix.dicomViewer") },
   ];
 
   // Filters
@@ -111,45 +113,55 @@ export default function NubixPage() {
   const kpiCards = kpis
     ? [
         {
-          label: "Estudios hoy",
+          label: t("nubix.studiesToday"),
           value: String(kpis.todayStudies),
-          change: `${kpis.totalStudies} totales`,
+          change: `${kpis.totalStudies} ${t("nubix.totalStudies")}`,
           color: "text-celeste-dark",
         },
         {
-          label: "Informes pendientes",
+          label: t("nubix.pendingReports"),
           value: String(kpis.pendingReports),
-          change: `Promedio: ${kpis.avgReportTime}`,
+          change: `${t("nubix.average")} ${kpis.avgReportTime}`,
           color: "text-gold",
         },
         {
-          label: "Entregas hoy",
+          label: t("nubix.deliveriesToday"),
           value: String(kpis.deliveredToday),
-          change: "WhatsApp, email, portal",
+          change: t("nubix.deliveryChannels"),
           color: "text-green-600",
         },
         {
-          label: "Turnos hoy",
+          label: t("nubix.appointmentsToday"),
           value: String(kpis.appointmentsToday),
           change: `No-show: ${kpis.noShowRate}%`,
           color: "text-celeste-dark",
         },
       ]
     : [
-        { label: "Estudios hoy", value: "5", change: "6 totales", color: "text-celeste-dark" },
         {
-          label: "Informes pendientes",
+          label: t("nubix.studiesToday"),
+          value: "5",
+          change: `6 ${t("nubix.totalStudies")}`,
+          color: "text-celeste-dark",
+        },
+        {
+          label: t("nubix.pendingReports"),
           value: "2",
-          change: "Promedio: 2h 15m",
+          change: `${t("nubix.average")} 2h 15m`,
           color: "text-gold",
         },
         {
-          label: "Entregas hoy",
+          label: t("nubix.deliveriesToday"),
           value: "1",
-          change: "WhatsApp, email, portal",
+          change: t("nubix.deliveryChannels"),
           color: "text-green-600",
         },
-        { label: "Turnos hoy", value: "3", change: "No-show: 4.2%", color: "text-celeste-dark" },
+        {
+          label: t("nubix.appointmentsToday"),
+          value: "3",
+          change: "No-show: 4.2%",
+          color: "text-celeste-dark",
+        },
       ];
 
   return (
@@ -158,14 +170,12 @@ export default function NubixPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-ink">
-            Imagen Médica
+            {t("nubix.title")}
             <span className="ml-2 text-xs font-normal bg-celeste-dark/10 text-celeste-dark px-2 py-0.5 rounded-full">
               NUBIX
             </span>
           </h1>
-          <p className="text-sm text-ink-light mt-1">
-            Estudios DICOM, informes y entrega de resultados en la nube
-          </p>
+          <p className="text-sm text-ink-light mt-1">{t("nubix.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -174,7 +184,7 @@ export default function NubixPage() {
             }
             className="px-4 py-2.5 border border-border text-sm font-medium rounded hover:bg-muted transition"
           >
-            + Nuevo turno
+            {t("nubix.newAppointment")}
           </button>
           <button
             onClick={() =>
@@ -182,7 +192,7 @@ export default function NubixPage() {
             }
             className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
           >
-            Subir estudio
+            {t("nubix.uploadStudy")}
           </button>
         </div>
       </div>
@@ -222,8 +232,8 @@ export default function NubixPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
-              placeholder="Buscar por paciente, accesión o descripción..."
-              aria-label="Buscar por paciente, accesión o descripción"
+              placeholder={t("nubix.searchPlaceholder")}
+              aria-label={t("nubix.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
@@ -236,7 +246,9 @@ export default function NubixPage() {
             >
               {modalities.map((m) => (
                 <option key={m} value={m}>
-                  {m === "Todas" ? "Modalidad: Todas" : (modalityLabel[m as NubixModality] ?? m)}
+                  {m === "Todas"
+                    ? t("nubix.modalityAll")
+                    : (modalityLabel[m as NubixModality] ?? m)}
                 </option>
               ))}
             </select>
@@ -249,7 +261,7 @@ export default function NubixPage() {
               {statuses.map((s) => (
                 <option key={s} value={s}>
                   {s === "Todos"
-                    ? "Estado: Todos"
+                    ? t("nubix.statusAll")
                     : (statusConfig[s as NubixStudyStatus]?.label ?? s)}
                 </option>
               ))}
@@ -263,28 +275,28 @@ export default function NubixPage() {
                 <thead>
                   <tr className="bg-muted border-b border-border">
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Accesión
+                      {t("nubix.accession")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Paciente
+                      {t("nubix.patient")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Modalidad
+                      {t("nubix.modality")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Descripción
+                      {t("nubix.description")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Fecha
+                      {t("nubix.date")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Estado
+                      {t("nubix.statusLabel")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Informe
+                      {t("nubix.report")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Acciones
+                      {t("nubix.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -292,7 +304,7 @@ export default function NubixPage() {
                   {filteredStudies.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-ink-muted">
-                        No se encontraron estudios.
+                        {t("nubix.noStudiesFound")}
                       </td>
                     </tr>
                   ) : (
@@ -314,9 +326,9 @@ export default function NubixPage() {
                         </td>
                         <td className="px-4 py-3 max-w-[200px] truncate">{study.description}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <div>{formatDate(study.studyDate)}</div>
+                          <div>{formatDate(study.studyDate, locale)}</div>
                           <div className="text-xs text-ink-muted">
-                            {formatTime(study.studyDate)}
+                            {formatTime(study.studyDate, locale)}
                           </div>
                         </td>
                         <td className="px-4 py-3">
@@ -331,12 +343,14 @@ export default function NubixPage() {
                         <td className="px-4 py-3">
                           {study.reportStatus === "signed" ? (
                             <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
-                              <Check className="w-3 h-3" /> Firmado
+                              <Check className="w-3 h-3" /> {t("nubix.signed")}
                             </span>
                           ) : study.reportStatus === "draft" ? (
-                            <span className="text-xs text-yellow-600 font-medium">Borrador</span>
+                            <span className="text-xs text-yellow-600 font-medium">
+                              {t("nubix.draft")}
+                            </span>
                           ) : (
-                            <span className="text-xs text-ink-muted">Pendiente</span>
+                            <span className="text-xs text-ink-muted">{t("nubix.pending")}</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -387,28 +401,28 @@ export default function NubixPage() {
                 <thead>
                   <tr className="bg-muted border-b border-border">
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Hora
+                      {t("nubix.time")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Paciente
+                      {t("nubix.patient")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Estudio
+                      {t("nubix.study")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Modalidad
+                      {t("nubix.modality")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Sala
+                      {t("nubix.room")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Derivante
+                      {t("nubix.referrer")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Financiador
+                      {t("nubix.insurer")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Estado
+                      {t("nubix.statusLabel")}
                     </th>
                   </tr>
                 </thead>
@@ -416,7 +430,7 @@ export default function NubixPage() {
                   {(appointments as NubixAppointment[]).length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-ink-muted">
-                        No hay turnos para hoy.
+                        {t("nubix.noAppointmentsToday")}
                       </td>
                     </tr>
                   ) : (
@@ -426,7 +440,7 @@ export default function NubixPage() {
                         className="border-b border-border last:border-0 hover:bg-muted/50 transition"
                       >
                         <td className="px-4 py-3 font-medium whitespace-nowrap">
-                          {formatTime(appt.scheduledAt)}
+                          {formatTime(appt.scheduledAt, locale)}
                           <div className="text-xs text-ink-muted">{appt.duration} min</div>
                         </td>
                         <td className="px-4 py-3">
@@ -459,21 +473,21 @@ export default function NubixPage() {
                             }`}
                           >
                             {appt.status === "confirmed"
-                              ? "Confirmado"
+                              ? t("nubix.confirmed")
                               : appt.status === "arrived"
-                                ? "Llegó"
+                                ? t("nubix.arrived")
                                 : appt.status === "in_progress"
-                                  ? "En progreso"
+                                  ? t("nubix.inProgress")
                                   : appt.status === "completed"
-                                    ? "Completado"
+                                    ? t("nubix.completed")
                                     : appt.status === "no_show"
-                                      ? "No asistió"
-                                      : "Cancelado"}
+                                      ? t("nubix.noShowStatus")
+                                      : t("nubix.cancelledStatus")}
                           </span>
                           {appt.reminderSent && (
                             <span
                               className="ml-1 text-xs text-ink-muted"
-                              title="Recordatorio enviado"
+                              title={t("nubix.reminderSent")}
                             >
                               🔔
                             </span>
@@ -498,25 +512,25 @@ export default function NubixPage() {
                 <thead>
                   <tr className="bg-muted border-b border-border">
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Estudio
+                      {t("nubix.studyCol")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Canal
+                      {t("nubix.channel")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Destinatario
+                      {t("nubix.recipient")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Contacto
+                      {t("nubix.contact")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Enviado
+                      {t("nubix.sent")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Abierto
+                      {t("nubix.openedCol")}
                     </th>
                     <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
-                      Estado
+                      {t("nubix.statusLabel")}
                     </th>
                   </tr>
                 </thead>
@@ -524,7 +538,7 @@ export default function NubixPage() {
                   {(deliveries as NubixDelivery[]).length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-8 text-center text-ink-muted">
-                        No hay entregas registradas.
+                        {t("nubix.noDeliveries")}
                       </td>
                     </tr>
                   ) : (
@@ -567,11 +581,11 @@ export default function NubixPage() {
                           <td className="px-4 py-3">{d.recipientName}</td>
                           <td className="px-4 py-3 text-xs font-mono">{d.recipientContact}</td>
                           <td className="px-4 py-3 whitespace-nowrap text-xs">
-                            {formatDate(d.sentAt)} {formatTime(d.sentAt)}
+                            {formatDate(d.sentAt, locale)} {formatTime(d.sentAt, locale)}
                           </td>
                           <td className="px-4 py-3 text-xs">
                             {d.openedAt
-                              ? `${formatDate(d.openedAt)} ${formatTime(d.openedAt)}`
+                              ? `${formatDate(d.openedAt, locale)} ${formatTime(d.openedAt, locale)}`
                               : "—"}
                           </td>
                           <td className="px-4 py-3">
@@ -587,12 +601,12 @@ export default function NubixPage() {
                               }`}
                             >
                               {d.status === "opened"
-                                ? "Abierto"
+                                ? t("nubix.opened")
                                 : d.status === "delivered"
-                                  ? "Entregado"
+                                  ? t("nubix.deliveredStatus")
                                   : d.status === "sent"
-                                    ? "Enviado"
-                                    : "Fallido"}
+                                    ? t("nubix.sentStatus")
+                                    : t("nubix.failedStatus")}
                             </span>
                           </td>
                         </tr>
@@ -646,7 +660,7 @@ export default function NubixPage() {
               <div className="relative bg-black" style={{ minHeight: "65vh" }}>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white/70">
                   <div className="text-6xl mb-4">🖥</div>
-                  <p className="text-lg font-medium">Visor DICOM — NUBIX Cloud</p>
+                  <p className="text-lg font-medium">{t("nubix.viewerTitle")}</p>
                   <p className="text-sm mt-2 text-white/50">
                     {selectedStudy.instanceCount} imágenes · {selectedStudy.seriesCount} series ·{" "}
                     {modalityLabel[selectedStudy.modality]}
@@ -680,18 +694,13 @@ export default function NubixPage() {
           ) : (
             <div className="bg-white border border-border rounded-lg p-12 text-center">
               <div className="text-4xl mb-3">🏥</div>
-              <p className="text-ink font-medium">
-                Seleccioná un estudio para ver en el visor DICOM
-              </p>
-              <p className="text-sm text-ink-muted mt-1">
-                Volvé a la pestaña &quot;Estudios&quot; y hacé clic en &quot;Ver&quot; en cualquier
-                estudio con imágenes.
-              </p>
+              <p className="text-ink font-medium">{t("nubix.selectStudy")}</p>
+              <p className="text-sm text-ink-muted mt-1">{t("nubix.goToStudiesTab")}</p>
               <button
                 onClick={() => setTab("estudios")}
                 className="mt-4 px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
               >
-                Ir a Estudios
+                {t("nubix.goToStudies")}
               </button>
             </div>
           )}

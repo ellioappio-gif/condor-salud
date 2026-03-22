@@ -9,6 +9,7 @@ import { SWRProvider } from "@/lib/swr";
 import { usePatientName } from "@/lib/hooks/usePatientName";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Chatbot from "@/components/Chatbot";
+import { useLocale } from "@/lib/i18n/context";
 
 import {
   Heart,
@@ -27,15 +28,35 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { label: "Mi Salud", href: "/paciente", icon: Heart },
-  { label: "Mis Turnos", href: "/paciente/turnos", icon: Calendar },
-  { label: "Mi Cobertura", href: "/paciente/cobertura", icon: Shield },
-  { label: "Mis Medicamentos", href: "/paciente/medicamentos", icon: Pill },
-  { label: "Teleconsulta", href: "/paciente/teleconsulta", icon: Video },
-  { label: "Buscar Médico", href: "/paciente/medicos", icon: UserSearch },
-  { label: "Chequear Síntomas", href: "/paciente/sintomas", icon: Activity },
-  { label: "Historia Clínica", href: "/paciente/historia", icon: FileText },
-  { label: "Mi Perfil", href: "/paciente/perfil", icon: User },
+  { label: "Mi Salud", href: "/paciente", icon: Heart, tKey: "nav.myHealth" },
+  { label: "Mis Turnos", href: "/paciente/turnos", icon: Calendar, tKey: "nav.myAppointments" },
+  { label: "Mi Cobertura", href: "/paciente/cobertura", icon: Shield, tKey: "nav.myCoverage" },
+  {
+    label: "Mis Medicamentos",
+    href: "/paciente/medicamentos",
+    icon: Pill,
+    tKey: "nav.myMedications",
+  },
+  {
+    label: "Teleconsulta",
+    href: "/paciente/teleconsulta",
+    icon: Video,
+    tKey: "nav.teleconsultation",
+  },
+  { label: "Buscar Médico", href: "/paciente/medicos", icon: UserSearch, tKey: "nav.findDoctor" },
+  {
+    label: "Chequear Síntomas",
+    href: "/paciente/sintomas",
+    icon: Activity,
+    tKey: "nav.checkSymptoms",
+  },
+  {
+    label: "Historia Clínica",
+    href: "/paciente/historia",
+    icon: FileText,
+    tKey: "nav.medicalHistory",
+  },
+  { label: "Mi Perfil", href: "/paciente/perfil", icon: User, tKey: "nav.myProfile" },
 ];
 
 // Demo insurance info (mocked)
@@ -47,9 +68,10 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { name, setName, initials, needsName, loaded } = usePatientName();
+  const { t } = useLocale();
   const [nameInput, setNameInput] = useState("");
 
-  const displayName = name || "Paciente";
+  const displayName = name || t("patient.fallbackName");
   const displayInitials = initials;
 
   useEffect(() => {
@@ -76,7 +98,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
         href="#patient-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-celeste-dark focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold"
       >
-        Ir al contenido
+        {t("aria.skipToPatientContent")}
       </a>
 
       {/* Mobile backdrop */}
@@ -111,7 +133,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden p-1 text-ink-muted hover:text-ink transition"
-            aria-label="Cerrar menú"
+            aria-label={t("aria.closeMenu")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -151,7 +173,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
                   <Icon
                     className={`w-[18px] h-[18px] ${active ? "text-celeste-dark" : "text-ink-300 group-hover:text-ink-500"}`}
                   />
-                  <span className="flex-1">{item.label}</span>
+                  <span className="flex-1">{item.tKey ? t(item.tKey) : item.label}</span>
                   {active && <ChevronRight className="w-3.5 h-3.5 text-celeste-300" />}
                 </Link>
               );
@@ -165,14 +187,14 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
             href="/dashboard"
             className="flex items-center gap-2 text-[11px] text-ink-muted hover:text-celeste-dark transition"
           >
-            Portal profesional
+            {t("nav.professionalPortal")}
           </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-[11px] text-ink-muted hover:text-red-500 transition w-full"
           >
             <LogOut className="w-3.5 h-3.5" />
-            Cerrar sesión
+            {t("action.logout")}
           </button>
         </div>
       </aside>
@@ -184,12 +206,12 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-2 -ml-2 text-ink-light hover:text-ink transition"
-            aria-label="Abrir menú"
+            aria-label={t("aria.openMenu")}
           >
             <Menu className="w-5 h-5" />
           </button>
 
-          <div className="hidden sm:block text-sm text-ink-muted">Portal del Paciente</div>
+          <div className="hidden sm:block text-sm text-ink-muted">{t("patient.portal")}</div>
 
           <div className="flex items-center gap-3 ml-auto">
             <span className="text-xs text-ink-muted hidden sm:inline">{displayName}</span>
@@ -222,13 +244,13 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
                 <User className="w-5 h-5 text-celeste-dark" />
               </div>
               <div>
-                <h2 className="text-lg font-display font-bold text-ink">¡Bienvenido/a!</h2>
-                <p className="text-xs text-ink-muted">Portal del Paciente — Cóndor Salud</p>
+                <h2 className="text-lg font-display font-bold text-ink">
+                  {t("patient.welcomeTitle")}
+                </h2>
+                <p className="text-xs text-ink-muted">{t("patient.portalSubtitle")}</p>
               </div>
             </div>
-            <p className="text-sm text-ink-light mb-4">
-              ¿Cómo te llamás? Vamos a personalizar tu portal.
-            </p>
+            <p className="text-sm text-ink-light mb-4">{t("patient.welcomePrompt")}</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -239,7 +261,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
                 type="text"
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
-                placeholder="Tu nombre completo"
+                placeholder={t("patient.namePlaceholder")}
                 autoFocus
                 className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste/20"
               />
@@ -248,7 +270,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
                 disabled={!nameInput.trim()}
                 className="w-full mt-3 px-4 py-3 bg-celeste-dark text-white text-sm font-semibold rounded-xl hover:bg-celeste transition disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Continuar
+                {t("action.continue")}
               </button>
             </form>
           </div>
