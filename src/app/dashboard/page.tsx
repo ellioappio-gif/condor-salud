@@ -6,7 +6,15 @@ import { useAuth } from "@/lib/auth/context";
 import { usePlanSafe } from "@/lib/plan-context";
 import { PRESETS, formatARS } from "@/lib/plan-config";
 import { whatsappUrl } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  KPIGridSkeleton,
+  TableSkeleton,
+} from "@/components/ui";
 import { StatusBadge } from "@/components/ui";
 import {
   Users,
@@ -18,6 +26,10 @@ import {
   BookOpen,
   Download,
   Loader2,
+  BarChart3,
+  Bell,
+  FileText,
+  Activity,
 } from "lucide-react";
 import { useExport } from "@/lib/services/export";
 import { useLocale } from "@/lib/i18n/context";
@@ -29,64 +41,7 @@ import {
   usePacientes,
 } from "@/hooks/use-data";
 
-// ─── Fallback static data (shown while hooks load) ──────────
-
-const FALLBACK_KPIS = [
-  {
-    label: "Facturado este mes",
-    value: "$4.2M",
-    change: "+12%",
-    up: true,
-    accent: "border-l-celeste",
-    href: "/dashboard/facturacion",
-  },
-  {
-    label: "Cobrado",
-    value: "$3.1M",
-    change: "74% del facturado",
-    up: true,
-    accent: "border-l-green-400",
-    href: "/dashboard/financiadores",
-  },
-  {
-    label: "Rechazos PAMI",
-    value: "8.2%",
-    change: "-3.1% vs. mes ant.",
-    up: false,
-    accent: "border-l-amber-400",
-    href: "/dashboard/rechazos",
-  },
-  {
-    label: "Pérdida por inflación",
-    value: "$320K",
-    change: "7.6% del cobrado",
-    up: false,
-    accent: "border-l-red-400",
-    href: "/dashboard/inflacion",
-  },
-];
-
-const FALLBACK_FINANCIADORES = [
-  { name: "PAMI", facturado: "$1.4M", cobrado: "$980K", rechazo: "12%", dias: "68" },
-  { name: "OSDE", facturado: "$890K", cobrado: "$845K", rechazo: "4%", dias: "32" },
-  { name: "Swiss Medical", facturado: "$620K", cobrado: "$595K", rechazo: "2%", dias: "28" },
-  { name: "IOMA", facturado: "$410K", cobrado: "$312K", rechazo: "18%", dias: "82" },
-  { name: "Galeno", facturado: "$280K", cobrado: "$268K", rechazo: "3%", dias: "35" },
-];
-
-const FALLBACK_AGENDA = [
-  { hora: "08:00", pac: "González, María Elena", tipo: "Control", estado: "confirmado" as const },
-  { hora: "08:30", pac: "López, Juan Carlos", tipo: "Consulta", estado: "confirmado" as const },
-  { hora: "09:00", pac: "Ramírez, Sofía", tipo: "Primera vez", estado: "pendiente" as const },
-  { hora: "10:00", pac: "Díaz, Roberto", tipo: "Ecografía", estado: "confirmado" as const },
-];
-
-const FALLBACK_AUDIT = [
-  { tipo: "Código incorrecto", sev: "alta", pac: "González — PAMI", monto: "$24.600" },
-  { tipo: "Autorización vencida", sev: "alta", pac: "Ramírez — Swiss Med.", monto: "$65.000" },
-  { tipo: "Duplicado potencial", sev: "media", pac: "Morales — Galeno", monto: "$32.000" },
-  { tipo: "Tope superado", sev: "alta", pac: "Romero — Medifé", monto: "$42.300" },
-];
+// ─── Quick-link definitions (UI config — not mock data) ──────
 
 const quickLinkIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Pacientes: Users,
@@ -138,82 +93,76 @@ export default function DashboardPage() {
 
   const { isExporting, exportPDF } = useExport();
 
-  // ── Real data hooks (fall back to static demo data) ──────
+  // ── Real data hooks ──────────────────────────────────────
   const { data: kpiData } = useDashboardKPIs();
   const { data: financiadoresData } = useFinanciadores();
   const { data: turnosData } = useTurnos();
   const { data: auditoriaData } = useAuditoria();
   const { data: pacientesData } = usePacientes();
 
-  // Map KPI hook data → display cards, or fallback
-  const kpis =
-    kpiData === undefined
-      ? FALLBACK_KPIS
-      : kpiData.length
-        ? kpiData.map((k) => ({
-            label: k.label,
-            value: k.value,
-            change: k.change ?? "",
-            up: k.up,
-            accent: k.label.includes("Facturado")
-              ? "border-l-celeste"
-              : k.label.includes("Cobrado")
-                ? "border-l-green-400"
-                : k.label.includes("Rechazo")
-                  ? "border-l-amber-400"
-                  : "border-l-red-400",
-            href: k.label.includes("Facturado")
-              ? "/dashboard/facturacion"
-              : k.label.includes("Cobrado")
-                ? "/dashboard/financiadores"
-                : k.label.includes("Rechazo")
-                  ? "/dashboard/rechazos"
-                  : "/dashboard/inflacion",
-          }))
-        : [];
+  // Derived states: undefined = loading, [] = no data, [...] = has data
+  const isKpiLoading = kpiData === undefined;
+  const isFinanciadoresLoading = financiadoresData === undefined;
+  const isTurnosLoading = turnosData === undefined;
+  const isAuditoriaLoading = auditoriaData === undefined;
 
-  // Map financiadores hook data → table rows, or fallback
-  const financiadores =
-    financiadoresData === undefined
-      ? FALLBACK_FINANCIADORES
-      : financiadoresData.length
-        ? financiadoresData.slice(0, 5).map((f) => ({
-            name: f.name,
-            facturado: formatARS(f.facturado),
-            cobrado: formatARS(f.cobrado),
-            rechazo: `${f.tasaRechazo}%`,
-            dias: f.diasPromedioPago.toString(),
-          }))
-        : [];
+  // Map KPI hook data → display cards (empty array if no data)
+  const kpis = isKpiLoading
+    ? []
+    : kpiData.map((k) => ({
+        label: k.label,
+        value: k.value,
+        change: k.change ?? "",
+        up: k.up,
+        accent: k.label.includes("Facturado")
+          ? "border-l-celeste"
+          : k.label.includes("Cobrado")
+            ? "border-l-green-400"
+            : k.label.includes("Rechazo")
+              ? "border-l-amber-400"
+              : "border-l-red-400",
+        href: k.label.includes("Facturado")
+          ? "/dashboard/facturacion"
+          : k.label.includes("Cobrado")
+            ? "/dashboard/financiadores"
+            : k.label.includes("Rechazo")
+              ? "/dashboard/rechazos"
+              : "/dashboard/inflacion",
+      }));
 
-  // Map turnos hook data → today agenda, or fallback
-  const todayAgenda =
-    turnosData === undefined
-      ? FALLBACK_AGENDA
-      : turnosData.length
-        ? turnosData.slice(0, 4).map((t) => ({
-            hora: t.hora,
-            pac: t.paciente,
-            tipo: t.tipo,
-            estado: t.estado as "confirmado" | "pendiente",
-          }))
-        : [];
+  // Map financiadores → table rows
+  const financiadores = isFinanciadoresLoading
+    ? []
+    : financiadoresData.slice(0, 5).map((f) => ({
+        name: f.name,
+        facturado: formatARS(f.facturado),
+        cobrado: formatARS(f.cobrado),
+        rechazo: `${f.tasaRechazo}%`,
+        dias: f.diasPromedioPago.toString(),
+      }));
 
-  // Map audit hook data → pending items, or fallback
-  const pendingAudit =
-    auditoriaData === undefined
-      ? FALLBACK_AUDIT
-      : auditoriaData.length
-        ? auditoriaData
-            .filter((a) => a.estado === "pendiente")
-            .slice(0, 4)
-            .map((a) => ({
-              tipo: a.tipo,
-              sev: a.severidad,
-              pac: `${a.paciente} — ${a.financiador}`,
-              monto: a.prestacion,
-            }))
-        : [];
+  // Map turnos → today agenda
+  const todayAgenda = isTurnosLoading
+    ? []
+    : turnosData.slice(0, 4).map((t) => ({
+        hora: t.hora,
+        pac: t.paciente,
+        tipo: t.tipo,
+        estado: t.estado as "confirmado" | "pendiente",
+      }));
+
+  // Map audit → pending items
+  const pendingAudit = isAuditoriaLoading
+    ? []
+    : auditoriaData
+        .filter((a) => a.estado === "pendiente")
+        .slice(0, 4)
+        .map((a) => ({
+          tipo: a.tipo,
+          sev: a.severidad,
+          pac: `${a.paciente} — ${a.financiador}`,
+          monto: a.prestacion,
+        }));
 
   // Quick-link live counts
   const pacCount = pacientesData === undefined ? "—" : pacientesData.length;
@@ -347,35 +296,48 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI cards */}
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-        role="region"
-        aria-label={t("dashboard.kpiTitle")}
-      >
-        {kpis.map((kpi) => (
-          <Link
-            key={kpi.label}
-            href={kpi.href}
-            className={`bg-white border border-border rounded-lg p-5 border-l-[3px] ${kpi.accent} hover:shadow-md hover:-translate-y-0.5 transition group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark`}
-            aria-label={`${kpi.label}: ${kpi.value}, ${kpi.change}`}
-          >
-            <div className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1">
-              {kpi.label}
-            </div>
-            <div className="text-2xl font-bold text-celeste-dark">{kpi.value}</div>
-            <div className={`text-xs mt-1 ${kpi.up ? "text-green-600" : "text-ink-muted"}`}>
-              {kpi.change}
-            </div>
-            <span
-              className="text-[10px] text-celeste-dark font-medium mt-2 inline-block opacity-0 group-hover:opacity-100 transition"
-              aria-hidden="true"
+      {/* KPI cards — skeleton while loading, empty state if no data */}
+      {isKpiLoading ? (
+        <KPIGridSkeleton count={4} />
+      ) : kpis.length === 0 ? (
+        <EmptyState
+          compact
+          icon={<Activity className="w-8 h-8 text-celeste-dark" />}
+          title="Sin datos de facturación todavía"
+          description="Los indicadores se generan automáticamente a partir de las facturas y cobros que cargues. Empezá registrando tu primera factura para ver tus KPIs en tiempo real."
+          actionLabel="Ir a Facturación"
+          actionHref="/dashboard/facturacion"
+        />
+      ) : (
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          role="region"
+          aria-label={t("dashboard.kpiTitle")}
+        >
+          {kpis.map((kpi) => (
+            <Link
+              key={kpi.label}
+              href={kpi.href}
+              className={`bg-white border border-border rounded-lg p-5 border-l-[3px] ${kpi.accent} hover:shadow-md hover:-translate-y-0.5 transition group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark`}
+              aria-label={`${kpi.label}: ${kpi.value}, ${kpi.change}`}
             >
-              {t("dashboard.viewDetail")}
-            </span>
-          </Link>
-        ))}
-      </div>
+              <div className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1">
+                {kpi.label}
+              </div>
+              <div className="text-2xl font-bold text-celeste-dark">{kpi.value}</div>
+              <div className={`text-xs mt-1 ${kpi.up ? "text-green-600" : "text-ink-muted"}`}>
+                {kpi.change}
+              </div>
+              <span
+                className="text-[10px] text-celeste-dark font-medium mt-2 inline-block opacity-0 group-hover:opacity-100 transition"
+                aria-hidden="true"
+              >
+                {t("dashboard.viewDetail")}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Quick access grid */}
       <div
@@ -405,7 +367,7 @@ export default function DashboardPage() {
 
       {/* Two-column layout */}
       <div className="grid lg:grid-cols-3 gap-4">
-        {/* Chart placeholder */}
+        {/* Chart — only rendered with real data */}
         <Card className="lg:col-span-2">
           <CardContent className="pt-5">
             <div className="flex items-center justify-between mb-4">
@@ -417,90 +379,105 @@ export default function DashboardPage() {
                 {t("dashboard.viewInsurers")}
               </Link>
             </div>
-            <div
-              className="h-48 flex items-end gap-3 px-4"
-              role="img"
-              aria-label="Gráfico de barras: ingresos vs cobros últimos 6 meses mostrando tendencia creciente"
-            >
-              {[40, 55, 48, 62, 58, 72].map((h, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full flex gap-0.5">
-                    <div
-                      className="flex-1 bg-celeste rounded-t transition-all duration-500"
-                      style={{ height: `${h * 2.5}px` }}
-                    />
-                    <div
-                      className="flex-1 bg-celeste-light rounded-t transition-all duration-500"
-                      style={{ height: `${h * 1.9}px` }}
-                    />
+            {isFinanciadoresLoading ? (
+              <div className="h-48 flex items-end gap-3 px-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="w-full flex gap-0.5">
+                      <div
+                        className="flex-1 bg-gray-200 animate-pulse rounded-t"
+                        style={{ height: `${60 + i * 10}px` }}
+                      />
+                      <div
+                        className="flex-1 bg-gray-100 animate-pulse rounded-t"
+                        style={{ height: `${40 + i * 8}px` }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-ink-muted">M{i + 1}</span>
                   </div>
-                  <span className="text-[10px] text-ink-muted">M{i + 1}</span>
+                ))}
+              </div>
+            ) : financiadores.length === 0 ? (
+              <EmptyState
+                compact
+                icon={<BarChart3 className="w-7 h-7 text-celeste-dark" />}
+                title="Sin datos de ingresos"
+                description="Este gráfico muestra la comparación entre lo facturado y lo cobrado por financiador. Agregá financiadores y facturas para empezar a ver la evolución."
+                actionLabel="Cargar financiadores"
+                actionHref="/dashboard/financiadores"
+              />
+            ) : (
+              <>
+                <div
+                  className="h-48 flex items-end gap-3 px-4"
+                  role="img"
+                  aria-label="Gráfico de barras: ingresos vs cobros"
+                >
+                  {financiadores.slice(0, 6).map((f) => {
+                    const facNum = parseFloat(f.facturado.replace(/[$.]/g, "")) || 1;
+                    const cobNum = parseFloat(f.cobrado.replace(/[$.]/g, "")) || 0;
+                    const maxH = 180;
+                    const cobH = Math.round((cobNum / facNum) * maxH) || 20;
+                    return (
+                      <div key={f.name} className="flex-1 flex flex-col items-center gap-1">
+                        <div className="w-full flex gap-0.5">
+                          <div
+                            className="flex-1 bg-celeste rounded-t transition-all duration-500"
+                            style={{ height: `${maxH}px` }}
+                          />
+                          <div
+                            className="flex-1 bg-celeste-light rounded-t transition-all duration-500"
+                            style={{ height: `${cobH}px` }}
+                          />
+                        </div>
+                        <span className="text-[10px] text-ink-muted truncate max-w-full">
+                          {f.name.slice(0, 6)}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-            <div className="flex gap-4 mt-3 text-[10px] text-ink-muted">
-              <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 bg-celeste rounded-sm" aria-hidden="true" />{" "}
-                {t("dashboard.billed")}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 bg-celeste-light rounded-sm" aria-hidden="true" />{" "}
-                {t("dashboard.collected")}
-              </span>
-            </div>
+                <div className="flex gap-4 mt-3 text-[10px] text-ink-muted">
+                  <span className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 bg-celeste rounded-sm" aria-hidden="true" />{" "}
+                    {t("dashboard.billed")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 bg-celeste-light rounded-sm" aria-hidden="true" />{" "}
+                    {t("dashboard.collected")}
+                  </span>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
-        {/* Alerts */}
+        {/* Alerts — empty state when no data */}
         <Card>
           <CardContent className="pt-5">
             <div className="flex items-center justify-between mb-3">
               <div className="text-xs text-ink-muted">{t("dashboard.recentAlerts")}</div>
-              <Link
-                href="/dashboard/alertas"
-                className="text-[10px] text-celeste-dark font-medium hover:underline"
-              >
-                {t("action.viewAll")}
-              </Link>
             </div>
-            <div className="space-y-3" role="list" aria-label="Alertas recientes">
-              {[
-                {
-                  href: "/dashboard/rechazos",
-                  color: "border-amber-400",
-                  title: "5 rechazos IOMA nuevos",
-                  sub: "Hace 2 horas · Error de código",
-                },
-                {
-                  href: "/dashboard/facturacion",
-                  color: "border-celeste",
-                  title: "Vence presentación PAMI",
-                  sub: "En 3 días · 12 facturas pendientes",
-                },
-                {
-                  href: "/dashboard/nomenclador",
-                  color: "border-amber-400",
-                  title: "Nomenclador SSS actualizado",
-                  sub: "Ayer · 14 códigos modificados",
-                },
-                {
-                  href: "/dashboard/financiadores",
-                  color: "border-celeste",
-                  title: "Swiss Medical pagó lote",
-                  sub: "Hoy · $595K acreditados",
-                },
-              ].map((a, i) => (
-                <Link
-                  key={i}
-                  href={a.href}
-                  className={`block border-l-2 ${a.color} pl-3 py-1 hover:bg-celeste-pale/30 transition rounded-r`}
-                  role="listitem"
-                >
-                  <div className="text-xs font-semibold text-ink">{a.title}</div>
-                  <div className="text-[10px] text-ink-muted">{a.sub}</div>
-                </Link>
-              ))}
-            </div>
+            {isKpiLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="animate-pulse flex gap-2">
+                    <div className="w-1 h-8 bg-gray-200 rounded" />
+                    <div className="flex-1 space-y-1">
+                      <div className="h-3 w-3/4 bg-gray-200 rounded" />
+                      <div className="h-2 w-1/2 bg-gray-100 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                compact
+                icon={<Bell className="w-6 h-6 text-celeste-dark" />}
+                title="Sin alertas"
+                description="Las alertas aparecen cuando hay rechazos, vencimientos próximos o actualizaciones de nomenclador. Se generan automáticamente al operar."
+              />
+            )}
           </CardContent>
         </Card>
       </div>
@@ -518,61 +495,74 @@ export default function DashboardPage() {
             {t("dashboard.fullAnalysis")}
           </Link>
         </CardHeader>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm" aria-label="Rendimiento por financiador">
-            <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th scope="col" className="text-left px-5 py-2.5">
-                  {t("billing.insurer")}
-                </th>
-                <th scope="col" className="text-right px-5 py-2.5">
-                  {t("dashboard.billed")}
-                </th>
-                <th scope="col" className="text-right px-5 py-2.5">
-                  {t("dashboard.collected")}
-                </th>
-                <th scope="col" className="text-right px-5 py-2.5">
-                  {t("dashboard.rejection")}
-                </th>
-                <th scope="col" className="text-right px-5 py-2.5">
-                  {t("dashboard.paymentDays")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {financiadores.map((f) => (
-                <tr
-                  key={f.name}
-                  className="border-t border-border-light hover:bg-celeste-pale/30 transition"
-                >
-                  <td className="px-5 py-3 font-semibold text-ink">
-                    <Link href="/dashboard/financiadores" className="hover:text-celeste-dark">
-                      {f.name}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3 text-right text-ink-light">{f.facturado}</td>
-                  <td className="px-5 py-3 text-right text-ink-light">{f.cobrado}</td>
-                  <td
-                    className={`px-5 py-3 text-right font-semibold ${
-                      parseFloat(f.rechazo) > 10
-                        ? "text-red-500"
-                        : parseFloat(f.rechazo) > 5
-                          ? "text-amber-500"
-                          : "text-green-600"
-                    }`}
-                  >
-                    {f.rechazo}
-                  </td>
-                  <td
-                    className={`px-5 py-3 text-right ${parseInt(f.dias) > 60 ? "text-red-500 font-semibold" : "text-ink-light"}`}
-                  >
-                    {f.dias}
-                  </td>
+        {isFinanciadoresLoading ? (
+          <TableSkeleton rows={4} cols={5} />
+        ) : financiadores.length === 0 ? (
+          <EmptyState
+            compact
+            icon={<FileText className="w-7 h-7 text-celeste-dark" />}
+            title="Sin financiadores registrados"
+            description="Acá vas a ver el rendimiento de cada obra social y prepaga: lo facturado, lo cobrado, la tasa de rechazo y los días promedio de pago. Empezá cargando los financiadores con los que trabajás."
+            actionLabel="Cargar financiadores"
+            actionHref="/dashboard/financiadores"
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" aria-label="Rendimiento por financiador">
+              <thead>
+                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    {t("billing.insurer")}
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    {t("dashboard.billed")}
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    {t("dashboard.collected")}
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    {t("dashboard.rejection")}
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    {t("dashboard.paymentDays")}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {financiadores.map((f) => (
+                  <tr
+                    key={f.name}
+                    className="border-t border-border-light hover:bg-celeste-pale/30 transition"
+                  >
+                    <td className="px-5 py-3 font-semibold text-ink">
+                      <Link href="/dashboard/financiadores" className="hover:text-celeste-dark">
+                        {f.name}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3 text-right text-ink-light">{f.facturado}</td>
+                    <td className="px-5 py-3 text-right text-ink-light">{f.cobrado}</td>
+                    <td
+                      className={`px-5 py-3 text-right font-semibold ${
+                        parseFloat(f.rechazo) > 10
+                          ? "text-red-500"
+                          : parseFloat(f.rechazo) > 5
+                            ? "text-amber-500"
+                            : "text-green-600"
+                      }`}
+                    >
+                      {f.rechazo}
+                    </td>
+                    <td
+                      className={`px-5 py-3 text-right ${parseInt(f.dias) > 60 ? "text-red-500 font-semibold" : "text-ink-light"}`}
+                    >
+                      {f.dias}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
 
       {/* Today's activity */}
@@ -590,26 +580,47 @@ export default function DashboardPage() {
                 {t("action.viewSchedule")}
               </Link>
             </div>
-            <div className="space-y-2" role="list" aria-label="Turnos de hoy">
-              {todayAgenda.map((turno, i) => (
-                <Link
-                  key={i}
-                  href="/dashboard/agenda"
-                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
-                  role="listitem"
-                >
-                  <span className="font-mono text-[10px] text-ink-muted w-10">{turno.hora}</span>
-                  <span className="text-xs font-semibold text-ink flex-1">{turno.pac}</span>
-                  <span className="text-[10px] text-ink-light">{turno.tipo}</span>
-                  <StatusBadge
-                    variant={turno.estado}
-                    label={
-                      turno.estado === "confirmado" ? t("status.confirmed") : t("status.pending")
-                    }
-                  />
-                </Link>
-              ))}
-            </div>
+            {isTurnosLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="animate-pulse flex items-center gap-3 py-2">
+                    <div className="h-3 w-10 bg-gray-200 rounded" />
+                    <div className="h-3 flex-1 bg-gray-200 rounded" />
+                    <div className="h-3 w-16 bg-gray-100 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : todayAgenda.length === 0 ? (
+              <EmptyState
+                compact
+                icon={<Calendar className="w-6 h-6 text-celeste-dark" />}
+                title="Sin turnos hoy"
+                description="Acá aparecen los turnos del día. Cargá tu agenda para ver los pacientes de hoy con horario, tipo de consulta y estado."
+                actionLabel="Gestionar agenda"
+                actionHref="/dashboard/agenda"
+              />
+            ) : (
+              <div className="space-y-2" role="list" aria-label="Turnos de hoy">
+                {todayAgenda.map((turno, i) => (
+                  <Link
+                    key={i}
+                    href="/dashboard/agenda"
+                    className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
+                    role="listitem"
+                  >
+                    <span className="font-mono text-[10px] text-ink-muted w-10">{turno.hora}</span>
+                    <span className="text-xs font-semibold text-ink flex-1">{turno.pac}</span>
+                    <span className="text-[10px] text-ink-light">{turno.tipo}</span>
+                    <StatusBadge
+                      variant={turno.estado}
+                      label={
+                        turno.estado === "confirmado" ? t("status.confirmed") : t("status.pending")
+                      }
+                    />
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -625,24 +636,45 @@ export default function DashboardPage() {
                 {t("action.viewAudit")}
               </Link>
             </div>
-            <div className="space-y-2" role="list" aria-label="Items de auditoría pendientes">
-              {pendingAudit.map((a, i) => (
-                <Link
-                  key={i}
-                  href="/dashboard/auditoria"
-                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
-                  role="listitem"
-                >
-                  <span
-                    className={`w-2 h-2 rounded-full ${a.sev === "alta" ? "bg-red-500" : "bg-amber-400"}`}
-                    aria-label={`Severidad ${a.sev}`}
-                  />
-                  <span className="text-xs font-semibold text-ink flex-1">{a.tipo}</span>
-                  <span className="text-[10px] text-ink-light">{a.pac}</span>
-                  <span className="text-[10px] font-bold text-ink">{a.monto}</span>
-                </Link>
-              ))}
-            </div>
+            {isAuditoriaLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="animate-pulse flex items-center gap-3 py-2">
+                    <div className="h-2 w-2 bg-gray-200 rounded-full" />
+                    <div className="h-3 flex-1 bg-gray-200 rounded" />
+                    <div className="h-3 w-20 bg-gray-100 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : pendingAudit.length === 0 ? (
+              <EmptyState
+                compact
+                icon={<Shield className="w-6 h-6 text-celeste-dark" />}
+                title="Sin items de auditoría"
+                description="La auditoría pre-facturación detecta errores de código, autorizaciones vencidas y duplicados antes de presentar. Se activa automáticamente al cargar facturas."
+                actionLabel="Ir a facturación"
+                actionHref="/dashboard/facturacion"
+              />
+            ) : (
+              <div className="space-y-2" role="list" aria-label="Items de auditoría pendientes">
+                {pendingAudit.map((a, i) => (
+                  <Link
+                    key={i}
+                    href="/dashboard/auditoria"
+                    className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
+                    role="listitem"
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${a.sev === "alta" ? "bg-red-500" : "bg-amber-400"}`}
+                      aria-label={`Severidad ${a.sev}`}
+                    />
+                    <span className="text-xs font-semibold text-ink flex-1">{a.tipo}</span>
+                    <span className="text-[10px] text-ink-light">{a.pac}</span>
+                    <span className="text-[10px] font-bold text-ink">{a.monto}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

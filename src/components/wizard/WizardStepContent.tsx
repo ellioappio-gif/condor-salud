@@ -15,6 +15,14 @@ import {
   Settings,
   CreditCard,
   Star,
+  FileText,
+  Shield,
+  Calendar,
+  Users,
+  BarChart3,
+  Activity,
+  Stethoscope,
+  ClipboardList,
 } from "lucide-react";
 
 // ─── Reusable field wrapper ──────────────────────────────────
@@ -45,6 +53,31 @@ function Field({
 const inputClass =
   "w-full rounded-[4px] border border-border px-3 py-2 text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-celeste-dark focus:border-celeste-dark transition";
 
+// ─── Feature explanation card ────────────────────────────────
+// Shows a feature that becomes available with the data entered in this step.
+
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border border-border-light bg-white p-3">
+      <div className="w-8 h-8 rounded-lg bg-celeste-pale flex items-center justify-center shrink-0">
+        <Icon className="w-4 h-4 text-celeste-dark" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold text-ink">{title}</p>
+        <p className="text-xs text-ink-muted leading-relaxed mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Step 1: Clinic info ─────────────────────────────────────
 
 function StepClinica() {
@@ -52,23 +85,46 @@ function StepClinica() {
 
   return (
     <div className="space-y-8">
-      {/* Instructions */}
+      {/* Detailed explanation */}
       <div className="rounded-xl border border-celeste-100 bg-celeste-50/40 p-5">
         <div className="flex items-start gap-3">
           <Building2 className="h-5 w-5 text-celeste-dark shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-bold text-ink">Empecemos con lo básico</h3>
-            <ol className="mt-2 space-y-1.5 text-sm text-ink-muted list-decimal list-inside">
-              <li>
-                Ingresá el <strong className="text-ink">nombre de tu clínica</strong> (obligatorio)
-              </li>
-              <li>Completá dirección, teléfono y email si los tenés a mano</li>
-              <li>
-                Hacé clic en <strong className="text-ink">Siguiente</strong> para continuar
-              </li>
-            </ol>
+            <h3 className="text-sm font-bold text-ink">Datos de tu clínica</h3>
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">
+              Esta información identifica a tu centro de salud en toda la plataforma. El nombre de
+              la clínica aparece en facturas, reportes, comunicaciones con pacientes y en el
+              encabezado del dashboard. La dirección, teléfono y email se usan para los
+              recordatorios automáticos y para que las obras sociales puedan contactarte.
+            </p>
+            <div className="mt-3 p-3 rounded-lg bg-white/60 border border-celeste-100">
+              <p className="text-xs font-semibold text-ink mb-1">Por qué es importante:</p>
+              <ul className="text-xs text-ink-muted space-y-1">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    El <strong className="text-ink">nombre</strong> se usa como identificador en
+                    todas las facturas y presentaciones a financiadores
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    La <strong className="text-ink">dirección</strong> se incluye en los
+                    recordatorios de turno que reciben tus pacientes por WhatsApp
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    El <strong className="text-ink">teléfono y email</strong> se usan para las
+                    notificaciones del sistema y comunicación con obras sociales
+                  </span>
+                </li>
+              </ul>
+            </div>
             <p className="mt-3 text-xs text-ink-muted">
-              Solo el nombre es obligatorio. Todo lo demás se puede completar después desde
+              Solo el nombre es obligatorio ahora. Todo lo demás se puede completar después desde
               Configuración.
             </p>
           </div>
@@ -78,7 +134,11 @@ function StepClinica() {
       {/* Form fields */}
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <Field label="Nombre de la clínica" required>
+          <Field
+            label="Nombre de la clínica"
+            required
+            hint="Aparece en facturas, reportes y comunicaciones. Usá el nombre legal o comercial de tu centro."
+          >
             <input
               type="text"
               className={inputClass}
@@ -89,7 +149,10 @@ function StepClinica() {
             />
           </Field>
         </div>
-        <Field label="Dirección">
+        <Field
+          label="Dirección"
+          hint="Se incluye en los recordatorios de turno por WhatsApp y en facturas."
+        >
           <input
             type="text"
             className={inputClass}
@@ -98,7 +161,10 @@ function StepClinica() {
             onChange={(e) => updateForm({ direccion: e.target.value })}
           />
         </Field>
-        <Field label="Teléfono">
+        <Field
+          label="Teléfono"
+          hint="Para notificaciones del sistema y contacto con obras sociales."
+        >
           <input
             type="tel"
             className={inputClass}
@@ -107,7 +173,10 @@ function StepClinica() {
             onChange={(e) => updateForm({ telefono: e.target.value })}
           />
         </Field>
-        <Field label="Email de la clínica" hint="Para comunicaciones con pacientes">
+        <Field
+          label="Email de la clínica"
+          hint="Recibe alertas de rechazos, vencimientos y confirmaciones de pago."
+        >
           <input
             type="email"
             className={inputClass}
@@ -116,6 +185,25 @@ function StepClinica() {
             onChange={(e) => updateForm({ email: e.target.value })}
           />
         </Field>
+      </div>
+
+      {/* What this enables */}
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+          Funcionalidades que se activan con estos datos
+        </h4>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <FeatureCard
+            icon={FileText}
+            title="Facturación con membrete"
+            description="Las facturas y presentaciones a financiadores incluyen el nombre y datos de contacto de tu clínica."
+          />
+          <FeatureCard
+            icon={Calendar}
+            title="Recordatorios de turno"
+            description="Los pacientes reciben recordatorios por WhatsApp con la dirección del consultorio."
+          />
+        </div>
       </div>
     </div>
   );
@@ -128,26 +216,48 @@ function StepProfesional() {
 
   return (
     <div className="space-y-8">
-      {/* Instructions */}
+      {/* Detailed explanation */}
       <div className="rounded-xl border border-celeste-100 bg-celeste-50/40 p-5">
         <div className="flex items-start gap-3">
           <UserCircle className="h-5 w-5 text-celeste-dark shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-bold text-ink">Datos del profesional responsable</h3>
-            <ol className="mt-2 space-y-1.5 text-sm text-ink-muted list-decimal list-inside">
-              <li>
-                Ingresá el <strong className="text-ink">nombre completo</strong> del profesional
-                administrador
-              </li>
-              <li>
-                Ingresá el <strong className="text-ink">número de matrícula</strong> provincial o
-                nacional
-              </li>
-              <li>Opcionalmente, seleccioná la especialidad principal</li>
-            </ol>
+            <h3 className="text-sm font-bold text-ink">Profesional responsable</h3>
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">
+              El sistema de salud argentino requiere que toda prescripción, derivación y facturación
+              esté asociada a un profesional con matrícula habilitante. Este paso registra al médico
+              o profesional principal que administra la clínica. La matrícula se valida contra el
+              formato provincial (MP) o nacional (MN) y se usa en toda la documentación generada por
+              la plataforma.
+            </p>
+            <div className="mt-3 p-3 rounded-lg bg-white/60 border border-celeste-100">
+              <p className="text-xs font-semibold text-ink mb-1">Por qué cada dato es necesario:</p>
+              <ul className="text-xs text-ink-muted space-y-1">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    El <strong className="text-ink">nombre</strong> aparece como responsable en las
+                    presentaciones a PAMI, IOMA y otras obras sociales
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    La <strong className="text-ink">matrícula</strong> es obligatoria por regulación
+                    sanitaria. Sin ella, los financiadores rechazan las presentaciones
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    La <strong className="text-ink">especialidad</strong> permite filtrar el
+                    nomenclador y mostrar solo los códigos de prestación relevantes
+                  </span>
+                </li>
+              </ul>
+            </div>
             <p className="mt-3 text-xs text-ink-muted">
-              Este perfil queda asociado a tu cuenta. Podés agregar más profesionales después desde
-              el panel de equipo.
+              Podés agregar más profesionales después desde el panel de equipo. Este es el
+              administrador principal de la clínica.
             </p>
           </div>
         </div>
@@ -156,7 +266,11 @@ function StepProfesional() {
       {/* Form fields */}
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <Field label="Nombre completo del profesional" required>
+          <Field
+            label="Nombre completo del profesional"
+            required
+            hint="Nombre y apellido tal como figura en la matrícula. Se usa en facturas y presentaciones."
+          >
             <input
               type="text"
               className={inputClass}
@@ -170,7 +284,7 @@ function StepProfesional() {
         <Field
           label="Matrícula profesional"
           required
-          hint="Matrícula provincial (MP) o nacional (MN)"
+          hint="Formato: MP 12345 (provincial) o MN 67890 (nacional). Los financiadores la exigen en cada presentación."
         >
           <input
             type="text"
@@ -180,7 +294,10 @@ function StepProfesional() {
             onChange={(e) => updateForm({ doctorMatricula: e.target.value })}
           />
         </Field>
-        <Field label="Especialidad principal">
+        <Field
+          label="Especialidad principal"
+          hint="Filtra el nomenclador y agiliza la carga de prestaciones en facturación."
+        >
           <select
             className={inputClass}
             value={formData.doctorEspecialidad}
@@ -194,6 +311,35 @@ function StepProfesional() {
             ))}
           </select>
         </Field>
+      </div>
+
+      {/* What this enables */}
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+          Funcionalidades que se activan con estos datos
+        </h4>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <FeatureCard
+            icon={Shield}
+            title="Auditoría pre-facturación"
+            description="Valida que cada factura tenga matrícula, código de prestación y autorización antes de presentar."
+          />
+          <FeatureCard
+            icon={Stethoscope}
+            title="Nomenclador filtrado"
+            description="Muestra solo los códigos de prestación relevantes a la especialidad del profesional."
+          />
+          <FeatureCard
+            icon={Users}
+            title="Panel de equipo"
+            description="El profesional registrado puede invitar a otros médicos y asignar permisos por rol."
+          />
+          <FeatureCard
+            icon={ClipboardList}
+            title="Firma en documentación"
+            description="Recetas, órdenes y derivaciones incluyen automáticamente nombre y matrícula."
+          />
+        </div>
       </div>
     </div>
   );
@@ -220,27 +366,53 @@ function StepConfiguracion() {
 
   return (
     <div className="space-y-8">
-      {/* Instructions */}
+      {/* Detailed explanation */}
       <div className="rounded-xl border border-celeste-100 bg-celeste-50/40 p-5">
         <div className="flex items-start gap-3">
           <Settings className="h-5 w-5 text-celeste-dark shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-bold text-ink">Configurá tu clínica</h3>
-            <ol className="mt-2 space-y-1.5 text-sm text-ink-muted list-decimal list-inside">
-              <li>
-                Seleccioná las <strong className="text-ink">especialidades</strong> que ofrece tu
-                clínica
-              </li>
-              <li>
-                Marcá las <strong className="text-ink">obras sociales y prepagas</strong> con las
-                que trabajás
-              </li>
-              <li>
-                Hacé clic en <strong className="text-ink">Siguiente</strong> para revisar todo
-              </li>
-            </ol>
+            <h3 className="text-sm font-bold text-ink">Especialidades y cobertura</h3>
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">
+              Este paso configura dos pilares fundamentales de la operación de tu clínica: las
+              especialidades que ofrecés y las obras sociales/prepagas con las que trabajás. Esta
+              información determina qué secciones del dashboard se activan y cómo se organiza la
+              facturación.
+            </p>
+            <div className="mt-3 p-3 rounded-lg bg-white/60 border border-celeste-100">
+              <p className="text-xs font-semibold text-ink mb-1">
+                Cómo usa la plataforma esta información:
+              </p>
+              <ul className="text-xs text-ink-muted space-y-1">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-ink">Especialidades</strong>: Filtran el nomenclador
+                    para mostrar solo las prácticas habilitadas, organizan la agenda por servicio y
+                    agrupan los reportes por área
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-ink">Financiadores</strong>: Habilitan el seguimiento de
+                    facturación, cobros y rechazos por obra social. Cada financiador tiene sus
+                    propios plazos de pago y reglas de presentación
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-ink">Dashboard personalizado</strong>: Los KPIs y
+                    gráficos del panel principal se organizan automáticamente según los
+                    financiadores que selecciones
+                  </span>
+                </li>
+              </ul>
+            </div>
             <p className="mt-3 text-xs text-ink-muted">
-              Este paso es opcional. Podés seleccionar las que quieras ahora y agregar más después.
+              Este paso es opcional. Podés empezar sin seleccionar nada y configurarlo después desde
+              el dashboard. Pero mientras más cargues ahora, más completo va a estar tu panel desde
+              el primer día.
             </p>
           </div>
         </div>
@@ -248,8 +420,13 @@ function StepConfiguracion() {
 
       {/* Especialidades */}
       <div>
-        <h3 className="text-sm font-semibold text-ink mb-2">Especialidades</h3>
-        <p className="text-xs text-ink-muted mb-3">Seleccioná todas las que correspondan.</p>
+        <h3 className="text-sm font-semibold text-ink mb-1">
+          Especialidades que ofrece tu clínica
+        </h3>
+        <p className="text-xs text-ink-muted mb-3">
+          Seleccioná todas las que correspondan. Esto organiza la agenda, filtra el nomenclador y
+          agrupa los reportes de actividad por área médica.
+        </p>
         <div className="flex flex-wrap gap-2">
           {ESPECIALIDADES_OPTIONS.map((esp) => {
             const selected = formData.especialidades.includes(esp);
@@ -273,8 +450,11 @@ function StepConfiguracion() {
 
       {/* Financiadores */}
       <div>
-        <h3 className="text-sm font-semibold text-ink mb-2">Obras sociales y prepagas</h3>
-        <p className="text-xs text-ink-muted mb-3">Seleccioná las que acepta tu clínica.</p>
+        <h3 className="text-sm font-semibold text-ink mb-1">Obras sociales y prepagas</h3>
+        <p className="text-xs text-ink-muted mb-3">
+          Seleccioná las que acepta tu clínica. Cada financiador tendrá su panel con métricas de
+          facturación, tasa de rechazo, días promedio de cobro y estado de presentaciones.
+        </p>
         <div className="flex flex-wrap gap-2">
           {FINANCIADORES_OPTIONS.map((fin) => {
             const selected = formData.financiadores.includes(fin);
@@ -295,6 +475,35 @@ function StepConfiguracion() {
           })}
         </div>
       </div>
+
+      {/* What this enables */}
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+          Funcionalidades que se activan con estos datos
+        </h4>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <FeatureCard
+            icon={BarChart3}
+            title="Dashboard por financiador"
+            description="Cada obra social tiene su fila con facturado, cobrado, tasa de rechazo y días de pago."
+          />
+          <FeatureCard
+            icon={Activity}
+            title="KPIs en tiempo real"
+            description="Los indicadores del panel principal se calculan a partir de las facturas y cobros por financiador."
+          />
+          <FeatureCard
+            icon={Shield}
+            title="Seguimiento de rechazos"
+            description="Monitoreo automático de rechazos por obra social con alertas de vencimiento de presentación."
+          />
+          <FeatureCard
+            icon={Calendar}
+            title="Agenda por especialidad"
+            description="Los turnos se organizan por servicio, facilitando la gestión de consultorios y profesionales."
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -306,19 +515,45 @@ function StepPlan() {
 
   return (
     <div className="space-y-8">
-      {/* Instructions */}
+      {/* Detailed explanation */}
       <div className="rounded-xl border border-celeste-100 bg-celeste-50/40 p-5">
         <div className="flex items-start gap-3">
           <CreditCard className="h-5 w-5 text-celeste-dark shrink-0 mt-0.5" />
           <div>
             <h3 className="text-sm font-bold text-ink">Elegí el plan para tu clínica</h3>
-            <p className="mt-2 text-sm text-ink-muted">
-              Seleccioná el plan que mejor se adapte al tamaño y necesidades de tu centro. Todos los
-              planes incluyen ajuste mensual IPC.
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">
+              El plan determina la capacidad de tu centro: cantidad de profesionales, sedes, módulos
+              disponibles y nivel de soporte. Todos los planes incluyen el dashboard en tiempo real,
+              gestión de pacientes y actualizaciones de nomenclador. La diferencia principal está en
+              el volumen de operación y funcionalidades avanzadas como telemedicina, AI chatbot y
+              analítica.
             </p>
-            <p className="mt-2 text-xs text-ink-muted">
-              Podés cambiar de plan en cualquier momento desde Configuración.
-            </p>
+            <div className="mt-3 p-3 rounded-lg bg-white/60 border border-celeste-100">
+              <p className="text-xs font-semibold text-ink mb-1">Sobre precios y facturación:</p>
+              <ul className="text-xs text-ink-muted space-y-1">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    Todos los precios en <strong className="text-ink">pesos argentinos</strong> con
+                    ajuste mensual IPC
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    La suscripción se gestiona a través de{" "}
+                    <strong className="text-ink">MercadoPago</strong> con débito automático
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    Podés <strong className="text-ink">cambiar de plan</strong> en cualquier momento
+                    desde Configuración sin perder datos
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -420,11 +655,17 @@ function StepConfirmacion() {
         <div className="flex items-start gap-3">
           <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-bold text-ink">Último paso</h3>
-            <ol className="mt-2 space-y-1.5 text-sm text-ink-muted list-decimal list-inside">
-              <li>Revisá que los datos sean correctos</li>
+            <h3 className="text-sm font-bold text-ink">Último paso: revisá y activá</h3>
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">
+              Revisá que toda la información sea correcta. Al activar, se crea tu espacio de trabajo
+              con el dashboard en tiempo real. Tu clínica arranca con un panel completamente limpio
+              — sin datos de ejemplo. Cada sección te guía para cargar la información real de tu
+              operación.
+            </p>
+            <ol className="mt-3 space-y-1.5 text-sm text-ink-muted list-decimal list-inside">
+              <li>Verificá los datos abajo</li>
               <li>
-                Si necesitás cambiar algo, usá el botón{" "}
+                Si necesitás corregir algo, usá el botón{" "}
                 <strong className="text-ink">Anterior</strong>
               </li>
               <li>
@@ -516,21 +757,47 @@ function StepConfirmacion() {
         )}
       </div>
 
-      {/* What happens next */}
+      {/* What happens next — thorough */}
       <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-4">
-        <h4 className="text-sm font-semibold text-ink mb-2">Al activar tu clínica:</h4>
-        <ul className="space-y-1.5 text-xs text-ink-muted">
+        <h4 className="text-sm font-semibold text-ink mb-3">Al activar tu clínica:</h4>
+        <ul className="space-y-2 text-xs text-ink-muted">
           <li className="flex items-start gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
-            Se crea tu espacio de trabajo con el dashboard en tiempo real
+            <span>
+              Se crea tu espacio de trabajo con el{" "}
+              <strong className="text-ink">dashboard en tiempo real</strong> — arrancás con un panel
+              limpio, sin datos de ejemplo
+            </span>
           </li>
           <li className="flex items-start gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
-            Podés agregar profesionales, pacientes y configuración avanzada desde el dashboard
+            <span>
+              Cada sección del dashboard incluye{" "}
+              <strong className="text-ink">guías contextuales</strong> que te explican qué cargar y
+              cómo
+            </span>
           </li>
           <li className="flex items-start gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
-            Todo lo que no cargaste ahora se puede completar después
+            <span>
+              Podés empezar cargando{" "}
+              <strong className="text-ink">pacientes, turnos o facturas</strong> en el orden que
+              prefieras
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
+            <span>
+              Los <strong className="text-ink">KPIs y gráficos</strong> se generan automáticamente a
+              medida que cargás datos reales
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
+            <span>
+              Todo lo que no completaste en el wizard se puede configurar después desde{" "}
+              <strong className="text-ink">Configuración</strong>
+            </span>
           </li>
         </ul>
       </div>

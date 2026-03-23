@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
@@ -5,6 +6,11 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  /** Quick link-based CTA (rendered as Link) */
+  actionLabel?: string;
+  actionHref?: string;
+  /** Compact variant for inline cards — less vertical padding */
+  compact?: boolean;
   className?: string;
 }
 
@@ -24,18 +30,48 @@ const DefaultIcon = () => (
   </svg>
 );
 
-export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+  actionLabel,
+  actionHref,
+  compact = false,
+  className,
+}: EmptyStateProps) {
   return (
     <div
-      className={cn("flex flex-col items-center justify-center py-16 px-6 text-center", className)}
+      className={cn(
+        "flex flex-col items-center justify-center text-center",
+        compact ? "py-6 px-4" : "py-16 px-6",
+        className,
+      )}
       role="status"
     >
-      <div className="mb-4" aria-hidden="true">
+      <div className={compact ? "mb-3" : "mb-4"} aria-hidden="true">
         {icon || <DefaultIcon />}
       </div>
-      <h3 className="text-lg font-bold text-ink">{title}</h3>
-      {description && <p className="text-sm text-ink-muted mt-1 max-w-md">{description}</p>}
+      <h3 className={cn("font-bold text-ink", compact ? "text-sm" : "text-lg")}>{title}</h3>
+      {description && (
+        <p
+          className={cn(
+            "text-ink-muted mt-1 max-w-md leading-relaxed",
+            compact ? "text-xs" : "text-sm",
+          )}
+        >
+          {description}
+        </p>
+      )}
       {action && <div className="mt-4">{action}</div>}
+      {!action && actionLabel && actionHref && (
+        <Link
+          href={actionHref}
+          className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+        >
+          {actionLabel}
+        </Link>
+      )}
     </div>
   );
 }
