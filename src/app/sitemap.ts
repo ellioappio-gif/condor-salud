@@ -21,6 +21,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    // American travelers (embassy endorsement page)
+    {
+      url: `${BASE_URL}/american-travelers`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
     // L-24: Removed /auth/* pages (not useful for SEO crawlers)
     {
       url: `${BASE_URL}/privacidad`,

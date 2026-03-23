@@ -82,6 +82,12 @@ export default function Footer() {
             >
               {t("footer.partners")}
             </Link>
+            <Link
+              href="/american-travelers"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              {t("footer.embassy")}
+            </Link>
           </div>
           <div className="space-y-2">
             <p className="font-semibold text-ink text-xs uppercase tracking-wider">
