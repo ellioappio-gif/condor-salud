@@ -52,3 +52,56 @@ test.describe("Smoke Tests", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 });
+
+test.describe("Dashboard Blank-Slate Smoke Tests", () => {
+  test("pacientes page renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/pacientes");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+    // Should show either real data or empty state — no crashes
+    const hasContent = await page.locator("main, [role='main']").first().isVisible();
+    expect(hasContent).toBeTruthy();
+  });
+
+  test("agenda page renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/agenda");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+  });
+
+  test("inventario page renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/inventario");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+  });
+
+  test("reportes page renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/reportes");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+  });
+
+  test("disponibilidad page renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/disponibilidad");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+  });
+
+  test("configuracion/whatsapp renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/configuracion/whatsapp");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+  });
+
+  test("configuracion/recordatorios renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/configuracion/recordatorios");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+  });
+
+  test("configuracion/pagos renders without errors", async ({ page }) => {
+    await page.goto("/dashboard/configuracion/pagos");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("body")).toBeVisible();
+  });
+});

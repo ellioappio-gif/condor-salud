@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { DemoModalProvider } from "@/components/DemoModal";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
-import Chatbot from "@/components/Chatbot";
-import NotificationCenter from "@/components/NotificationCenter";
+
+// Lazy-load non-critical UI that is not above the fold
+const WhatsAppFloat = dynamic(() => import("@/components/WhatsAppFloat"), { ssr: false });
+const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
+const NotificationCenter = dynamic(() => import("@/components/NotificationCenter"), { ssr: false });
 
 import { SWRProvider } from "@/lib/swr";
 import { useAuth } from "@/lib/auth/context";

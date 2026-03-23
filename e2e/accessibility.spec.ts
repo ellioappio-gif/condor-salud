@@ -107,6 +107,36 @@ test.describe("Accessibility — Dashboard", () => {
     await page.waitForLoadState("networkidle");
     await expectAccessible(page);
   });
+
+  test("inventario page passes WCAG 2.1 AA", async ({ page }) => {
+    await page.goto("/dashboard/inventario");
+    await page.waitForLoadState("networkidle");
+    await expectAccessible(page);
+  });
+
+  test("reportes page passes WCAG 2.1 AA", async ({ page }) => {
+    await page.goto("/dashboard/reportes");
+    await page.waitForLoadState("networkidle");
+    await expectAccessible(page);
+  });
+
+  test("disponibilidad page passes WCAG 2.1 AA", async ({ page }) => {
+    await page.goto("/dashboard/disponibilidad");
+    await page.waitForLoadState("networkidle");
+    await expectAccessible(page);
+  });
+
+  test("configuracion/whatsapp passes WCAG 2.1 AA", async ({ page }) => {
+    await page.goto("/dashboard/configuracion/whatsapp");
+    await page.waitForLoadState("networkidle");
+    await expectAccessible(page);
+  });
+
+  test("configuracion/pagos passes WCAG 2.1 AA", async ({ page }) => {
+    await page.goto("/dashboard/configuracion/pagos");
+    await page.waitForLoadState("networkidle");
+    await expectAccessible(page);
+  });
 });
 
 test.describe("Accessibility — Keyboard Navigation", () => {

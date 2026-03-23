@@ -1,14 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans } from "next/font/google";
+import dynamic from "next/dynamic";
 import { AuthProvider } from "@/lib/auth/context";
 import { PlanProvider } from "@/lib/plan-context";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { SWRProvider } from "@/lib/swr";
 import { PostHogProvider } from "@/lib/posthog";
 import { DemoProvider } from "@/hooks/useDemoConfig";
-import Chatbot from "@/components/Chatbot";
-import InstallPrompt from "@/components/InstallPrompt";
 import "./globals.css";
+
+// Lazy-load non-critical client components (not above the fold)
+const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
+const InstallPrompt = dynamic(() => import("@/components/InstallPrompt"), { ssr: false });
 
 const dmSans = DM_Sans({
   subsets: ["latin"],

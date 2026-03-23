@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] — 2026-03-23
+
+### Added
+
+- **Blank-slate dashboard policy** — All 9 dashboard sub-pages now show `<EmptyState>` with calls-to-action when no real data exists, instead of hardcoded mock arrays. Removed ~860 lines of inline demo data from: pacientes, pacientes/[id], agenda, disponibilidad, inventario, reportes, whatsapp, recordatorios, pagos.
+- **DATA POLICY header** — `src/lib/services/data.ts` now has a comprehensive policy comment explaining the dual approach: blank-slate for authenticated dashboard, demo data for public/marketing pages, service-layer mock fallback for local dev/CI.
+- **Patient detail rewrite** — `pacientes/[id]/page.tsx` fully rewritten to use `usePacientes()`, `useTurnos()`, `useFacturas()` SWR hooks with loading skeletons and empty states instead of hardcoded patient/historial/turnos/facturacion objects.
+- **Wizard step explanations** — `WizardStepContent.tsx` rewritten with thorough Argentine-context explanations for all 9 onboarding steps.
+- **Config API routes** — New `PUT /api/config/recordatorios` and `PUT /api/config/pagos` for persisting reminder and payment settings to Supabase.
+- **SWR config hooks** — New `usePaymentConfig()` and `useReminderConfig()` hooks with save mutation support.
+- **Dashboard blank-slate tests** — New vitest suite verifying empty-state rendering when hooks return no data.
+- **Performance: dynamic imports** — Heavy dashboard pages lazy-loaded with `next/dynamic` and loading skeletons.
+- **E2E blank-slate tests** — Updated smoke and accessibility specs for dashboard sub-pages with empty states.
+
+### Changed
+
+- **`EmptyState` component** — Enhanced with `compact`, `actionLabel`, and `actionHref` props for in-page blank-slate sections.
+- **KPI zeroing** — WhatsApp, recordatorios, and pagos pages show zeroed KPIs when no real data is available instead of mock values.
+- **FacturaEstado casing** — Fixed `pacientes/[id]` to use lowercase `"cobrada"`/`"rechazada"` matching the `FacturaEstado` type union.
+
+### Fixed
+
+- **WhatsApp KPI references** — Removed references to deleted `confirmados` and `sinResp` variables.
+- **`templates` to `DEFAULT_TEMPLATES`** — Fixed all references in recordatorios page after rename.
+
 ## [0.19.0] — 2026-03-21
 
 ### Added

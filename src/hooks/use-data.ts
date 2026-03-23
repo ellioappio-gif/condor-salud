@@ -241,3 +241,61 @@ export function useReportesList() {
     { revalidateOnFocus: false, dedupingInterval: 30000 },
   );
 }
+
+// ─── Config Hooks (API-backed) ───────────────────────────────
+// These hooks fetch/save configuration via dedicated API routes
+// instead of the data.ts service layer.
+
+const apiFetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+};
+
+export function useReminderConfig() {
+  const swr = useSWR("reminder-config", () => apiFetcher("/api/config/recordatorios"), {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+  });
+
+  const save = async (body: {
+    config?: Record<string, unknown>;
+    templates?: Record<string, unknown>[];
+  }) => {
+    const res = await fetch("/api/config/recordatorios", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("Failed to save reminder config");
+    const data = await res.json();
+    swr.mutate(data, false);
+    return data;
+  };
+
+  return { ...swr, save };
+}
+
+export function usePaymentConfig() {
+  const swr = useSWR("payment-config", () => apiFetcher("/api/config/pagos"), {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+  });
+
+  const save = async (body: {
+    config?: Record<string, unknown>;
+    billingRules?: Record<string, unknown>[];
+  }) => {
+    const res = await fetch("/api/config/pagos", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("Failed to save payment config");
+    const data = await res.json();
+    swr.mutate(data, false);
+    return data;
+  };
+
+  return { ...swr, save };
+}
