@@ -1,87 +1,177 @@
 "use client";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
-import { useDemoAction } from "@/components/DemoModal";
-import { useIsDemo } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/context";
+import { isSupabaseConfigured } from "@/lib/env";
+import { Loader2, AlertCircle, UserPlus, X, Send } from "lucide-react";
 
-const miembros = [
-  {
-    id: 1,
-    nombre: "Dr. Martín Rodríguez",
-    email: "m.rodriguez@centrosanmartin.com",
-    rol: "Administrador",
-    especialidad: "Cardiología",
-    matricula: "MN 45.231",
-    estado: "Activo",
-    ultimoAcceso: "07/03/2026 15:30",
-  },
-  {
-    id: 2,
-    nombre: "Dra. Laura Pérez",
-    email: "l.perez@centrosanmartin.com",
-    rol: "Médico",
-    especialidad: "Clínica Médica",
-    matricula: "MN 52.118",
-    estado: "Activo",
-    ultimoAcceso: "07/03/2026 12:45",
-  },
-  {
-    id: 3,
-    nombre: "Carlos García",
-    email: "c.garcia@centrosanmartin.com",
-    rol: "Facturación",
-    especialidad: "—",
-    matricula: "—",
-    estado: "Activo",
-    ultimoAcceso: "07/03/2026 17:00",
-  },
-  {
-    id: 4,
-    nombre: "Ana López",
-    email: "a.lopez@centrosanmartin.com",
-    rol: "Recepción",
-    especialidad: "—",
-    matricula: "—",
-    estado: "Activo",
-    ultimoAcceso: "06/03/2026 18:20",
-  },
-];
+// ─── Types ───────────────────────────────────────────────────
 
-const roles = [
-  {
-    nombre: "Administrador",
-    permisos: "Acceso total a todas las funcionalidades",
-    usuarios: 1,
-    color: "bg-red-50 text-red-600",
-  },
-  {
-    nombre: "Médico",
-    permisos: "Pacientes, Agenda, Verificación, Nomenclador, Reportes",
-    usuarios: 1,
-    color: "bg-celeste-pale text-celeste-dark",
-  },
-  {
-    nombre: "Facturación",
-    permisos: "Facturación, Rechazos, Financiadores, Auditoría, Reportes",
-    usuarios: 1,
-    color: "bg-gold-pale text-[#B8860B]",
-  },
-  {
-    nombre: "Recepción",
-    permisos: "Pacientes, Agenda, Verificación, Inventario",
-    usuarios: 1,
-    color: "bg-green-50 text-green-700",
-  },
-];
+interface TeamMember {
+  id: string;
+  full_name: string | null;
+  role: string;
+  especialidad: string | null;
+  matricula: string | null;
+  active: boolean;
+  email?: string;
+}
 
-const invitaciones = [
-  { email: "dr.martinez@gmail.com", rol: "Médico", enviada: "05/03/2026", estado: "Pendiente" },
-];
+interface Invitation {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  expires_at: string;
+  created_at: string;
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Administrador",
+  medico: "Médico",
+  facturacion: "Facturación",
+  recepcion: "Recepción",
+};
+
+const ROLE_COLORS: Record<string, string> = {
+  admin: "bg-red-50 text-red-600",
+  medico: "bg-celeste-pale text-celeste-dark",
+  facturacion: "bg-gold-pale text-[#B8860B]",
+  recepcion: "bg-green-50 text-green-700",
+};
+
+const ROLE_PERMS: Record<string, string> = {
+  admin: "Acceso total a todas las funcionalidades",
+  medico: "Pacientes, Agenda, Verificación, Nomenclador, Reportes",
+  facturacion: "Facturación, Rechazos, Financiadores, Auditoría, Reportes",
+  recepcion: "Pacientes, Agenda, Verificación, Inventario",
+};
+
+const inputClass =
+  "w-full rounded-[4px] border border-border px-3 py-2 text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-celeste-dark focus:border-celeste-dark transition";
+
+// ─── Page ────────────────────────────────────────────────────
 
 export default function EquipoPage() {
-  const { showDemo } = useDemoAction();
   const { showToast } = useToast();
-  const isDemo = useIsDemo();
+  const { user } = useAuth();
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Invite modal state
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("recepcion");
+  const [inviting, setInviting] = useState(false);
+
+  const isAdmin = user?.role === "admin";
+
+  // ── Fetch team data ────────────────────────────────────────
+  const fetchTeam = useCallback(async () => {
+    if (!isSupabaseConfigured() || !user?.clinicId) {
+      setLoading(false);
+      setError("No se pudo cargar la información del equipo.");
+      return;
+    }
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const sb = createClient();
+
+      // Fetch team members
+      const { data: profiles } = await (sb as ReturnType<typeof createClient>)
+        .from("profiles")
+        .select("id, full_name, role, especialidad, matricula, active")
+        .eq("clinic_id", user.clinicId)
+        .order("full_name");
+
+      setMembers((profiles || []) as unknown as TeamMember[]);
+
+      // Fetch invitations (if admin)
+      if (isAdmin) {
+        const res = await fetch("/api/team/invite");
+        if (res.ok) {
+          const data = await res.json();
+          setInvitations(data.invitations || []);
+        }
+      }
+    } catch {
+      setError("Error de conexión.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.clinicId, isAdmin]);
+
+  useEffect(() => {
+    fetchTeam();
+  }, [fetchTeam]);
+
+  // ── Send invitation ────────────────────────────────────────
+  const handleInvite = async () => {
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    try {
+      const res = await fetch("/api/team/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail.trim(), role: inviteRole }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || "Error al enviar la invitación");
+        return;
+      }
+      showToast("Invitación enviada correctamente.");
+      setShowInvite(false);
+      setInviteEmail("");
+      setInviteRole("recepcion");
+      fetchTeam(); // Refresh
+    } catch {
+      showToast("Error de conexión.");
+    } finally {
+      setInviting(false);
+    }
+  };
+
+  // ── Cancel invitation ──────────────────────────────────────
+  const handleCancelInvite = async (invId: string) => {
+    try {
+      const res = await fetch("/api/team/invite", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invitationId: invId }),
+      });
+      if (res.ok) {
+        showToast("Invitación cancelada.");
+        fetchTeam();
+      }
+    } catch {
+      showToast("Error al cancelar.");
+    }
+  };
+
+  // ── Loading / Error states ─────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-celeste-dark" />
+        <span className="ml-2 text-sm text-ink-muted">Cargando equipo...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <AlertCircle className="h-8 w-8 text-red-400" />
+        <p className="text-sm text-ink-muted">{error}</p>
+      </div>
+    );
+  }
+
+  const pendingInvitations = invitations.filter((inv) => inv.status === "pending");
 
   return (
     <div className="space-y-5">
@@ -97,20 +187,74 @@ export default function EquipoPage() {
         <div>
           <h1 className="text-2xl font-bold text-ink">Equipo</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            {miembros.length} miembros activos · {invitaciones.length} invitación pendiente
+            {members.length} miembro{members.length !== 1 ? "s" : ""} activo
+            {members.length !== 1 ? "s" : ""}
+            {pendingInvitations.length > 0 &&
+              ` · ${pendingInvitations.length} invitación${pendingInvitations.length !== 1 ? "es" : ""} pendiente${pendingInvitations.length !== 1 ? "s" : ""}`}
           </p>
         </div>
-        <button
-          onClick={() =>
-            isDemo
-              ? showDemo("Invitar miembro al equipo")
-              : showToast("✅ Invitar miembro al equipo")
-          }
-          className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
-        >
-          + Invitar miembro
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setShowInvite(true)}
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste-700 transition"
+          >
+            <UserPlus className="h-4 w-4" />
+            Invitar miembro
+          </button>
+        )}
       </div>
+
+      {/* Invite modal */}
+      {showInvite && (
+        <div className="bg-white border border-celeste-200 rounded-lg p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-ink">Invitar nuevo miembro</h3>
+            <button onClick={() => setShowInvite(false)} className="text-ink-muted hover:text-ink">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-ink-muted mb-1">Email</label>
+              <input
+                type="email"
+                className={inputClass}
+                placeholder="nombre@clinica.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-ink-muted mb-1">Rol</label>
+              <select
+                className={inputClass}
+                value={inviteRole}
+                onChange={(e) => setInviteRole(e.target.value)}
+              >
+                <option value="medico">Médico</option>
+                <option value="facturacion">Facturación</option>
+                <option value="recepcion">Recepción</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={handleInvite}
+              disabled={inviting || !inviteEmail.trim()}
+              className="flex items-center gap-1.5 rounded-[4px] bg-celeste-dark px-4 py-2 text-xs font-bold text-white hover:bg-celeste-700 transition disabled:opacity-50"
+            >
+              {inviting ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
+              Enviar invitación
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Team table */}
       <div className="bg-white border border-border rounded-lg overflow-x-auto">
@@ -132,13 +276,10 @@ export default function EquipoPage() {
               <th scope="col" className="text-center px-5 py-2.5">
                 Estado
               </th>
-              <th scope="col" className="text-right px-5 py-2.5">
-                Último acceso
-              </th>
             </tr>
           </thead>
           <tbody>
-            {miembros.map((m) => (
+            {members.map((m) => (
               <tr
                 key={m.id}
                 className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -146,73 +287,79 @@ export default function EquipoPage() {
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-celeste-pale flex items-center justify-center text-celeste-dark text-xs font-bold">
-                      {m.nombre
+                      {(m.full_name || "?")
                         .split(" ")
                         .map((n) => n[0])
                         .slice(0, 2)
-                        .join("")}
+                        .join("")
+                        .toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-ink">{m.nombre}</p>
-                      <p className="text-[10px] text-ink-muted">{m.email}</p>
+                      <p className="text-xs font-semibold text-ink">
+                        {m.full_name || "Sin nombre"}
+                      </p>
                     </div>
                   </div>
                 </td>
                 <td className="px-5 py-3">
                   <span
-                    className={`px-2 py-0.5 text-[10px] font-bold rounded ${roles.find((r) => r.nombre === m.rol)?.color}`}
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded ${ROLE_COLORS[m.role] || "bg-gray-100 text-gray-600"}`}
                   >
-                    {m.rol}
+                    {ROLE_LABELS[m.role] || m.role}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-xs text-ink-light">{m.especialidad}</td>
-                <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{m.matricula}</td>
+                <td className="px-5 py-3 text-xs text-ink-light">{m.especialidad || "—"}</td>
+                <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">
+                  {m.matricula || "—"}
+                </td>
                 <td className="px-5 py-3 text-center">
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-green-50 text-green-700">
-                    {m.estado}
+                  <span
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded ${
+                      m.active !== false
+                        ? "bg-green-50 text-green-700"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    {m.active !== false ? "Activo" : "Inactivo"}
                   </span>
-                </td>
-                <td className="px-5 py-3 text-right text-[10px] text-ink-muted">
-                  {m.ultimoAcceso}
                 </td>
               </tr>
             ))}
+            {members.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-5 py-8 text-center text-sm text-ink-muted">
+                  No hay miembros en el equipo. Invitá al primer profesional.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Pending invitations */}
-      {invitaciones.length > 0 && (
+      {pendingInvitations.length > 0 && (
         <div className="bg-gold-pale/30 border border-border rounded-lg p-5">
           <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase mb-3">
             Invitaciones Pendientes
           </h3>
-          {invitaciones.map((inv, i) => (
-            <div key={i} className="flex items-center justify-between py-2">
+          {pendingInvitations.map((inv) => (
+            <div key={inv.id} className="flex items-center justify-between py-2">
               <div>
                 <p className="text-xs font-semibold text-ink">{inv.email}</p>
                 <p className="text-[10px] text-ink-muted">
-                  Rol: {inv.rol} · Enviada: {inv.enviada}
+                  Rol: {ROLE_LABELS[inv.role] || inv.role} · Enviada:{" "}
+                  {new Date(inv.created_at).toLocaleDateString("es-AR")} · Expira:{" "}
+                  {new Date(inv.expires_at).toLocaleDateString("es-AR")}
                 </p>
               </div>
-              <div className="flex gap-2">
+              {isAdmin && (
                 <button
-                  onClick={() =>
-                    isDemo ? showDemo("Reenviar invitación") : showToast("✅ Reenviar invitación")
-                  }
-                  className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition"
-                >
-                  Reenviar
-                </button>
-                <button
-                  onClick={() =>
-                    isDemo ? showDemo("Cancelar invitación") : showToast("✅ Cancelar invitación")
-                  }
+                  onClick={() => handleCancelInvite(inv.id)}
                   className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-[4px] hover:bg-red-50 transition"
                 >
                   Cancelar
                 </button>
-              </div>
+              )}
             </div>
           ))}
         </div>
@@ -224,22 +371,25 @@ export default function EquipoPage() {
           Roles y Permisos
         </h3>
         <div className="space-y-3">
-          {roles.map((r) => (
-            <div
-              key={r.nombre}
-              className="flex items-center gap-4 py-2 border-b border-border-light last:border-0"
-            >
-              <span
-                className={`px-2 py-0.5 text-[10px] font-bold rounded w-28 text-center ${r.color}`}
+          {Object.entries(ROLE_LABELS).map(([key, label]) => {
+            const count = members.filter((m) => m.role === key).length;
+            return (
+              <div
+                key={key}
+                className="flex items-center gap-4 py-2 border-b border-border-light last:border-0"
               >
-                {r.nombre}
-              </span>
-              <p className="text-xs text-ink-light flex-1">{r.permisos}</p>
-              <span className="text-xs text-ink-muted">
-                {r.usuarios} usuario{r.usuarios > 1 ? "s" : ""}
-              </span>
-            </div>
-          ))}
+                <span
+                  className={`px-2 py-0.5 text-[10px] font-bold rounded w-28 text-center ${ROLE_COLORS[key]}`}
+                >
+                  {label}
+                </span>
+                <p className="text-xs text-ink-light flex-1">{ROLE_PERMS[key]}</p>
+                <span className="text-xs text-ink-muted">
+                  {count} usuario{count !== 1 ? "s" : ""}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

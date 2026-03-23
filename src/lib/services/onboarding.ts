@@ -1,8 +1,9 @@
 import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
+import type { PlanTier } from "@/lib/types";
 /**
  * Onboarding service — persists clinic setup to Supabase.
  *
- * Pattern: isSupabaseConfigured() ? real insert : demo no-op
+ * MEDICAL INDUSTRY: No demo fallback. Supabase required.
  */
 
 import { isSupabaseConfigured } from "@/lib/env";
@@ -10,12 +11,20 @@ import { isSupabaseConfigured } from "@/lib/env";
 // ─── Types ───────────────────────────────────────────────────
 
 export interface ClinicOnboardingInput {
+  // Clinic data (step 1)
   nombre: string;
   direccion?: string;
   telefono?: string;
   email?: string;
+  // Doctor profile (step 2)
+  doctorNombre: string;
+  doctorMatricula: string;
+  doctorEspecialidad?: string;
+  // Configuration (step 3)
   especialidades?: string[];
   financiadores?: string[];
+  // Plan (step 4)
+  planTier: PlanTier;
 }
 
 export interface OnboardingResult {
@@ -27,13 +36,12 @@ export interface OnboardingResult {
 // ─── Service ─────────────────────────────────────────────────
 
 /**
- * Create or update the clinic record and mark onboarding completed.
+ * Create or update the clinic record, set doctor profile, and mark onboarding completed.
+ * MEDICAL INDUSTRY: No demo fallback — Supabase is required.
  */
 export async function completeOnboarding(input: ClinicOnboardingInput): Promise<OnboardingResult> {
   if (!isSupabaseConfigured()) {
-    // Demo mode — simulate success
-    console.info("[onboarding] Demo mode — skipping Supabase insert");
-    return { success: true, clinicId: "demo-clinic-001" };
+    return { success: false, error: "Sistema de autenticación no configurado. Contactá soporte." };
   }
 
   try {
@@ -57,60 +65,65 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
 
     let clinicId = profile?.clinic_id as string | null;
 
+    const clinicPayload = {
+      name: input.nombre,
+      address: input.direccion ?? null,
+      phone: input.telefono ?? null,
+      email: input.email ?? null,
+      especialidad: input.especialidades ?? [],
+      plan_tier: input.planTier,
+      onboarding_completed: true,
+      onboarding_step: -1, // -1 = finished
+      updated_at: new Date().toISOString(),
+    };
+
     if (clinicId) {
       // Update existing clinic
       const { error } = await (sb as SupabaseClient)
         .from("clinics")
-        .update({
-          name: input.nombre,
-          direccion: input.direccion ?? null,
-          telefono: input.telefono ?? null,
-          email: input.email ?? null,
-          especialidades: input.especialidades ?? [],
-          financiadores: input.financiadores ?? [],
-          onboarding_completed: true,
-          onboarding_step: -1, // -1 = finished
-          updated_at: new Date().toISOString(),
-        })
+        .update(clinicPayload)
         .eq("id", clinicId);
 
       if (error) {
-        console.error("[onboarding] update error", error);
+        console.error("[onboarding] clinic update error", error);
         return { success: false, error: error.message };
       }
+    } else {
+      // Create new clinic
+      const { data: clinic, error: insertErr } = await (sb as SupabaseClient)
+        .from("clinics")
+        .insert(clinicPayload)
+        .select("id")
+        .single();
 
-      return { success: true, clinicId };
+      if (insertErr) {
+        console.error("[onboarding] clinic insert error", insertErr);
+        return { success: false, error: insertErr.message };
+      }
+
+      clinicId = clinic?.id as string;
     }
 
-    // Create new clinic
-    const { data: clinic, error: insertErr } = await (sb as SupabaseClient)
-      .from("clinics")
-      .insert({
-        name: input.nombre,
-        direccion: input.direccion ?? null,
-        telefono: input.telefono ?? null,
-        email: input.email ?? null,
-        especialidades: input.especialidades ?? [],
-        financiadores: input.financiadores ?? [],
-        onboarding_completed: true,
-        onboarding_step: -1,
-      })
-      .select("id")
-      .single();
-
-    if (insertErr) {
-      console.error("[onboarding] insert error", insertErr);
-      return { success: false, error: insertErr.message };
-    }
-
-    clinicId = clinic?.id as string;
-
-    // Link profile to clinic
+    // Update doctor profile with matrícula and especialidad
     if (clinicId) {
-      await (sb as SupabaseClient)
+      const profilePayload: Record<string, unknown> = {
+        clinic_id: clinicId,
+        full_name: input.doctorNombre,
+        matricula: input.doctorMatricula,
+      };
+      if (input.doctorEspecialidad) {
+        profilePayload.especialidad = input.doctorEspecialidad;
+      }
+
+      const { error: profileErr } = await (sb as SupabaseClient)
         .from("profiles")
-        .update({ clinic_id: clinicId })
+        .update(profilePayload)
         .eq("id", user.id);
+
+      if (profileErr) {
+        console.error("[onboarding] profile update error", profileErr);
+        // Non-fatal — clinic was created, profile update can be retried
+      }
     }
 
     return { success: true, clinicId: clinicId ?? undefined };
@@ -127,7 +140,7 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
  * Save onboarding progress (partial — user hasn't finished yet).
  */
 export async function saveOnboardingProgress(step: number): Promise<void> {
-  if (!isSupabaseConfigured()) return;
+  if (!isSupabaseConfigured()) return; // Silently skip if no backend
 
   try {
     const { createClient } = await import("@/lib/supabase/client");

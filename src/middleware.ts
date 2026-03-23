@@ -2,6 +2,20 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // ─── Route classification ────────────────────────────────────
 const AUTH_ROUTES = ["/auth/login", "/auth/registro", "/auth/forgot-password"];
+const AUTH_VERIFY_ROUTE = "/auth/verificar-email";
+const ONBOARDING_ROUTE = "/dashboard/wizard";
+
+const PUBLIC_PAGE_PREFIXES = [
+  "/", // Landing
+  "/planes", // Pricing
+  "/privacidad", // Legal
+  "/terminos",
+  "/status",
+  "/offline",
+  "/paciente", // Patient portal (has own auth)
+  "/auth", // Auth pages
+];
+
 const PUBLIC_API_PREFIXES = [
   "/api/health",
   "/api/status",
@@ -20,6 +34,7 @@ const PUBLIC_API_PREFIXES = [
   "/api/chat", // AI chatbot (public — no auth needed)
   "/api/demo", // Demo admin panel (auth via JWT)
   "/api/billing", // Billing endpoints (auth via plan context)
+  "/api/team/accept", // Team invitation accept (has own token auth)
 ];
 
 /** SM-01: Validate redirect param — only allow relative paths to prevent open redirects */
@@ -27,6 +42,12 @@ function sanitizeRedirect(value: string | null): string {
   if (!value) return "/dashboard";
   if (value.startsWith("/") && !value.startsWith("//") && !value.includes(":")) return value;
   return "/dashboard";
+}
+
+/** Check if a pathname is a public (non-dashboard) page */
+function isPublicPage(pathname: string): boolean {
+  if (pathname === "/") return true;
+  return PUBLIC_PAGE_PREFIXES.some((p) => p !== "/" && pathname.startsWith(p));
 }
 
 // ─── SH-07: Generate per-request CSP nonce ───────────────────
@@ -62,10 +83,9 @@ function buildCspHeader(_nonce: string): string {
 }
 
 // ─── Middleware ───────────────────────────────────────────────
-// IMPORTANT: Dashboard pages are ALWAYS accessible without login.
-// They render with demo/mock data. Write operations are gated by
-// DemoModal + RequirePermission on the client side.
-// Only protected API routes require authentication (SH-04).
+// MEDICAL INDUSTRY: Authentication and verification are mandatory.
+// Dashboard requires: 1) Auth 2) Email verified 3) Onboarding complete.
+// No demo-browsable dashboard — all write AND read operations gated.
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -80,6 +100,13 @@ export async function middleware(request: NextRequest) {
 
   // Public API routes — skip auth checks, still apply CSP
   if (PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) {
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
+  }
+
+  // Public pages (landing, pricing, legal, patient portal) — no auth
+  if (isPublicPage(pathname) && !pathname.startsWith("/dashboard")) {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
     response.headers.set("Content-Security-Policy", cspHeader);
     return response;
@@ -100,12 +127,21 @@ export async function middleware(request: NextRequest) {
         data: { user },
       } = await supabase.auth.getUser();
 
-      // SH-04: Block unauthenticated access to protected API routes only
+      // ── Gate 1: Authentication required for dashboard + protected APIs ──
       const isProtectedApi =
         pathname.startsWith("/api/") && !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p));
+      const isDashboard = pathname.startsWith("/dashboard");
 
       if (!user && isProtectedApi) {
         const r = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        r.headers.set("Content-Security-Policy", cspHeader);
+        return r;
+      }
+
+      if (!user && isDashboard) {
+        const loginUrl = new URL("/auth/login", request.url);
+        loginUrl.searchParams.set("redirect", pathname);
+        const r = NextResponse.redirect(loginUrl);
         r.headers.set("Content-Security-Policy", cspHeader);
         return r;
       }
@@ -116,6 +152,49 @@ export async function middleware(request: NextRequest) {
         const r = NextResponse.redirect(new URL(redirectTo, request.url));
         r.headers.set("Content-Security-Policy", cspHeader);
         return r;
+      }
+
+      // ── Gate 2: Email verification required for dashboard ──
+      if (user && isDashboard) {
+        const emailConfirmed = user.email_confirmed_at != null;
+        if (!emailConfirmed && pathname !== AUTH_VERIFY_ROUTE) {
+          // Allow access to /auth/verificar-email even while on dashboard routes
+          const r = NextResponse.redirect(new URL(AUTH_VERIFY_ROUTE, request.url));
+          r.headers.set("Content-Security-Policy", cspHeader);
+          return r;
+        }
+      }
+
+      // ── Gate 3: Onboarding completion required for dashboard ──
+      if (user && isDashboard && pathname !== ONBOARDING_ROUTE) {
+        const emailConfirmed = user.email_confirmed_at != null;
+        if (emailConfirmed) {
+          // Check onboarding_complete from clinic record (lightweight query)
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("clinic_id")
+            .eq("id", user.id)
+            .single();
+
+          if (profile?.clinic_id) {
+            const { data: clinic } = await supabase
+              .from("clinics")
+              .select("onboarding_completed")
+              .eq("id", profile.clinic_id)
+              .single();
+
+            if (clinic && !clinic.onboarding_completed) {
+              const r = NextResponse.redirect(new URL(ONBOARDING_ROUTE, request.url));
+              r.headers.set("Content-Security-Policy", cspHeader);
+              return r;
+            }
+          } else {
+            // No clinic linked — force onboarding
+            const r = NextResponse.redirect(new URL(ONBOARDING_ROUTE, request.url));
+            r.headers.set("Content-Security-Policy", cspHeader);
+            return r;
+          }
+        }
       }
 
       // RBAC: role-based dashboard sub-route access (authenticated users only)
@@ -139,10 +218,14 @@ export async function middleware(request: NextRequest) {
       response.headers.set("Content-Security-Policy", cspHeader);
       return response;
     } catch {
-      // If Supabase auth fails, allow page access (demo-browsable)
-      // but block API routes as a precaution
+      // If Supabase auth fails, redirect to login for dashboard, block APIs
       if (pathname.startsWith("/api/")) {
         const r = NextResponse.json({ error: "Auth service unavailable" }, { status: 503 });
+        r.headers.set("Content-Security-Policy", cspHeader);
+        return r;
+      }
+      if (pathname.startsWith("/dashboard")) {
+        const r = NextResponse.redirect(new URL("/auth/login", request.url));
         r.headers.set("Content-Security-Policy", cspHeader);
         return r;
       }
@@ -153,16 +236,19 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── No Supabase configured ───────────────────────────────
-  // Dashboard pages still accessible (demo mode with mock data).
-  // Only block protected API routes in production.
-  if (
-    process.env.NODE_ENV === "production" &&
-    pathname.startsWith("/api/") &&
-    !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))
-  ) {
-    const r = NextResponse.json({ error: "Auth backend not configured" }, { status: 503 });
-    r.headers.set("Content-Security-Policy", cspHeader);
-    return r;
+  // In production: dashboard requires auth backend. Block access.
+  // In development: allow dashboard access for local testing.
+  if (process.env.NODE_ENV === "production") {
+    if (pathname.startsWith("/dashboard")) {
+      const r = NextResponse.redirect(new URL("/auth/login?error=no_auth_backend", request.url));
+      r.headers.set("Content-Security-Policy", cspHeader);
+      return r;
+    }
+    if (pathname.startsWith("/api/") && !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) {
+      const r = NextResponse.json({ error: "Auth backend not configured" }, { status: 503 });
+      r.headers.set("Content-Security-Policy", cspHeader);
+      return r;
+    }
   }
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });

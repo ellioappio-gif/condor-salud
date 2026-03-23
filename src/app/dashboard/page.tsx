@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/context";
 import { usePlanSafe } from "@/lib/plan-context";
@@ -110,7 +110,32 @@ export default function DashboardPage() {
   const { t } = useLocale();
   const { user } = useAuth();
   const plan = usePlanSafe();
-  const [showWizardBanner, setShowWizardBanner] = useState(true);
+
+  // ── Persist wizard banner dismissal per clinic ────────────
+  const bannerKey = user?.clinicId
+    ? `condor_wizard_banner_dismissed_${user.clinicId}`
+    : "condor_wizard_banner_dismissed";
+
+  const [showWizardBanner, setShowWizardBanner] = useState(false);
+
+  useEffect(() => {
+    try {
+      const dismissed = localStorage.getItem(bannerKey);
+      setShowWizardBanner(dismissed !== "true");
+    } catch {
+      setShowWizardBanner(true);
+    }
+  }, [bannerKey]);
+
+  const dismissBanner = useCallback(() => {
+    setShowWizardBanner(false);
+    try {
+      localStorage.setItem(bannerKey, "true");
+    } catch {
+      /* localStorage unavailable — dismiss for session only */
+    }
+  }, [bannerKey]);
+
   const { isExporting, exportPDF } = useExport();
 
   // ── Real data hooks (fall back to static demo data) ──────
@@ -236,7 +261,7 @@ export default function DashboardPage() {
       {showWizardBanner && (
         <div className="relative bg-celeste-50 border border-celeste-200 rounded-xl p-5 overflow-hidden">
           <button
-            onClick={() => setShowWizardBanner(false)}
+            onClick={dismissBanner}
             className="absolute top-3 right-3 text-celeste-400 hover:text-celeste-700 transition"
             aria-label={t("dashboard.closeBanner")}
           >

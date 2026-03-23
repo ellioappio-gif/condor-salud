@@ -1,7 +1,21 @@
 "use client";
 
-import { useWizard, ESPECIALIDADES_OPTIONS, FINANCIADORES_OPTIONS } from "./WizardData";
-import { AlertCircle, CheckCircle2, Building2, Settings } from "lucide-react";
+import {
+  useWizard,
+  ESPECIALIDADES_OPTIONS,
+  FINANCIADORES_OPTIONS,
+  CLINIC_PLAN_OPTIONS,
+} from "./WizardData";
+import type { PlanTier } from "@/lib/types";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Building2,
+  UserCircle,
+  Settings,
+  CreditCard,
+  Star,
+} from "lucide-react";
 
 // ─── Reusable field wrapper ──────────────────────────────────
 
@@ -107,7 +121,85 @@ function StepClinica() {
   );
 }
 
-// ─── Step 2: Configuration ───────────────────────────────────
+// ─── Step 2: Doctor profile ──────────────────────────────────
+
+function StepProfesional() {
+  const { formData, updateForm } = useWizard();
+
+  return (
+    <div className="space-y-8">
+      {/* Instructions */}
+      <div className="rounded-xl border border-celeste-100 bg-celeste-50/40 p-5">
+        <div className="flex items-start gap-3">
+          <UserCircle className="h-5 w-5 text-celeste-dark shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-bold text-ink">Datos del profesional responsable</h3>
+            <ol className="mt-2 space-y-1.5 text-sm text-ink-muted list-decimal list-inside">
+              <li>
+                Ingresá el <strong className="text-ink">nombre completo</strong> del profesional
+                administrador
+              </li>
+              <li>
+                Ingresá el <strong className="text-ink">número de matrícula</strong> provincial o
+                nacional
+              </li>
+              <li>Opcionalmente, seleccioná la especialidad principal</li>
+            </ol>
+            <p className="mt-3 text-xs text-ink-muted">
+              Este perfil queda asociado a tu cuenta. Podés agregar más profesionales después desde
+              el panel de equipo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Form fields */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <Field label="Nombre completo del profesional" required>
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Ej: Dra. María González"
+              value={formData.doctorNombre}
+              onChange={(e) => updateForm({ doctorNombre: e.target.value })}
+              autoFocus
+            />
+          </Field>
+        </div>
+        <Field
+          label="Matrícula profesional"
+          required
+          hint="Matrícula provincial (MP) o nacional (MN)"
+        >
+          <input
+            type="text"
+            className={inputClass}
+            placeholder="Ej: MP 12345 o MN 67890"
+            value={formData.doctorMatricula}
+            onChange={(e) => updateForm({ doctorMatricula: e.target.value })}
+          />
+        </Field>
+        <Field label="Especialidad principal">
+          <select
+            className={inputClass}
+            value={formData.doctorEspecialidad}
+            onChange={(e) => updateForm({ doctorEspecialidad: e.target.value })}
+          >
+            <option value="">Seleccionar especialidad</option>
+            {ESPECIALIDADES_OPTIONS.map((esp) => (
+              <option key={esp} value={esp}>
+                {esp}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 3: Configuration ───────────────────────────────────
 
 function StepConfiguracion() {
   const { formData, updateForm } = useWizard();
@@ -207,10 +299,119 @@ function StepConfiguracion() {
   );
 }
 
-// ─── Step 3: Confirmation ────────────────────────────────────
+// ─── Step 4: Plan selection ──────────────────────────────────
+
+function StepPlan() {
+  const { formData, updateForm } = useWizard();
+
+  return (
+    <div className="space-y-8">
+      {/* Instructions */}
+      <div className="rounded-xl border border-celeste-100 bg-celeste-50/40 p-5">
+        <div className="flex items-start gap-3">
+          <CreditCard className="h-5 w-5 text-celeste-dark shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-bold text-ink">Elegí el plan para tu clínica</h3>
+            <p className="mt-2 text-sm text-ink-muted">
+              Seleccioná el plan que mejor se adapte al tamaño y necesidades de tu centro. Todos los
+              planes incluyen ajuste mensual IPC.
+            </p>
+            <p className="mt-2 text-xs text-ink-muted">
+              Podés cambiar de plan en cualquier momento desde Configuración.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Plan cards */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {CLINIC_PLAN_OPTIONS.map((plan) => {
+          const isSelected = formData.planTier === plan.id;
+          return (
+            <button
+              key={plan.id}
+              type="button"
+              onClick={() => updateForm({ planTier: plan.id as PlanTier })}
+              className={`
+                relative flex flex-col rounded-xl border-2 p-5 text-left transition-all
+                ${
+                  isSelected
+                    ? "border-celeste-dark bg-celeste-50/30 ring-1 ring-celeste-200"
+                    : plan.highlighted
+                      ? "border-celeste-200 bg-white hover:border-celeste-400"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                }
+              `}
+            >
+              {/* Highlighted badge */}
+              {plan.highlighted && (
+                <span className="absolute -top-2.5 right-4 flex items-center gap-1 rounded-full bg-celeste-dark px-2.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                  <Star className="h-3 w-3" />
+                  Más elegido
+                </span>
+              )}
+
+              {/* Selection indicator */}
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h4 className="text-base font-bold text-ink">{plan.name}</h4>
+                  <p className="text-xs text-ink-muted mt-0.5">{plan.description}</p>
+                </div>
+                <div
+                  className={`
+                    flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition
+                    ${isSelected ? "border-celeste-dark bg-celeste-dark" : "border-gray-300"}
+                  `}
+                >
+                  {isSelected && (
+                    <svg
+                      className="h-3 w-3 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="mb-4">
+                <span className="text-2xl font-bold text-ink">{plan.price}</span>
+                {plan.priceNum > 0 && <span className="text-xs text-ink-muted ml-1">ARS/mes</span>}
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-1.5 text-xs text-ink-muted">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* IPC notice */}
+      <p className="text-xs text-ink-muted text-center">
+        Todos los precios en pesos argentinos con ajuste mensual IPC. Enterprise: contactanos para
+        un presupuesto personalizado.
+      </p>
+    </div>
+  );
+}
+
+// ─── Step 5: Confirmation ────────────────────────────────────
 
 function StepConfirmacion() {
   const { formData, completeSetup, isSubmitting, setupError } = useWizard();
+
+  const selectedPlan = CLINIC_PLAN_OPTIONS.find((p) => p.id === formData.planTier);
 
   return (
     <div className="space-y-8">
@@ -235,24 +436,84 @@ function StepConfirmacion() {
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <SummaryCard label="Clínica" value={formData.nombre || "—"} />
-        <SummaryCard label="Dirección" value={formData.direccion || "No ingresada"} />
-        <SummaryCard label="Teléfono" value={formData.telefono || "No ingresado"} />
-        <SummaryCard label="Email" value={formData.email || "No ingresado"} />
-        <SummaryCard
-          label="Especialidades"
-          value={
-            formData.especialidades.length ? formData.especialidades.join(", ") : "No seleccionadas"
-          }
-        />
-        <SummaryCard
-          label="Obras sociales"
-          value={
-            formData.financiadores.length ? formData.financiadores.join(", ") : "No seleccionadas"
-          }
-        />
+      {/* Summary — Clinic */}
+      <div>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+          Datos de la clínica
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <SummaryCard label="Clínica" value={formData.nombre || "—"} />
+          <SummaryCard label="Dirección" value={formData.direccion || "No ingresada"} />
+          <SummaryCard label="Teléfono" value={formData.telefono || "No ingresado"} />
+          <SummaryCard label="Email" value={formData.email || "No ingresado"} />
+        </div>
+      </div>
+
+      {/* Summary — Doctor */}
+      <div>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+          Profesional responsable
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <SummaryCard label="Nombre" value={formData.doctorNombre || "—"} />
+          <SummaryCard label="Matrícula" value={formData.doctorMatricula || "—"} />
+          <SummaryCard
+            label="Especialidad"
+            value={formData.doctorEspecialidad || "No seleccionada"}
+          />
+        </div>
+      </div>
+
+      {/* Summary — Config */}
+      <div>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+          Configuración
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <SummaryCard
+            label="Especialidades"
+            value={
+              formData.especialidades.length
+                ? formData.especialidades.join(", ")
+                : "No seleccionadas"
+            }
+          />
+          <SummaryCard
+            label="Obras sociales"
+            value={
+              formData.financiadores.length ? formData.financiadores.join(", ") : "No seleccionadas"
+            }
+          />
+        </div>
+      </div>
+
+      {/* Summary — Plan */}
+      <div>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+          Plan seleccionado
+        </h3>
+        {selectedPlan ? (
+          <div
+            className={`rounded-xl border-2 p-4 ${
+              selectedPlan.highlighted
+                ? "border-celeste-200 bg-celeste-50/20"
+                : "border-gray-200 bg-white"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-bold text-ink">{selectedPlan.name}</span>
+                <span className="text-sm text-ink-muted ml-2">
+                  {selectedPlan.price}
+                  {selectedPlan.priceNum > 0 ? " ARS/mes" : ""}
+                </span>
+              </div>
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+            </div>
+          </div>
+        ) : (
+          <SummaryCard label="Plan" value="No seleccionado" />
+        )}
       </div>
 
       {/* What happens next */}
@@ -338,7 +599,9 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 
 const STEP_COMPONENTS: Record<string, React.ComponentType> = {
   clinica: StepClinica,
+  profesional: StepProfesional,
   configuracion: StepConfiguracion,
+  plan: StepPlan,
   confirmacion: StepConfirmacion,
 };
 

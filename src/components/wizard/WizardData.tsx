@@ -2,13 +2,16 @@
 
 import { useState, useCallback, createContext, useContext, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, Settings, CheckCircle2 } from "lucide-react";
+import { Building2, UserCircle, Settings, CreditCard, CheckCircle2 } from "lucide-react";
+import type { PlanTier } from "@/lib/types";
 
 // ─── Icon map ────────────────────────────────────────────────
 
 export const WIZARD_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   clinica: Building2,
+  profesional: UserCircle,
   configuracion: Settings,
+  plan: CreditCard,
   confirmacion: CheckCircle2,
 };
 
@@ -27,32 +30,121 @@ export const WIZARD_STEPS: SetupStep[] = [
     id: "clinica",
     icon: "clinica",
     title: "Datos de la clínica",
-    subtitle: "Paso 1 de 3",
+    subtitle: "Paso 1 de 5",
     requiredFields: ["nombre"],
+  },
+  {
+    id: "profesional",
+    icon: "profesional",
+    title: "Perfil profesional",
+    subtitle: "Paso 2 de 5",
+    requiredFields: ["doctorNombre", "doctorMatricula"],
   },
   {
     id: "configuracion",
     icon: "configuracion",
-    title: "Configuración",
-    subtitle: "Paso 2 de 3",
+    title: "Especialidades y cobertura",
+    subtitle: "Paso 3 de 5",
+  },
+  {
+    id: "plan",
+    icon: "plan",
+    title: "Elegí tu plan",
+    subtitle: "Paso 4 de 5",
+    requiredFields: ["planTier"],
   },
   {
     id: "confirmacion",
     icon: "confirmacion",
     title: "Confirmar y activar",
-    subtitle: "Paso 3 de 3",
+    subtitle: "Paso 5 de 5",
+  },
+];
+
+// ─── Clinic plan tiers (from BRANDKIT §11) ───────────────────
+
+export interface ClinicPlanOption {
+  id: PlanTier;
+  name: string;
+  price: string; // Display string (Argentine format)
+  priceNum: number; // Numeric (ARS/mes)
+  description: string;
+  features: string[];
+  highlighted?: boolean; // Growth is the featured tier
+}
+
+export const CLINIC_PLAN_OPTIONS: ClinicPlanOption[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    price: "$70.000",
+    priceNum: 70_000,
+    description: "Para consultorios individuales o clínicas pequeñas.",
+    features: ["Hasta 5 profesionales", "Agenda de turnos", "Gestión de pacientes", "1 sede"],
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    price: "$210.000",
+    priceNum: 210_000,
+    description: "Para clínicas en crecimiento con múltiples especialidades.",
+    features: [
+      "Hasta 20 profesionales",
+      "Facturación electrónica",
+      "Verificación de cobertura",
+      "Hasta 3 sedes",
+      "Reportes avanzados",
+    ],
+    highlighted: true,
+  },
+  {
+    id: "scale",
+    name: "Scale",
+    price: "$560.000",
+    priceNum: 560_000,
+    description: "Para centros médicos grandes y policlínicos.",
+    features: [
+      "Profesionales ilimitados",
+      "Telemedicina integrada",
+      "AI Chatbot para pacientes",
+      "Sedes ilimitadas",
+      "Analítica avanzada",
+      "Soporte prioritario",
+    ],
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    price: "A convenir",
+    priceNum: 0,
+    description: "Contrato anual personalizado para redes de salud.",
+    features: [
+      "Todo lo de Scale",
+      "Multi-sucursal consolidado",
+      "Integraciones a medida",
+      "SLA garantizado",
+      "Customer Success dedicado",
+    ],
   },
 ];
 
 // ─── Form Data ───────────────────────────────────────────────
 
 export interface OnboardingFormData {
+  // Step 1: Clinic
   nombre: string;
   direccion: string;
   telefono: string;
   email: string;
+  // Step 2: Doctor profile
+  doctorNombre: string;
+  doctorMatricula: string;
+  doctorEspecialidad: string;
+  // Step 3: Configuration
   especialidades: string[];
   financiadores: string[];
+  // Step 4: Plan
+  planTier: PlanTier | "";
 }
 
 const DEFAULT_FORM: OnboardingFormData = {
@@ -60,8 +152,12 @@ const DEFAULT_FORM: OnboardingFormData = {
   direccion: "",
   telefono: "",
   email: "",
+  doctorNombre: "",
+  doctorMatricula: "",
+  doctorEspecialidad: "",
   especialidades: [],
   financiadores: [],
+  planTier: "",
 };
 
 // ─── Options ─────────────────────────────────────────────────
@@ -158,7 +254,12 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
     for (const field of s.requiredFields) {
       const val = formData[field as keyof OnboardingFormData];
       if (!val || (typeof val === "string" && !val.trim())) {
-        const labels: Record<string, string> = { nombre: "nombre de la clínica" };
+        const labels: Record<string, string> = {
+          nombre: "nombre de la clínica",
+          doctorNombre: "nombre del profesional",
+          doctorMatricula: "número de matrícula",
+          planTier: "plan",
+        };
         setValidationError(`Completá el campo "${labels[field] || field}" para continuar.`);
         return false;
       }
@@ -206,8 +307,12 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
         direccion: formData.direccion || undefined,
         telefono: formData.telefono || undefined,
         email: formData.email || undefined,
+        doctorNombre: formData.doctorNombre,
+        doctorMatricula: formData.doctorMatricula,
+        doctorEspecialidad: formData.doctorEspecialidad || undefined,
         especialidades: formData.especialidades.length ? formData.especialidades : undefined,
         financiadores: formData.financiadores.length ? formData.financiadores : undefined,
+        planTier: (formData.planTier as "starter" | "growth" | "scale" | "enterprise") || "starter",
       });
 
       if (!result.success) {

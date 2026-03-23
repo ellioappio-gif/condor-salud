@@ -1557,6 +1557,61 @@ export interface Database {
           },
         ];
       };
+      team_invitations: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          invited_by: string;
+          email: string;
+          role: string;
+          token: string;
+          status: string;
+          expires_at: string;
+          accepted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          invited_by: string;
+          email: string;
+          role: string;
+          token: string;
+          status?: string;
+          expires_at?: string;
+          accepted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          invited_by?: string;
+          email?: string;
+          role?: string;
+          token?: string;
+          status?: string;
+          expires_at?: string;
+          accepted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_clinic_id_fkey";
+            columns: ["clinic_id"];
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_invitations_invited_by_fkey";
+            columns: ["invited_by"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
