@@ -12,8 +12,8 @@ export const runtime = "nodejs";
 let placesService: GooglePlacesService | null = null;
 
 function getService() {
-  const key = process.env.GOOGLE_PLACES_API_KEY;
-  if (!key) throw new Error("GOOGLE_PLACES_API_KEY not configured");
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  if (!key) throw new Error("GOOGLE_MAPS_API_KEY not configured");
   if (!placesService) placesService = new GooglePlacesService(key);
   return placesService;
 }

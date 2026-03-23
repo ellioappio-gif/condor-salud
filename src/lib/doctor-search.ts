@@ -186,5 +186,5 @@ export async function getDoctorDetail(placeId: string, specialty?: string): Prom
 // ── Configuration check ──────────────────────────────────────
 
 export function isGooglePlacesConfigured(): boolean {
-  return !!process.env.GOOGLE_PLACES_API_KEY;
+  return !!process.env.GOOGLE_MAPS_API_KEY;
 }

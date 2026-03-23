@@ -15,8 +15,8 @@ let placesService: GooglePlacesService | null = null;
 let enrichmentService: DoctorEnrichmentService | null = null;
 
 function getServices() {
-  const key = process.env.GOOGLE_PLACES_API_KEY;
-  if (!key) throw new Error("GOOGLE_PLACES_API_KEY not configured");
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+  if (!key) throw new Error("GOOGLE_MAPS_API_KEY not configured");
   if (!placesService) placesService = new GooglePlacesService(key);
   if (!enrichmentService) enrichmentService = new DoctorEnrichmentService();
   return { places: placesService, enrichment: enrichmentService };

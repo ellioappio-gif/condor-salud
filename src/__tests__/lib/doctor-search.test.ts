@@ -54,13 +54,13 @@ describe("isGooglePlacesConfigured", () => {
     process.env = { ...originalEnv };
   });
 
-  it("returns false when GOOGLE_PLACES_API_KEY is not set", () => {
-    delete process.env.GOOGLE_PLACES_API_KEY;
+  it("returns false when GOOGLE_MAPS_API_KEY is not set", () => {
+    delete process.env.GOOGLE_MAPS_API_KEY;
     expect(isGooglePlacesConfigured()).toBe(false);
   });
 
-  it("returns true when GOOGLE_PLACES_API_KEY is set", () => {
-    process.env.GOOGLE_PLACES_API_KEY = "test-key-123";
+  it("returns true when GOOGLE_MAPS_API_KEY is set", () => {
+    process.env.GOOGLE_MAPS_API_KEY = "test-key-123";
     expect(isGooglePlacesConfigured()).toBe(true);
   });
 });

@@ -90,7 +90,7 @@ export class GooglePlacesService {
   private base = "https://maps.googleapis.com/maps/api";
 
   constructor(apiKey: string) {
-    if (!apiKey) throw new Error("GOOGLE_PLACES_API_KEY is required");
+    if (!apiKey) throw new Error("GOOGLE_MAPS_API_KEY is required");
     this.apiKey = apiKey;
   }
 

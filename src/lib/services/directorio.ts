@@ -1,6 +1,6 @@
 // ─── Directorio Médico Service Layer ─────────────────────────
 // Real Supabase queries with mock fallback when not configured.
-// When GOOGLE_PLACES_API_KEY is set, enriches results with
+// When GOOGLE_MAPS_API_KEY is set, enriches results with
 // Google Maps profile URLs.
 
 import { isSupabaseConfigured } from "@/lib/env";
