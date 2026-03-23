@@ -6,26 +6,28 @@ import { useLocale } from "@/lib/i18n/context";
 import { whatsappUrl } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import {
-  Plane,
-  Stethoscope,
-  Video,
-  Pill,
-  MapPin,
-  Brain,
-  MessageSquare,
-  Car,
-  Shield,
-  CreditCard,
-  Users,
-  Check,
   ArrowRight,
-  Code,
-  Globe2,
-  Link2,
-  Clock,
-  Heart,
+  Brain,
   Building2,
+  Car,
+  Check,
+  Clock,
+  Code,
+  CreditCard,
+  Globe2,
+  Heart,
+  Link2,
+  MapPin,
+  MessageSquare,
+  Pill,
+  Plane,
+  Shield,
+  Stethoscope,
+  TrendingDown,
+  Users,
+  Video,
   Zap,
 } from "lucide-react";
 
@@ -58,9 +60,9 @@ const FEATURES = [
 ] as const;
 
 const STEPS = [
-  { key: "step0", icon: Code, num: "01" },
-  { key: "step1", icon: Users, num: "02" },
-  { key: "step2", icon: Zap, num: "03" },
+  { key: "step0", icon: Code },
+  { key: "step1", icon: Users },
+  { key: "step2", icon: Zap },
 ] as const;
 
 const INTEGRATIONS = [
@@ -83,6 +85,8 @@ const TRUST_NAMES = [
   "Google Places",
 ];
 
+const hlIcons = [TrendingDown, Clock, Shield, Stethoscope, MapPin];
+
 /* ─── Page ────────────────────────────────────────────────── */
 
 export default function PartnersPage() {
@@ -104,295 +108,355 @@ export default function PartnersPage() {
   return (
     <>
       <Navbar />
-
-      {/* ── Hero ────────────────────────────────────────────── */}
-      <section className="px-6 py-24 bg-ink text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold tracking-widest uppercase bg-celeste-dark/20 text-celeste-light rounded mb-6">
-            <Plane className="w-3.5 h-3.5" />
-            {pt("hero.badge")}
-          </p>
-
-          <h1 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-4">
-            {pt("hero.title1")} <span className="text-celeste">{pt("hero.title2")}</span>
-          </h1>
-
-          <p className="text-lg text-white/60 max-w-2xl mx-auto mb-8 leading-relaxed">
-            {pt("hero.subtitle")}
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href={partnerEmail}
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-ink bg-gold hover:bg-[#E5A50D] rounded transition"
-            >
-              {pt("hero.cta")} <ArrowRight className="w-4 h-4" />
-            </a>
+      <main className="animate-segmentFade">
+        {/* ── Hero ──────────────────────────────────────────── */}
+        <section className="px-6 pt-16 pb-20 max-w-[1000px] mx-auto">
+          {/* Announcement pill */}
+          <div className="flex justify-center mb-8">
             <Link
               href="/paciente"
-              className="px-8 py-3.5 text-sm font-semibold text-white border border-white/20 hover:border-celeste hover:text-celeste rounded transition"
+              className="inline-flex items-center gap-2 px-4 py-1.5 bg-celeste-pale border border-celeste/20 rounded-full text-xs hover:bg-celeste-100 hover:border-celeste/40 transition"
             >
-              {pt("hero.ctaSecondary")}
+              <Plane className="w-3 h-3 text-celeste-dark" />
+              <span className="text-ink-light">{pt("hero.badge")}</span>
+              <ArrowRight className="w-3 h-3 text-celeste-dark" />
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* ── Stats strip ─────────────────────────────────────── */}
-      <section className="px-6 py-12 bg-celeste-pale border-t border-border">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {STATS.map(({ key, icon: Icon }) => (
-            <div key={key}>
-              <Icon className="w-6 h-6 text-celeste-dark mx-auto mb-2" />
-              <p className="font-display text-2xl font-bold text-ink">{pt(`stats.${key}`)}</p>
-              <p className="text-xs text-ink-muted mt-1">{pt(`stats.${key}Label`)}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+          <div className="text-center">
+            <h1 className="text-[clamp(32px,5vw,56px)] font-bold text-ink leading-[1.1] mb-6">
+              {pt("hero.title1")}
+              <br />
+              <em className="not-italic text-celeste-dark">{pt("hero.title2")}</em>
+            </h1>
 
-      {/* ── Value proposition ────────────────────────────────── */}
-      <section className="px-6 py-20 border-t border-border">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">
-            {pt("value.kicker")}
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-4 leading-tight">
-            {pt("value.title")} <span className="text-celeste-dark">{pt("value.titleEm")}</span>
-          </h2>
-          <p className="text-sm text-ink-light max-w-2xl mb-10 leading-relaxed">
-            {pt("value.subtitle")}
-          </p>
+            <p className="text-lg text-ink-light leading-[1.7] max-w-[660px] mx-auto mb-8">
+              {pt("hero.subtitle")}
+            </p>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            {VALUE_CARDS.map(({ key, icon: Icon }, i) => (
-              <div key={key} className="border border-border hover:shadow-md transition">
-                <div className={`h-1 ${i % 2 === 0 ? "bg-celeste" : "bg-gold"}`} />
-                <div className="p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div
-                      className={`w-8 h-8 rounded flex items-center justify-center ${
-                        i % 2 === 0 ? "bg-celeste-pale" : "bg-gold-pale"
-                      }`}
-                    >
-                      <Icon
-                        className={`w-4 h-4 ${i % 2 === 0 ? "text-celeste-dark" : "text-gold"}`}
-                      />
-                    </div>
-                    <h3 className="font-bold text-sm text-ink">{pt(`value.${key}.title`)}</h3>
-                  </div>
-                  <p className="text-[13px] text-ink-light leading-relaxed">
-                    {pt(`value.${key}.desc`)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features — What travelers get ────────────────────── */}
-      <section className="px-6 py-20 border-t border-border bg-celeste-pale/20">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">
-            {pt("features.kicker")}
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-4 leading-tight">
-            {pt("features.title")}{" "}
-            <span className="text-celeste-dark">{pt("features.titleEm")}</span>
-          </h2>
-          <p className="text-sm text-ink-light max-w-2xl mb-10 leading-relaxed">
-            {pt("features.subtitle")}
-          </p>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {FEATURES.map(({ key, icon: Icon, href }, i) => (
-              <Link
-                key={key}
-                href={href}
-                className={`border-l-[3px] ${
-                  i % 2 === 0 ? "border-celeste bg-white" : "border-gold bg-white"
-                } p-5 hover:shadow-md transition group`}
+            {/* CTA buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+              <a
+                href={partnerEmail}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
               >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Icon className={`w-4 h-4 ${i % 2 === 0 ? "text-celeste-dark" : "text-gold"}`} />
-                  <h3 className="font-bold text-sm text-ink group-hover:text-celeste-dark transition">
-                    {pt(`features.${key}.title`)}
-                  </h3>
-                </div>
-                <p className="text-[13px] text-ink-light leading-relaxed">
-                  {pt(`features.${key}.desc`)}
-                </p>
-                <span className="inline-flex items-center gap-1 text-[11px] text-celeste-dark font-semibold mt-2">
-                  {isEn ? "Try live" : "Probá en vivo"} <ArrowRight className="w-3 h-3" />
-                </span>
+                {pt("hero.cta")} <ArrowRight className="w-4 h-4" />
+              </a>
+              <Link
+                href="/paciente"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold text-ink-light border-[1.5px] border-border hover:border-celeste-dark hover:text-celeste-dark rounded-[4px] transition"
+              >
+                {pt("hero.ctaSecondary")}
               </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
+            <p className="text-[11px] text-ink-muted mb-10">{pt("cta.note")}</p>
 
-      {/* ── How it works ─────────────────────────────────────── */}
-      <section className="px-6 py-20 border-t border-border">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">
-            {pt("how.kicker")}
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-4 leading-tight">
-            {pt("how.title")} <span className="text-celeste-dark">{pt("how.titleEm")}</span>
-          </h2>
-          <p className="text-sm text-ink-light max-w-2xl mb-10 leading-relaxed">
-            {pt("how.subtitle")}
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {STEPS.map(({ key, icon: Icon, num }) => (
-              <div key={key}>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="w-10 h-10 rounded flex items-center justify-center bg-celeste-dark text-white font-display font-bold text-sm">
-                    {num}
-                  </span>
-                  <Icon className="w-5 h-5 text-celeste-dark" />
-                </div>
-                <h3 className="font-bold text-sm text-ink mb-1.5">{pt(`how.${key}.title`)}</h3>
-                <p className="text-[13px] text-ink-light leading-relaxed">
-                  {pt(`how.${key}.desc`)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Integration options ──────────────────────────────── */}
-      <section className="px-6 py-20 border-t border-border bg-celeste-pale/20">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">
-            {pt("integration.kicker")}
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-4 leading-tight">
-            {pt("integration.title")}{" "}
-            <span className="text-celeste-dark">{pt("integration.titleEm")}</span>
-          </h2>
-          <p className="text-sm text-ink-light max-w-2xl mb-10 leading-relaxed">
-            {pt("integration.subtitle")}
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            {INTEGRATIONS.map(({ key, icon: Icon }, i) => (
-              <div key={key} className="border border-border bg-white hover:shadow-md transition">
-                <div className={`h-1 ${i === 1 ? "bg-gold" : "bg-celeste"}`} />
-                <div className="p-5">
-                  <div
-                    className={`w-10 h-10 rounded flex items-center justify-center mb-3 ${
-                      i === 1 ? "bg-gold-pale" : "bg-celeste-pale"
-                    }`}
-                  >
-                    <Icon className={`w-5 h-5 ${i === 1 ? "text-gold" : "text-celeste-dark"}`} />
-                  </div>
-                  <h3 className="font-bold text-sm text-ink mb-1.5">
-                    {pt(`integration.${key}.title`)}
-                  </h3>
-                  <p className="text-[13px] text-ink-light leading-relaxed">
-                    {pt(`integration.${key}.desc`)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ──────────────────────────────────────────── */}
-      <section className="px-6 py-20 border-t border-border">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">
-            {pt("pricing.kicker")}
-          </p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-ink mb-2 leading-tight">
-            <span className="text-celeste-dark">{pt("pricing.title")}</span>
-          </h2>
-          <p className="font-display text-xl text-ink-light mb-2">{pt("pricing.titleEm")}</p>
-          <p className="text-sm text-ink-muted max-w-lg mx-auto mb-10">{pt("pricing.subtitle")}</p>
-
-          {/* Includes card */}
-          <div className="max-w-md mx-auto border border-border rounded">
-            <div className="h-1 bg-gold" />
-            <div className="p-6 text-left space-y-3">
-              {INCLUDES.map((i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-celeste-dark mt-0.5 shrink-0" />
-                  <span className="text-sm text-ink-light">{pt(`pricing.inc${i}`)}</span>
+            {/* Trust logos */}
+            <p className="text-[10px] font-bold tracking-[2px] text-ink-muted uppercase mb-4">
+              {pt("logos.kicker")}
+            </p>
+            <div className="flex flex-wrap justify-center gap-6">
+              {TRUST_NAMES.map((name) => (
+                <div
+                  key={name}
+                  className="text-sm font-bold text-ink-muted/50 hover:text-celeste-dark transition"
+                >
+                  {name}
                 </div>
               ))}
             </div>
           </div>
+        </section>
 
-          <div className="mt-8">
-            <a
-              href={partnerEmail}
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-ink bg-gold hover:bg-[#E5A50D] rounded transition"
-            >
-              {pt("hero.cta")} <ArrowRight className="w-4 h-4" />
-            </a>
+        {/* ── Stats ─────────────────────────────────────────── */}
+        <section className="px-6 mb-16">
+          <div className="max-w-[960px] mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {STATS.map(({ key, icon: Icon }) => (
+                <div
+                  key={key}
+                  className="bg-white border border-border rounded-xl p-5 hover:border-celeste/40 hover:shadow-sm transition text-center"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-celeste-pale flex items-center justify-center mx-auto mb-3">
+                    <Icon className="w-5 h-5 text-celeste-dark" />
+                  </div>
+                  <div className="text-[32px] font-bold text-celeste-dark leading-none">
+                    {pt(`stats.${key}`)}
+                  </div>
+                  <div className="text-xs font-semibold text-ink mt-1.5 mb-1">
+                    {pt(`stats.${key}Label`)}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Trusted network ──────────────────────────────────── */}
-      <section className="px-6 py-16 border-t border-border bg-celeste-pale/20">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">
-            {pt("logos.kicker")}
-          </p>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-ink mb-8 leading-tight">
-            {pt("logos.title")} <span className="text-celeste-dark">{pt("logos.titleEm")}</span>
-          </h2>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            {TRUST_NAMES.map((name) => (
-              <span
-                key={name}
-                className="px-4 py-2 text-xs font-semibold text-ink-muted border border-border rounded bg-white"
+        {/* ── Value proposition ──────────────────────────────── */}
+        <section className="px-6 py-20 border-t border-border">
+          <div className="max-w-[960px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {pt("value.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("value.title")}
+              <em className="not-italic text-celeste-dark">{pt("value.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
+              {pt("value.subtitle")}
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {VALUE_CARDS.map(({ key, icon: Icon }, i) => {
+                const accent = i % 2 === 0 ? "border-celeste" : "border-celeste-light";
+                return (
+                  <div
+                    key={key}
+                    className={`border-l-[3px] ${accent} bg-white border border-l-[3px] border-border rounded-lg p-5 hover:shadow-sm transition`}
+                  >
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-celeste-pale flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-celeste-dark" />
+                      </div>
+                      <h3 className="font-bold text-sm text-ink">{pt(`value.${key}.title`)}</h3>
+                    </div>
+                    <p className="text-[13px] text-ink-light leading-relaxed">
+                      {pt(`value.${key}.desc`)}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Features — What travelers get ──────────────────── */}
+        <section className="px-6 py-20 bg-celeste-pale/50">
+          <div className="max-w-[960px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {pt("features.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("features.title")}
+              <em className="not-italic text-celeste-dark">{pt("features.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
+              {pt("features.subtitle")}
+            </p>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {FEATURES.map(({ key, icon: Icon, href }, i) => {
+                const accent = i % 2 === 0 ? "border-celeste" : "border-celeste-light";
+                return (
+                  <Link
+                    key={key}
+                    href={href}
+                    className={`border-l-[3px] ${accent} bg-white border border-l-[3px] border-border rounded-lg p-5 hover:shadow-sm transition group`}
+                  >
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-celeste-pale flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-celeste-dark" />
+                      </div>
+                      <h3 className="font-bold text-sm text-ink group-hover:text-celeste-dark transition">
+                        {pt(`features.${key}.title`)}
+                      </h3>
+                    </div>
+                    <p className="text-[13px] text-ink-light leading-relaxed">
+                      {pt(`features.${key}.desc`)}
+                    </p>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* CTA */}
+            <div className="text-center mt-8">
+              <Link
+                href="/paciente"
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-celeste-dark border border-celeste-dark rounded-[4px] hover:bg-celeste-pale transition"
               >
-                {name}
-              </span>
-            ))}
+                {pt("hero.ctaSecondary")} <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Final CTA ────────────────────────────────────────── */}
-      <section className="px-6 py-24 bg-celeste-dark text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold leading-tight mb-4">
-            {pt("cta.title")} <span className="text-gold">{pt("cta.titleEm")}</span>
-          </h2>
-          <p className="text-sm text-celeste-light max-w-xl mx-auto mb-8 leading-relaxed">
-            {pt("cta.subtitle")}
-          </p>
+        {/* ── How it works ───────────────────────────────────── */}
+        <section className="px-6 py-20 border-t border-border">
+          <div className="max-w-[900px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {pt("how.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("how.title")}
+              <em className="not-italic text-celeste-dark">{pt("how.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[600px] mb-12">
+              {pt("how.subtitle")}
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href={partnerEmail}
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-ink bg-gold hover:bg-[#E5A50D] rounded transition"
-            >
-              {pt("cta.primary")} <ArrowRight className="w-4 h-4" />
-            </a>
-            <a
-              href={demoWA}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3.5 text-sm font-semibold text-white border border-white/30 hover:border-white rounded transition"
-            >
-              {pt("cta.secondary")}
-            </a>
+            <div className="grid md:grid-cols-3 gap-8">
+              {STEPS.map(({ key, icon: Icon }, i) => (
+                <div key={key} className="relative">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-celeste-pale flex items-center justify-center shrink-0">
+                      <Icon className="w-5 h-5 text-celeste-dark" />
+                    </div>
+                    <span className="text-[11px] font-bold tracking-wider text-celeste-dark/60 uppercase">
+                      {isEn ? "Step" : "Paso"} {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-base text-ink mb-2">{pt(`how.${key}.title`)}</h3>
+                  <p className="text-[13px] text-ink-light leading-relaxed">
+                    {pt(`how.${key}.desc`)}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="hidden md:block relative mt-4 mb-4 mx-[60px]" aria-hidden="true">
+              <div className="h-px bg-celeste/30 w-full" />
+            </div>
           </div>
+        </section>
 
-          <p className="text-xs text-celeste-light/60 mt-6">{pt("cta.note")}</p>
-        </div>
-      </section>
+        {/* ── Integration options ────────────────────────────── */}
+        <section className="px-6 py-20 bg-celeste-pale/50">
+          <div className="max-w-[960px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {pt("integration.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("integration.title")}
+              <em className="not-italic text-celeste-dark">{pt("integration.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
+              {pt("integration.subtitle")}
+            </p>
 
+            <div className="grid md:grid-cols-3 gap-4">
+              {INTEGRATIONS.map(({ key, icon: Icon }, i) => {
+                const accent = i % 2 === 0 ? "border-celeste" : "border-celeste-light";
+                return (
+                  <div
+                    key={key}
+                    className={`border-l-[3px] ${accent} bg-white border border-l-[3px] border-border rounded-lg p-5 hover:shadow-sm transition`}
+                  >
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-celeste-pale flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-celeste-dark" />
+                      </div>
+                      <h3 className="font-bold text-sm text-ink">
+                        {pt(`integration.${key}.title`)}
+                      </h3>
+                    </div>
+                    <p className="text-[13px] text-ink-light leading-relaxed">
+                      {pt(`integration.${key}.desc`)}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Pricing ────────────────────────────────────────── */}
+        <section className="px-6 py-20 border-t border-border">
+          <div className="max-w-[900px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {pt("pricing.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("pricing.title")}{" "}
+              <em className="not-italic text-celeste-dark">{pt("pricing.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
+              {pt("pricing.subtitle")}
+            </p>
+
+            {/* Includes card */}
+            <div className="bg-white border border-border rounded-xl p-6">
+              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+                {INCLUDES.map((i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <div className="w-5 h-5 rounded bg-celeste-pale flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-celeste-dark" />
+                    </div>
+                    <span className="text-[13px] text-ink-light leading-relaxed">
+                      {pt(`pricing.inc${i}`)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+              <a
+                href={partnerEmail}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
+              >
+                {pt("hero.cta")} <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href={demoWA}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold text-ink-light border-[1.5px] border-border hover:border-celeste-dark hover:text-celeste-dark rounded-[4px] transition"
+              >
+                {pt("cta.secondary")}
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Final CTA ──────────────────────────────────────── */}
+        <section className="px-6 py-20 bg-celeste-pale/40 border-t border-border">
+          <div className="max-w-[800px] mx-auto text-center">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-3">
+              {pt("cta.note")}
+            </p>
+            <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("cta.title")}
+              <br />
+              <em className="not-italic text-celeste-dark">{pt("cta.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-muted leading-[1.7] max-w-[560px] mx-auto mb-8">
+              {pt("cta.subtitle")}
+            </p>
+
+            {/* Highlight pills */}
+            <div className="flex flex-wrap justify-center gap-6 mb-8">
+              {hlIcons.map((Icon, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Icon className="w-4 h-4 text-celeste-dark" />
+                  <span className="text-sm text-ink-muted font-medium">
+                    {pt(`pricing.inc${i}`)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a
+                href={partnerEmail}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
+              >
+                {pt("cta.primary")} <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href={demoWA}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold text-ink border-[1.5px] border-border hover:border-celeste-dark hover:text-celeste-dark rounded-[4px] transition"
+              >
+                {pt("cta.secondary")}
+              </a>
+            </div>
+            <p className="text-xs text-ink-muted mt-5">{pt("cta.note")}</p>
+          </div>
+        </section>
+      </main>
       <Footer />
+      <WhatsAppFloat />
     </>
   );
 }
