@@ -14,6 +14,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    // Partners page (B2B travel partnership)
+    {
+      url: `${BASE_URL}/partners`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
     // L-24: Removed /auth/* pages (not useful for SEO crawlers)
     {
       url: `${BASE_URL}/privacidad`,

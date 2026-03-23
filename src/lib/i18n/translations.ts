@@ -661,6 +661,7 @@ const translations: Dict = {
   "footer.demo": { es: "Demo", en: "Demo" },
   "footer.patient": { es: "Portal Paciente", en: "Patient Portal" },
   "footer.waitlist": { es: "Waitlist", en: "Waitlist" },
+  "footer.partners": { es: "Partners", en: "Partners" },
   "footer.colAccount": { es: "Cuenta", en: "Account" },
   "footer.login": { es: "Iniciar sesión", en: "Log in" },
   "footer.register": { es: "Registrarse", en: "Sign up" },
@@ -1192,6 +1193,240 @@ const translations: Dict = {
   "wl.subtitle@tourist": {
     es: "Te mandamos acceso al portal de pacientes y al chatbot de Cora. Si necesitás algo urgente, usá el botón de arriba.",
     en: "We'll send you access to the patient portal and Cora's chatbot. If you need something urgent, use the button above.",
+  },
+
+  // ── Partners Page ──────────────────────────────────────────
+  "partners.hero.badge": { es: "Alianza B2B para viajes", en: "B2B Travel Partnership" },
+  "partners.hero.title1": { es: "Dales a tus viajeros", en: "Give your travelers" },
+  "partners.hero.title2": {
+    es: "acceso médico en Argentina.",
+    en: "healthcare access in Argentina.",
+  },
+  "partners.hero.subtitle": {
+    es: "Asociate con Cóndor Salud y ofrecé a tus clientes acceso completo a nuestra red de 2.800+ médicos, teleconsulta 24/7, farmacia a domicilio y más — por una tarifa única de USD 30 por viajero.",
+    en: "Partner with Cóndor Salud and offer your customers full access to our 2,800+ doctor network, 24/7 telemedicine, pharmacy delivery and more — for a one-time fee of USD 30 per traveler.",
+  },
+  "partners.hero.cta": { es: "Convertite en partner", en: "Become a Partner" },
+  "partners.hero.ctaSecondary": { es: "Ver la plataforma", en: "See the Platform" },
+
+  "partners.stats.doctors": { es: "2.800+", en: "2,800+" },
+  "partners.stats.doctorsLabel": { es: "Médicos en la red", en: "Doctors in network" },
+  "partners.stats.specialties": { es: "45+", en: "45+" },
+  "partners.stats.specialtiesLabel": { es: "Especialidades", en: "Specialties" },
+  "partners.stats.cities": { es: "120+", en: "120+" },
+  "partners.stats.citiesLabel": { es: "Ciudades cubiertas", en: "Cities covered" },
+  "partners.stats.response": { es: "<30s", en: "<30s" },
+  "partners.stats.responseLabel": { es: "Tiempo de respuesta", en: "Response time" },
+
+  "partners.value.kicker": { es: "POR QUÉ ASOCIARSE", en: "WHY PARTNER" },
+  "partners.value.title": { es: "Una sola integración.", en: "One integration." },
+  "partners.value.titleEm": { es: "Acceso médico completo.", en: "Full medical access." },
+  "partners.value.subtitle": {
+    es: "Tus clientes viajan a Argentina y necesitan salud. Nosotros la resolvemos — vos solo integrás una vez.",
+    en: "Your customers travel to Argentina and need healthcare. We handle it — you integrate once.",
+  },
+  "partners.value.c0.title": { es: "Red médica verificada", en: "Verified medical network" },
+  "partners.value.c0.desc": {
+    es: "Más de 2.800 profesionales de salud en 120+ ciudades, con credenciales verificadas y disponibilidad en tiempo real.",
+    en: "Over 2,800 healthcare professionals in 120+ cities, with verified credentials and real-time availability.",
+  },
+  "partners.value.c1.title": { es: "Soporte multilingüe", en: "Multilingual support" },
+  "partners.value.c1.desc": {
+    es: "Plataforma completa en español e inglés. Chatbot IA (Cora) atiende en ambos idiomas 24/7.",
+    en: "Full platform in Spanish and English. AI chatbot (Cora) responds in both languages 24/7.",
+  },
+  "partners.value.c2.title": {
+    es: "Cero fricción para el viajero",
+    en: "Zero friction for travelers",
+  },
+  "partners.value.c2.desc": {
+    es: "Sin registro, sin seguros adicionales, sin trámites. El viajero accede con un link y ya está cubierto.",
+    en: "No signup, no extra insurance, no paperwork. The traveler accesses via a link and they're covered.",
+  },
+  "partners.value.c3.title": {
+    es: "Revenue share transparente",
+    en: "Transparent revenue share",
+  },
+  "partners.value.c3.desc": {
+    es: "Modelo simple: USD 30 por viajero, precio fijo. Dashboard de partner con métricas en tiempo real.",
+    en: "Simple model: USD 30 per traveler, fixed price. Partner dashboard with real-time metrics.",
+  },
+
+  "partners.features.kicker": {
+    es: "QUÉ RECIBEN TUS VIAJEROS",
+    en: "WHAT YOUR TRAVELERS GET",
+  },
+  "partners.features.title": {
+    es: "Plataforma de salud completa.",
+    en: "Full healthcare platform.",
+  },
+  "partners.features.titleEm": { es: "Optimizada para turistas.", en: "Tourist-optimized." },
+  "partners.features.subtitle": {
+    es: "Por USD 30, cada viajero accede a todo el ecosistema de salud de Cóndor Salud — sin límites, sin copagos, sin burocracia.",
+    en: "For USD 30, each traveler gets full access to the Cóndor Salud health ecosystem — no limits, no copays, no bureaucracy.",
+  },
+  "partners.features.f0.title": { es: "Directorio médico", en: "Doctor directory" },
+  "partners.features.f0.desc": {
+    es: "Buscá médicos por especialidad, ubicación y disponibilidad.",
+    en: "Find doctors by specialty, location and availability.",
+  },
+  "partners.features.f1.title": { es: "Teleconsulta 24/7", en: "Telemedicine 24/7" },
+  "partners.features.f1.desc": {
+    es: "Videollamada con médicos en cualquier momento, cualquier día.",
+    en: "Video call with doctors anytime, any day.",
+  },
+  "partners.features.f2.title": { es: "Farmacia a domicilio", en: "Pharmacy delivery" },
+  "partners.features.f2.desc": {
+    es: "Medicamentos entregados en el hotel o alojamiento.",
+    en: "Medications delivered to hotel or accommodation.",
+  },
+  "partners.features.f3.title": { es: "Mapa GPS de salud", en: "Healthcare GPS map" },
+  "partners.features.f3.desc": {
+    es: "Farmacias, hospitales y clínicas cercanas en tiempo real.",
+    en: "Nearby pharmacies, hospitals and clinics in real time.",
+  },
+  "partners.features.f4.title": { es: "Evaluador de síntomas IA", en: "AI symptom checker" },
+  "partners.features.f4.desc": {
+    es: "Triaje inteligente antes de la consulta médica.",
+    en: "Smart triage before the medical consultation.",
+  },
+  "partners.features.f5.title": { es: "Chatbot Cora", en: "Cora chatbot" },
+  "partners.features.f5.desc": {
+    es: "Asistente IA bilingüe para cualquier consulta de salud.",
+    en: "Bilingual AI assistant for any health query.",
+  },
+  "partners.features.f6.title": { es: "Transporte al consultorio", en: "Ride to appointment" },
+  "partners.features.f6.desc": {
+    es: "Uber, Cabify o InDrive directo al médico.",
+    en: "Uber, Cabify or InDrive directly to the doctor.",
+  },
+  "partners.features.f7.title": {
+    es: "Verificación de cobertura",
+    en: "Coverage verification",
+  },
+  "partners.features.f7.desc": {
+    es: "Validación instantánea de obra social o prepaga.",
+    en: "Instant validation of health plan or insurer.",
+  },
+  "partners.features.f8.title": { es: "Pagos con MercadoPago", en: "MercadoPago payments" },
+  "partners.features.f8.desc": {
+    es: "Pagá turnos y servicios con tarjeta o MercadoPago.",
+    en: "Pay for appointments and services with card or MercadoPago.",
+  },
+
+  "partners.how.kicker": { es: "CÓMO FUNCIONA", en: "HOW IT WORKS" },
+  "partners.how.title": { es: "Integrá en", en: "Integrate in" },
+  "partners.how.titleEm": { es: "días, no meses.", en: "days, not months." },
+  "partners.how.subtitle": {
+    es: "Tres pasos simples para ofrecer salud a tus viajeros en Argentina.",
+    en: "Three simple steps to offer healthcare to your travelers in Argentina.",
+  },
+  "partners.how.step0.title": {
+    es: "Integrá nuestra API o widget",
+    en: "Integrate our API or widget",
+  },
+  "partners.how.step0.desc": {
+    es: "Agregá el acceso a Cóndor Salud en tu flujo de reserva con una API REST o un widget embebible.",
+    en: "Add Cóndor Salud access to your booking flow with a REST API or embeddable widget.",
+  },
+  "partners.how.step1.title": {
+    es: "El viajero reserva su viaje",
+    en: "Traveler books their trip",
+  },
+  "partners.how.step1.desc": {
+    es: "Cuando tu cliente reserva un viaje a Argentina, se le ofrece cobertura médica por USD 30.",
+    en: "When your customer books a trip to Argentina, they're offered medical coverage for USD 30.",
+  },
+  "partners.how.step2.title": { es: "Acceso instantáneo", en: "Instant access" },
+  "partners.how.step2.desc": {
+    es: "El viajero recibe un link al portal de pacientes con acceso completo a la red de Cóndor Salud.",
+    en: "The traveler receives a link to the patient portal with full access to the Cóndor Salud network.",
+  },
+
+  "partners.integration.kicker": {
+    es: "OPCIONES DE INTEGRACIÓN",
+    en: "INTEGRATION OPTIONS",
+  },
+  "partners.integration.title": { es: "Elegí tu método.", en: "Choose your method." },
+  "partners.integration.titleEm": {
+    es: "Todos listos para producción.",
+    en: "All production-ready.",
+  },
+  "partners.integration.subtitle": {
+    es: "Desde una API REST completa hasta un simple link de referido — tenemos la integración que necesitás.",
+    en: "From a full REST API to a simple referral link — we have the integration you need.",
+  },
+  "partners.integration.opt0.title": { es: "API REST", en: "REST API" },
+  "partners.integration.opt0.desc": {
+    es: "Integración completa con endpoints de activación, verificación de estado y webhooks para notificaciones.",
+    en: "Full integration with activation endpoints, status verification and webhooks for notifications.",
+  },
+  "partners.integration.opt1.title": { es: "Widget embebible", en: "Embeddable widget" },
+  "partners.integration.opt1.desc": {
+    es: "Un snippet de JavaScript que agregás a tu checkout. Se encarga de todo: activación, pago y confirmación.",
+    en: "A JavaScript snippet you add to your checkout. Handles everything: activation, payment and confirmation.",
+  },
+  "partners.integration.opt2.title": { es: "Link de referido", en: "Referral link" },
+  "partners.integration.opt2.desc": {
+    es: "La opción más simple. Un link único por partner que redirige al viajero a nuestro portal con tracking automático.",
+    en: "The simplest option. A unique link per partner that redirects travelers to our portal with automatic tracking.",
+  },
+
+  "partners.pricing.kicker": { es: "PRECIO SIMPLE", en: "SIMPLE PRICING" },
+  "partners.pricing.title": { es: "USD 30", en: "USD 30" },
+  "partners.pricing.titleEm": {
+    es: "por viajero. Una sola vez.",
+    en: "per traveler. One time.",
+  },
+  "partners.pricing.subtitle": {
+    es: "Sin suscripciones, sin costos ocultos, sin copagos. Un precio fijo por cada viajero que activás.",
+    en: "No subscriptions, no hidden costs, no copays. One fixed price per traveler you activate.",
+  },
+  "partners.pricing.inc0": {
+    es: "Acceso ilimitado a 2.800+ médicos",
+    en: "Unlimited access to 2,800+ doctors",
+  },
+  "partners.pricing.inc1": { es: "Teleconsulta 24/7 incluida", en: "24/7 telemedicine included" },
+  "partners.pricing.inc2": { es: "Farmacia a domicilio", en: "Pharmacy delivery" },
+  "partners.pricing.inc3": {
+    es: "Chatbot IA bilingüe (Cora)",
+    en: "Bilingual AI chatbot (Cora)",
+  },
+  "partners.pricing.inc4": {
+    es: "Mapa GPS de salud en tiempo real",
+    en: "Real-time healthcare GPS map",
+  },
+  "partners.pricing.inc5": {
+    es: "Evaluador de síntomas con IA",
+    en: "AI-powered symptom checker",
+  },
+  "partners.pricing.inc6": {
+    es: "Transporte al consultorio (Uber/Cabify)",
+    en: "Ride to appointment (Uber/Cabify)",
+  },
+  "partners.pricing.inc7": {
+    es: "Soporte en español e inglés",
+    en: "Support in Spanish & English",
+  },
+
+  "partners.logos.kicker": { es: "RED DE CONFIANZA", en: "TRUSTED NETWORK" },
+  "partners.logos.title": {
+    es: "Integrados con el ecosistema",
+    en: "Integrated with the ecosystem",
+  },
+  "partners.logos.titleEm": { es: "de salud argentino.", en: "of Argentine healthcare." },
+
+  "partners.cta.title": { es: "¿Listo para proteger", en: "Ready to protect" },
+  "partners.cta.titleEm": { es: "a tus viajeros?", en: "your travelers?" },
+  "partners.cta.subtitle": {
+    es: "Sumá Cóndor Salud a tu oferta de viajes y dales a tus clientes la tranquilidad de tener salud cubierta en Argentina.",
+    en: "Add Cóndor Salud to your travel offering and give your customers peace of mind with healthcare coverage in Argentina.",
+  },
+  "partners.cta.primary": { es: "Aplicar como partner", en: "Apply as Partner" },
+  "partners.cta.secondary": { es: "Agendar una demo", en: "Schedule a Demo" },
+  "partners.cta.note": {
+    es: "Sin compromiso · Respuesta en 24hs · Soporte dedicado",
+    en: "No commitment · 24h response · Dedicated support",
   },
 
   // ── Segment switcher labels ────────────────────────────────

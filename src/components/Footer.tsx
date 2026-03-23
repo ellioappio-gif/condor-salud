@@ -76,6 +76,12 @@ export default function Footer() {
             >
               {t("footer.waitlist")}
             </Link>
+            <Link
+              href="/partners"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              {t("footer.partners")}
+            </Link>
           </div>
           <div className="space-y-2">
             <p className="font-semibold text-ink text-xs uppercase tracking-wider">
