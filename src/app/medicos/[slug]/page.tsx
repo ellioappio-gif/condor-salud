@@ -239,7 +239,11 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main
+      className="min-h-screen bg-gray-50"
+      role="main"
+      aria-label={`Perfil de ${profile.displayName}`}
+    >
       {/* JSON-LD */}
       <script
         type="application/ld+json"
@@ -595,6 +599,6 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

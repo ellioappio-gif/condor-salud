@@ -270,7 +270,7 @@ export default function SaludPage() {
   const selectedCat = categories.find((c) => c.id === selectedCategory);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <main className="max-w-3xl mx-auto px-4 py-8" role="main" aria-label="Seguimiento de Salud">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -290,7 +290,10 @@ export default function SaludPage() {
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex gap-2 overflow-x-auto pb-3 mb-6 -mx-1 px-1">
+      <nav
+        className="flex gap-2 overflow-x-auto pb-3 mb-6 -mx-1 px-1"
+        aria-label="Filtrar por categoría"
+      >
         <button
           onClick={() => setSelectedCategory(null)}
           className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition ${
@@ -316,7 +319,7 @@ export default function SaludPage() {
             {cat.name}
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* Stats Card */}
       {stats && selectedCat && (
@@ -523,6 +526,6 @@ export default function SaludPage() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

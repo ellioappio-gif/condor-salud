@@ -170,7 +170,7 @@ export default async function MedicosPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50" role="main" aria-label="Directorio Médico">
       {/* JSON-LD */}
       <script
         type="application/ld+json"
@@ -195,13 +195,18 @@ export default async function MedicosPage({
 
       {/* Filters */}
       <section className="max-w-[960px] mx-auto px-6 -mt-6">
-        <form className="bg-white rounded-xl shadow-lg p-4 flex flex-col md:flex-row gap-3">
+        <form
+          className="bg-white rounded-xl shadow-lg p-4 flex flex-col md:flex-row gap-3"
+          role="search"
+          aria-label="Filtrar médicos"
+        >
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" aria-hidden="true" />
             <select
               name="specialty"
               defaultValue={params.specialty || ""}
               className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white"
+              aria-label="Especialidad"
             >
               <option value="">Todas las especialidades</option>
               {specialties.map((s) => (
@@ -254,7 +259,7 @@ export default async function MedicosPage({
           </div>
         )}
       </section>
-    </div>
+    </main>
   );
 }
 

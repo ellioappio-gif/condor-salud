@@ -41,6 +41,11 @@ import {
   Stethoscope,
   Network,
   CalendarClock,
+  QrCode,
+  BadgeCheck,
+  UserCheck,
+  FileHeart,
+  MessageSquareWarning,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -66,6 +71,11 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/interconsultas": Network,
   "/dashboard/triage": Stethoscope,
   "/dashboard/disponibilidad": CalendarClock,
+  "/dashboard/recetas": QrCode,
+  "/dashboard/verificaciones": BadgeCheck,
+  "/dashboard/verificar-cuenta": UserCheck,
+  "/dashboard/mi-perfil-publico": FileHeart,
+  "/dashboard/moderacion-resenas": MessageSquareWarning,
 };
 
 const navSections = [
@@ -118,6 +128,25 @@ const navSections = [
         tKey: "nav.interconsultas",
       },
       { label: "Triage", href: "/dashboard/triage", tKey: "nav.triage" },
+      { label: "Recetas Digitales", href: "/dashboard/recetas", tKey: "nav.digitalPrescriptions" },
+    ],
+  },
+  {
+    title: "MI CUENTA",
+    titleKey: "nav.myAccount",
+    items: [
+      { label: "Verificar Cuenta", href: "/dashboard/verificar-cuenta", tKey: "nav.verifyAccount" },
+      {
+        label: "Mi Perfil Público",
+        href: "/dashboard/mi-perfil-publico",
+        tKey: "nav.publicProfile",
+      },
+      { label: "Verificaciones", href: "/dashboard/verificaciones", tKey: "nav.verifications" },
+      {
+        label: "Moderar Reseñas",
+        href: "/dashboard/moderacion-resenas",
+        tKey: "nav.reviewModeration",
+      },
     ],
   },
   {
@@ -152,6 +181,11 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/interconsultas": "interconsultas",
   "/dashboard/triage": "triage",
   "/dashboard/disponibilidad": "agenda",
+  "/dashboard/recetas": "recetas-digitales",
+  "/dashboard/verificaciones": "verificacion-medica",
+  "/dashboard/verificar-cuenta": "verificacion-medica",
+  "/dashboard/mi-perfil-publico": "perfiles-publicos",
+  "/dashboard/moderacion-resenas": "perfiles-publicos",
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
