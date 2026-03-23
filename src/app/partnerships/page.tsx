@@ -506,6 +506,232 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+/* ─── Cora Conversation Demo ──────────────────────────────── */
+
+function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: boolean }) {
+  const [tab, setTab] = useState(0);
+
+  const conversations = [
+    // Tab 0 — Symptom triage
+    [
+      {
+        role: "user" as const,
+        text: isEn
+          ? "I have a really bad headache and some fever since yesterday"
+          : "Tengo un dolor de cabeza muy fuerte y algo de fiebre desde ayer",
+      },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "I'm sorry you're not feeling well 😟 Let me help. A few questions:\n\n1. How high is your fever? (approximate)\n2. Any nausea or vomiting?\n3. Any neck stiffness or sensitivity to light?"
+          : "Lamento que no te sientas bien 😟 Te hago unas preguntas:\n\n1. ¿Cuánta fiebre tenés? (aprox)\n2. ¿Náuseas o vómitos?\n3. ¿Rigidez en el cuello o sensibilidad a la luz?",
+      },
+      {
+        role: "user" as const,
+        text: isEn ? "38.5°C, no vomiting, no neck stuff" : "38.5°C, sin vómitos, nada del cuello",
+      },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "OK, that sounds like it could be a viral syndrome — common for travelers. Here's what I recommend:\n\n💊 Ibuprofen 400mg every 8h (Ibupirac at any pharmacy)\n🧊 Cold compress on forehead\n💧 Stay hydrated\n\nIf it doesn't improve in 24h, I can find you a doctor nearby. Want me to search?"
+          : "Ok, suena a un cuadro viral — común en viajeros. Te recomiendo:\n\n💊 Ibuprofeno 400mg cada 8hs (Ibupirac en cualquier farmacia)\n🧊 Compresa fría en la frente\n💧 Hidratarte bien\n\nSi no mejora en 24h, te busco un médico cerca. ¿Querés que busque?",
+        cards: true,
+      },
+      {
+        role: "user" as const,
+        text: isEn ? "Yes please, find me a doctor" : "Sí, buscame un médico",
+      },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "Found 3 doctors near you in Buenos Aires 📍\n\n🩺 Dr. Martín Rodríguez — General · 0.8 km · English ✓\n🩺 Dra. Laura Fernández — Internal Med · 1.2 km\n🩺 Dr. Pablo Giménez — General · 1.5 km · English ✓\n\nWant me to book a slot or get you an Uber there?"
+          : "Encontré 3 médicos cerca tuyo en Buenos Aires 📍\n\n🩺 Dr. Martín Rodríguez — General · 0.8 km · Inglés ✓\n🩺 Dra. Laura Fernández — Med. Interna · 1.2 km\n🩺 Dr. Pablo Giménez — General · 1.5 km · Inglés ✓\n\n¿Querés que reserve turno o te pida un Uber?",
+      },
+    ],
+    // Tab 1 — Pharmacy delivery
+    [
+      {
+        role: "user" as const,
+        text: isEn
+          ? "I need ibuprofen and some throat lozenges, can you get them delivered?"
+          : "Necesito ibuprofeno y unas pastillas para la garganta, ¿me las pueden mandar?",
+      },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "Of course! I'll search pharmacies near you for the best price 🏪"
+          : "¡Claro! Busco farmacias cerca tuyo con el mejor precio 🏪",
+      },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "Found options:\n\n💊 Ibupirac 400mg x20 — $2,850 ARS\n🍬 Strepsils Miel x16 — $3,200 ARS\n\n📦 Delivery via Rappi: ~25 min\n📦 Delivery via PedidosYa: ~30 min\n\nBoth deliver to your hotel. Which do you prefer?"
+          : "Encontré opciones:\n\n💊 Ibupirac 400mg x20 — $2.850 ARS\n🍬 Strepsils Miel x16 — $3.200 ARS\n\n📦 Envío por Rappi: ~25 min\n📦 Envío por PedidosYa: ~30 min\n\nLos dos entregan en tu hotel. ¿Cuál preferís?",
+        cards: true,
+      },
+      { role: "user" as const, text: isEn ? "Rappi please!" : "¡Rappi por favor!" },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "Opening Rappi now with your order ready 🚀\n\nFarmacia del Pueblo — Av. Corrientes 1234\nTotal: $6,050 ARS (~USD 5.20)\n\nYou'll get a push notification when it's on its way! 🔔"
+          : "Abriendo Rappi con tu pedido listo 🚀\n\nFarmacia del Pueblo — Av. Corrientes 1234\nTotal: $6.050 ARS (~USD 5,20)\n\n¡Te llega una notificación push cuando salga! 🔔",
+      },
+    ],
+    // Tab 2 — Transport to appointment
+    [
+      {
+        role: "user" as const,
+        text: isEn
+          ? "I have an appointment at 10:30 with Dr. Rodríguez, can you get me a ride?"
+          : "Tengo turno a las 10:30 con el Dr. Rodríguez, ¿me pedís un viaje?",
+      },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "Sure! Dr. Rodríguez's office is at Av. Santa Fe 2145, Palermo 📍\n\nHere are your ride options:"
+          : "¡Dale! El consultorio del Dr. Rodríguez está en Av. Santa Fe 2145, Palermo 📍\n\nAcá tenés las opciones de viaje:",
+      },
+      { role: "bot" as const, text: "", rides: true },
+      { role: "user" as const, text: isEn ? "Uber please" : "Uber por favor" },
+      {
+        role: "bot" as const,
+        text: isEn
+          ? "Opening Uber now 🚗\n\nDestination: Av. Santa Fe 2145, Palermo\nEstimated arrival: 8 min\nEstimated fare: $2,100–$2,800 ARS\n\nRemember your appointment is at 10:30. I'll send you a push reminder 30 min before! ⏰"
+          : "Abriendo Uber 🚗\n\nDestino: Av. Santa Fe 2145, Palermo\nLlegada estimada: 8 min\nTarifa estimada: $2.100–$2.800 ARS\n\nRecordá que tu turno es a las 10:30. ¡Te mando un push 30 min antes! ⏰",
+      },
+    ],
+  ];
+
+  const tabs = [pt("cora.tab0"), pt("cora.tab1"), pt("cora.tab2")];
+  const msgs = conversations[tab] || conversations[0] || [];
+
+  return (
+    <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm">
+      {/* Phone header */}
+      <div className="bg-celeste-dark px-4 py-3 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+          <HeartPulse className="w-4 h-4 text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs font-bold text-white">Cora</p>
+          <p className="text-[10px] text-white/70">
+            {isEn ? "AI Virtual Nurse · Online" : "Enfermera Virtual IA · En línea"}
+          </p>
+        </div>
+        <span className="text-[9px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold">
+          ✨ AI
+        </span>
+      </div>
+
+      {/* Scenario tabs */}
+      <div className="flex border-b border-border">
+        {tabs.map((label, i) => (
+          <button
+            key={i}
+            onClick={() => setTab(i)}
+            className={`flex-1 py-2.5 text-[11px] font-semibold transition border-b-2 ${
+              tab === i
+                ? "border-celeste-dark text-celeste-dark"
+                : "border-transparent text-ink-muted hover:text-celeste-dark"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Chat messages */}
+      <div className="p-4 space-y-3 max-h-[420px] overflow-y-auto">
+        {msgs.map((msg, i) => (
+          <div key={`${tab}-${i}`}>
+            <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[12px] leading-relaxed whitespace-pre-line ${
+                  msg.role === "user"
+                    ? "bg-celeste text-white rounded-br-md"
+                    : "bg-surface text-ink rounded-bl-md"
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+            {/* Ride options card */}
+            {"rides" in msg && msg.rides && (
+              <div className="mt-2 border border-border rounded-xl overflow-hidden bg-white">
+                <div className="px-3 py-2 bg-surface/60 border-b border-border">
+                  <p className="text-[11px] font-semibold text-ink">
+                    {isEn ? "🚗 Ride options" : "🚗 Opciones de viaje"}
+                  </p>
+                </div>
+                <div className="divide-y divide-border">
+                  {[
+                    {
+                      app: "Uber",
+                      color: "bg-black",
+                      text: "text-white",
+                      time: "8 min",
+                      price: "$2,100–2,800",
+                    },
+                    {
+                      app: "Cabify",
+                      color: "bg-violet-600",
+                      text: "text-white",
+                      time: "6 min",
+                      price: "$2,300–2,900",
+                    },
+                    {
+                      app: "InDrive",
+                      color: "bg-[#CCFF00]",
+                      text: "text-black",
+                      time: "10 min",
+                      price: isEn ? "You set price" : "Vos ponés el precio",
+                    },
+                  ].map((r) => (
+                    <div key={r.app} className="flex items-center gap-3 px-3 py-2.5">
+                      <span
+                        className={`w-7 h-7 rounded-lg ${r.color} ${r.text} flex items-center justify-center text-[10px] font-bold shrink-0`}
+                      >
+                        {r.app[0]}
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-[11px] font-semibold text-ink">{r.app}</p>
+                        <p className="text-[10px] text-ink-muted">
+                          {r.time} · {r.price}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-semibold text-celeste-dark">
+                        {isEn ? "Open →" : "Abrir →"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Info cards indicator */}
+            {"cards" in msg && msg.cards && (
+              <div className="mt-2 bg-celeste-pale/50 border border-celeste/20 rounded-lg px-3 py-2 text-[10px] text-celeste-dark font-semibold">
+                {isEn
+                  ? "📋 Doctor cards with map, WhatsApp & ride options shown below"
+                  : "📋 Tarjetas de médicos con mapa, WhatsApp y opciones de viaje"}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Input bar */}
+      <div className="border-t border-border px-4 py-3 flex items-center gap-2">
+        <div className="flex-1 bg-surface border border-border rounded-full px-4 py-2 text-[11px] text-ink-muted">
+          {isEn ? "Type a message..." : "Escribí un mensaje..."}
+        </div>
+        <div className="w-8 h-8 rounded-full bg-celeste-dark flex items-center justify-center shrink-0">
+          <ArrowRight className="w-3.5 h-3.5 text-white" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Static data ─────────────────────────────────────────── */
 
 const STAT_ICONS = [CreditCard, Clock, TrendingUp, Zap];
@@ -763,6 +989,81 @@ export default function PartnersPage() {
                   <p className="text-[10px] text-ink-muted mt-1">{item.cat}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Cora AI Conversation Demo ─────────────────────── */}
+        <section className="px-6 py-20 bg-celeste-pale/50 border-t border-border">
+          <div className="max-w-[960px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {pt("cora.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("cora.title")}{" "}
+              <em className="not-italic text-celeste-dark">{pt("cora.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
+              {pt("cora.subtitle")}
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-10 items-start">
+              <CoraConversationDemo pt={pt} isEn={isEn} />
+
+              <div className="space-y-5">
+                {/* Cora capabilities */}
+                {[
+                  {
+                    icon: Brain,
+                    title: isEn ? "Symptom triage" : "Triaje de síntomas",
+                    desc: isEn
+                      ? "Asks simple questions, evaluates severity, recommends OTC medication available at Argentine pharmacies, and knows when to refer to a doctor."
+                      : "Hace preguntas simples, evalúa gravedad, recomienda medicamentos de venta libre de farmacias argentinas, y sabe cuándo derivar a un médico.",
+                  },
+                  {
+                    icon: MapPin,
+                    title: isEn ? "Find doctors nearby" : "Buscar médicos cerca",
+                    desc: isEn
+                      ? "GPS-powered search with Google Maps. Filters by specialty, English-speaking, availability. Shows distance, phone, WhatsApp and directions."
+                      : "Búsqueda con GPS y Google Maps. Filtra por especialidad, idioma inglés, disponibilidad. Muestra distancia, teléfono, WhatsApp y cómo llegar.",
+                  },
+                  {
+                    icon: Pill,
+                    title: isEn ? "Pharmacy delivery" : "Farmacia a domicilio",
+                    desc: isEn
+                      ? "Searches nearby pharmacies for the best price. Opens Rappi or PedidosYa with the order ready. Delivered to hotel/Airbnb in ~25 min."
+                      : "Busca farmacias cerca con el mejor precio. Abre Rappi o PedidosYa con el pedido listo. Entrega en hotel/Airbnb en ~25 min.",
+                  },
+                  {
+                    icon: Car,
+                    title: isEn ? "Ride to appointment" : "Viaje al consultorio",
+                    desc: isEn
+                      ? "Shows Uber, Cabify and InDrive options with estimated time and fare. One tap to open the app with destination pre-filled."
+                      : "Muestra opciones de Uber, Cabify e InDrive con tiempo y tarifa estimados. Un toque para abrir la app con destino pre-cargado.",
+                  },
+                  {
+                    icon: Languages,
+                    title: isEn ? "Bilingual ES + EN" : "Bilingüe ES + EN",
+                    desc: isEn
+                      ? "Auto-detects language. Responds naturally in Spanish or English. Handles mixed-language input."
+                      : "Detecta el idioma automáticamente. Responde natural en español o inglés. Maneja input bilingüe.",
+                  },
+                ].map((cap, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white border border-celeste/20 flex items-center justify-center shrink-0 mt-0.5">
+                      <cap.icon className="w-5 h-5 text-celeste-dark" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-ink mb-0.5">{cap.title}</p>
+                      <p className="text-[13px] text-ink-light leading-relaxed">{cap.desc}</p>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="bg-celeste-pale border border-celeste/20 rounded-lg px-4 py-2.5 text-center">
+                  <p className="text-[11px] font-semibold text-celeste-dark">{pt("cora.badge")}</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>

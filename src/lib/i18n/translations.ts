@@ -1376,6 +1376,21 @@ const translations: Dict = {
     en: "Works offline from the phone. Ideal for tourists without mobile data or in areas with limited signal.",
   },
   "partners.features.f11.tag": { es: "Sin conexión", en: "Works offline" },
+  "partners.cora.kicker": { es: "CONOCÉ A CORA", en: "MEET CORA" },
+  "partners.cora.title": { es: "Así hablan tus viajeros", en: "This is how your travelers talk" },
+  "partners.cora.titleEm": { es: "con Cora.", en: "to Cora." },
+  "partners.cora.subtitle": {
+    es: "Cora es la enfermera virtual con IA de Cóndor Salud. Habla español e inglés, hace triaje, busca médicos, pide remedios y hasta coordina un Uber al consultorio. Así se ven las conversaciones reales.",
+    en: "Cora is Cóndor Salud's AI virtual nurse. She speaks Spanish and English, does triage, finds doctors, orders medication and even coordinates an Uber to the clinic. Here's what real conversations look like.",
+  },
+  "partners.cora.tab0": { es: "🤒 Síntomas", en: "🤒 Symptoms" },
+  "partners.cora.tab1": { es: "💊 Farmacia", en: "💊 Pharmacy" },
+  "partners.cora.tab2": { es: "🚗 Transporte", en: "🚗 Transport" },
+  "partners.cora.badge": {
+    es: "IA + 20 intenciones · ES/EN · 24/7",
+    en: "AI + 20 intents · ES/EN · 24/7",
+  },
+
   "partners.integrations.kicker": { es: "INTEGRACIONES", en: "INTEGRATIONS" },
   "partners.integrations.title": { es: "Conectado con todo.", en: "Connected to everything." },
   "partners.integrations.titleEm": { es: "18+ integraciones.", en: "18+ integrations." },
@@ -1678,6 +1693,21 @@ const translations: Dict = {
     es: "Funciona sin conexión desde el celular. Ideal para ciudadanos sin datos móviles o en zonas con señal limitada.",
     en: "Works offline from the phone. Ideal for citizens without mobile data or in areas with limited signal.",
   },
+  "embassy.cora.kicker": { es: "CONOCÉ A CORA", en: "MEET CORA" },
+  "embassy.cora.title": { es: "Así funciona para", en: "This is how it works for" },
+  "embassy.cora.titleEm": { es: "los ciudadanos.", en: "citizens." },
+  "embassy.cora.subtitle": {
+    es: "Cora es la enfermera virtual con IA de Cóndor Salud. Habla inglés y español, hace triaje, busca médicos, pide remedios y coordina transporte. Conversaciones reales de ciudadanos estadounidenses.",
+    en: "Cora is Cóndor Salud's AI virtual nurse. She speaks English and Spanish, does triage, finds doctors, orders medication and coordinates transport. Real conversations from American citizens.",
+  },
+  "embassy.cora.tab0": { es: "🤒 Emergencia", en: "🤒 Emergency" },
+  "embassy.cora.tab1": { es: "💊 Medicamentos", en: "💊 Medication" },
+  "embassy.cora.tab2": { es: "🚗 Transporte", en: "🚗 Transport" },
+  "embassy.cora.badge": {
+    es: "IA + Inglés nativo · Triaje clínico · 24/7",
+    en: "AI + Native English · Clinical triage · 24/7",
+  },
+
   "embassy.integrations.kicker": { es: "INTEGRACIONES", en: "INTEGRATIONS" },
   "embassy.integrations.title": { es: "Conectado con todo.", en: "Connected to everything." },
   "embassy.integrations.titleEm": { es: "18+ integraciones.", en: "18+ integrations." },
