@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Shield, Clock, TrendingDown } from "lucide-react";
+import { ArrowRight, Shield, Clock, TrendingDown, Bot, MapPin } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
-const hlIcons = [TrendingDown, Clock, Shield];
+const hlIcons = [TrendingDown, Clock, Shield, Bot, MapPin];
 
 export default function FinalCTA() {
   const { t, segment } = useLocale();

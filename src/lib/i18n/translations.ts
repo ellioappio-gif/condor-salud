@@ -244,8 +244,8 @@ const translations: Dict = {
     en: "One single database.",
   },
   "features.subtitle": {
-    es: "25+ módulos integrados: turnos con MercadoPago, notificaciones push, disponibilidad médica, recordatorios automáticos y más. Sin costos ocultos.",
-    en: "25+ integrated modules: bookings with MercadoPago, push notifications, doctor availability, automated reminders and more. No hidden costs.",
+    es: "35+ módulos integrados: turnos con MercadoPago, chatbot IA, directorio médico con Google Places, notificaciones push, portal del paciente, WhatsApp Business y más. Sin costos ocultos.",
+    en: "35+ integrated modules: bookings with MercadoPago, AI chatbot, doctor directory with Google Places, push notifications, patient portal, WhatsApp Business and more. No hidden costs.",
   },
   "features.core0.title": { es: "Turnos Online con Pago", en: "Online Bookings + Payment" },
   "features.core0.desc": {
@@ -298,18 +298,56 @@ const translations: Dict = {
     es: "Cron diario: email + push 24h antes del turno",
     en: "Daily cron: email + push 24h before appointment",
   },
+  "features.core6.title": { es: "Cora — Chatbot con IA", en: "Cora — AI Chatbot" },
+  "features.core6.desc": {
+    es: "Asistente virtual con 20+ intenciones: triage de síntomas, búsqueda de médicos cercanos, verificación de cobertura, pedido de remedios y transporte. Responde en español e inglés 24/7.",
+    en: "Virtual assistant with 20+ intents: symptom triage, nearby doctor search, coverage verification, medication orders and transport. Responds in Spanish & English 24/7.",
+  },
+  "features.core6.hl": { es: "IA + 20 intenciones + ES/EN", en: "AI + 20 intents + ES/EN" },
+  "features.core7.title": { es: "Directorio Médico Inteligente", en: "Smart Doctor Directory" },
+  "features.core7.desc": {
+    es: "Búsqueda por especialidad, ubicación y financiador. Integración con Google Places para datos en tiempo real. Scraping automático de WhatsApp, turnos online, seguros y telemedicina.",
+    en: "Search by specialty, location and insurer. Google Places integration for real-time data. Auto-scraping for WhatsApp, online bookings, insurance and telehealth.",
+  },
+  "features.core7.hl": { es: "Google Places + Web Scraping", en: "Google Places + Web Scraping" },
+  "features.core8.title": { es: "Portal del Paciente", en: "Patient Portal" },
+  "features.core8.desc": {
+    es: "Portal completo para pacientes: mis turnos, mis recetas, mi cobertura, mapa de médicos cercanos, teleconsulta y Cora. Todo responsive y bilingüe.",
+    en: "Full patient portal: my appointments, prescriptions, coverage, nearby doctor map, teleconsult and Cora. Fully responsive and bilingual.",
+  },
+  "features.core8.hl": { es: "Self-service + Mapa GPS", en: "Self-service + GPS Map" },
   "features.extra3.title": { es: "Pagos MercadoPago", en: "MercadoPago payments" },
   "features.extra3.desc": {
     es: "Cobro en checkout al reservar con confirmación auto",
     en: "Checkout payment on booking with auto-confirmation",
+  },
+  "features.extra4.title": { es: "WhatsApp Business", en: "WhatsApp Business" },
+  "features.extra4.desc": {
+    es: "Confirmaciones y recordatorios de turno por WhatsApp",
+    en: "Booking confirmations & reminders via WhatsApp",
+  },
+  "features.extra5.title": { es: "Roles y permisos", en: "Roles & permissions" },
+  "features.extra5.desc": {
+    es: "RBAC con 6 roles: owner, admin, médico, recepción, facturación, auditor",
+    en: "RBAC with 6 roles: owner, admin, doctor, reception, billing, auditor",
+  },
+  "features.extra6.title": { es: "Modo offline PWA", en: "Offline PWA mode" },
+  "features.extra6.desc": {
+    es: "Service worker + cache para operar sin conexión",
+    en: "Service worker + cache for offline operation",
+  },
+  "features.extra7.title": { es: "Bilingüe ES + EN", en: "Bilingual ES + EN" },
+  "features.extra7.desc": {
+    es: "Toda la plataforma disponible en español e inglés",
+    en: "Entire platform available in Spanish and English",
   },
   "features.extraTitle": {
     es: "Y mucho más incluido en tu plan",
     en: "And much more included in your plan",
   },
   "features.extraSubtitle": {
-    es: "25+ módulos totales — turnos, pagos, push, agenda, farmacia, telemedicina y más",
-    en: "25+ total modules — bookings, payments, push, scheduling, pharmacy, telehealth & more",
+    es: "35+ módulos totales — turnos, pagos, push, agenda, IA, directorio, farmacia, telemedicina y más",
+    en: "35+ total modules — bookings, payments, push, scheduling, AI, directory, pharmacy, telehealth & more",
   },
   "features.cta": { es: "Explorá el demo completo", en: "Explore the full demo" },
 
@@ -344,12 +382,12 @@ const translations: Dict = {
   // ── Integrations ────────────────────────────────────────────
   "int.label": { es: "Integraciones", en: "Integrations" },
   "int.title": {
-    es: "Conectado con todo el ecosistema de salud argentino",
-    en: "Connected with the entire Argentine health ecosystem",
+    es: "Conectado con todo el ecosistema de salud y tecnología argentino",
+    en: "Connected with Argentina's entire health & technology ecosystem",
   },
   "int.subtitle": {
-    es: "No necesitás integraciones manuales ni archivos CSV. Cóndor se comunica directamente con cada financiador y organismo regulador.",
-    en: "No manual integrations or CSV files needed. Cóndor communicates directly with every payer and regulatory body.",
+    es: "No necesitás integraciones manuales ni archivos CSV. Cóndor se comunica directamente con cada financiador, organismo regulador y plataforma tecnológica.",
+    en: "No manual integrations or CSV files needed. Cóndor communicates directly with every payer, regulatory body and technology platform.",
   },
   "int.entity0": { es: "5.5M afiliados", en: "5.5M members" },
   "int.entity1": { es: "Prepaga líder", en: "Leading insurer" },
@@ -361,6 +399,12 @@ const translations: Dict = {
   "int.entity9": { es: "Factura electrónica", en: "E-invoicing" },
   "int.entity10": { es: "Medicamentos", en: "Pharmaceuticals" },
   "int.entity11": { es: "Sistema salud", en: "Health system" },
+  "int.entity12": { es: "Cobros online", en: "Online payments" },
+  "int.entity13": { es: "Directorio médico", en: "Doctor directory" },
+  "int.entity14": { es: "Mensajería", en: "Messaging" },
+  "int.entity15": { es: "Transporte", en: "Transport" },
+  "int.entity16": { es: "Transporte", en: "Transport" },
+  "int.entity17": { es: "Transporte", en: "Transport" },
   "int.type0.title": { es: "Obras Sociales", en: "Social Health Plans" },
   "int.type0.desc": {
     es: "Padrones, nomencladores y presentación electrónica",
@@ -375,6 +419,11 @@ const translations: Dict = {
   "int.type2.desc": {
     es: "AFIP, ANMAT, SISA, REFEPS, receta digital PAMI",
     en: "AFIP, ANMAT, SISA, REFEPS, PAMI digital prescriptions",
+  },
+  "int.type3.title": { es: "Plataformas Tech", en: "Tech Platforms" },
+  "int.type3.desc": {
+    es: "MercadoPago, Google Places, WhatsApp, Uber, Cabify, InDrive, Rappi",
+    en: "MercadoPago, Google Places, WhatsApp, Uber, Cabify, InDrive, Rappi",
   },
 
   // ── Security ────────────────────────────────────────────────
@@ -594,6 +643,8 @@ const translations: Dict = {
   "cta.hl0": { es: "Turnos + cobro MercadoPago", en: "Bookings + MercadoPago" },
   "cta.hl1": { es: "Push + recordatorios auto", en: "Push + auto-reminders" },
   "cta.hl2": { es: "14 días gratis, sin tarjeta", en: "14 days free, no card" },
+  "cta.hl3": { es: "Cora IA + chatbot 24/7", en: "Cora AI + 24/7 chatbot" },
+  "cta.hl4": { es: "Directorio médico GPS", en: "GPS doctor directory" },
   "cta.primary": { es: "Crear cuenta gratis", en: "Create free account" },
   "cta.secondary": { es: "Ver demo en vivo", en: "Watch live demo" },
   "cta.bottom": {
@@ -693,8 +744,8 @@ const translations: Dict = {
     en: "Everything your clinic needs. ",
   },
   "features.titleEm@provider": {
-    es: "Turnos, pagos, push y más.",
-    en: "Bookings, payments, push & more.",
+    es: "Turnos, pagos, IA y más.",
+    en: "Bookings, payments, AI & more.",
   },
 
   "how.title@provider": { es: "Empezá a facturar ", en: "Start billing " },
@@ -956,8 +1007,8 @@ const translations: Dict = {
     en: "From your phone.",
   },
   "features.subtitle@tourist": {
-    es: "Reservá turnos con pago MercadoPago, recibí push de confirmación, recordatorios automáticos, teleconsultas y remedios a domicilio. Todo gratis, en español e inglés.",
-    en: "Book appointments with MercadoPago payment, get push confirmations, auto-reminders, teleconsults and meds delivered. All free, in Spanish & English.",
+    es: "Reservá turnos con MercadoPago, chatbot Cora con IA, mapa interactivo de médicos, WhatsApp directo al consultorio, Uber/Cabify al médico, teleconsultas y remedios a domicilio. Todo gratis, en español e inglés.",
+    en: "Book with MercadoPago, AI chatbot Cora, interactive doctor map, direct WhatsApp to clinic, Uber/Cabify to doctor, teleconsults and meds delivered. All free, in Spanish & English.",
   },
   "features.core0.title@tourist": { es: "Turnos online con pago", en: "Online bookings + payment" },
   "features.core0.desc@tourist": {
@@ -1001,14 +1052,38 @@ const translations: Dict = {
     en: "Tell Cora what's wrong and she'll guide you to the right doctor, recommend what to take, find care nearby and get you an Uber or Cabify to get there. Like talking to a nurse.",
   },
   "features.core5.hl@tourist": { es: "Chat 24/7 en ES + EN", en: "24/7 chat in ES + EN" },
+  "features.core6.title@tourist": {
+    es: "Mapa interactivo de médicos",
+    en: "Interactive doctor map",
+  },
+  "features.core6.desc@tourist": {
+    es: "Mapa GPS con todos los médicos cerca tuyo. Filtrá por especialidad, rating y disponibilidad. Tocá un pin y veé horarios, teléfono y cómo llegar.",
+    en: "GPS map with all doctors near you. Filter by specialty, rating and availability. Tap a pin to see hours, phone and directions.",
+  },
+  "features.core6.hl@tourist": { es: "Google Maps + Pins en vivo", en: "Google Maps + Live Pins" },
+  "features.core7.title@tourist": {
+    es: "WhatsApp directo al médico",
+    en: "Direct WhatsApp to doctor",
+  },
+  "features.core7.desc@tourist": {
+    es: "Contacta al médico por WhatsApp con un solo toque. Mensaje pre-armado con tu nombre, especialidad y disponibilidad. Sin esperar llamadas.",
+    en: "Contact the doctor via WhatsApp in one tap. Pre-filled message with your name, specialty and availability. No phone calls needed.",
+  },
+  "features.core7.hl@tourist": { es: "1 toque = WhatsApp", en: "1 tap = WhatsApp" },
+  "features.core8.title@tourist": { es: "Uber, Cabify e InDrive", en: "Uber, Cabify & InDrive" },
+  "features.core8.desc@tourist": {
+    es: "Pedí un viaje al consultorio, guardia o farmacia con un toque. Cora te muestra la dirección y te abre Uber, Cabify o InDrive directo.",
+    en: "Get a ride to the clinic, ER or pharmacy in one tap. Cora shows the address and opens Uber, Cabify or InDrive directly.",
+  },
+  "features.core8.hl@tourist": { es: "Viaje en 1 toque", en: "Ride in 1 tap" },
   "features.cta@tourist": { es: "Probá el chatbot ahora", en: "Try the chatbot now" },
   "features.extraTitle@tourist": {
     es: "Todo lo que necesitás como paciente",
     en: "Everything you need as a patient",
   },
   "features.extraSubtitle@tourist": {
-    es: "Turnos, pagos, push, recordatorios, teleconsulta y farmacia — todo gratis",
-    en: "Bookings, payments, push, reminders, teleconsult & pharmacy — all free",
+    es: "Turnos, pagos, push, mapa, WhatsApp, transporte, teleconsulta y farmacia — todo gratis",
+    en: "Bookings, payments, push, map, WhatsApp, transport, teleconsult & pharmacy — all free",
   },
   "features.extra0.title@tourist": { es: "Notificaciones push", en: "Push notifications" },
   "features.extra0.desc@tourist": {
@@ -1029,6 +1104,29 @@ const translations: Dict = {
   "features.extra3.desc@tourist": {
     es: "Tu enfermera virtual con IA, siempre disponible",
     en: "Your AI virtual nurse, always available",
+  },
+  "features.extra4.title@tourist": { es: "Modo offline PWA", en: "Offline PWA mode" },
+  "features.extra4.desc@tourist": {
+    es: "Usá la app sin conexión desde tu celular",
+    en: "Use the app offline from your phone",
+  },
+  "features.extra5.title@tourist": {
+    es: "Datos del médico enriquecidos",
+    en: "Enriched doctor data",
+  },
+  "features.extra5.desc@tourist": {
+    es: "WhatsApp, seguros, turnos online y telemedicina detectados",
+    en: "WhatsApp, insurance, online bookings & telehealth detected",
+  },
+  "features.extra6.title@tourist": { es: "Bilingüe ES + EN", en: "Bilingual ES + EN" },
+  "features.extra6.desc@tourist": {
+    es: "Todo en español e inglés, ideal para turistas",
+    en: "Everything in Spanish & English, perfect for tourists",
+  },
+  "features.extra7.title@tourist": { es: "Seguro de viaje", en: "Travel insurance" },
+  "features.extra7.desc@tourist": {
+    es: "Verificá cobertura de tu seguro de viaje al instante",
+    en: "Verify your travel insurance coverage instantly",
   },
 
   "faq.label@tourist": { es: "Preguntas frecuentes", en: "Frequently asked questions" },
@@ -1077,6 +1175,8 @@ const translations: Dict = {
   "cta.hl0@tourist": { es: "Turnos con MercadoPago", en: "Bookings + MercadoPago" },
   "cta.hl1@tourist": { es: "Push de confirmación instant", en: "Instant push confirmation" },
   "cta.hl2@tourist": { es: "Recordatorio automático 24h", en: "Auto 24h reminders" },
+  "cta.hl3@tourist": { es: "Cora IA + WhatsApp directo", en: "Cora AI + direct WhatsApp" },
+  "cta.hl4@tourist": { es: "Uber/Cabify al consultorio", en: "Uber/Cabify to the clinic" },
   "cta.primary@tourist": { es: "Hablar con Cora", en: "Talk to Cora" },
   "cta.secondary@tourist": { es: "Buscar médico cerca", en: "Find doctor nearby" },
   "cta.bottom@tourist": {

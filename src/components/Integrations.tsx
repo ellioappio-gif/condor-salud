@@ -15,6 +15,12 @@ const entityNames = [
   "AFIP",
   "ANMAT",
   "SISA",
+  "MercadoPago",
+  "Google Places",
+  "WhatsApp",
+  "Uber",
+  "Cabify",
+  "InDrive",
 ];
 // Translation keys per entity (some use name as-is for desc)
 const entityDescKeys: Record<number, string> = {
@@ -28,6 +34,12 @@ const entityDescKeys: Record<number, string> = {
   9: "int.entity9",
   10: "int.entity10",
   11: "int.entity11",
+  12: "int.entity12",
+  13: "int.entity13",
+  14: "int.entity14",
+  15: "int.entity15",
+  16: "int.entity16",
+  17: "int.entity17",
 };
 const entityStaticDesc: Record<number, string> = { 6: "Santa Fe", 8: "Grupo OSDE" };
 
@@ -39,9 +51,9 @@ export default function Integrations() {
     desc: entityDescKeys[i] ? t(entityDescKeys[i]) : (entityStaticDesc[i] ?? name),
   }));
 
-  const integrationTypes = [0, 1, 2].map((i) => ({
+  const integrationTypes = [0, 1, 2, 3].map((i) => ({
     title: t(`int.type${i}.title`),
-    count: ["280+", "45+", "6"][i],
+    count: ["280+", "45+", "6", "8+"][i],
     desc: t(`int.type${i}.desc`),
   }));
 
@@ -59,7 +71,7 @@ export default function Integrations() {
         </p>
 
         {/* Integration type cards */}
-        <div className="grid md:grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           {integrationTypes.map((it) => (
             <div
               key={it.title}

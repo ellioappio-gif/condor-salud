@@ -12,16 +12,71 @@ import {
   Bell,
   Timer,
   Wallet,
+  Bot,
+  MapPinned,
+  UserCircle,
+  MessageSquare,
+  KeyRound,
+  WifiOff,
+  Languages,
+  Map,
+  Car,
+  Plane,
+  Smartphone,
+  Heart,
 } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
-const coreIcons = [Search, FileText, ShieldCheck, TrendingUp, Plug, BarChart3];
-const coreCeleste = [true, false, true, false, true, false];
-const extraIcons = [CalendarClock, Bell, Timer, Wallet];
+// Provider: 9 core features
+const providerCoreIcons = [
+  Search,
+  FileText,
+  ShieldCheck,
+  TrendingUp,
+  Plug,
+  BarChart3,
+  Bot,
+  MapPinned,
+  UserCircle,
+];
+const providerCoreCeleste = [true, false, true, false, true, false, true, false, true];
+
+// Provider: 8 extra modules
+const providerExtraIcons = [
+  CalendarClock,
+  Bell,
+  Timer,
+  Wallet,
+  MessageSquare,
+  KeyRound,
+  WifiOff,
+  Languages,
+];
+
+// Tourist: 9 core features
+const touristCoreIcons = [
+  Search,
+  ShieldCheck,
+  CalendarClock,
+  Smartphone,
+  MapPinned,
+  Heart,
+  Map,
+  MessageSquare,
+  Car,
+];
+const touristCoreCeleste = [true, false, true, false, true, false, true, false, true];
+
+// Tourist: 8 extra modules
+const touristExtraIcons = [Bell, Wallet, Timer, Bot, WifiOff, Search, Languages, Plane];
 
 export default function Features() {
   const { t, segment } = useLocale();
   const isTourist = segment === "tourist";
+
+  const coreIcons = isTourist ? touristCoreIcons : providerCoreIcons;
+  const coreCeleste = isTourist ? touristCoreCeleste : providerCoreCeleste;
+  const extraIcons = isTourist ? touristExtraIcons : providerExtraIcons;
 
   const coreFeatures = coreIcons.map((icon, i) => ({
     icon,
@@ -51,7 +106,7 @@ export default function Features() {
           {t("features.subtitle")}
         </p>
 
-        {/* Core feature cards */}
+        {/* Core feature cards — 3x3 grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
           {coreFeatures.map((f) => (
             <div
@@ -74,7 +129,7 @@ export default function Features() {
           ))}
         </div>
 
-        {/* Extra modules */}
+        {/* Extra modules — 2x4 grid */}
         <div className="bg-white border border-border rounded-xl p-6">
           <h3 className="text-sm font-bold text-ink mb-1">{t("features.extraTitle")}</h3>
           <p className="text-[12px] text-ink-muted mb-5">{t("features.extraSubtitle")}</p>
