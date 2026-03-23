@@ -414,3 +414,210 @@ export interface CRMKPIs {
   conversionRate: number;
   topFuente: LeadFuente;
 }
+
+// ─── Feature: Cóndor Health Club ─────────────────────────────
+
+export interface ClubPlan {
+  id: string;
+  slug: "basico" | "plus" | "familiar";
+  nameEs: string;
+  nameEn: string;
+  priceArs: number;
+  priceUsd: number;
+  prescriptionDiscount: number; // 0-1 fraction
+  maxTeleconsultas: number;
+  includesDelivery: boolean;
+  includesCoraPriority: boolean;
+  active: boolean;
+  sortOrder: number;
+}
+
+export type ClubMembershipStatus = "active" | "paused" | "cancelled" | "expired";
+
+export interface ClubMembership {
+  id: string;
+  patientId: string;
+  planId: string;
+  plan?: ClubPlan;
+  status: ClubMembershipStatus;
+  mpSubscriptionId?: string;
+  startedAt: string;
+  expiresAt?: string;
+  cancelledAt?: string;
+}
+
+export interface PrescriptionFee {
+  id: string;
+  patientId: string;
+  prescriptionId?: string;
+  medicationName: string;
+  originalPrice: number;
+  discountPct: number;
+  finalPrice: number;
+  clubPlanSlug?: string;
+  paymentStatus: "pending" | "paid" | "waived";
+  createdAt: string;
+}
+
+// ─── Feature: Health Tracker ─────────────────────────────────
+
+export interface HealthTrackerCategory {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  color: string;
+  defaultUnit: string;
+  minValue?: number;
+  maxValue?: number;
+  active: boolean;
+  sortOrder: number;
+}
+
+export interface HealthTrackerItem {
+  id: string;
+  patientId: string;
+  categoryId: string;
+  category?: HealthTrackerCategory;
+  value: number;
+  unit?: string;
+  notes?: string;
+  measuredAt: string;
+  createdAt: string;
+  // Joined from category (populated by service)
+  categoryName?: string;
+  categoryIcon?: string;
+  categoryColor?: string;
+}
+
+// ─── Feature: Digital Prescriptions with QR ──────────────────
+
+export type DigitalPrescriptionStatus = "active" | "dispensed" | "expired" | "cancelled";
+
+export interface PrescriptionMedication {
+  id: string;
+  prescriptionId: string;
+  medicationName: string;
+  dosage: string;
+  frequency: string;
+  duration?: string;
+  quantity?: number;
+  notes?: string;
+  sortOrder: number;
+}
+
+export interface DigitalPrescription {
+  id: string;
+  clinicId?: string;
+  doctorProfileId?: string;
+  patientId: string;
+  patientName: string;
+  doctorName: string;
+  doctorMatricula?: string;
+  specialty?: string;
+  diagnosis?: string;
+  notes?: string;
+  verificationToken: string;
+  status: DigitalPrescriptionStatus;
+  issuedAt: string;
+  expiresAt: string;
+  dispensedAt?: string;
+  dispensedBy?: string;
+  pdfPath?: string;
+  medications: PrescriptionMedication[];
+  createdAt: string;
+}
+
+// ─── Feature: Doctor Verification ────────────────────────────
+
+export type DoctorVerificationStatus = "pending" | "approved" | "rejected" | "needs_review";
+
+export type VerificationDocumentType =
+  | "matricula_frente"
+  | "matricula_dorso"
+  | "dni_frente"
+  | "dni_dorso"
+  | "titulo"
+  | "otro";
+
+export interface VerificationDocument {
+  id: string;
+  verificationId: string;
+  documentType: VerificationDocumentType;
+  storagePath: string;
+  fileName: string;
+  mimeType: string;
+  uploadedAt: string;
+}
+
+export interface DoctorVerification {
+  id: string;
+  profileId: string;
+  matriculaNacional?: string;
+  matriculaProvincial?: string;
+  dni?: string;
+  status: DoctorVerificationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  rejectionReason?: string;
+  documents: VerificationDocument[];
+}
+
+// ─── Feature: Public Doctor Profiles ─────────────────────────
+
+export interface DoctorPublicProfile {
+  id: string;
+  profileId: string;
+  slug: string;
+  displayName: string;
+  specialty: string;
+  subSpecialties: string[];
+  bioEs?: string;
+  bioEn?: string;
+  photoUrl?: string;
+  matriculaNacional?: string;
+  matriculaProvincial?: string;
+  isVerified: boolean;
+  // Contact
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  bookingUrl?: string;
+  // Location
+  address?: string;
+  city?: string;
+  province?: string;
+  lat?: number;
+  lng?: number;
+  // Practice
+  insuranceAccepted: string[];
+  languages: string[];
+  education: { degree: string; institution: string; year: number }[];
+  experienceYears?: number;
+  teleconsultaAvailable: boolean;
+  consultationFeeArs?: number;
+  consultationFeeUsd?: number;
+  // SEO
+  seoTitle?: string;
+  seoDescription?: string;
+  // Visibility
+  published: boolean;
+  featured: boolean;
+  // Ratings
+  avgRating: number;
+  reviewCount: number;
+}
+
+export interface DoctorPublicReview {
+  id: string;
+  doctorProfileId: string;
+  patientId?: string;
+  patientDisplayName: string;
+  rating: number;
+  title?: string;
+  body?: string;
+  isVerifiedPatient: boolean;
+  status: "pending" | "approved" | "rejected" | "flagged";
+  createdAt: string;
+}

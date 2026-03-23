@@ -16,6 +16,8 @@ const PUBLIC_PAGE_PREFIXES = [
   "/offline",
   "/paciente", // Patient portal (has own auth)
   "/auth", // Auth pages
+  "/rx", // Public prescription verification
+  "/medicos", // Public doctor profiles
 ];
 
 const PUBLIC_API_PREFIXES = [
@@ -37,6 +39,14 @@ const PUBLIC_API_PREFIXES = [
   "/api/demo", // Demo admin panel (auth via JWT)
   "/api/billing", // Billing endpoints (auth via plan context)
   "/api/team/accept", // Team invitation accept (has own token auth)
+  "/api/club", // Club membership (patient auth via JWT)
+  "/api/prescriptions", // Digital prescriptions (mixed auth)
+  "/api/doctors/public", // Public doctor directory
+  "/api/doctors/profile", // Doctor profile management (session auth)
+  "/api/doctors/verification", // Doctor verification (session auth)
+  "/api/admin/verifications", // Admin verification review (session auth)
+  "/api/health-tracker", // Patient health tracker (patient auth)
+  "/api/cron", // Cron jobs (auth via CRON_SECRET)
 ];
 
 /** SM-01: Validate redirect param — only allow relative paths to prevent open redirects */

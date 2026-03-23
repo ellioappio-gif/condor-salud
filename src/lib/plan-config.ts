@@ -24,7 +24,12 @@ export type ModuleId =
   | "directorio"
   | "interconsultas"
   | "triage"
-  | "chatbot";
+  | "chatbot"
+  | "club-salud"
+  | "recetas-digitales"
+  | "health-tracker"
+  | "perfiles-publicos"
+  | "verificacion-medica";
 
 export type CategoryId = "gestion" | "finanzas" | "inteligencia" | "servicios";
 
@@ -238,6 +243,50 @@ export const MODULES: ModuleDef[] = [
     phase: 1,
     base: true,
   },
+  // ─── New Feature Modules ─────────────────────────────────
+  {
+    id: "club-salud",
+    label: "Club de Salud",
+    desc: "Membresías premium para pacientes con descuentos en consultas y recetas.",
+    price: 8000,
+    category: "servicios",
+    phase: 2,
+  },
+  {
+    id: "recetas-digitales",
+    label: "Recetas Digitales QR",
+    desc: "Prescripciones digitales con verificación por QR y URL pública.",
+    price: 6000,
+    category: "servicios",
+    phase: 2,
+    deps: ["pacientes"],
+  },
+  {
+    id: "health-tracker",
+    label: "Seguimiento de Salud",
+    desc: "Seguimiento de métricas de salud del paciente: glucosa, presión, peso, etc.",
+    price: 5000,
+    category: "servicios",
+    phase: 2,
+  },
+  {
+    id: "perfiles-publicos",
+    label: "Perfiles Públicos SEO",
+    desc: "Páginas públicas de médicos optimizadas para buscadores con Schema.org.",
+    price: 10000,
+    category: "servicios",
+    phase: 2,
+    deps: ["directorio"],
+  },
+  {
+    id: "verificacion-medica",
+    label: "Verificación Médica",
+    desc: "Verificación de matrícula y credenciales profesionales con badge público.",
+    price: 0,
+    category: "gestion",
+    phase: 2,
+    base: true,
+  },
 ];
 
 // ─── Category Definitions ────────────────────────────────────
@@ -246,7 +295,15 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: "gestion",
     label: "Gestión Clínica",
-    modules: ["pacientes", "agenda", "verificacion", "inventario", "alertas", "wizard"],
+    modules: [
+      "pacientes",
+      "agenda",
+      "verificacion",
+      "inventario",
+      "alertas",
+      "wizard",
+      "verificacion-medica",
+    ],
   },
   {
     id: "finanzas",
@@ -257,7 +314,19 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: "servicios",
     label: "Servicios",
-    modules: ["farmacia", "telemedicina", "directorio", "interconsultas", "triage", "chatbot"],
+    modules: [
+      "farmacia",
+      "telemedicina",
+      "directorio",
+      "interconsultas",
+      "triage",
+      "chatbot",
+      "club-salud",
+      "recetas-digitales",
+      "health-tracker",
+      "perfiles-publicos",
+      "verificacion-medica",
+    ],
   },
 ];
 
@@ -290,6 +359,8 @@ export const PRESETS: PresetDef[] = [
       "interconsultas",
       "alertas",
       "wizard",
+      "recetas-digitales",
+      "verificacion-medica",
     ],
     discount: 0.15,
     popular: true,
@@ -319,6 +390,11 @@ export const PRESETS: PresetDef[] = [
       "chatbot",
       "alertas",
       "wizard",
+      "club-salud",
+      "recetas-digitales",
+      "health-tracker",
+      "perfiles-publicos",
+      "verificacion-medica",
     ],
     discount: 0.25,
     annual: true,
