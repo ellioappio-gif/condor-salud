@@ -34,6 +34,7 @@ import {
   TrendingUp,
   Users,
   Video,
+  WifiOff,
   Zap,
 } from "lucide-react";
 
@@ -510,7 +511,20 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 const STAT_ICONS = [CreditCard, Clock, TrendingUp, Zap];
 const IDEAL_ICONS = [Plane, Building2, Globe2, MapPin, Users];
 const BENEFIT_ICONS = [Languages, MapPin, Phone, Shield, Star];
-const FEATURE_ICONS = [Stethoscope, Video, MessageSquare, Pill, MapPin, Brain];
+const FEATURE_ICONS = [
+  Stethoscope,
+  Video,
+  MessageSquare,
+  Pill,
+  MapPin,
+  Brain,
+  Car,
+  CreditCard,
+  Phone,
+  Bell,
+  Shield,
+  WifiOff,
+];
 const WHY_ICONS = [CreditCard, Globe2, Zap, Shield, TrendingUp, Users];
 
 /* ─── Page ────────────────────────────────────────────────── */
@@ -708,6 +722,47 @@ export default function PartnersPage() {
               >
                 {pt("hero.ctaSecondary")} <ArrowRight className="w-4 h-4" />
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Integrations Showcase ─────────────────────────── */}
+        <section className="px-6 py-20 border-t border-border">
+          <div className="max-w-[960px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {pt("integrations.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {pt("integrations.title")}{" "}
+              <em className="not-italic text-celeste-dark">{pt("integrations.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
+              {pt("integrations.subtitle")}
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {[
+                { name: "Uber", cat: isEn ? "Transport" : "Transporte" },
+                { name: "Cabify", cat: isEn ? "Transport" : "Transporte" },
+                { name: "InDrive", cat: isEn ? "Transport" : "Transporte" },
+                { name: "Rappi", cat: isEn ? "Pharmacy" : "Farmacia" },
+                { name: "PedidosYa", cat: isEn ? "Pharmacy" : "Farmacia" },
+                { name: "MercadoPago", cat: isEn ? "Payments" : "Pagos" },
+                { name: "Google Maps", cat: isEn ? "Navigation" : "Navegación" },
+                { name: "WhatsApp", cat: isEn ? "Communication" : "Comunicación" },
+                { name: "TopDoctors", cat: isEn ? "Doctor data" : "Datos médicos" },
+                { name: "Google Places", cat: isEn ? "Doctor data" : "Datos médicos" },
+                { name: "Visa / MC / Amex", cat: isEn ? "Payments" : "Pagos" },
+                { name: "PWA Offline", cat: isEn ? "Technology" : "Tecnología" },
+              ].map((item) => (
+                <div
+                  key={item.name}
+                  className="bg-white border border-border rounded-lg p-4 hover:border-celeste/40 hover:shadow-sm transition text-center"
+                >
+                  <p className="font-bold text-sm text-ink">{item.name}</p>
+                  <p className="text-[10px] text-ink-muted mt-1">{item.cat}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>

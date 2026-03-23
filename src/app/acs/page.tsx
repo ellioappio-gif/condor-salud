@@ -11,7 +11,10 @@ import {
   AlertTriangle,
   ArrowRight,
   BadgeCheck,
+  Bell,
+  Brain,
   Building2,
+  Car,
   Check,
   Clock,
   CreditCard,
@@ -29,6 +32,7 @@ import {
   Stethoscope,
   Users,
   Video,
+  WifiOff,
   Zap,
 } from "lucide-react";
 
@@ -48,6 +52,12 @@ const SOLUTION_FEATURES = [
   { icon: MapPin },
   { icon: MessageSquare },
   { icon: CreditCard },
+  { icon: Car },
+  { icon: Phone },
+  { icon: Bell },
+  { icon: Shield },
+  { icon: Brain },
+  { icon: WifiOff },
 ] as const;
 
 const PROTOCOL_STEPS = [
@@ -252,6 +262,47 @@ export default function AmericanTravelersPage() {
                   </span>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Integrations Showcase ─────────────────────────── */}
+        <section className="px-6 py-20 border-t border-border">
+          <div className="max-w-[960px] mx-auto">
+            <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+              {et("integrations.kicker")}
+            </p>
+            <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
+              {et("integrations.title")}{" "}
+              <em className="not-italic text-celeste-dark">{et("integrations.titleEm")}</em>
+            </h2>
+            <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
+              {et("integrations.subtitle")}
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {[
+                { name: "Uber", cat: isEn ? "Transport" : "Transporte" },
+                { name: "Cabify", cat: isEn ? "Transport" : "Transporte" },
+                { name: "InDrive", cat: isEn ? "Transport" : "Transporte" },
+                { name: "Rappi", cat: isEn ? "Pharmacy" : "Farmacia" },
+                { name: "PedidosYa", cat: isEn ? "Pharmacy" : "Farmacia" },
+                { name: "MercadoPago", cat: isEn ? "Payments" : "Pagos" },
+                { name: "Google Maps", cat: isEn ? "Navigation" : "Navegación" },
+                { name: "WhatsApp", cat: isEn ? "Communication" : "Comunicación" },
+                { name: "TopDoctors", cat: isEn ? "Doctor data" : "Datos médicos" },
+                { name: "Google Places", cat: isEn ? "Doctor data" : "Datos médicos" },
+                { name: "Visa / MC / Amex", cat: isEn ? "Payments" : "Pagos" },
+                { name: "PWA Offline", cat: isEn ? "Technology" : "Tecnología" },
+              ].map((item) => (
+                <div
+                  key={item.name}
+                  className="bg-white border border-border rounded-lg p-4 hover:border-celeste/40 hover:shadow-sm transition text-center"
+                >
+                  <p className="font-bold text-sm text-ink">{item.name}</p>
+                  <p className="text-[10px] text-ink-muted mt-1">{item.cat}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
