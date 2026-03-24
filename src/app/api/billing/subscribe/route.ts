@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     const planDef = getSeatPlan(body.plan);
     if (planDef.price === 0) {
-      return NextResponse.json({ error: "Cannot subscribe to free plan" }, { status: 400 });
+      return NextResponse.json({ error: "Cannot subscribe to the free plan" }, { status: 400 });
     }
 
     // ── MercadoPago PreApproval ──────────────────────────────

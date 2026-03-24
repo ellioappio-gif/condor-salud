@@ -231,7 +231,7 @@ Services needed once you have 10+ paying clinics.
 | **Twilio**        | $0.005/msg + $0.05/conversation | Easier setup, higher cost               |
 | **Gupshup**       | ~$0.03/msg                      | Popular in LATAM                        |
 
-> **Recommendation:** Start with **Twilio** for ease of integration (~$50–100/mo for 1K conversations), migrate to Meta direct at scale.
+> **Recommendation:** Start with **Twilio** for ease of integration (~$50–100/mo for 1K conversations), migrate to the Meta direct API at scale.
 
 Link: [twilio.com/whatsapp](https://www.twilio.com/en-us/messaging/channels/whatsapp)
 
@@ -333,7 +333,7 @@ Each financiador has its own integration method:
 | **OSECAC**        | SOAP Webservice              | Prestador credential                    | $0   |
 | **Sancor Salud**  | REST API                     | Partnership agreement                   | $0   |
 
-> **All financiador APIs are free.** The cost is developer time to integrate each one (estimate 2–5 days per financiador).
+> **All financiador APIs are free.** The cost is developer time to integrate each one (estimated 2–5 days per financiador).
 
 ---
 

@@ -8,7 +8,7 @@ const certIcons = [Lock, Shield, Server, Eye, FileCheck, Globe];
 const staticTitles: Record<number, string> = {
   2: "SOC 2 Type II & ISO 27001",
   4: "HIPAA-ready",
-  5: "Data residency Argentina",
+  5: "Data Residency — Argentina",
 };
 
 export default function Security() {

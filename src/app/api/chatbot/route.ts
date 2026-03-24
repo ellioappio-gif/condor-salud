@@ -383,7 +383,7 @@ export async function POST(req: NextRequest) {
         role: "bot",
         timestamp: Date.now(),
         text: isEn
-          ? "Sorry, something went wrong processing your request. Could you try again?"
+          ? "Sorry, something went wrong while processing your request. Could you try again?"
           : "Disculpá, ocurrió un error procesando tu consulta. ¿Podrías intentar de nuevo?",
         quickReplies: isEn
           ? [

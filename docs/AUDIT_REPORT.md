@@ -20,7 +20,7 @@
 ### Top 3 Systemic Issues
 
 1. **9 of 11 API routes serving PHI have ZERO authentication** — any anonymous user can scrape all patient data
-2. **Client-side RBAC is trivially forgeable** — role stored in localStorage, no server verification
+2. **Client-side RBAC is trivially bypassable** — role stored in localStorage, no server verification
 3. **UI component library exists but is ~80% unused** — 30+ raw toggle buttons, raw selects, raw inputs bypass accessible components
 
 ---

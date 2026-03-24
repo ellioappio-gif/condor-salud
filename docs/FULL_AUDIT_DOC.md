@@ -52,7 +52,7 @@
 ### Dual-Portal Architecture
 
 1. **Provider Portal** (`/dashboard/*`) — For clinic staff (doctors, billing, reception, admin)
-2. **Patient Portal** (`/paciente/*`) — For patients (appointments, coverage, medications, teleconsulta)
+2. **Patient Portal** (`/paciente/*`) — For patients (appointments, coverage, medications, telemedicine)
 3. **Landing/Marketing** (`/`, `/planes`, `/privacidad`, `/terminos`) — Public-facing
 
 ### Demo Mode

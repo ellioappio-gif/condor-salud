@@ -210,11 +210,11 @@ Clinic-level module presets:
 
 ### Revenue Stream 2: Health Club Memberships (B2C)
 
-| Plan     | Monthly (ARS) | Monthly (USD) | Benefits                                                  |
-| -------- | ------------- | ------------- | --------------------------------------------------------- |
-| Básico   | $4,500        | $5            | 10% Rx discount, 1 teleconsulta/mo                        |
-| Plus     | $8,500        | $10           | 20% Rx discount, 3 teleconsultas, delivery, Cora priority |
-| Familiar | $14,000       | $18           | 30% Rx discount, 6 teleconsultas, delivery, Cora priority |
+| Plan     | Monthly (ARS) | Monthly (USD) | Benefits                                                      |
+| -------- | ------------- | ------------- | ------------------------------------------------------------- |
+| Básico   | $4,500        | $5            | 10% Rx discount, 1 teleconsultation/mo                        |
+| Plus     | $8,500        | $10           | 20% Rx discount, 3 teleconsultations, delivery, Cora priority |
+| Familiar | $14,000       | $18           | 30% Rx discount, 6 teleconsultations, delivery, Cora priority |
 
 Non-members pay $2,000 ARS per prescription request (50/50 split: doctor + Cóndor).
 
@@ -548,7 +548,7 @@ When a tourist gets sick in Buenos Aires, they have no idea where to find an Eng
 - 🤖 **AI health assistant (Cora)** — 24/7 symptom triage in English and Spanish, with local OTC medicine recommendations
 - 🩺 **Doctor matching** — Verified, English-speaking doctors sorted by proximity with real-time availability
 - 💊 **Prescription delivery** — Digital prescriptions with medication delivery via Rappi/PedidosYa
-- 📱 **Health coverage** — Club membership plans starting at $5 USD/month with prescription discounts and teleconsulta
+- 📱 **Health coverage** — Club membership plans starting at $5 USD/month with prescription discounts and teleconsultations
 - 📋 **Health tracking** — Digital health "bible" travelers can take home
 
 **Revenue model:**

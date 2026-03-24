@@ -484,7 +484,7 @@ export const dashboardTranslations: DashTranslation = {
   "inventory.min": { es: "Mín.", en: "Min." },
   "inventory.noResultsDesc": {
     es: "No se encontraron ítems con los filtros aplicados",
-    en: "No items found with the applied filters",
+    en: "No items found with the selected filters.",
   },
   "inventory.register": { es: "Registrar", en: "Register" },
   "inventory.completeFields": {
@@ -512,7 +512,7 @@ export const dashboardTranslations: DashTranslation = {
   "insurers.weightedAverage": { es: "Promedio ponderado", en: "Weighted average" },
   "insurers.noResults": {
     es: "No se encontraron financiadores con los filtros aplicados",
-    en: "No insurers found with the applied filters",
+    en: "No insurers found with the selected filters.",
   },
   "insurers.detailedComparison": { es: "Comparativo detallado", en: "Detailed comparison" },
   "insurers.collectionRate": { es: "% Cobro", en: "% Collected" },
@@ -598,7 +598,7 @@ export const dashboardTranslations: DashTranslation = {
   "reports.completed": { es: "Completado", en: "Completed" },
   "reports.noResults": {
     es: "No se encontraron reportes con los filtros aplicados",
-    en: "No reports found with the applied filters",
+    en: "No reports found with the selected filters.",
   },
   "reports.predefinedAndExport": {
     es: "Reportes predefinidos y herramientas de exportación",
@@ -806,7 +806,7 @@ export const dashboardTranslations: DashTranslation = {
   "inflation.insurer": { es: "Financiador", en: "Insurer" },
   "inflation.noResultsDesc": {
     es: "No se encontraron financiadores con los filtros aplicados",
-    en: "No insurers found with the applied filters",
+    en: "No insurers found with the selected filters.",
   },
   "inflation.3months": { es: "3 meses", en: "3 months" },
   "inflation.6months": { es: "6 meses", en: "6 months" },
@@ -843,7 +843,7 @@ export const dashboardTranslations: DashTranslation = {
   "nomenclator.service": { es: "Prestación", en: "Service" },
   "nomenclator.noResultsDesc": {
     es: "No se encontraron prestaciones con los filtros aplicados",
-    en: "No services found with the applied filters",
+    en: "No services found with the selected filters.",
   },
   "nomenclator.result": { es: "resultado", en: "result" },
   "nomenclator.results": { es: "resultados", en: "results" },
@@ -914,7 +914,7 @@ export const dashboardTranslations: DashTranslation = {
   },
   "referrals.noProfessionals": {
     es: "No se encontraron profesionales",
-    en: "No professionals found",
+    en: "No professionals found.",
   },
   "referrals.noReferrals": {
     es: "No hay interconsultas en esta categoría",
@@ -1499,7 +1499,7 @@ export const dashboardTranslations: DashTranslation = {
   "patient.addedToFavorites": { es: "agregado a favoritos", en: "added to favorites" },
   "patient.noResultsFiltered": {
     es: "No se encontraron profesionales con esos filtros",
-    en: "No professionals found with those filters",
+    en: "No professionals found with the selected filters.",
   },
   "patient.insuranceLabel": { es: "Obras sociales", en: "Insurance providers" },
   "patient.searchingNearby": {
@@ -1978,7 +1978,7 @@ export const dashboardTranslations: DashTranslation = {
   "error.notFoundTitle": { es: "Página no encontrada", en: "Page not found" },
   "error.notFoundDesc": {
     es: "La página que buscás no existe o fue movida. Verificá la URL o volvé al inicio.",
-    en: "The page you're looking for doesn't exist or was moved. Check the URL or go back to home.",
+    en: "The page you're looking for doesn't exist or was moved. Check the URL or go back to the home page.",
   },
 
   // ─── Accessibility / Aria ──────────────────────────────────
@@ -2058,7 +2058,7 @@ export const dashboardTranslations: DashTranslation = {
   "chatbot.sendButton": { es: "Enviar mensaje", en: "Send message" },
   "chatbot.disclaimer": {
     es: "Cora es una asistente virtual. No reemplaza el diagnóstico médico profesional.",
-    en: "Cora is a virtual assistant. It does not replace professional medical diagnosis.",
+    en: "Cora is a virtual assistant. She does not replace professional medical diagnosis.",
   },
   "chatbot.closeChat": { es: "Cerrar chat", en: "Close chat" },
   "chatbot.openAssistant": { es: "Abrir asistente virtual", en: "Open virtual assistant" },
@@ -2563,7 +2563,7 @@ export const dashboardTranslations: DashTranslation = {
   "patient.coverageLabel": { es: "Cobertura:", en: "Coverage:" },
   "patient.copay": { es: "Copago:", en: "Copay:" },
   "patient.renewPrescription": { es: "Renovar receta", en: "Renew prescription" },
-  "patient.noMedsFound": { es: "No se encontraron medicamentos", en: "No medications found" },
+  "patient.noMedsFound": { es: "No se encontraron medicamentos", en: "No medications found." },
   "patient.orderNumber": { es: "Pedido", en: "Order" },
   "patient.evaluateSymptoms": { es: "Evaluar síntomas", en: "Evaluate symptoms" },
   "patient.evaluateAgain": { es: "Evaluar de nuevo", en: "Evaluate again" },
@@ -2577,7 +2577,7 @@ export const dashboardTranslations: DashTranslation = {
   "patient.virtual": { es: "Virtual", en: "Virtual" },
   "patient.noResultsDoctor": {
     es: "No se encontraron profesionales con esos filtros",
-    en: "No professionals found with those filters",
+    en: "No professionals found with the selected filters.",
   },
   "patient.professionals": { es: "profesionales", en: "professionals" },
   "patient.searchByNameOrSpecialty": {
@@ -2792,7 +2792,7 @@ export const dashboardTranslations: DashTranslation = {
   "doctors.reviews": { es: "reseñas", en: "reviews" },
   "doctors.noResults": {
     es: "No se encontraron médicos con esos criterios",
-    en: "No doctors found with those criteria",
+    en: "No doctors found with the selected criteria.",
   },
   "doctors.viewProfile": { es: "Ver perfil", en: "View profile" },
   "doctors.bookAppointment": { es: "Solicitar turno", en: "Book appointment" },

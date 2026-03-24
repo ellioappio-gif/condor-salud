@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     if (action === "stats") {
       const categoryId = url.searchParams.get("categoryId");
       if (!categoryId) {
-        return NextResponse.json({ error: "categoryId required" }, { status: 400 });
+        return NextResponse.json({ error: "categoryId is required" }, { status: 400 });
       }
       const days = parseInt(url.searchParams.get("days") || "30");
       const stats = await getCategoryStats(patientId, categoryId, days);
@@ -85,7 +85,7 @@ export async function DELETE(req: NextRequest) {
     const itemId = url.searchParams.get("id");
 
     if (!itemId) {
-      return NextResponse.json({ error: "id required" }, { status: 400 });
+      return NextResponse.json({ error: "id is required" }, { status: 400 });
     }
 
     await deleteMeasurement(itemId, patientId);

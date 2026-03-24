@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const profileId = req.headers.get("x-profile-id") || body.profileId;
 
     if (!profileId) {
-      return NextResponse.json({ error: "profileId required" }, { status: 400 });
+      return NextResponse.json({ error: "profileId is required" }, { status: 400 });
     }
 
     const verification = await submitVerification({

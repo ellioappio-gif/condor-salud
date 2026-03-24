@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
       case "study": {
         const id = searchParams.get("id");
-        if (!id) return NextResponse.json({ error: "Missing study id" }, { status: 400 });
+        if (!id) return NextResponse.json({ error: "Missing study ID" }, { status: 400 });
         const study = await getNubixStudy(id);
         if (!study) return NextResponse.json({ error: "Study not found" }, { status: 404 });
         return NextResponse.json(study);

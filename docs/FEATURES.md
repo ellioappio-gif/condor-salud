@@ -208,7 +208,7 @@ A full-featured marketing site composed of 14 section components:
   - `sin_autorización` — Missing prior authorization
   - `datos_incompletos` — Incomplete data
   - `nomenclador_desactualizado` — Outdated nomenclator version
-- Reprocesamiento workflow (re-submit corrected claims)
+- Reprocesamiento workflow (resubmit corrected claims)
 - Rejection rate analytics
 
 #### Financiadores (`/dashboard/financiadores`)
@@ -285,7 +285,7 @@ A full-featured marketing site composed of 14 section components:
 #### Directorio Médico (`/dashboard/directorio`)
 
 - Doctor directory with 10+ professionals
-- Filters: specialty, location, financiador, teleconsulta-enabled
+- Filters: specialty, location, financiador, telemedicine-enabled
 - Doctor profiles: name, specialty, address, rating (1-5), review count
 - Patient reviews and ratings
 - Appointment booking links
@@ -466,7 +466,7 @@ For each of the 17 symptom intents, Cora provides:
 4. **Red flags** — when to go to the ER immediately
 5. **Home remedies** — what to do in the meantime
 6. **Doctor routing** — which specialist to see, in everyday language
-7. **Action cards** — book appointment, teleconsulta, or call 107
+7. **Action cards** — book appointment, teleconsultation, or call 107
 8. **Delivery options** — Rappi and PedidosYa cards for ordering OTC meds (non-emergency)
 
 ### Argentine OTC Medicine Database

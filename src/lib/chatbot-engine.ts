@@ -1274,7 +1274,7 @@ function generateCoverageResponse(
 function generateAppointmentResponse(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "Let's find you an appointment. Do you know what type of doctor you need, or would you rather tell me what's going on and I'll guide you? Don't worry if you're not sure — that's what I'm here for",
+      text: "Let's find you an appointment. Do you know what type of doctor you need, or would you rather tell me what's going on and I'll guide you? Don't worry if you're not sure — that's what I'm here for.",
       quickReplies: [
         { label: "General doctor", value: "Appointment with a general doctor" },
         { label: "Heart doctor", value: "Appointment with a cardiologist" },
@@ -1344,7 +1344,7 @@ function generateAppointmentBooking(specialty: string, lang?: string): Partial<C
 function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "With Cóndor Salud you can manage your medications:\n\n• Get over-the-counter meds delivered via Rappi or PedidosYa\n• Find on-duty pharmacies nearby\n• Tell me your symptoms and I'll suggest what you can buy at the pharmacy\n\nWhat do you need?",
+      text: "With Cóndor Salud, you can manage your medications:\n\n• Get over-the-counter meds delivered via Rappi or PedidosYa\n• Find on-duty pharmacies nearby\n• Tell me your symptoms and I'll suggest what you can buy at the pharmacy\n\nWhat do you need?",
       quickReplies: [
         { label: "What can I take?", value: "I'm not feeling well" },
         { label: "On-duty pharmacy", value: "Where is there an on-duty pharmacy?" },
@@ -1528,7 +1528,7 @@ function generateDeliveryResponse(
 function generateTelemedicineResponse(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "With telemedicine you can talk to a doctor by video call without leaving home:\n\n• General practitioner, psychologist, nutritionist, and more\n• Digital prescription sent instantly\n• Consultation summary via WhatsApp\n• Monday to Saturday, 8 AM to 10 PM\n\nIf your insurance covers it, it can be free. Otherwise, it’s $4,500.",
+      text: "With telemedicine, you can talk to a doctor by video call without leaving home:\n\n• General practitioner, psychologist, nutritionist, and more\n• Digital prescription sent instantly\n• Consultation summary via WhatsApp\n• Monday to Saturday, 8 AM to 10 PM\n\nIf your insurance covers it, it can be free. Otherwise, it’s $4,500.",
       quickReplies: [
         { label: "Talk to a doctor now", value: "I want to start a telemedicine consultation now" },
         {
@@ -1909,7 +1909,7 @@ function generateNearbyDoctorResponse(
   if (!coords) {
     if (en(lang)) {
       return {
-        text: "To find doctors near you I need your location. Click the location button below the chat to share it.",
+        text: "To find doctors near you, I need your location. Click the location button below the chat to share it.",
         quickReplies: [
           { label: "Search the directory", value: "I want to see the doctor directory" },
           { label: "Telemedicine now", value: "I want a telemedicine consultation" },
@@ -2008,7 +2008,7 @@ function generateNearbyPharmacyResponse(
   if (!coords) {
     if (en(lang)) {
       return {
-        text: "To find pharmacies near you I need your location. Click the location button below the chat to share it.",
+        text: "To find pharmacies near you, I need your location. Click the location button below the chat to share it.",
         quickReplies: [{ label: "Search on Google Maps", value: "Pharmacies on Google Maps" }],
       };
     }
@@ -2099,7 +2099,7 @@ function generateNearbyGuardiaResponse(
   if (!coords) {
     if (en(lang)) {
       return {
-        text: "To find the nearest emergency room I need your location. Click the location button below the chat.\n\nIf this is an emergency, call 107 (SAME) now.",
+        text: "To find the nearest emergency room, I need your location. Click the location button below the chat.\n\nIf this is an emergency, call 107 (SAME) now.",
         quickReplies: [{ label: "Call 107", value: "I need the emergency number" }],
         cards: [
           {
@@ -2207,7 +2207,7 @@ function generateDirectionsResponse(
   if (!coords) {
     if (en(lang)) {
       return {
-        text: "To give you directions I need your location. Click the location button below the chat.",
+        text: "To give you directions, I need your location. Click the location button below the chat.",
         quickReplies: [{ label: "Search on Google Maps", value: "Open Google Maps" }],
       };
     }
@@ -2389,7 +2389,7 @@ function generateSharedLocationResponse(
 function generateFallback(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "Sorry, I didn't quite catch that But don't worry, I'm here to help! Could you tell me in different words what's going on or what you need? Or if you prefer, pick one of these options:",
+      text: "Sorry, I didn't quite catch that. But don't worry, I'm here to help! Could you tell me in different words what's going on or what you need? Or if you prefer, pick one of these options:",
       quickReplies: [
         { label: "I'm not feeling well", value: "I'm not feeling well" },
         { label: "I need an appointment", value: "I want to book an appointment" },
@@ -2793,7 +2793,7 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
       id: "welcome",
       role: "bot",
       timestamp: Date.now(),
-      text: "Hi! I'm Cora, your virtual nurse at Cóndor Salud\n\nI'm here to listen and help you just like a nurse would in person. Take your time and tell me what's going on — no question is too small.\n\nI can help you:\n• Understand your symptoms and find the right doctor\n• Recommend over-the-counter medicine from the pharmacy\n• Find doctors, pharmacies & ERs near you ()\n• Get a ride to your appointment (Uber, Cabify & more)\n• Order meds to your door via Rappi or PedidosYa\n\nHow are you feeling today?",
+      text: "Hi! I'm Cora, your virtual nurse at Cóndor Salud\n\nI'm here to listen and help you just like a nurse would in person. Take your time and tell me what's going on — no question is too small.\n\nI can help you:\n• Understand your symptoms and find the right doctor\n• Recommend over-the-counter medicine from the pharmacy\n• Find doctors, pharmacies & ERs near you\n• Get a ride to your appointment (Uber, Cabify & more)\n• Order meds to your door via Rappi or PedidosYa\n\nHow are you feeling today?",
       quickReplies: [
         { label: "I'm not feeling well", value: "I'm not feeling well" },
         { label: "Book an appointment", value: "I want to book an appointment" },
@@ -2809,7 +2809,7 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
     id: "welcome",
     role: "bot",
     timestamp: Date.now(),
-    text: "¡Hola! Soy Cora, tu enfermera virtual de Cóndor Salud\n\nEstoy acá para escucharte y ayudarte como lo haría una enfermera en persona. Contame con tranquilidad qué te está pasando — no te apures, preguntame lo que necesites.\n\nPuedo ayudarte a:\n• Entender tus síntomas y orientarte al médico indicado\n• Recomendarte qué podés tomar de la farmacia\n• Buscar médicos, farmacias y guardias cerca tuyo ()\n• Pedir un viaje al consultorio (Uber, Cabify y más)\n• Pedir remedios a tu casa con Rappi o PedidosYa\n\n¿Cómo te sentís hoy?",
+    text: "¡Hola! Soy Cora, tu enfermera virtual de Cóndor Salud\n\nEstoy acá para escucharte y ayudarte como lo haría una enfermera en persona. Contame con tranquilidad qué te está pasando — no te apures, preguntame lo que necesites.\n\nPuedo ayudarte a:\n• Entender tus síntomas y orientarte al médico indicado\n• Recomendarte qué podés tomar de la farmacia\n• Buscar médicos, farmacias y guardias cerca tuyo\n• Pedir un viaje al consultorio (Uber, Cabify y más)\n• Pedir remedios a tu casa con Rappi o PedidosYa\n\n¿Cómo te sentís hoy?",
     quickReplies: [
       { label: "No me siento bien", value: "No me siento bien" },
       { label: "Necesito un turno", value: "Quiero sacar un turno" },

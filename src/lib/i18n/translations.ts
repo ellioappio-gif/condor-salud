@@ -67,7 +67,7 @@ const translations: Dict = {
   },
   "hero.mockAlert2": {
     es: "Recordatorios automáticos enviados: 23 turnos de mañana notificados",
-    en: "Auto-reminders sent: 23 tomorrow's appointments notified",
+    en: "Auto-reminders sent: 23 patients notified about tomorrow's appointments",
   },
   "hero.mockAlert3": {
     es: "Push: 47 pacientes recibieron confirmación de turno en tiempo real",
@@ -78,7 +78,7 @@ const translations: Dict = {
   "hero.mockPatientsChange": { es: "+12 vs ayer", en: "+12 vs yesterday" },
   "hero.mockAgenda": { es: "Agenda", en: "Schedule" },
   "hero.mockAgendaVal": { es: "94%", en: "94%" },
-  "hero.mockAgendaChange": { es: "3 slots libres", en: "3 slots free" },
+  "hero.mockAgendaChange": { es: "3 slots libres", en: "3 free slots" },
   "hero.mockAutoTitle": { es: "Automatizaciones activas", en: "Active automations" },
   "hero.mockAuto1": { es: "Cobro automático MercadoPago", en: "Auto MercadoPago payments" },
   "hero.mockAuto2": { es: "Push de confirmación de turno", en: "Booking confirmation push" },
@@ -163,7 +163,7 @@ const translations: Dict = {
   },
   "problem.titleEm": {
     es: "no se habla entre sí",
-    en: "doesn't talk to itself",
+    en: "doesn't communicate internally",
   },
   "problem.subtitle": {
     es: "Argentina tiene uno de los sistemas de salud más fragmentados del mundo. Público, obras sociales, prepagas y PAMI operan en silos separados. Tu clínica paga las consecuencias.",
@@ -913,7 +913,7 @@ const translations: Dict = {
   "hero.mockPatientsChange@provider": { es: "+12 vs ayer", en: "+12 vs yesterday" },
   "hero.mockAgenda@provider": { es: "Agenda", en: "Schedule" },
   "hero.mockAgendaVal@provider": { es: "94%", en: "94%" },
-  "hero.mockAgendaChange@provider": { es: "3 slots libres", en: "3 slots free" },
+  "hero.mockAgendaChange@provider": { es: "3 slots libres", en: "3 free slots" },
   "hero.mockRevenueTitle@provider": { es: "Meta mensual", en: "Monthly target" },
   "hero.mockRevenuePercent@provider": { es: "78%", en: "78%" },
   "hero.mockRevenueLabel@provider": {
@@ -1216,7 +1216,7 @@ const translations: Dict = {
   "partners.hero.ideal0": { es: "Agencias de viaje", en: "Travel agencies" },
   "partners.hero.ideal1": { es: "Aerolíneas", en: "Airlines" },
   "partners.hero.ideal2": { es: "OTAs & plataformas", en: "OTAs & platforms" },
-  "partners.hero.ideal3": { es: "DMCs & receptivos", en: "DMCs & receptives" },
+  "partners.hero.ideal3": { es: "DMCs & receptivos", en: "DMCs & receptive operators" },
   "partners.hero.ideal4": { es: "Aseguradoras", en: "Insurers" },
 
   "partners.stats.s0.num": { es: "USD 30", en: "USD 30" },
@@ -1494,7 +1494,7 @@ const translations: Dict = {
   "partners.form.type0": { es: "Agencia de viajes", en: "Travel agency" },
   "partners.form.type1": { es: "Aerolínea", en: "Airline" },
   "partners.form.type2": { es: "OTA / Plataforma online", en: "OTA / Online platform" },
-  "partners.form.type3": { es: "DMC / Receptivo", en: "DMC / Receptive" },
+  "partners.form.type3": { es: "DMC / Receptivo", en: "DMC / Receptive Operator" },
   "partners.form.type4": { es: "Otro", en: "Other" },
   "partners.form.volume": { es: "Viajeros mensuales", en: "Monthly travelers" },
   "partners.form.vol0": { es: "Menos de 50", en: "Less than 50" },
@@ -1786,7 +1786,7 @@ const translations: Dict = {
   "embassy.network.badge0": { es: "Credenciales verificadas", en: "Verified credentials" },
   "embassy.network.badge1": { es: "CUIT registrado", en: "CUIT registered" },
   "embassy.network.badge2": { es: "Datos encriptados (AES-256)", en: "Encrypted data (AES-256)" },
-  "embassy.network.badge3": { es: "Cumplimiento HIPAA-ready", en: "HIPAA-ready compliance" },
+  "embassy.network.badge3": { es: "Cumplimiento HIPAA-ready", en: "HIPAA-ready" },
 
   "embassy.endorsement.kicker": { es: "SOLICITUD DE AVAL", en: "ENDORSEMENT REQUEST" },
   "embassy.endorsement.title": { es: "Cómo la Embajada puede", en: "How the Embassy can" },
@@ -1827,7 +1827,7 @@ const translations: Dict = {
   "embassy.cta.contactTitle": { es: "Línea directa para la Embajada", en: "Direct Embassy line" },
   "embassy.cta.contactSub": {
     es: "Respuesta garantizada en 24 horas hábiles",
-    en: "Guaranteed response within 24 business hours",
+    en: "Guaranteed response within 24 hours",
   },
   "embassy.cta.cuit": {
     es: "CUIT: 20-XXXXXXXX-X · Empresa argentina registrada",

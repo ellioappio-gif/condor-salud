@@ -4,7 +4,7 @@
 //
 // Plans:
 //   Gratuito    — $0/mes, 20 turnos/mes, limited features
-//   Basic       — $50 USD/mes (~60,000 ARS), unlimited agenda, reminders, WhatsApp, insurance verify, priority listing
+//   Basic       — $50 USD/mes (~60,000 ARS), unlimited agenda, reminders, WhatsApp, insurance verification, priority listing
 //   Plus        — $120 USD/mes (~144,000 ARS), everything + telehealth, MercadoPago cobro, AI chatbot, analytics, e-billing
 //   Enterprise  — $180 USD/mes (~216,000 ARS), multi-location, custom integrations, SLA, dedicated CSM
 
