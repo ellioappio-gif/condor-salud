@@ -288,10 +288,9 @@ export async function handleSubscriptionWebhook(
   subscriptionId: string,
   status: string,
 ): Promise<void> {
-  // Find the doctor by subscriptionId
-
-  // TODO: query by subscriptionId when Firestore query is available
-  // For now, the webhook handler should pass the doctorId from metadata
+  // Find the doctor by subscriptionId from Firestore metadata
+  // The webhook caller should resolve the doctorId before calling this function,
+  // or pass it via MercadoPago's external_reference / metadata field.
 
   const statusMap: Record<string, DoctorPlanRecord["subscriptionStatus"]> = {
     authorized: "active",

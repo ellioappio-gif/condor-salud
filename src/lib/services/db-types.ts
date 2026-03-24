@@ -12,7 +12,7 @@ export type SupabaseClient = BaseClient;
  * Generic DB row — use for mapper functions instead of `any`.
  * Kept as Record<string, any> because Supabase returns untyped rows
  * when generated types (supabase gen types) are not available.
- * TODO: Replace with Database["public"]["Tables"][T]["Row"] once
- * generated types are added to the project.
+ * When Supabase CLI is connected, run `npx supabase gen types typescript`
+ * and replace this with Database["public"]["Tables"][T]["Row"].
  */
 export type DBRow = Record<string, any>; // single centralized any
