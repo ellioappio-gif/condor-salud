@@ -92,7 +92,7 @@ Argentina's healthcare billing system is uniquely painful:
 
 ### One Platform, Three Audiences
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                   CÓNDOR SALUD                      │
 ├──────────────┬──────────────┬───────────────────────┤
@@ -563,7 +563,7 @@ Would you be open to a 20-minute call to explore a pilot program with your Argen
 
 Best regards,
 [Your Name]
-Cóndor Salud · partnerships@condorsalud.com
+Cóndor Salud · [partnerships@condorsalud.com](mailto:partnerships@condorsalud.com)
 
 ---
 
@@ -668,7 +668,7 @@ A: Supabase Auth handles provider (B2B) authentication with RBAC. Patient auth u
 
 ## 16. TEAM TALKING POINTS
 
-_(Customize with your actual team bios)_
+<!-- Customize with your actual team bios -->
 
 - **Deep Argentine healthcare domain knowledge** — Understanding of PAMI, AFIP, obras sociales, and the specific pain points of Argentine clinics
 - **Full-stack technical execution** — Live product with 45,000+ lines of production TypeScript, 24 modules, 14 integrations, enterprise-grade infrastructure (Sentry, structured logging, RBAC, RLS)
@@ -708,4 +708,4 @@ _(Customize with your actual team bios)_
 
 ---
 
-_Built with 🦅 by Cóndor Salud · condorsalud.com_
+Built with 🦅 by Cóndor Salud · condorsalud.com

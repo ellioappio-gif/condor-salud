@@ -1085,7 +1085,7 @@ export default function PartnersPage() {
                 {WHY_ICONS.map((Icon, i) => (
                   <div
                     key={i}
-                    className="border-l-[3px] border-celeste bg-white border border-border rounded-lg p-5 hover:shadow-sm transition"
+                    className="bg-white border border-border border-l-[3px] border-l-celeste rounded-lg p-5 hover:shadow-sm transition"
                   >
                     <div className="flex items-center gap-2.5 mb-2">
                       <div className="w-7 h-7 rounded-lg bg-celeste-pale flex items-center justify-center shrink-0">

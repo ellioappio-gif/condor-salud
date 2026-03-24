@@ -93,7 +93,7 @@ fontFamily: {
 
 ### Wordmark (text-only, used everywhere)
 
-```
+```text
 CÓNDOR     <- Georgia, bold, celeste-dark (#4A7FAF), tracking-wide
 S A L U D  <- System UI, bold, gold (#F6B40E), tracking-[0.25em], smaller
 ```
@@ -233,7 +233,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 
 ### Marketing Pages (/)
 
-```
+```text
 [Flag Stripe — 4px, sticky top]
 [Navbar — sticky below flag, white bg, border-bottom]
 [Content sections — max-w-4xl centered]
@@ -242,7 +242,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 
 ### Dashboard Pages (/dashboard/\*)
 
-```
+```text
 [Sidebar — w-60, bg-ink, fixed left]
   [Brand mark + wordmark]
   [Nav items with icons]
@@ -298,7 +298,7 @@ Use Tailwind's default spacing scale. Key values:
 
 ### File Structure
 
-```
+```text
 src/
 ├── app/
 │   ├── layout.tsx                 # Root layout (metadata, fonts, body)
@@ -504,4 +504,4 @@ export default config;
 
 ---
 
-_CÓNDOR SALUD · Brand Kit v1.0 · March 2026 · Confidencial_
+CÓNDOR SALUD · Brand Kit v1.0 · March 2026 · Confidencial
