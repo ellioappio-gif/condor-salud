@@ -362,7 +362,7 @@ interface Clinic {
   id: string;
   name: string;
   cuit: string;
-  planTier: "starter" | "growth" | "scale" | "enterprise";
+  planTier: "basic" | "plus" | "enterprise";
 }
 
 type FinanciadorType = "os" | "prepaga" | "pami";
@@ -424,21 +424,19 @@ Use these exact terms in UI, never anglicize:
 
 ---
 
-## 11. PRICING (always display in ARS)
+## 11. PRICING (USD)
 
-| Tier       | Monthly Price    | Display Format                                       |
-| ---------- | ---------------- | ---------------------------------------------------- |
-| Starter    | $70.000 ARS/mes  | Use period as thousands separator (Argentine format) |
-| Growth     | $210.000 ARS/mes | Featured tier (celeste border + celeste-pale bg)     |
-| Scale      | $560.000 ARS/mes |                                                      |
-| Enterprise | A convenir       | "contrato anual"                                     |
+| Tier       | Monthly Price | Display Format                                   |
+| ---------- | ------------- | ------------------------------------------------ |
+| Basic      | $50 USD/mo    | Primary B2B plan for small clinics               |
+| Plus       | $120 USD/mo   | Featured tier (celeste border + celeste-pale bg) |
+| Enterprise | $180 USD/mo   | Multi-location, dedicated support, API access    |
 
 **Rules:**
 
-- Always show prices in Argentine pesos
-- Use period as thousands separator ($70.000 not $70,000)
-- Always note "ajuste mensual IPC" (monthly inflation adjustment)
-- Never show USD prices to end users (only in investor materials)
+- Display prices in USD
+- Always note "14-day free trial, no credit card required"
+- Use period as thousands separator for ARS equivalents ($60.000 not $60,000)
 
 ---
 

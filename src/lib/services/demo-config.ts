@@ -19,8 +19,8 @@ export interface DemoConfig {
     annualToggle: boolean;
     freeClinicBanner: boolean;
     showCalculator: boolean;
-    seats: { free: number; profesional: number; premium: number };
-    clinic: { esencial: number; profesional: number; enterprise: number };
+    seats: { free: number; basic: number; plus: number; enterprise: number };
+    clinic: { basic: number; plus: number; enterprise: number };
   };
   branding: {
     appName: string;
@@ -58,18 +58,19 @@ export const DEMO_DEFAULTS: DemoConfig = {
   },
   showPlans: {
     free: true,
-    profesional: true,
-    premium: true,
+    basic: true,
+    plus: true,
+    enterprise: true,
   },
   pricing: {
     model: "seat",
-    currency: "ARS",
+    currency: "USD",
     ipcAdjustment: true,
     annualToggle: true,
     freeClinicBanner: true,
     showCalculator: true,
-    seats: { free: 0, profesional: 29_000, premium: 59_000 },
-    clinic: { esencial: 50_000, profesional: 111_350, enterprise: 159_750 },
+    seats: { free: 0, basic: 60_000, plus: 144_000, enterprise: 216_000 },
+    clinic: { basic: 60_000, plus: 144_000, enterprise: 216_000 },
   },
   branding: {
     appName: "Cóndor Salud",

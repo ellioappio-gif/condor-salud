@@ -172,39 +172,43 @@ input:checked + .slider::before { transform: translateX(18px); }
         <div class="model-card" id="model-clinic" onclick="selectModel('clinic')">
           <span class="model-check">✓</span>
           <h4>Por clínica</h4>
-          <p>La clínica paga un plan completo. Esencial / Profesional / Enterprise.</p>
+          <p>La clínica paga un plan completo. Basic / Plus / Enterprise.</p>
         </div>
       </div>
 
-      <div class="section-title" style="margin-top:24px;margin-bottom:8px">Precios — Modelo Seat (por médico/mes)</div>
+      <div class="section-title" style="margin-top:24px;margin-bottom:8px">Precios — Modelo Seat (por médico/mes, USD)</div>
       <div class="price-grid" id="pricesSeat">
         <div class="price-field">
-          <label>Gratuito</label>
+          <label>Free</label>
           <div class="price-input-wrap"><span>$</span><input type="number" id="price-free" value="0" readonly style="background:#f5f5f5;color:#aaa"></div>
         </div>
         <div class="price-field">
-          <label>Profesional</label>
-          <div class="price-input-wrap"><span>$</span><input type="number" id="price-prof" value="29000"></div>
+          <label>Basic</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-prof" value="50"></div>
         </div>
         <div class="price-field">
-          <label>Premium</label>
-          <div class="price-input-wrap"><span>$</span><input type="number" id="price-prem" value="59000"></div>
-        </div>
-      </div>
-
-      <div class="section-title" style="margin-top:24px;margin-bottom:8px">Precios — Modelo Clínica (por clínica/mes)</div>
-      <div class="price-grid" id="pricesClinic">
-        <div class="price-field">
-          <label>Esencial</label>
-          <div class="price-input-wrap"><span>$</span><input type="number" id="price-esencial" value="50000"></div>
-        </div>
-        <div class="price-field">
-          <label>Profesional</label>
-          <div class="price-input-wrap"><span>$</span><input type="number" id="price-clinprof" value="111350"></div>
+          <label>Plus</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-prem" value="120"></div>
         </div>
         <div class="price-field">
           <label>Enterprise</label>
-          <div class="price-input-wrap"><span>$</span><input type="number" id="price-enterprise" value="159750"></div>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-ent" value="180"></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;margin-bottom:8px">Precios — Modelo Clínica (por clínica/mes, USD)</div>
+      <div class="price-grid" id="pricesClinic">
+        <div class="price-field">
+          <label>Basic</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-basic" value="50"></div>
+        </div>
+        <div class="price-field">
+          <label>Plus</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-clinplus" value="120"></div>
+        </div>
+        <div class="price-field">
+          <label>Enterprise</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-enterprise" value="180"></div>
         </div>
       </div>
 
@@ -350,11 +354,12 @@ function applyConfigToUI() {
   updateStatusBanner(active);
   selectModel((CONFIG.pricing && CONFIG.pricing.model) || 'seat', false);
 
-  document.getElementById('price-prof').value       = (CONFIG.pricing && CONFIG.pricing.seats && CONFIG.pricing.seats.profesional)    || 29000;
-  document.getElementById('price-prem').value       = (CONFIG.pricing && CONFIG.pricing.seats && CONFIG.pricing.seats.premium)         || 59000;
-  document.getElementById('price-esencial').value   = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.esencial)       || 50000;
-  document.getElementById('price-clinprof').value   = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.profesional)    || 111350;
-  document.getElementById('price-enterprise').value = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.enterprise)     || 159750;
+  document.getElementById('price-prof').value       = (CONFIG.pricing && CONFIG.pricing.seats && CONFIG.pricing.seats.basic)         || 50;
+  document.getElementById('price-prem').value       = (CONFIG.pricing && CONFIG.pricing.seats && CONFIG.pricing.seats.plus)          || 120;
+  document.getElementById('price-ent').value        = (CONFIG.pricing && CONFIG.pricing.seats && CONFIG.pricing.seats.enterprise)    || 180;
+  document.getElementById('price-basic').value      = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.basic)       || 50;
+  document.getElementById('price-clinplus').value   = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.plus)        || 120;
+  document.getElementById('price-enterprise').value = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.enterprise)  || 180;
 
   document.getElementById('toggle-ipc').checked        = !(CONFIG.pricing && CONFIG.pricing.ipcAdjustment === false);
   document.getElementById('toggle-annual').checked     = !(CONFIG.pricing && CONFIG.pricing.annualToggle === false);
@@ -381,9 +386,10 @@ function saveConfig() {
     pricingModel: document.getElementById('model-seat').classList.contains('selected') ? 'seat' : 'clinic',
     showPages: {},
     showPlans: {
-      free:        document.getElementById('plan-free') ? document.getElementById('plan-free').checked : true,
-      profesional: document.getElementById('plan-prof') ? document.getElementById('plan-prof').checked : true,
-      premium:     document.getElementById('plan-prem') ? document.getElementById('plan-prem').checked : true,
+      free:       document.getElementById('plan-free') ? document.getElementById('plan-free').checked : true,
+      basic:      document.getElementById('plan-basic') ? document.getElementById('plan-basic').checked : true,
+      plus:       document.getElementById('plan-plus') ? document.getElementById('plan-plus').checked : true,
+      enterprise: document.getElementById('plan-ent') ? document.getElementById('plan-ent').checked : true,
     },
     pricing: {
       model:            document.getElementById('model-seat').classList.contains('selected') ? 'seat' : 'clinic',
@@ -392,14 +398,15 @@ function saveConfig() {
       freeClinicBanner: document.getElementById('toggle-freebanner').checked,
       showCalculator:   document.getElementById('toggle-calc').checked,
       seats: {
-        free:        0,
-        profesional: parseInt(document.getElementById('price-prof').value) || 29000,
-        premium:     parseInt(document.getElementById('price-prem').value) || 59000,
+        free:       0,
+        basic:      parseInt(document.getElementById('price-prof').value) || 50,
+        plus:       parseInt(document.getElementById('price-prem').value) || 120,
+        enterprise: parseInt(document.getElementById('price-ent').value) || 180,
       },
       clinic: {
-        esencial:    parseInt(document.getElementById('price-esencial').value) || 50000,
-        profesional: parseInt(document.getElementById('price-clinprof').value) || 111350,
-        enterprise:  parseInt(document.getElementById('price-enterprise').value) || 159750,
+        basic:      parseInt(document.getElementById('price-basic').value) || 50,
+        plus:       parseInt(document.getElementById('price-clinplus').value) || 120,
+        enterprise: parseInt(document.getElementById('price-enterprise').value) || 180,
       },
     },
     branding: {

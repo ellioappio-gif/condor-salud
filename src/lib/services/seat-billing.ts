@@ -3,15 +3,16 @@
 // Each doctor pays for their own plan via MercadoPago PreApproval.
 //
 // Plans:
-//   Gratuito   — $0/mes, 20 turnos/mes, limited features
-//   Profesional — $29,000 ARS/mes, unlimited agenda, reminders, WhatsApp, insurance verify, priority listing
-//   Premium    — $59,000 ARS/mes, everything + telehealth, MercadoPago cobro, AI chatbot, analytics, e-billing
+//   Gratuito    — $0/mes, 20 turnos/mes, limited features
+//   Basic       — $50 USD/mes (~60,000 ARS), unlimited agenda, reminders, WhatsApp, insurance verify, priority listing
+//   Plus        — $120 USD/mes (~144,000 ARS), everything + telehealth, MercadoPago cobro, AI chatbot, analytics, e-billing
+//   Enterprise  — $180 USD/mes (~216,000 ARS), multi-location, custom integrations, SLA, dedicated CSM
 
 import { createDoc, getDoc, updateDoc } from "@/lib/services/firestore";
 
 // ─── Plan Definitions ────────────────────────────────────────
 
-export type SeatPlanId = "free" | "profesional" | "premium";
+export type SeatPlanId = "free" | "basic" | "plus" | "enterprise";
 
 export interface SeatPlanDef {
   id: SeatPlanId;
@@ -52,11 +53,11 @@ export const SEAT_PLANS: SeatPlanDef[] = [
     },
   },
   {
-    id: "profesional",
-    name: "Profesional",
-    nameEn: "Professional",
-    price: 29_000,
-    priceAnnual: 24_650, // ~15% discount
+    id: "basic",
+    name: "Basic",
+    nameEn: "Basic",
+    price: 60_000, // ~$50 USD/mo
+    priceAnnual: 51_000,
     maxBookingsPerMonth: null,
     trialDays: 14,
     features: {
@@ -78,11 +79,36 @@ export const SEAT_PLANS: SeatPlanDef[] = [
     },
   },
   {
-    id: "premium",
-    name: "Premium",
-    nameEn: "Premium",
-    price: 59_000,
-    priceAnnual: 50_150, // ~15% discount
+    id: "plus",
+    name: "Plus",
+    nameEn: "Plus",
+    price: 144_000, // ~$120 USD/mo
+    priceAnnual: 122_400,
+    maxBookingsPerMonth: null,
+    trialDays: 14,
+    features: {
+      agenda: true,
+      basicProfile: true,
+      searchListing: true,
+      patientManagement: true,
+      reminders: true,
+      whatsappReminders: true,
+      insuranceVerify: true,
+      priorityListing: true,
+      telehealth: true,
+      mercadopagoCobro: true,
+      aiChatbot: true,
+      analytics: true,
+      eBilling: true,
+      customBranding: false,
+    },
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    nameEn: "Enterprise",
+    price: 216_000, // ~$180 USD/mo
+    priceAnnual: 183_600,
     maxBookingsPerMonth: null,
     trialDays: 14,
     features: {

@@ -616,34 +616,29 @@ export default function InvestorPage() {
           <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-left">
               <thead>
-                <TR header cells={["Plan", "ARS/mo", "~USD/mo", "Features"]} />
+                <TR header cells={["Plan", "USD/mo", "Features"]} />
               </thead>
               <tbody>
+                <TR cells={["Free", "$0", "20 appts, directory listing, basic patients"]} />
                 <TR
-                  cells={["Gratuito", "$0", "$0", "20 appts, directory listing, basic patients"]}
+                  cells={["Basic", "$50", "Unlimited scheduling, WhatsApp, coverage verification"]}
+                />
+                <TR
+                  cells={["Plus", "$120", "Everything + telemedicine, billing, AI Cora, analytics"]}
                 />
                 <TR
                   cells={[
-                    "Profesional",
-                    "$29,000",
-                    "~$25",
-                    "Unlimited scheduling, WhatsApp, coverage verification",
-                  ]}
-                />
-                <TR
-                  cells={[
-                    "Premium",
-                    "$59,000",
-                    "~$50",
-                    "Everything + telemedicine, billing, AI Cora, analytics",
+                    "Enterprise",
+                    "$180",
+                    "All-inclusive, multi-location, dedicated support, API access",
                   ]}
                 />
               </tbody>
             </table>
           </div>
           <p className="text-xs text-ink-muted mt-2">
-            Clinic-level module pricing: 24 modules at $5K–$18K/mo each. Presets: Esencial ($53K),
-            Profesional ($115K, -15%), Enterprise ($180K, -25%).
+            Clinic-level module pricing: 24 modules. Presets: Basic ($50 USD/mo), Plus ($120 USD/mo,
+            -15%), Enterprise ($180 USD/mo, -25%).
           </p>
         </div>
 
@@ -713,10 +708,10 @@ export default function InvestorPage() {
           <h3 className="font-display text-lg font-bold mb-4">Target Unit Economics</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {[
-              ["ARPU", "$35–50 USD/mo"],
+              ["ARPU", "$50–120 USD/mo"],
               ["CAC", "$50–100 USD"],
-              ["LTV", "$1,200–2,400 USD"],
-              ["LTV:CAC", "12–24×"],
+              ["LTV", "$2,400–5,760 USD"],
+              ["LTV:CAC", "24–58×"],
               ["Gross Margin", "80–85%"],
               ["Payback", "1–3 months"],
             ].map(([k, v]) => (

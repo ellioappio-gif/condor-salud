@@ -2,7 +2,7 @@
 // Shared TypeScript types for Cóndor Salud.
 // See BRANDKIT.md §10 for terminology reference.
 
-export type PlanTier = "starter" | "growth" | "scale" | "enterprise";
+export type PlanTier = "basic" | "plus" | "enterprise";
 export type FinanciadorType = "os" | "prepaga" | "pami";
 export type FacturaEstado = "presentada" | "cobrada" | "rechazada" | "pendiente" | "en_observacion";
 export type RechazoMotivo =

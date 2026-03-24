@@ -13,7 +13,7 @@ describe("onboarding service (no Supabase)", () => {
         email: "admin@clinica.com",
         doctorNombre: "Dr. García",
         doctorMatricula: "MN 12345",
-        planTier: "starter",
+        planTier: "basic",
       });
       // Without Supabase env vars, we expect an error
       expect(result.success).toBe(false);
@@ -25,7 +25,7 @@ describe("onboarding service (no Supabase)", () => {
         nombre: "Test",
         doctorNombre: "Dra. López",
         doctorMatricula: "MP 98765",
-        planTier: "growth",
+        planTier: "plus",
       });
       expect(result.success).toBe(false);
     });
@@ -41,7 +41,7 @@ describe("onboarding service (no Supabase)", () => {
         doctorNombre: "Dr. Martínez",
         doctorMatricula: "MN 54321",
         doctorEspecialidad: "Cardiología",
-        planTier: "scale",
+        planTier: "enterprise",
       });
       // Still fails without Supabase — but validates the types compile
       expect(result.success).toBe(false);

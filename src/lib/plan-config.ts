@@ -50,7 +50,7 @@ export interface CategoryDef {
   modules: ModuleId[];
 }
 
-export type PresetId = "esencial" | "profesional" | "enterprise";
+export type PresetId = "basic" | "plus" | "enterprise";
 
 export interface PresetDef {
   id: PresetId;
@@ -58,6 +58,7 @@ export interface PresetDef {
   tagline: string;
   modules: ModuleId[];
   discount: number; // 0-1 fraction
+  priceUsd: number; // Display price in USD/mo
   popular?: boolean;
   annual?: boolean;
 }
@@ -334,15 +335,16 @@ export const CATEGORIES: CategoryDef[] = [
 
 export const PRESETS: PresetDef[] = [
   {
-    id: "esencial",
-    name: "Esencial",
+    id: "basic",
+    name: "Basic",
     tagline: "Para empezar",
     modules: ["pacientes", "agenda", "verificacion", "facturacion", "alertas", "wizard"],
     discount: 0,
+    priceUsd: 50,
   },
   {
-    id: "profesional",
-    name: "Profesional",
+    id: "plus",
+    name: "Plus",
     tagline: "Gestión completa con inteligencia financiera",
     modules: [
       "pacientes",
@@ -363,6 +365,7 @@ export const PRESETS: PresetDef[] = [
       "verificacion-medica",
     ],
     discount: 0.15,
+    priceUsd: 120,
     popular: true,
   },
   {
@@ -397,6 +400,7 @@ export const PRESETS: PresetDef[] = [
       "verificacion-medica",
     ],
     discount: 0.25,
+    priceUsd: 180,
     annual: true,
   },
 ];
@@ -484,7 +488,7 @@ export function formatARS(amount: number): string {
 // Per-doctor plans for the seat billing model.
 // Coexists with the clinic module system above.
 
-export type SeatPlanId = "free" | "profesional" | "premium";
+export type SeatPlanId = "free" | "basic" | "plus" | "enterprise";
 
 export interface SeatPlanDef {
   id: SeatPlanId;
@@ -511,13 +515,13 @@ export const SEAT_PLANS: SeatPlanDef[] = [
     featuresEn: ["20 appointments per month", "Directory listing", "Basic patient management"],
   },
   {
-    id: "profesional",
-    name: "Profesional",
-    nameEn: "Professional",
-    tagline: "Gestión completa",
-    taglineEn: "Complete management",
-    price: 29_000,
-    priceAnnual: 24_650,
+    id: "basic",
+    name: "Basic",
+    nameEn: "Basic",
+    tagline: "$50 USD/mes",
+    taglineEn: "$50 USD/mo",
+    price: 60_000,
+    priceAnnual: 51_000,
     features: [
       "Agenda ilimitada",
       "Recordatorios por WhatsApp",
@@ -534,15 +538,15 @@ export const SEAT_PLANS: SeatPlanDef[] = [
     ],
   },
   {
-    id: "premium",
-    name: "Premium",
-    nameEn: "Premium",
-    tagline: "Todo incluido",
-    taglineEn: "All inclusive",
-    price: 59_000,
-    priceAnnual: 50_150,
+    id: "plus",
+    name: "Plus",
+    nameEn: "Plus",
+    tagline: "$120 USD/mes",
+    taglineEn: "$120 USD/mo",
+    price: 144_000,
+    priceAnnual: 122_400,
     features: [
-      "Todo de Profesional",
+      "Todo de Basic",
       "Teleconsulta integrada",
       "Cobro online MercadoPago",
       "Chatbot IA Cora",
@@ -550,12 +554,37 @@ export const SEAT_PLANS: SeatPlanDef[] = [
       "Facturación electrónica",
     ],
     featuresEn: [
-      "Everything in Professional",
+      "Everything in Basic",
       "Integrated telehealth",
       "Online MercadoPago billing",
       "AI Chatbot Cora",
       "Advanced analytics",
       "Electronic invoicing",
+    ],
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    nameEn: "Enterprise",
+    tagline: "$180 USD/mes",
+    taglineEn: "$180 USD/mo",
+    price: 216_000,
+    priceAnnual: 183_600,
+    features: [
+      "Todo de Plus",
+      "Multi-sucursal consolidado",
+      "Integraciones a medida",
+      "SLA garantizado",
+      "Customer Success dedicado",
+      "API enterprise",
+    ],
+    featuresEn: [
+      "Everything in Plus",
+      "Multi-location consolidated",
+      "Custom integrations",
+      "Guaranteed SLA",
+      "Dedicated Customer Success",
+      "Enterprise API",
     ],
   },
 ];

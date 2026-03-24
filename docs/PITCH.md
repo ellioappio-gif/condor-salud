@@ -193,19 +193,20 @@ Argentina's healthcare billing system is uniquely painful:
 
 Per-doctor seat pricing:
 
-| Plan            | Price/mo (ARS) | Price/mo (USD) | Target                                                                            |
-| --------------- | -------------- | -------------- | --------------------------------------------------------------------------------- |
-| **Gratuito**    | $0             | $0             | 20 appointments/mo, directory listing, basic patients — lead gen                  |
-| **Profesional** | $29,000        | ~$25           | Unlimited scheduling, WhatsApp reminders, coverage verification, priority listing |
-| **Premium**     | $59,000        | ~$50           | Everything + telemedicine, MercadoPago billing, AI Cora, e-invoicing, analytics   |
+| Plan           | Price/mo (USD) | Target                                                                            |
+| -------------- | -------------- | --------------------------------------------------------------------------------- |
+| **Free**       | $0             | 20 appointments/mo, directory listing, basic patients — lead gen                  |
+| **Basic**      | $50            | Unlimited scheduling, WhatsApp reminders, coverage verification, priority listing |
+| **Plus**       | $120           | Everything + telemedicine, MercadoPago billing, AI Cora, e-invoicing, analytics   |
+| **Enterprise** | $180           | All-inclusive, multi-location, dedicated support, API access                      |
 
-Clinic-level module pricing (24 modules, $5,000–$18,000/mo each):
+Clinic-level module presets:
 
-| Preset      | Modules  | Monthly (ARS)   | Monthly (USD) |
-| ----------- | -------- | --------------- | ------------- |
-| Esencial    | 6 core   | $53,000         | ~$45          |
-| Profesional | 16       | $115,000 (-15%) | ~$98          |
-| Enterprise  | 24 (all) | $180,000 (-25%) | ~$152         |
+| Preset     | Modules  | Monthly (USD) |
+| ---------- | -------- | ------------- |
+| Basic      | 6 core   | $50           |
+| Plus       | 16       | $120 (-15%)   |
+| Enterprise | 24 (all) | $180 (-25%)   |
 
 ### Revenue Stream 2: Health Club Memberships (B2C)
 
@@ -401,7 +402,7 @@ Use these as slide titles + speaker notes. Design in Cóndor brand (celeste + go
 
 ### Slide 6 — Business Model
 
-> 4 revenue streams: SaaS seats ($25–50/doctor/mo), Health Club memberships ($5–18/patient/mo), transaction fees, travel partnerships.
+> 4 revenue streams: SaaS seats ($50–180/doctor/mo), Health Club memberships ($5–18/patient/mo), transaction fees, travel partnerships.
 > _[Revenue waterfall graphic]_
 
 ### Slide 7 — Traction

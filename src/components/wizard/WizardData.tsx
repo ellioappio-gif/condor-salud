@@ -75,18 +75,18 @@ export interface ClinicPlanOption {
 
 export const CLINIC_PLAN_OPTIONS: ClinicPlanOption[] = [
   {
-    id: "starter",
-    name: "Starter",
-    price: "$70.000",
-    priceNum: 70_000,
+    id: "basic",
+    name: "Basic",
+    price: "$50 USD",
+    priceNum: 60_000,
     description: "Para consultorios individuales o clínicas pequeñas.",
     features: ["Hasta 5 profesionales", "Agenda de turnos", "Gestión de pacientes", "1 sede"],
   },
   {
-    id: "growth",
-    name: "Growth",
-    price: "$210.000",
-    priceNum: 210_000,
+    id: "plus",
+    name: "Plus",
+    price: "$120 USD",
+    priceNum: 144_000,
     description: "Para clínicas en crecimiento con múltiples especialidades.",
     features: [
       "Hasta 20 profesionales",
@@ -94,36 +94,23 @@ export const CLINIC_PLAN_OPTIONS: ClinicPlanOption[] = [
       "Verificación de cobertura",
       "Hasta 3 sedes",
       "Reportes avanzados",
+      "Telemedicina integrada",
     ],
     highlighted: true,
   },
   {
-    id: "scale",
-    name: "Scale",
-    price: "$560.000",
-    priceNum: 560_000,
-    description: "Para centros médicos grandes y policlínicos.",
-    features: [
-      "Profesionales ilimitados",
-      "Telemedicina integrada",
-      "AI Chatbot para pacientes",
-      "Sedes ilimitadas",
-      "Analítica avanzada",
-      "Soporte prioritario",
-    ],
-  },
-  {
     id: "enterprise",
     name: "Enterprise",
-    price: "A convenir",
-    priceNum: 0,
-    description: "Contrato anual personalizado para redes de salud.",
+    price: "$180 USD",
+    priceNum: 216_000,
+    description: "Para centros médicos grandes y policlínicos.",
     features: [
-      "Todo lo de Scale",
+      "Todo de Plus",
       "Multi-sucursal consolidado",
       "Integraciones a medida",
       "SLA garantizado",
       "Customer Success dedicado",
+      "API enterprise",
     ],
   },
 ];
@@ -312,7 +299,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
         doctorEspecialidad: formData.doctorEspecialidad || undefined,
         especialidades: formData.especialidades.length ? formData.especialidades : undefined,
         financiadores: formData.financiadores.length ? formData.financiadores : undefined,
-        planTier: (formData.planTier as "starter" | "growth" | "scale" | "enterprise") || "starter",
+        planTier: (formData.planTier as "basic" | "plus" | "enterprise") || "basic",
       });
 
       if (!result.success) {

@@ -270,7 +270,7 @@ function PlanesContent() {
   const summaryRef = useRef<HTMLDivElement>(null);
   const [mobileBar, setMobileBar] = useState(false);
 
-  // Auto-select tier from URL query param (?tier=esencial|profesional|enterprise)
+  // Auto-select tier from URL query param (?tier=basic|plus|enterprise)
   const urlTier = searchParams.get("tier") as PresetId | null;
   useEffect(() => {
     if (urlTier && PRESETS.find((p) => p.id === urlTier)) {
