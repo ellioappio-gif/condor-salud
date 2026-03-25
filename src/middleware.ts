@@ -97,9 +97,9 @@ function buildCspHeader(_nonce: string): string {
 }
 
 // ─── Middleware ───────────────────────────────────────────────
-// MEDICAL INDUSTRY: Authentication and verification are mandatory in production.
-// Dashboard requires: 1) Auth 2) Email verified 3) Onboarding complete.
-// In development: dashboard is accessible without login for demo/testing.
+// Dashboard is currently in DEMO MODE — publicly accessible with synthetic data.
+// When real clinics onboard, re-enable the 3 Supabase auth gates:
+// 1) Authentication  2) Email verified  3) Onboarding complete
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -126,8 +126,10 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // ── Development / Demo mode: skip auth for dashboard ─────
-  if (process.env.NODE_ENV !== "production") {
+  // ── Demo mode: dashboard is publicly accessible ──────────
+  // The dashboard runs in demo mode with synthetic data.
+  // When real clinics onboard, re-enable the Supabase auth gates below.
+  if (pathname.startsWith("/dashboard")) {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
     response.headers.set("Content-Security-Policy", cspHeader);
     return response;

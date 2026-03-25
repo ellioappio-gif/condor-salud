@@ -142,12 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setState({ user, isLoading: false, isAuthenticated: true });
             }
           } else if (!cancelled) {
-            // No Supabase session — use demo user in development
-            if (process.env.NODE_ENV !== "production") {
-              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
-            } else {
-              setState({ user: null, isLoading: false, isAuthenticated: false });
-            }
+            // No Supabase session — fall back to demo user
+            setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
           }
 
           // Listen for auth state changes (login/logout/token refresh)
@@ -158,10 +154,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (newSession?.user) {
               const user = await resolveProfile(supabase, newSession.user);
               setState({ user, isLoading: false, isAuthenticated: true });
-            } else if (process.env.NODE_ENV !== "production") {
-              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
             } else {
-              setState({ user: null, isLoading: false, isAuthenticated: false });
+              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
             }
           });
 
@@ -171,11 +165,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
         } catch {
           if (!cancelled) {
-            if (process.env.NODE_ENV !== "production") {
-              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
-            } else {
-              setState({ user: null, isLoading: false, isAuthenticated: false });
-            }
+            // Supabase unavailable — fall back to demo user
+            setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
           }
         }
         return;
