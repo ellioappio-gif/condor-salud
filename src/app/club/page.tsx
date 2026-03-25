@@ -11,6 +11,7 @@ import {
   Check,
   ChevronRight,
   Crown,
+  FileText,
   Heart,
   HeartPulse,
   Pill,
@@ -24,8 +25,8 @@ import {
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════════
-   PUBLIC HEALTH CLUB PAGE — condorsalud.com/club
-   Marketing page for Cóndor Health Club memberships.
+   PUBLIC CLUB SALUD PAGE — condorsalud.com/club
+   Marketing page for Cóndor Club Salud memberships.
    Logged-in patient management at /paciente/club
    ═══════════════════════════════════════════════════════════════ */
 
@@ -50,23 +51,23 @@ const PLANS: PlanInfo[] = [
     icon: Star,
     nameEs: "Club Básico",
     nameEn: "Basic Club",
-    priceArs: "4.500",
-    priceUsd: "5",
+    priceArs: "9.000",
+    priceUsd: "",
     accent: "text-celeste-dark",
     border: "border-celeste/40",
     featuresEs: [
-      "10% de descuento en recetas",
       "1 teleconsulta por mes",
       "Acceso a Cora (chatbot IA)",
       "Historia clínica digital",
       "Seguimiento de salud",
+      "Solicitar historia clínica de médicos externos",
     ],
     featuresEn: [
-      "10% prescription discount",
       "1 teleconsult per month",
       "Access to Cora (AI chatbot)",
       "Digital health record",
       "Health tracking",
+      "Request records from out-of-network doctors",
     ],
   },
   {
@@ -74,26 +75,26 @@ const PLANS: PlanInfo[] = [
     icon: Crown,
     nameEs: "Club Plus",
     nameEn: "Plus Club",
-    priceArs: "8.500",
-    priceUsd: "10",
+    priceArs: "24.500",
+    priceUsd: "",
     accent: "text-gold-dark",
     border: "border-gold/60",
     badge: "Popular",
     featuresEs: [
-      "20% de descuento en recetas",
       "3 teleconsultas por mes",
       "Delivery de medicamentos",
       "Prioridad con Cora IA",
       "Historia clínica digital",
       "Seguimiento de salud con recordatorios",
+      "Solicitar historia clínica de médicos externos",
     ],
     featuresEn: [
-      "20% prescription discount",
       "3 teleconsults per month",
       "Medication delivery",
       "Priority Cora AI access",
       "Digital health record",
       "Health tracking with reminders",
+      "Request records from out-of-network doctors",
     ],
   },
   {
@@ -101,26 +102,32 @@ const PLANS: PlanInfo[] = [
     icon: Shield,
     nameEs: "Club Familiar",
     nameEn: "Family Club",
-    priceArs: "14.000",
-    priceUsd: "18",
+    priceArs: "90.000",
+    priceUsd: "",
     accent: "text-celeste-dark",
     border: "border-celeste-dark/50",
     featuresEs: [
-      "30% de descuento en recetas",
-      "6 teleconsultas por mes",
+      "Teleconsultas ilimitadas",
       "Delivery de medicamentos incluido",
       "Prioridad con Cora IA",
+      "Chequeo anual completo",
+      "Consultas de cardiología",
+      "Visitas a médico clínico ilimitadas",
       "Cobertura para grupo familiar",
       "Seguimiento de salud con recordatorios",
+      "Solicitar historia clínica de médicos externos",
       "Soporte prioritario",
     ],
     featuresEn: [
-      "30% prescription discount",
-      "6 teleconsults per month",
+      "Unlimited teleconsultations",
       "Medication delivery included",
       "Priority Cora AI access",
+      "Annual comprehensive checkup",
+      "Cardiology consultations",
+      "Unlimited general practitioner visits",
       "Family group coverage",
       "Health tracking with reminders",
+      "Request records from out-of-network doctors",
       "Priority support",
     ],
   },
@@ -166,7 +173,7 @@ export default function HealthClubPage() {
             <div className="flex items-center gap-2 mb-4">
               <Heart className="w-5 h-5 text-gold" />
               <p className="text-[11px] font-bold tracking-[2.5px] text-celeste uppercase">
-                {isEn ? "CÓNDOR HEALTH CLUB" : "CÓNDOR HEALTH CLUB"}
+                {isEn ? "CÓNDOR CLUB SALUD" : "CÓNDOR CLUB SALUD"}
               </p>
             </div>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-ink leading-[1.1] mb-6">
@@ -182,8 +189,8 @@ export default function HealthClubPage() {
             </h1>
             <p className="text-lg md:text-xl text-ink-light max-w-2xl mb-8 leading-relaxed">
               {isEn
-                ? "Join Cóndor Health Club and get prescription discounts, teleconsultas, medication delivery, and 24/7 AI health assistance — all in one membership."
-                : "Unite al Cóndor Health Club y accedé a descuentos en recetas, teleconsultas, delivery de medicamentos y asistencia de salud con IA 24/7 — todo en una membresía."}
+                ? "Join Cóndor Club Salud and get teleconsultas, medical visits, medication delivery, and 24/7 AI health assistance — all in one membership."
+                : "Unite al Cóndor Club Salud y accedé a teleconsultas, visitas médicas, delivery de medicamentos y asistencia de salud con IA 24/7 — todo en una membresía."}
             </p>
             <div className="flex flex-wrap gap-3">
               <a
@@ -219,18 +226,18 @@ export default function HealthClubPage() {
             </h2>
             <p className="text-base text-ink-light max-w-2xl mb-10">
               {isEn
-                ? "Cóndor Health Club gives you and your family access to healthcare tools that save you money and time — every month."
-                : "El Cóndor Health Club te da a vos y a tu familia acceso a herramientas de salud que te ahorran plata y tiempo — todos los meses."}
+                ? "Cóndor Club Salud gives you and your family access to healthcare tools that save you time — every month."
+                : "El Cóndor Club Salud te da a vos y a tu familia acceso a herramientas de salud que te ahorran tiempo — todos los meses."}
             </p>
 
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
               <Benefit
-                icon={Pill}
-                title={isEn ? "Prescription Discounts" : "Descuentos en Recetas"}
+                icon={FileText}
+                title={isEn ? "Medical Records Request" : "Solicitud de Historias Clínicas"}
                 desc={
                   isEn
-                    ? "Save 10–30% on every prescription. Discounts are applied automatically at checkout."
-                    : "Ahorrá 10–30% en cada receta. Los descuentos se aplican automáticamente al pagar."
+                    ? "Request medical records from out-of-network doctors to consolidate your health history in one place."
+                    : "Solicitá historias clínicas de médicos externos para consolidar tu historial de salud en un solo lugar."
                 }
               />
               <Benefit
@@ -325,9 +332,11 @@ export default function HealthClubPage() {
                       </span>
                       <span className="text-xs text-ink-muted">ARS/mes</span>
                     </div>
-                    <p className="text-xs text-ink-muted mb-5">
-                      USD ${plan.priceUsd}/{isEn ? "month" : "mes"}
-                    </p>
+                    {plan.priceUsd && (
+                      <p className="text-xs text-ink-muted mb-5">
+                        USD ${plan.priceUsd}/{isEn ? "month" : "mes"}
+                      </p>
+                    )}
                     <ul className="space-y-2.5 mb-6">
                       {features.map((f) => (
                         <li key={f} className="flex items-start gap-2">
@@ -403,9 +412,9 @@ export default function HealthClubPage() {
                   titleEs: "Disfrutá tus beneficios",
                   titleEn: "Enjoy your benefits",
                   descEs:
-                    "Descuentos automáticos en recetas, teleconsultas y delivery disponibles inmediatamente.",
+                    "Teleconsultas, visitas médicas, delivery y solicitud de historias clínicas disponibles inmediatamente.",
                   descEn:
-                    "Automatic prescription discounts, teleconsultas, and delivery available immediately.",
+                    "Teleconsultas, medical visits, delivery, and medical records request available immediately.",
                   icon: Zap,
                 },
               ].map((s) => (
@@ -431,12 +440,12 @@ export default function HealthClubPage() {
           <div className="max-w-3xl mx-auto px-6 text-center">
             <Heart className="w-10 h-10 text-gold mx-auto mb-4" />
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              {isEn ? "Join Cóndor Health Club today" : "Unite al Cóndor Health Club hoy"}
+              {isEn ? "Join Cóndor Club Salud today" : "Unite al Cóndor Club Salud hoy"}
             </h2>
             <p className="text-white/70 text-base mb-8 max-w-xl mx-auto">
               {isEn
-                ? "Save on prescriptions, get teleconsultas, and take control of your health — all from your phone."
-                : "Ahorrá en recetas, accedé a teleconsultas y tomá el control de tu salud — todo desde tu celular."}
+                ? "Get teleconsultas, medical visits, and take control of your health — all from your phone."
+                : "Accedé a teleconsultas, visitas médicas y tomá el control de tu salud — todo desde tu celular."}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link

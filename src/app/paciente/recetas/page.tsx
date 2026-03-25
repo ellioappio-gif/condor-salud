@@ -16,7 +16,6 @@ import {
   Loader2,
   Stethoscope,
   Shield,
-  Crown,
 } from "lucide-react";
 import type { DigitalPrescription } from "@/lib/types";
 
@@ -60,15 +59,7 @@ function statusConfig(
 }
 
 /* ── Prescription card ────────────────────────────────────── */
-function RxCard({
-  rx,
-  isEn,
-  clubDiscount,
-}: {
-  rx: DigitalPrescription;
-  isEn: boolean;
-  clubDiscount: number;
-}) {
+function RxCard({ rx, isEn }: { rx: DigitalPrescription; isEn: boolean }) {
   const [open, setOpen] = useState(false);
   const cfg = statusConfig(rx.status, isEn);
   const StatusIcon = cfg.icon;
@@ -153,11 +144,6 @@ function RxCard({
                         </p>
                       )}
                     </div>
-                    {clubDiscount > 0 && (
-                      <span className="text-[10px] font-bold text-gold bg-gold/10 px-2 py-0.5 rounded-full shrink-0">
-                        -{Math.round(clubDiscount * 100)}%
-                      </span>
-                    )}
                   </div>
                 ))}
               </div>
@@ -214,7 +200,6 @@ export default function PatientPrescriptionsPage() {
   const [prescriptions, setPrescriptions] = useState<DigitalPrescription[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "active" | "dispensed" | "expired">("all");
-  const [clubDiscount, setClubDiscount] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -224,19 +209,9 @@ export default function PatientPrescriptionsPage() {
     try {
       const patientId = localStorage.getItem("patientId") || "demo-patient";
 
-      // Fetch prescriptions and club status in parallel
-      const [rxRes, clubRes] = await Promise.all([
-        fetch(`/api/prescriptions/mine?patientId=${patientId}`),
-        fetch(`/api/club/status?patientId=${patientId}`),
-      ]);
-
+      const rxRes = await fetch(`/api/prescriptions/mine?patientId=${patientId}`);
       const rxData = await rxRes.json();
       setPrescriptions(rxData.prescriptions || []);
-
-      const clubData = await clubRes.json();
-      if (clubData.membership?.plan) {
-        setClubDiscount(clubData.membership.plan.prescriptionDiscount || 0);
-      }
     } catch {
       // Demo fallback handled by API
     } finally {
@@ -279,20 +254,6 @@ export default function PatientPrescriptionsPage() {
         </p>
       </div>
 
-      {/* Club discount banner */}
-      {clubDiscount > 0 && (
-        <div className="bg-gradient-to-r from-gold/10 via-celeste/5 to-gold/10 border border-gold/30 rounded-xl px-5 py-3 flex items-center gap-3">
-          <Crown className="w-5 h-5 text-gold shrink-0" />
-          <p className="text-sm text-ink">
-            <span className="font-semibold">
-              {isEn ? "Club member discount:" : "Descuento de club:"}
-            </span>{" "}
-            {Math.round(clubDiscount * 100)}%{" "}
-            {isEn ? "off all prescription medications" : "en todos los medicamentos recetados"}
-          </p>
-        </div>
-      )}
-
       {/* Filter tabs */}
       <div className="flex gap-1 bg-surface rounded-xl p-1">
         {(["all", "active", "dispensed", "expired"] as const).map((f) => (
@@ -326,7 +287,7 @@ export default function PatientPrescriptionsPage() {
       {/* Prescription list */}
       <div className="space-y-3">
         {filtered.map((rx) => (
-          <RxCard key={rx.id} rx={rx} isEn={isEn} clubDiscount={clubDiscount} />
+          <RxCard key={rx.id} rx={rx} isEn={isEn} />
         ))}
         {filtered.length === 0 && (
           <div className="bg-white border border-border-light rounded-2xl p-12 text-center">

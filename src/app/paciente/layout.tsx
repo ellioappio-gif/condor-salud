@@ -63,7 +63,7 @@ const navItems = [
     tKey: "nav.medicalHistory",
   },
   { label: "Mi Perfil", href: "/paciente/perfil", icon: User, tKey: "nav.myProfile" },
-  { label: "Health Club", href: "/paciente/club", icon: Heart, tKey: "nav.healthClub" },
+  { label: "Club Salud", href: "/paciente/club", icon: Heart, tKey: "nav.healthClub" },
   { label: "Seguimiento", href: "/paciente/salud", icon: Activity, tKey: "nav.healthTracker" },
 ];
 

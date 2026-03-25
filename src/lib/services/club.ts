@@ -1,6 +1,6 @@
-// ─── Cóndor Health Club Service ──────────────────────────────
-// Patient membership management with prescription fee discounts.
-// Plans: Básico (10% off), Plus (20% off), Familiar (30% off).
+// ─── Cóndor Club Salud Service ───────────────────────────────
+// Patient membership management with teleconsultas and medical benefits.
+// Plans: Básico ($9,000), Plus ($24,500), Familiar ($90,000).
 
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
@@ -243,10 +243,11 @@ function mapPlan(row: Record<string, unknown>): ClubPlan {
     nameEn: r.name_en as string,
     priceArs: Number(r.price_ars),
     priceUsd: Number(r.price_usd),
-    prescriptionDiscount: Number(r.prescription_discount),
+    prescriptionDiscount: 0, // legacy — removed
     maxTeleconsultas: r.max_teleconsultas as number,
     includesDelivery: r.includes_delivery as boolean,
     includesCoraPriority: r.includes_cora_priority as boolean,
+    includesRecordsRequest: true, // all plans include records request
     active: r.active as boolean,
     sortOrder: r.sort_order as number,
   };

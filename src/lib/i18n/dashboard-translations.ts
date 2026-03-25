@@ -228,7 +228,7 @@ export const dashboardTranslations: DashTranslation = {
   "nav.medicalHistory": { es: "Historia Clínica", en: "Medical Records" },
   "nav.myProfile": { es: "Mi Perfil", en: "My Profile" },
   "nav.myPrescriptions": { es: "Mis Recetas", en: "My Prescriptions" },
-  "nav.healthClub": { es: "Health Club", en: "Health Club" },
+  "nav.healthClub": { es: "Club Salud", en: "Club Salud" },
   "nav.healthTracker": { es: "Seguimiento", en: "Health Tracker" },
   "nav.professionalPortal": { es: "Portal profesional", en: "Professional portal" },
 
@@ -2698,11 +2698,11 @@ export const dashboardTranslations: DashTranslation = {
   "nav.verifications": { es: "Verificaciones", en: "Verifications" },
   "nav.reviewModeration": { es: "Moderación de Reseñas", en: "Review Moderation" },
 
-  // ─── Health Club (Feature 1) ──────────────────────────────
-  "club.title": { es: "Cóndor Health Club", en: "Cóndor Health Club" },
+  // ─── Club Salud (Feature 1) ──────────────────────────────
+  "club.title": { es: "Cóndor Club Salud", en: "Cóndor Club Salud" },
   "club.subtitle": {
-    es: "Descuentos en medicamentos, teleconsultas prioritarias y más.",
-    en: "Medication discounts, priority teleconsultations, and more.",
+    es: "Teleconsultas, consultas médicas, y más para vos y tu familia.",
+    en: "Teleconsultations, medical visits, and more for you and your family.",
   },
   "club.joinPlan": { es: "Unirme al plan", en: "Join plan" },
   "club.currentPlan": { es: "Plan actual", en: "Current plan" },
@@ -2713,7 +2713,10 @@ export const dashboardTranslations: DashTranslation = {
     en: "Are you sure you want to cancel your membership?",
   },
   "club.benefits": { es: "Beneficios", en: "Benefits" },
-  "club.prescriptionDiscount": { es: "Descuento en recetas", en: "Prescription discount" },
+  "club.recordsRequest": {
+    es: "Solicitar historia clínica de médicos externos",
+    en: "Request records from out-of-network doctors",
+  },
   "club.teleconsultas": { es: "Teleconsultas incluidas", en: "Included teleconsultations" },
   "club.delivery": { es: "Envío incluido", en: "Delivery included" },
   "club.coraPriority": { es: "Cora IA prioritaria", en: "Priority Cora AI" },

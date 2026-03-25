@@ -1,5 +1,5 @@
 -- Migration 013: Five new features
--- 1) Cóndor Health Club (memberships + prescription fees)
+-- 1) Cóndor Club Salud (memberships + benefits)
 -- 2) Health Tracker with proactive reminders
 -- 3) Digital Prescriptions with QR verification
 -- 4) Doctor signup verification (matrícula + DNI)
@@ -8,7 +8,7 @@
 -- Run: supabase db push
 
 -- ═══════════════════════════════════════════════════════════════
--- FEATURE 1: Cóndor Health Club
+-- FEATURE 1: Cóndor Club Salud
 -- ═══════════════════════════════════════════════════════════════
 
 CREATE TABLE IF NOT EXISTS club_plans (
@@ -59,9 +59,9 @@ CREATE TABLE IF NOT EXISTS prescription_fees (
 -- Seed default club plans
 INSERT INTO club_plans (slug, name_es, name_en, price_ars, price_usd, prescription_discount, max_teleconsultas, includes_delivery, includes_cora_priority, sort_order)
 VALUES
-  ('basico',   'Club Básico',    'Basic Club',    4500,  5,  0.10, 1, FALSE, FALSE, 1),
-  ('plus',     'Club Plus',      'Plus Club',    8500, 10,  0.20, 3, TRUE,  TRUE,  2),
-  ('familiar', 'Club Familiar',  'Family Club', 14000, 18,  0.30, 6, TRUE,  TRUE,  3)
+  ('basico',   'Club Básico',    'Basic Club',    9000,  0,  0, 1, FALSE, FALSE, 1),
+  ('plus',     'Club Plus',      'Plus Club',   24500,  0,  0, 3, TRUE,  TRUE,  2),
+  ('familiar', 'Club Familiar',  'Family Club', 90000,  0,  0, 999, TRUE,  TRUE,  3)
 ON CONFLICT (slug) DO NOTHING;
 
 

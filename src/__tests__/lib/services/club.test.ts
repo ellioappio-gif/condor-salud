@@ -45,7 +45,7 @@ describe("club service", () => {
       expect(fee.paymentStatus).toBe("pending");
     });
 
-    it("applies 10% discount for basico plan", async () => {
+    it("applies 0% discount for basico plan (prescription discounts removed)", async () => {
       mockMaybeSingle.mockResolvedValue({
         data: {
           id: "m-1",
@@ -58,10 +58,10 @@ describe("club service", () => {
             slug: "basico",
             name_es: "Básico",
             name_en: "Basic",
-            price_ars: 3000,
-            price_usd: 5,
-            prescription_discount: 0.1,
-            max_teleconsultas: 2,
+            price_ars: 9000,
+            price_usd: 0,
+            prescription_discount: 0,
+            max_teleconsultas: 1,
             includes_delivery: false,
             includes_cora_priority: false,
             active: true,
@@ -74,12 +74,12 @@ describe("club service", () => {
       const fee = await calculatePrescriptionFee("patient-1", "Ibuprofeno 400mg", 2000);
 
       expect(fee.originalPrice).toBe(2000);
-      expect(fee.discountPct).toBe(0.1);
-      expect(fee.finalPrice).toBe(1800);
+      expect(fee.discountPct).toBe(0);
+      expect(fee.finalPrice).toBe(2000);
       expect(fee.clubPlanSlug).toBe("basico");
     });
 
-    it("applies 20% discount for plus plan", async () => {
+    it("applies 0% discount for plus plan (prescription discounts removed)", async () => {
       mockMaybeSingle.mockResolvedValue({
         data: {
           id: "m-2",
@@ -92,12 +92,12 @@ describe("club service", () => {
             slug: "plus",
             name_es: "Plus",
             name_en: "Plus",
-            price_ars: 5000,
-            price_usd: 10,
-            prescription_discount: 0.2,
-            max_teleconsultas: 5,
+            price_ars: 24500,
+            price_usd: 0,
+            prescription_discount: 0,
+            max_teleconsultas: 3,
             includes_delivery: true,
-            includes_cora_priority: false,
+            includes_cora_priority: true,
             active: true,
             sort_order: 2,
           },
@@ -108,12 +108,12 @@ describe("club service", () => {
       const fee = await calculatePrescriptionFee("patient-2", "Omeprazol 20mg", 3000);
 
       expect(fee.originalPrice).toBe(3000);
-      expect(fee.discountPct).toBe(0.2);
-      expect(fee.finalPrice).toBe(2400);
+      expect(fee.discountPct).toBe(0);
+      expect(fee.finalPrice).toBe(3000);
       expect(fee.clubPlanSlug).toBe("plus");
     });
 
-    it("applies 30% discount for familiar plan", async () => {
+    it("applies 0% discount for familiar plan (prescription discounts removed)", async () => {
       mockMaybeSingle.mockResolvedValue({
         data: {
           id: "m-3",
@@ -126,10 +126,10 @@ describe("club service", () => {
             slug: "familiar",
             name_es: "Familiar",
             name_en: "Family",
-            price_ars: 8000,
-            price_usd: 15,
-            prescription_discount: 0.3,
-            max_teleconsultas: 10,
+            price_ars: 90000,
+            price_usd: 0,
+            prescription_discount: 0,
+            max_teleconsultas: 999,
             includes_delivery: true,
             includes_cora_priority: true,
             active: true,
@@ -142,12 +142,12 @@ describe("club service", () => {
       const fee = await calculatePrescriptionFee("patient-3", "Losartan 50mg", 1500);
 
       expect(fee.originalPrice).toBe(1500);
-      expect(fee.discountPct).toBe(0.3);
-      expect(fee.finalPrice).toBe(1050);
+      expect(fee.discountPct).toBe(0);
+      expect(fee.finalPrice).toBe(1500);
       expect(fee.clubPlanSlug).toBe("familiar");
     });
 
-    it("rounds final price to 2 decimal places", async () => {
+    it("returns original price when discount is zero", async () => {
       mockMaybeSingle.mockResolvedValue({
         data: {
           id: "m-4",
@@ -160,10 +160,10 @@ describe("club service", () => {
             slug: "basico",
             name_es: "Básico",
             name_en: "Basic",
-            price_ars: 3000,
-            price_usd: 5,
-            prescription_discount: 0.1,
-            max_teleconsultas: 2,
+            price_ars: 9000,
+            price_usd: 0,
+            prescription_discount: 0,
+            max_teleconsultas: 1,
             includes_delivery: false,
             includes_cora_priority: false,
             active: true,
@@ -175,8 +175,7 @@ describe("club service", () => {
 
       const fee = await calculatePrescriptionFee("patient-4", "Test Med", 33.33);
 
-      // 33.33 * 0.9 = 29.997 → rounds to 30
-      expect(fee.finalPrice).toBe(30);
+      expect(fee.finalPrice).toBe(33.33);
     });
 
     it("returns 0 discount for zero-priced medications", async () => {

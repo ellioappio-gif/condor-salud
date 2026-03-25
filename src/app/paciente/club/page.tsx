@@ -6,7 +6,6 @@ import {
   Crown,
   Star,
   Check,
-  Pill,
   Video,
   Truck,
   Bot,
@@ -74,12 +73,13 @@ export default function ClubPage() {
           slug: "basico",
           nameEs: "Club Básico",
           nameEn: "Basic Club",
-          priceArs: 4500,
-          priceUsd: 5,
-          prescriptionDiscount: 0.1,
+          priceArs: 9000,
+          priceUsd: 0,
+          prescriptionDiscount: 0,
           maxTeleconsultas: 1,
           includesDelivery: false,
           includesCoraPriority: false,
+          includesRecordsRequest: true,
           active: true,
           sortOrder: 1,
         },
@@ -88,12 +88,13 @@ export default function ClubPage() {
           slug: "plus",
           nameEs: "Club Plus",
           nameEn: "Plus Club",
-          priceArs: 8500,
-          priceUsd: 10,
-          prescriptionDiscount: 0.2,
+          priceArs: 24500,
+          priceUsd: 0,
+          prescriptionDiscount: 0,
           maxTeleconsultas: 3,
           includesDelivery: true,
           includesCoraPriority: true,
+          includesRecordsRequest: true,
           active: true,
           sortOrder: 2,
         },
@@ -102,12 +103,13 @@ export default function ClubPage() {
           slug: "familiar",
           nameEs: "Club Familiar",
           nameEn: "Family Club",
-          priceArs: 14000,
-          priceUsd: 18,
-          prescriptionDiscount: 0.3,
-          maxTeleconsultas: 6,
+          priceArs: 90000,
+          priceUsd: 0,
+          prescriptionDiscount: 0,
+          maxTeleconsultas: 999,
           includesDelivery: true,
           includesCoraPriority: true,
+          includesRecordsRequest: true,
           active: true,
           sortOrder: 3,
         },
@@ -139,21 +141,32 @@ export default function ClubPage() {
 
   function getFeatures(plan: ClubPlan): string[] {
     const features = [];
-    features.push(
-      isEn
-        ? `${Math.round(plan.prescriptionDiscount * 100)}% off prescriptions`
-        : `${Math.round(plan.prescriptionDiscount * 100)}% de descuento en recetas`,
-    );
-    features.push(
-      isEn
-        ? `${plan.maxTeleconsultas} teleconsult${plan.maxTeleconsultas > 1 ? "s" : ""}/month`
-        : `${plan.maxTeleconsultas} teleconsulta${plan.maxTeleconsultas > 1 ? "s" : ""}/mes`,
-    );
+    const tc =
+      plan.maxTeleconsultas >= 999
+        ? isEn
+          ? "Unlimited teleconsults/month"
+          : "Teleconsultas ilimitadas/mes"
+        : isEn
+          ? `${plan.maxTeleconsultas} teleconsult${plan.maxTeleconsultas > 1 ? "s" : ""}/month`
+          : `${plan.maxTeleconsultas} teleconsulta${plan.maxTeleconsultas > 1 ? "s" : ""}/mes`;
+    features.push(tc);
     if (plan.includesDelivery) {
       features.push(isEn ? "Free medication delivery" : "Envío de medicamentos gratis");
     }
     if (plan.includesCoraPriority) {
       features.push(isEn ? "Priority Cora AI access" : "Acceso prioritario a Cora IA");
+    }
+    features.push(
+      isEn
+        ? "Request records from out-of-network doctors"
+        : "Solicitar historia clínica de médicos externos",
+    );
+    if (plan.slug === "familiar") {
+      features.push(isEn ? "Annual comprehensive checkup" : "Chequeo anual completo");
+      features.push(isEn ? "Cardiology consultations" : "Consultas de cardiología");
+      features.push(
+        isEn ? "Unlimited general practitioner visits" : "Visitas a médico clínico ilimitadas",
+      );
     }
     return features;
   }
@@ -171,15 +184,15 @@ export default function ClubPage() {
       {/* ─── Header ─── */}
       <div className="text-center">
         <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2">
-          {isEn ? "CÓNDOR HEALTH CLUB" : "CÓNDOR HEALTH CLUB"}
+          {isEn ? "CÓNDOR CLUB SALUD" : "CÓNDOR CLUB SALUD"}
         </p>
         <h1 className="text-3xl sm:text-4xl font-display font-bold text-ink">
           {isEn ? "Your health, rewarded" : "Tu salud, con beneficios"}
         </h1>
         <p className="text-ink/60 mt-2 max-w-lg mx-auto">
           {isEn
-            ? "Save on prescriptions, get free teleconsults, and unlock priority access to Cora."
-            : "Ahorrá en recetas, obtené teleconsultas gratis y acceso prioritario a Cora."}
+            ? "Get teleconsults, medical visits, and unlock priority access to Cora."
+            : "Obtené teleconsultas, visitas médicas y acceso prioritario a Cora."}
         </p>
       </div>
 
@@ -211,13 +224,12 @@ export default function ClubPage() {
           {membership.plan && (
             <div className="flex flex-wrap gap-3 mt-3">
               <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/80 px-3 py-1.5 rounded-full text-ink">
-                <Pill className="w-3.5 h-3.5 text-celeste" />
-                {Math.round(membership.plan.prescriptionDiscount * 100)}%{" "}
-                {isEn ? "Rx discount" : "dto. recetas"}
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/80 px-3 py-1.5 rounded-full text-ink">
                 <Video className="w-3.5 h-3.5 text-celeste" />
-                {membership.plan.maxTeleconsultas} {isEn ? "teleconsults" : "teleconsultas"}
+                {membership.plan.maxTeleconsultas >= 999
+                  ? isEn
+                    ? "Unlimited teleconsults"
+                    : "Teleconsultas ilimitadas"
+                  : `${membership.plan.maxTeleconsultas} ${isEn ? "teleconsults" : "teleconsultas"}`}
               </span>
               {membership.plan.includesDelivery && (
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-white/80 px-3 py-1.5 rounded-full text-ink">
@@ -274,14 +286,10 @@ export default function ClubPage() {
             </h3>
             <p className="text-xs text-ink-muted leading-relaxed">
               {isEn
-                ? "View digital prescriptions with QR verification and club discounts."
-                : "Consultá recetas digitales con verificación QR y descuentos club."}
+                ? "View digital prescriptions with QR verification."
+                : "Consultá recetas digitales con verificación QR."}
             </p>
-            {membership?.plan && (
-              <span className="absolute top-4 right-4 text-[10px] font-bold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
-                -{Math.round(membership.plan.prescriptionDiscount * 100)}%
-              </span>
-            )}
+            <ArrowRight className="absolute top-5 right-4 w-4 h-4 text-ink-200 group-hover:text-celeste transition" />
           </Link>
 
           {/* Find a Doctor */}
@@ -314,11 +322,11 @@ export default function ClubPage() {
             <p className="text-xs text-ink-muted leading-relaxed">
               {membership?.plan
                 ? isEn
-                  ? `You save ${Math.round(membership.plan.prescriptionDiscount * 100)}% on all prescriptions plus ${membership.plan.maxTeleconsultas} free teleconsults.`
-                  : `Ahorrás ${Math.round(membership.plan.prescriptionDiscount * 100)}% en todas las recetas más ${membership.plan.maxTeleconsultas} teleconsultas gratis.`
+                  ? `You get ${membership.plan.maxTeleconsultas >= 999 ? "unlimited" : membership.plan.maxTeleconsultas} teleconsults plus medical records request from any doctor.`
+                  : `Tenés ${membership.plan.maxTeleconsultas >= 999 ? "teleconsultas ilimitadas" : `${membership.plan.maxTeleconsultas} teleconsultas`} más solicitud de historias clínicas de cualquier médico.`
                 : isEn
-                  ? "Join a plan below to start saving on prescriptions and teleconsults."
-                  : "Unite a un plan abajo para empezar a ahorrar en recetas y teleconsultas."}
+                  ? "Join a plan below to access teleconsults and medical benefits."
+                  : "Unite a un plan abajo para acceder a teleconsultas y beneficios médicos."}
             </p>
             {membership?.plan && (
               <div className="mt-2">
@@ -374,13 +382,10 @@ export default function ClubPage() {
               <div className="mb-5">
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-display font-bold text-ink">
-                    {isEn ? `$${plan.priceUsd}` : `$${plan.priceArs.toLocaleString("es-AR")}`}
+                    ${plan.priceArs.toLocaleString("es-AR")}
                   </span>
                   <span className="text-sm text-ink/50">/{isEn ? "mo" : "mes"}</span>
                 </div>
-                {!isEn && (
-                  <p className="text-xs text-ink/40 mt-0.5">USD ${plan.priceUsd}/mo for tourists</p>
-                )}
               </div>
 
               {/* Features */}
@@ -438,11 +443,11 @@ export default function ClubPage() {
                 : "Seleccioná el nivel que se adapte a tus necesidades.",
             },
             {
-              icon: Pill,
-              title: isEn ? "2. Save on prescriptions" : "2. Ahorrá en recetas",
+              icon: Heart,
+              title: isEn ? "2. Access your benefits" : "2. Accedé a tus beneficios",
               desc: isEn
-                ? "Your discount is automatically applied at checkout."
-                : "Tu descuento se aplica automáticamente al comprar.",
+                ? "Teleconsults, medical visits, and records request included."
+                : "Teleconsultas, visitas médicas y solicitud de historias clínicas incluidos.",
             },
             {
               icon: Video,
@@ -477,11 +482,11 @@ export default function ClubPage() {
           },
           {
             q: isEn
-              ? "How does the prescription discount work?"
-              : "¿Cómo funciona el descuento en recetas?",
+              ? "How does the medical records request work?"
+              : "¿Cómo funciona la solicitud de historias clínicas?",
             a: isEn
-              ? "When you order medications, your club discount is applied automatically before checkout."
-              : "Cuando pedís medicamentos, tu descuento de club se aplica automáticamente antes del pago.",
+              ? "You can request records from any out-of-network doctor. We’ll contact them and add the records to your digital health profile."
+              : "Podés solicitar historias clínicas de cualquier médico externo. Nos comunicamos con ellos y agregamos los registros a tu perfil de salud digital.",
           },
           {
             q: isEn ? "Can I upgrade my plan later?" : "¿Puedo mejorar mi plan después?",

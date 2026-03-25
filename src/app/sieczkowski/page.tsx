@@ -374,7 +374,7 @@ export default function InvestorPage() {
                 "Coverage verification",
                 "Medication management",
                 "AI symptom checker (Cora)",
-                "Health Club memberships",
+                "Club Salud memberships",
               ],
             },
             {
@@ -518,8 +518,8 @@ export default function InvestorPage() {
           />
           <FeatureCard
             icon={Users}
-            title="Health Club"
-            desc="B2C membership tiers ($5–$18/mo) with prescription discounts and teleconsulta."
+            title="Club Salud"
+            desc="B2C membership tiers ($9K–$90K ARS/mo) with teleconsultas, medical visits, and records request."
           />
           <FeatureCard
             icon={Plane}
@@ -555,7 +555,7 @@ export default function InvestorPage() {
             </thead>
             <tbody>
               <TR cells={["Clinic SaaS", "$2.8B", "$280M", "$500K"]} />
-              <TR cells={["Patient Portal / Health Club", "$1.2B", "$120M", "$200K"]} />
+              <TR cells={["Patient Portal / Club Salud", "$1.2B", "$120M", "$200K"]} />
               <TR cells={["Medical Tourism Concierge", "$4.4B", "$180M", "$150K"]} />
               <TR cells={["Total", "$8.4B", "$580M", "$850K"]} />
             </tbody>
@@ -642,32 +642,30 @@ export default function InvestorPage() {
           </p>
         </div>
 
-        {/* Stream 2: Health Club */}
+        {/* Stream 2: Club Salud */}
         <div className="mb-10">
           <h3 className="font-display text-lg font-bold text-ink mb-3">
-            2. Health Club Memberships (B2C)
+            2. Club Salud Memberships (B2C)
           </h3>
           <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-left">
               <thead>
-                <TR header cells={["Plan", "ARS/mo", "USD/mo", "Benefits"]} />
+                <TR header cells={["Plan", "ARS/mo", "Benefits"]} />
               </thead>
               <tbody>
-                <TR cells={["Básico", "$4,500", "$5", "10% Rx discount, 1 teleconsulta/mo"]} />
+                <TR cells={["Básico", "$9,000", "1 teleconsulta/mo, records request"]} />
                 <TR
                   cells={[
                     "Plus",
-                    "$8,500",
-                    "$10",
-                    "20% Rx discount, 3 teleconsultas, delivery, Cora priority",
+                    "$24,500",
+                    "3 teleconsultas, delivery, Cora priority, records request",
                   ]}
                 />
                 <TR
                   cells={[
                     "Familiar",
-                    "$14,000",
-                    "$18",
-                    "30% Rx discount, 6 teleconsultas, delivery, Cora priority",
+                    "$90,000",
+                    "Unlimited teleconsultas, checkups, cardiology, delivery, Cora priority, records request",
                   ]}
                 />
               </tbody>
@@ -820,7 +818,7 @@ export default function InvestorPage() {
             ["Travel partnerships page (bilingual)", "✅ Live"],
             ["Partner application → Supabase + email", "✅ Working"],
             ["Digital prescriptions with QR", "✅ Built"],
-            ["Health Club membership system", "✅ Built"],
+            ["Club Salud membership system", "✅ Built"],
             ["Doctor verification gate", "✅ Built"],
             ["Public doctor profiles (SEO)", "✅ Built"],
             ["229 automated tests passing", "✅ Green"],
@@ -908,7 +906,7 @@ export default function InvestorPage() {
               items: [
                 'Google Ads: "software médico Argentina"',
                 "SEO via public doctor profiles",
-                "Health Club B2C launch for onboarded clinics",
+                "Club Salud B2C launch for onboarded clinics",
                 "Partnership pipeline: 3–5 travel agencies",
                 "Medical conference presence (AAMR, SAC)",
               ],
@@ -952,7 +950,7 @@ export default function InvestorPage() {
             </thead>
             <tbody>
               <TR cells={["MRR (SaaS)", "$500", "$5,000"]} />
-              <TR cells={["MRR (Health Club)", "$0", "$2,500"]} />
+              <TR cells={["MRR (Club Salud)", "$0", "$2,500"]} />
               <TR cells={["MRR (Partnerships)", "$0", "$1,000"]} />
               <TR cells={["Total MRR", "$500", "$8,500"]} />
               <TR cells={["ARR", "$6,000", "$102,000"]} />
@@ -1006,7 +1004,7 @@ export default function InvestorPage() {
             {[
               "Full AFIP + PAMI integration (real billing)",
               "50 paying clinics ($5K+ MRR)",
-              "500+ Health Club members ($2.5K+ MRR)",
+              "500+ Club Salud members ($2.5K+ MRR)",
               "3+ travel agency partnerships ($1K+ MRR)",
               "Revenue run-rate of $100K+ ARR",
               "Position to raise Seed at $2–3M valuation",

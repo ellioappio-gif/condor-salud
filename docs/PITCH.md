@@ -48,7 +48,7 @@ Cóndor Salud is a vertical SaaS platform that replaces the 5–8 disconnected t
 
 **For providers (B2B):** 24-module professional dashboard covering clinical management, electronic billing (AFIP), insurance claim processing, rejection recovery, inflation impact tracking, telemedicine, pharmacy, AI triage, and medical imaging (PACS/RIS).
 
-**For patients (B2C):** A patient portal with appointment booking, coverage verification, medication management, AI symptom checker (Cora), doctor search with geolocation, and a Health Club membership tier.
+**For patients (B2C):** A patient portal with appointment booking, coverage verification, medication management, AI symptom checker (Cora), doctor search with geolocation, and a Club Salud membership tier.
 
 **For travel/tourism (B2B2C):** A white-label healthcare concierge for travel agencies and airlines — tourists get coverage, doctor access, prescription delivery, and 24/7 AI triage in English and Spanish.
 
@@ -101,7 +101,7 @@ Argentina's healthcare billing system is uniquely painful:
 ├──────────────┼──────────────┼───────────────────────┤
 │ 24 modules   │ 9 sections   │ White-label concierge │
 │ Billing      │ Appointments │ Tourist coverage      │
-│ Claims       │ Health Club  │ Doctor matching       │
+│ Claims       │ Club Salud  │ Doctor matching       │
 │ Telemedicine │ AI Cora      │ Rx delivery           │
 │ PACS/RIS     │ Health Bible │ 24/7 AI triage        │
 │ Pharmacy     │ Teleconsulta │ Revenue share         │
@@ -125,12 +125,12 @@ Argentina's healthcare billing system is uniquely painful:
 
 ### B2B: Professional Dashboard (24 Modules)
 
-| Category                | Modules                                                                                                                                                                                        | Monthly Value      |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| **Clinical Management** | Patients, Appointments, Coverage Verification, Inventory, Alerts, Onboarding Wizard, Doctor Verification                                                                                       | Core workflows     |
-| **Finance**             | Electronic Billing (AFIP), Claim Rejections, Payer Analytics, Inflation Tracker, MercadoPago Payments                                                                                          | Revenue recovery   |
-| **Intelligence**        | Pre-submission Audit, SSS Nomenclator, Reports & Dashboards                                                                                                                                    | Error prevention   |
-| **Services**            | Online Pharmacy, Telemedicine (Daily.co video), Doctor Directory, Referral Network, AI Triage, Cora Chatbot, Health Club, Digital Prescriptions QR, Health Tracker, Public Doctor Profiles SEO | Growth + retention |
+| Category                | Modules                                                                                                                                                                                       | Monthly Value      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **Clinical Management** | Patients, Appointments, Coverage Verification, Inventory, Alerts, Onboarding Wizard, Doctor Verification                                                                                      | Core workflows     |
+| **Finance**             | Electronic Billing (AFIP), Claim Rejections, Payer Analytics, Inflation Tracker, MercadoPago Payments                                                                                         | Revenue recovery   |
+| **Intelligence**        | Pre-submission Audit, SSS Nomenclator, Reports & Dashboards                                                                                                                                   | Error prevention   |
+| **Services**            | Online Pharmacy, Telemedicine (Daily.co video), Doctor Directory, Referral Network, AI Triage, Cora Chatbot, Club Salud, Digital Prescriptions QR, Health Tracker, Public Doctor Profiles SEO | Growth + retention |
 
 ### B2C: Patient Portal (9 Sections)
 
@@ -170,12 +170,12 @@ Argentina's healthcare billing system is uniquely painful:
 
 ### Addressable Market
 
-| Segment                      | TAM           | SAM (Argentina) | SOM (Year 1) |
-| ---------------------------- | ------------- | --------------- | ------------ |
-| Clinic SaaS                  | $2.8B (LATAM) | $280M           | $500K        |
-| Patient portal / Health Club | $1.2B (LATAM) | $120M           | $200K        |
-| Medical tourism concierge    | $4.4B (LATAM) | $180M           | $150K        |
-| **Total**                    | **$8.4B**     | **$580M**       | **$850K**    |
+| Segment                     | TAM           | SAM (Argentina) | SOM (Year 1) |
+| --------------------------- | ------------- | --------------- | ------------ |
+| Clinic SaaS                 | $2.8B (LATAM) | $280M           | $500K        |
+| Patient portal / Club Salud | $1.2B (LATAM) | $120M           | $200K        |
+| Medical tourism concierge   | $4.4B (LATAM) | $180M           | $150K        |
+| **Total**                   | **$8.4B**     | **$580M**       | **$850K**    |
 
 ### Why Now
 
@@ -208,13 +208,13 @@ Clinic-level module presets:
 | Plus       | 16       | $120 (-15%)   |
 | Enterprise | 24 (all) | $180 (-25%)   |
 
-### Revenue Stream 2: Health Club Memberships (B2C)
+### Revenue Stream 2: Club Salud Memberships (B2C)
 
-| Plan     | Monthly (ARS) | Monthly (USD) | Benefits                                                      |
-| -------- | ------------- | ------------- | ------------------------------------------------------------- |
-| Básico   | $4,500        | $5            | 10% Rx discount, 1 teleconsultation/mo                        |
-| Plus     | $8,500        | $10           | 20% Rx discount, 3 teleconsultations, delivery, Cora priority |
-| Familiar | $14,000       | $18           | 30% Rx discount, 6 teleconsultations, delivery, Cora priority |
+| Plan     | Monthly (ARS) | Benefits                                                                                    |
+| -------- | ------------- | ------------------------------------------------------------------------------------------- |
+| Básico   | $9,000        | 1 teleconsultation/mo, records request from external doctors                                |
+| Plus     | $24,500       | 3 teleconsultations, delivery, Cora priority, records request                               |
+| Familiar | $90,000       | Unlimited teleconsultations, checkups, cardiology, delivery, Cora priority, records request |
 
 Non-members pay $2,000 ARS per prescription request (50/50 split: doctor + Cóndor).
 
@@ -281,7 +281,7 @@ Non-members pay $2,000 ARS per prescription request (50/50 split: doctor + Cónd
 | Travel partnerships page (bilingual)                 | ✅ Live                    |
 | Partner application form → Supabase + email          | ✅ Working                 |
 | Digital prescriptions with QR verification           | ✅ Built                   |
-| Health Club membership system                        | ✅ Built                   |
+| Club Salud membership system                         | ✅ Built                   |
 | Health Tracker with reminders                        | ✅ Built                   |
 | Doctor verification gate                             | ✅ Built                   |
 | Public doctor profiles (SEO)                         | ✅ Built                   |
@@ -320,7 +320,7 @@ Non-members pay $2,000 ARS per prescription request (50/50 split: doctor + Cónd
 
 1. **Google Ads** — Target: "software médico Argentina", "facturación obras sociales", "gestión de consultorio"
 2. **SEO** — Public doctor profiles drive organic traffic. Each doctor profile = indexed page linking to Cóndor
-3. **Health Club launch** — Open B2C membership to patients of onboarded clinics
+3. **Club Salud launch** — Open B2C membership to patients of onboarded clinics
 4. **Partnership pipeline** — Begin outreach to 3–5 travel agencies for B2B2C pilot
 5. **Medical conference presence** — Sponsor booths at AAMR, SAC, and regional medical events
 
@@ -362,7 +362,7 @@ Non-members pay $2,000 ARS per prescription request (50/50 split: doctor + Cónd
 
 - Full AFIP + PAMI integration (real billing)
 - 50 paying clinics ($5K+ MRR)
-- 500+ Health Club members ($2.5K+ MRR)
+- 500+ Club Salud members ($2.5K+ MRR)
 - 3+ travel agency partnerships ($1K+ MRR)
 - Revenue run-rate of $100K+ ARR by month 12
 - Position to raise Seed round at $2–3M valuation
@@ -402,7 +402,7 @@ Use these as slide titles + speaker notes. Design in Cóndor brand (celeste + go
 
 ### Slide 6 — Business Model
 
-> 4 revenue streams: SaaS seats ($50–180/doctor/mo), Health Club memberships ($5–18/patient/mo), transaction fees, travel partnerships.
+> 4 revenue streams: SaaS seats ($50–180/doctor/mo), Club Salud memberships ($9K–90K ARS/patient/mo), transaction fees, travel partnerships.
 > _[Revenue waterfall graphic]_
 
 ### Slide 7 — Traction
@@ -414,7 +414,7 @@ Use these as slide titles + speaker notes. Design in Cóndor brand (celeste + go
 ### Slide 8 — Go-to-Market
 
 > Phase 1: Direct outreach → 5 clinics (free tier → convert to paid)
-> Phase 2: SEO + ads + Health Club → 50 clinics
+> Phase 2: SEO + ads + Club Salud → 50 clinics
 > Phase 3: Enterprise + LATAM → 200+ clinics
 > _[GTM funnel graphic]_
 
@@ -608,14 +608,14 @@ Cóndor Salud · condorsalud.com
 | Active clinics (MAC) | ≥1 event/mo            | 5              | 50              |
 | Registered doctors   | Total doctor accounts  | 30             | 200             |
 | Active patients      | ≥1 login in 30 days    | 50             | 2,000           |
-| Health Club members  | Paying B2C subscribers | 0              | 500             |
+| Club Salud members   | Paying B2C subscribers | 0              | 500             |
 
 ### Revenue Metrics
 
 | Metric             | Month 3 Target | Month 12 Target |
 | ------------------ | -------------- | --------------- |
 | MRR (SaaS)         | $500           | $5,000          |
-| MRR (Health Club)  | $0             | $2,500          |
+| MRR (Club Salud)   | $0             | $2,500          |
 | MRR (Partnerships) | $0             | $1,000          |
 | Total MRR          | $500           | $8,500          |
 | ARR                | $6,000         | $102,000        |

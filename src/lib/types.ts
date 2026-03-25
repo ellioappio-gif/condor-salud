@@ -415,7 +415,7 @@ export interface CRMKPIs {
   topFuente: LeadFuente;
 }
 
-// ─── Feature: Cóndor Health Club ─────────────────────────────
+// ─── Feature: Cóndor Club Salud ──────────────────────────────
 
 export interface ClubPlan {
   id: string;
@@ -424,10 +424,11 @@ export interface ClubPlan {
   nameEn: string;
   priceArs: number;
   priceUsd: number;
-  prescriptionDiscount: number; // 0-1 fraction
+  prescriptionDiscount: number; // legacy — always 0
   maxTeleconsultas: number;
   includesDelivery: boolean;
   includesCoraPriority: boolean;
+  includesRecordsRequest: boolean;
   active: boolean;
   sortOrder: number;
 }

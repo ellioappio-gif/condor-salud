@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     },
-    // Health Club membership plans
+    // Club Salud membership plans
     {
       url: `${BASE_URL}/club`,
       lastModified: new Date(),
