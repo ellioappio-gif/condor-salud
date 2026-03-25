@@ -135,7 +135,7 @@ export default function RecetasPage() {
       setNotes("");
       setMeds([{ ...EMPTY_MED }]);
       setShowCreate(false);
-      showToast("Receta digital creada con éxito ✓");
+      showToast("Receta digital creada con éxito");
     } catch {
       showToast("Error al crear la receta. Intentá de nuevo.");
     } finally {
@@ -146,7 +146,7 @@ export default function RecetasPage() {
   function copyVerificationUrl(token: string) {
     const url = `${window.location.origin}/rx/${token}`;
     navigator.clipboard.writeText(url);
-    showToast("URL de verificación copiada ✓");
+    showToast("URL de verificación copiada");
   }
 
   return (

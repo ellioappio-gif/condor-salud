@@ -74,8 +74,8 @@ function CoraConversationDemo({ et, isEn }: { et: (k: string) => string; isEn: b
       {
         from: "cora",
         text: isEn
-          ? "With moderate headache and low-grade fever for 24h, I recommend:\n\n💊 Ibuprofen 400mg (every 8h with food)\n💧 Plenty of fluids\n❄️ Cold compress on forehead\n\nThis is likely viral. If fever exceeds 38.5°C or symptoms worsen in 48h, I'll connect you with a doctor."
-          : "Con dolor moderado y fiebre baja por 24h, te recomiendo:\n\n💊 Ibuprofeno 400mg (cada 8h con comida)\n💧 Mucho líquido\n❄️ Compresa fría en la frente\n\nProbablemente sea viral. Si la fiebre supera 38.5°C o los síntomas empeoran en 48h, te conecto con un médico.",
+          ? "With moderate headache and low-grade fever for 24h, I recommend:\n\nIbuprofen 400mg (every 8h with food)\nPlenty of fluids\nCold compress on forehead\n\nThis is likely viral. If fever exceeds 38.5°C or symptoms worsen in 48h, I'll connect you with a doctor."
+          : "Con dolor moderado y fiebre baja por 24h, te recomiendo:\n\nIbuprofeno 400mg (cada 8h con comida)\nMucho líquido\nCompresa fría en la frente\n\nProbablemente sea viral. Si la fiebre supera 38.5°C o los síntomas empeoran en 48h, te conecto con un médico.",
       },
       {
         from: "user",
@@ -155,8 +155,8 @@ function CoraConversationDemo({ et, isEn }: { et: (k: string) => string; isEn: b
       {
         from: "cora",
         text: isEn
-          ? "Opening InDrive now with Hospital Británico as destination. 🚗\n\nI'm also preparing your visit summary in English to show at reception:\n• Suspected ankle sprain\n• No known allergies\n• Travel insurance: [your policy]\n\nI'll check in with you after your visit."
-          : "Abriendo InDrive con Hospital Británico como destino. 🚗\n\nTambién estoy preparando tu resumen de visita en inglés para mostrar en recepción:\n• Posible esguince de tobillo\n• Sin alergias conocidas\n• Seguro de viaje: [tu póliza]\n\nTe contacto después de tu visita.",
+          ? "Opening InDrive now with Hospital Británico as destination.\n\nI'm also preparing your visit summary in English to show at reception:\n• Suspected ankle sprain\n• No known allergies\n• Travel insurance: [your policy]\n\nI'll check in with you after your visit."
+          : "Abriendo InDrive con Hospital Británico como destino.\n\nTambién estoy preparando tu resumen de visita en inglés para mostrar en recepción:\n• Posible esguince de tobillo\n• Sin alergias conocidas\n• Seguro de viaje: [tu póliza]\n\nTe contacto después de tu visita.",
       },
     ],
   ];

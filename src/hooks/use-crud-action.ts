@@ -59,7 +59,7 @@ export function useCrudAction(isDemo: boolean) {
       setIsExecuting(true);
       try {
         const result = await opts.action();
-        showToast(`✅ ${opts.successMessage}`);
+        showToast(`${opts.successMessage}`);
 
         // Revalidate SWR caches
         if (opts.mutateKeys?.length) {
@@ -70,7 +70,7 @@ export function useCrudAction(isDemo: boolean) {
         return result;
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : (opts.errorMessage ?? "Error inesperado");
-        showToast(`❌ ${msg}`);
+        showToast(`${msg}`);
         opts.onError?.(err);
         return null;
       } finally {

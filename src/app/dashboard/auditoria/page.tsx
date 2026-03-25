@@ -74,10 +74,10 @@ export default function AuditoriaPage() {
       const result = await updateAuditItem(id, { estado: "resuelto" });
       setActionLoading(null);
       if (result.success) {
-        showToast("✅ Observación resuelta");
+        showToast("Observación resuelta");
         loadData();
       } else {
-        showToast(`❌ ${result.error}`);
+        showToast(`${result.error}`);
       }
     },
     [loadData, showToast],
@@ -89,10 +89,10 @@ export default function AuditoriaPage() {
       const result = await updateAuditItem(id, { estado: "revisado" });
       setActionLoading(null);
       if (result.success) {
-        showToast("✅ Observación revisada");
+        showToast("Observación revisada");
         loadData();
       } else {
-        showToast(`❌ ${result.error}`);
+        showToast(`${result.error}`);
       }
     },
     [loadData, showToast],
@@ -103,10 +103,10 @@ export default function AuditoriaPage() {
     const result = await runAutoAudit();
     setAutoAuditLoading(false);
     if (result.success) {
-      showToast(`✅ Auditoría completada: ${result.newFindings} facturas analizadas`);
+      showToast(`Auditoría completada: ${result.newFindings} facturas analizadas`);
       loadData();
     } else {
-      showToast(`❌ ${result.error}`);
+      showToast(`${result.error}`);
     }
   }, [loadData, showToast]);
 

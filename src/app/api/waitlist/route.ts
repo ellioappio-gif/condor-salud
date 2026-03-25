@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           from: "Cóndor Salud <notificaciones@condorsalud.com.ar>",
           to: ["admin@condorsalud.com.ar"],
-          subject: `📋 Nueva suscripción waitlist: ${email}`,
+          subject: `Nueva suscripción waitlist: ${email}`,
           html: `<p><strong>${email}</strong> se anotó en la waitlist el ${ts}.</p>`,
         }),
       }).catch(() => {});

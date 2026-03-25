@@ -87,7 +87,7 @@ export default function DemoInventarioPage() {
                       <td className="px-5 py-3">
                         {isCritical ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                            ⚠ Reponer
+                            Reponer
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             from: "Cóndor Salud <notificaciones@condorsalud.com.ar>",
             to: [ADMIN_EMAIL],
-            subject: `🆕 Nuevo registro: ${clinicName || name}`,
+            subject: `Nuevo registro: ${clinicName || name}`,
             html: `
               <div style="font-family: sans-serif; max-width: 600px;">
                 <h2 style="color: #75AADB;">Nuevo registro en Cóndor Salud</h2>
@@ -59,12 +59,12 @@ export async function POST(req: NextRequest) {
 
     // ── Send WhatsApp notification ──
     const waMessage = encodeURIComponent(
-      `🆕 *Nuevo registro en Cóndor Salud*\n\n` +
-        `👤 ${name}\n` +
-        `📧 ${email}\n` +
-        `🏥 ${clinicName || "—"}\n` +
-        `📍 ${provincia || "—"}\n` +
-        `🕐 ${timestamp}`,
+      `*Nuevo registro en Cóndor Salud*\n\n` +
+        `${name}\n` +
+        `${email}\n` +
+        `${clinicName || "—"}\n` +
+        `${provincia || "—"}\n` +
+        `${timestamp}`,
     );
     // Log the WhatsApp deep link (can be used with Twilio later)
     logger.info(

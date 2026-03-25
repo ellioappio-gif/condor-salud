@@ -181,7 +181,7 @@ export default function NotificacionesConfigPage() {
           onClick={() =>
             isDemo
               ? showDemo("Guardar preferencias de notificaciones")
-              : showToast("✅ Guardar preferencias de notificaciones")
+              : showToast("Guardar preferencias de notificaciones")
           }
           className="px-5 py-2.5 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
@@ -189,9 +189,7 @@ export default function NotificacionesConfigPage() {
         </button>
         <button
           onClick={() =>
-            isDemo
-              ? showDemo("Restablecer configuración")
-              : showToast("✅ Restablecer configuración")
+            isDemo ? showDemo("Restablecer configuración") : showToast("Restablecer configuración")
           }
           className="px-5 py-2.5 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-ink transition"
         >

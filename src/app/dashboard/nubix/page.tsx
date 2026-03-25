@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Monitor } from "lucide-react";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
@@ -180,7 +180,7 @@ export default function NubixPage() {
         <div className="flex gap-2">
           <button
             onClick={() =>
-              !isDemo ? showToast("✅ Nuevo turno de imagen") : showDemo("Nuevo turno de imagen")
+              !isDemo ? showToast("Nuevo turno de imagen") : showDemo("Nuevo turno de imagen")
             }
             className="px-4 py-2.5 border border-border text-sm font-medium rounded hover:bg-muted transition"
           >
@@ -188,7 +188,7 @@ export default function NubixPage() {
           </button>
           <button
             onClick={() =>
-              !isDemo ? showToast("✅ Subir estudio DICOM") : showDemo("Subir estudio DICOM")
+              !isDemo ? showToast("Subir estudio DICOM") : showDemo("Subir estudio DICOM")
             }
             className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
           >
@@ -364,20 +364,20 @@ export default function NubixPage() {
                                 className="text-xs px-2.5 py-1.5 bg-celeste-dark text-white rounded hover:bg-celeste transition"
                                 title="Ver en visor DICOM"
                               >
-                                🖥 Ver
+                                Ver
                               </button>
                             )}
                             {study.reportStatus === "signed" && (
                               <button
                                 onClick={() =>
                                   !isDemo
-                                    ? showToast(`✅ Enviar resultados — ${study.patientName}`)
+                                    ? showToast(`Enviar resultados — ${study.patientName}`)
                                     : showDemo(`Enviar resultados — ${study.patientName}`)
                                 }
                                 className="text-xs px-2.5 py-1.5 border border-border rounded hover:bg-muted transition"
                                 title="Enviar resultados al paciente"
                               >
-                                📤 Enviar
+                                Enviar
                               </button>
                             )}
                           </div>
@@ -489,7 +489,7 @@ export default function NubixPage() {
                               className="ml-1 text-xs text-ink-muted"
                               title={t("nubix.reminderSent")}
                             >
-                              🔔
+                              (R)
                             </span>
                           )}
                         </td>
@@ -640,18 +640,18 @@ export default function NubixPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(`✅ Enviar resultados — ${selectedStudy.patientName}`)
+                        ? showToast(`Enviar resultados — ${selectedStudy.patientName}`)
                         : showDemo(`Enviar resultados — ${selectedStudy.patientName}`)
                     }
                     className="text-xs px-3 py-1.5 border border-border rounded hover:bg-white transition"
                   >
-                    📤 Enviar
+                    Enviar
                   </button>
                   <button
                     onClick={() => setSelectedStudy(null)}
                     className="text-xs px-3 py-1.5 border border-border rounded hover:bg-white transition"
                   >
-                    ✕ Cerrar
+                    × Cerrar
                   </button>
                 </div>
               </div>
@@ -659,7 +659,7 @@ export default function NubixPage() {
               {/* DICOM Viewer embed placeholder */}
               <div className="relative bg-black" style={{ minHeight: "65vh" }}>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white/70">
-                  <div className="text-6xl mb-4">🖥</div>
+                  <Monitor className="h-16 w-16 mb-4 opacity-70" />
                   <p className="text-lg font-medium">{t("nubix.viewerTitle")}</p>
                   <p className="text-sm mt-2 text-white/50">
                     {selectedStudy.instanceCount} imágenes · {selectedStudy.seriesCount} series ·{" "}
@@ -693,7 +693,7 @@ export default function NubixPage() {
             </div>
           ) : (
             <div className="bg-white border border-border rounded-lg p-12 text-center">
-              <div className="text-4xl mb-3">🏥</div>
+              <div className="text-4xl mb-3"></div>
               <p className="text-ink font-medium">{t("nubix.selectStudy")}</p>
               <p className="text-sm text-ink-muted mt-1">{t("nubix.goToStudiesTab")}</p>
               <button

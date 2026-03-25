@@ -126,9 +126,7 @@ export default function IntegracionesPage() {
           </p>
         </div>
         <button
-          onClick={() =>
-            isDemo ? showDemo("Nueva integración") : showToast("✅ Nueva integración")
-          }
+          onClick={() => (isDemo ? showDemo("Nueva integración") : showToast("Nueva integración"))}
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
           + Nueva integración
@@ -223,7 +221,7 @@ export default function IntegracionesPage() {
                     onClick={() =>
                       isDemo
                         ? showDemo(`Sincronizar ${int.nombre}`)
-                        : showToast(`✅ Sincronizar ${int.nombre}`)
+                        : showToast(`Sincronizar ${int.nombre}`)
                     }
                     className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
@@ -235,7 +233,7 @@ export default function IntegracionesPage() {
                     onClick={() =>
                       isDemo
                         ? showDemo(`Reintentar ${int.nombre}`)
-                        : showToast(`✅ Reintentar ${int.nombre}`)
+                        : showToast(`Reintentar ${int.nombre}`)
                     }
                     className="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-[4px] hover:bg-red-700 transition"
                   >
@@ -247,7 +245,7 @@ export default function IntegracionesPage() {
                     onClick={() =>
                       isDemo
                         ? showDemo(`Configurar ${int.nombre}`)
-                        : showToast(`✅ Configurar ${int.nombre}`)
+                        : showToast(`Configurar ${int.nombre}`)
                     }
                     className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
                   >
@@ -258,7 +256,7 @@ export default function IntegracionesPage() {
                   onClick={() =>
                     isDemo
                       ? showDemo(`Ajustes de ${int.nombre}`)
-                      : showToast(`✅ Ajustes de ${int.nombre}`)
+                      : showToast(`Ajustes de ${int.nombre}`)
                   }
                   className="px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink transition"
                 >

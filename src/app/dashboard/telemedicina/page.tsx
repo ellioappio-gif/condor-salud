@@ -104,7 +104,7 @@ export default function TelemedicinPage() {
         <button
           onClick={() =>
             !isDemo
-              ? showToast("✅ Iniciar nueva videoconsulta")
+              ? showToast("Iniciar nueva videoconsulta")
               : showDemo("Iniciar nueva videoconsulta")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
@@ -185,7 +185,7 @@ export default function TelemedicinPage() {
                     <button
                       onClick={() =>
                         !isDemo
-                          ? showToast(`✅ Enviar formulario de intake a ${p.patientName}`)
+                          ? showToast(`Enviar formulario de intake a ${p.patientName}`)
                           : showDemo(`Enviar formulario de intake a ${p.patientName}`)
                       }
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-gold hover:text-gold transition"
@@ -197,7 +197,7 @@ export default function TelemedicinPage() {
                     onClick={() =>
                       !isDemo
                         ? showToast(
-                            `✅ Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
+                            `Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
                           )
                         : showDemo(
                             `Iniciar videoconsulta con ${p.patientName} — sin descarga de app, desde el navegador`,
@@ -257,7 +257,7 @@ export default function TelemedicinPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(`✅ Copiar link: ${c.videoRoomUrl ?? c.code}`)
+                            ? showToast(`Copiar link: ${c.videoRoomUrl ?? c.code}`)
                             : showDemo(`Copiar link: ${c.videoRoomUrl ?? c.code}`)
                         }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
@@ -294,7 +294,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast("✅ Abrir videoconsulta activa — compartir pantalla")
+                    ? showToast("Abrir videoconsulta activa — compartir pantalla")
                     : showDemo("Abrir videoconsulta activa — compartir pantalla")
                 }
                 className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
@@ -304,7 +304,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast("✅ Iniciar grabación de sesión")
+                    ? showToast("Iniciar grabación de sesión")
                     : showDemo("Iniciar grabación de sesión")
                 }
                 className="px-4 py-2 text-xs font-semibold border border-celeste-dark text-celeste-dark rounded hover:bg-celeste-pale transition"
@@ -314,7 +314,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast("✅ Finalizar videoconsulta activa")
+                    ? showToast("Finalizar videoconsulta activa")
                     : showDemo("Finalizar videoconsulta activa")
                 }
                 className="px-4 py-2 text-xs font-semibold border border-red-300 text-red-600 rounded hover:bg-red-50 transition"
@@ -382,7 +382,7 @@ export default function TelemedicinPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(`✅ Ver detalle de consulta ${c.id}`)
+                            ? showToast(`Ver detalle de consulta ${c.id}`)
                             : showDemo(`Ver detalle de consulta ${c.id}`)
                         }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
@@ -458,7 +458,7 @@ export default function TelemedicinPage() {
                             onClick={() =>
                               !isDemo
                                 ? showToast(
-                                    `✅ Facturar consulta ${c.id} con código ${c.billCode} al financiador`,
+                                    `Facturar consulta ${c.id} con código ${c.billCode} al financiador`,
                                   )
                                 : showDemo(
                                     `Facturar consulta ${c.id} con código ${c.billCode} al financiador`,
@@ -521,7 +521,7 @@ export default function TelemedicinPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(`✅ Generar receta digital para ${c.patientName}`)
+                            ? showToast(`Generar receta digital para ${c.patientName}`)
                             : showDemo(`Generar receta digital para ${c.patientName}`)
                         }
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
@@ -534,7 +534,7 @@ export default function TelemedicinPage() {
                         onClick={() =>
                           !isDemo
                             ? showToast(
-                                `✅ Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
+                                `Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
                               )
                             : showDemo(
                                 `Enviar receta de ${c.patientName} a Farmacia Online con carrito pre-cargado`,
@@ -629,7 +629,7 @@ export default function TelemedicinPage() {
                         onClick={() =>
                           !isDemo
                             ? showToast(
-                                `✅ Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
+                                `Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
                               )
                             : showDemo(
                                 `Generar y enviar resumen WhatsApp a ${c.patientName}: diagnóstico, indicaciones, receta, próximo turno`,
@@ -643,7 +643,7 @@ export default function TelemedicinPage() {
                     <button
                       onClick={() =>
                         !isDemo
-                          ? showToast(`✅ Ver resumen completo de ${c.id}`)
+                          ? showToast(`Ver resumen completo de ${c.id}`)
                           : showDemo(`Ver resumen completo de ${c.id}`)
                       }
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"

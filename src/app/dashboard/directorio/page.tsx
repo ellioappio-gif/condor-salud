@@ -189,7 +189,7 @@ export default function DirectorioPage() {
         <button
           onClick={() =>
             !isDemo
-              ? showToast("✅ Agregar nuevo médico al directorio")
+              ? showToast("Agregar nuevo médico al directorio")
               : showDemo("Agregar nuevo médico al directorio")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
@@ -390,7 +390,7 @@ export default function DirectorioPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() =>
-                    !isDemo ? showToast("✅ Semana anterior") : showDemo("Semana anterior")
+                    !isDemo ? showToast("Semana anterior") : showDemo("Semana anterior")
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
@@ -398,7 +398,7 @@ export default function DirectorioPage() {
                 </button>
                 <button
                   onClick={() =>
-                    !isDemo ? showToast("✅ Semana siguiente") : showDemo("Semana siguiente")
+                    !isDemo ? showToast("Semana siguiente") : showDemo("Semana siguiente")
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
@@ -448,7 +448,7 @@ export default function DirectorioPage() {
                             <button
                               onClick={() =>
                                 !isDemo
-                                  ? showToast(`✅ Ver ${slots} turnos disponibles — ${doc.name}`)
+                                  ? showToast(`Ver ${slots} turnos disponibles — ${doc.name}`)
                                   : showDemo(`Ver ${slots} turnos disponibles — ${doc.name}`)
                               }
                               className="text-xs font-medium text-success-600 hover:text-success-700 transition"
@@ -680,7 +680,7 @@ export default function DirectorioPage() {
               onClick={() =>
                 !isDemo
                   ? showToast(
-                      "✅ Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
+                      "Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
                     )
                   : showDemo(
                       "Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",

@@ -68,7 +68,7 @@ export default function DemoAuditoriaPage() {
         </Card>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-          <h3 className="text-sm font-bold text-blue-800">🔍 Auditoría automática</h3>
+          <h3 className="text-sm font-bold text-blue-800">Auditoría automática</h3>
           <p className="text-sm text-blue-700 mt-1">
             Cóndor Salud detecta automáticamente inconsistencias en códigos de nomenclador,
             autorizaciones vencidas, duplicados potenciales y topes superados — antes de presentar a

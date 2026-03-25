@@ -73,7 +73,7 @@ export default function ReviewModerationPage() {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <span key={i} className={i < rating ? "text-[#F6B40E]" : "text-gray-300"} aria-hidden="true">
-        ★
+        *
       </span>
     ));
   };

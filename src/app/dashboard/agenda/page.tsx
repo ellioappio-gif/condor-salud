@@ -172,10 +172,10 @@ export default function AgendaPage() {
       const result = await confirmTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast(`✅ ${t("schedule.appointmentConfirmed")}`);
+        showToast(`${t("schedule.appointmentConfirmed")}`);
         mutate();
       } else {
-        showToast(`❌ ${result.error}`);
+        showToast(`${result.error}`);
       }
     },
     [mutate, showToast, t],
@@ -187,10 +187,10 @@ export default function AgendaPage() {
       const result = await attendTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast(`✅ ${t("schedule.patientAttended")}`);
+        showToast(`${t("schedule.patientAttended")}`);
         mutate();
       } else {
-        showToast(`❌ ${result.error}`);
+        showToast(`${result.error}`);
       }
     },
     [mutate, showToast, t],
@@ -206,7 +206,7 @@ export default function AgendaPage() {
         showToast(t("schedule.appointmentCancelled"));
         mutate();
       } else {
-        showToast(`❌ ${result.error}`);
+        showToast(`${result.error}`);
       }
     },
     [mutate, showToast, t],
@@ -216,11 +216,11 @@ export default function AgendaPage() {
     async (input: CreateTurnoInput) => {
       const result = await createTurno(input);
       if (result.success) {
-        showToast(`✅ ${t("schedule.appointmentCreated")}`);
+        showToast(`${t("schedule.appointmentCreated")}`);
         mutate();
         setShowNewModal(false);
       } else {
-        showToast(`❌ ${result.error}`);
+        showToast(`${result.error}`);
       }
       return result;
     },

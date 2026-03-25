@@ -119,7 +119,7 @@ export default function RideOptionsCard({ doctor, booking, compact = false }: Pr
           </p>
           {rideOptions.fareEstimate.surge && (
             <p className="text-[11px] text-amber-600 mt-0.5">
-              ⚡ {t("ride.highDemand")} ×{rideOptions.fareEstimate.surge.toFixed(1)}
+              {t("ride.highDemand")} ×{rideOptions.fareEstimate.surge.toFixed(1)}
             </p>
           )}
         </div>

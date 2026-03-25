@@ -146,7 +146,7 @@ function TouristDemo({ pt, isEn }: { pt: (k: string) => string; isEn: boolean })
         <div className="space-y-2">
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <p className="text-[10px] font-bold text-green-700 mb-1">
-              ✓ {isEn ? "Payment confirmed" : "Pago confirmado"}
+              {isEn ? "Payment confirmed" : "Pago confirmado"}
             </p>
             <p className="text-xs text-ink font-semibold">
               {isEn
@@ -254,7 +254,6 @@ function TouristDemo({ pt, isEn }: { pt: (k: string) => string; isEn: boolean })
           </div>
           <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 text-center">
             <p className="text-[10px] font-semibold text-green-700">
-              ✓{" "}
               {isEn
                 ? "Appointment confirmed · Reminder set"
                 : "Turno confirmado · Recordatorio activado"}
@@ -523,8 +522,8 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
       {
         role: "bot" as const,
         text: isEn
-          ? "I'm sorry you're not feeling well 😟 Let me help. A few questions:\n\n1. How high is your fever? (approximate)\n2. Any nausea or vomiting?\n3. Any neck stiffness or sensitivity to light?"
-          : "Lamento que no te sientas bien 😟 Te hago unas preguntas:\n\n1. ¿Cuánta fiebre tenés? (aprox)\n2. ¿Náuseas o vómitos?\n3. ¿Rigidez en el cuello o sensibilidad a la luz?",
+          ? "I'm sorry you're not feeling well. Let me help. A few questions:\n\n1. How high is your fever? (approximate)\n2. Any nausea or vomiting?\n3. Any neck stiffness or sensitivity to light?"
+          : "Lamento que no te sientas bien. Te hago unas preguntas:\n\n1. ¿Cuánta fiebre tenés? (aprox)\n2. ¿Náuseas o vómitos?\n3. ¿Rigidez en el cuello o sensibilidad a la luz?",
       },
       {
         role: "user" as const,
@@ -533,8 +532,8 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
       {
         role: "bot" as const,
         text: isEn
-          ? "OK, that sounds like it could be a viral syndrome — common for travelers. Here's what I recommend:\n\n💊 Ibuprofen 400mg every 8h (Ibupirac at any pharmacy)\n🧊 Cold compress on forehead\n💧 Stay hydrated\n\nIf it doesn't improve in 24h, I can find you a doctor nearby. Want me to search?"
-          : "Ok, suena a un cuadro viral — común en viajeros. Te recomiendo:\n\n💊 Ibuprofeno 400mg cada 8hs (Ibupirac en cualquier farmacia)\n🧊 Compresa fría en la frente\n💧 Hidratarte bien\n\nSi no mejora en 24h, te busco un médico cerca. ¿Querés que busque?",
+          ? "OK, that sounds like it could be a viral syndrome — common for travelers. Here's what I recommend:\n\nIbuprofen 400mg every 8h (Ibupirac at any pharmacy)\nCold compress on forehead\nStay hydrated\n\nIf it doesn't improve in 24h, I can find you a doctor nearby. Want me to search?"
+          : "Ok, suena a un cuadro viral — común en viajeros. Te recomiendo:\n\nIbuprofeno 400mg cada 8hs (Ibupirac en cualquier farmacia)\nCompresa fría en la frente\nHidratarte bien\n\nSi no mejora en 24h, te busco un médico cerca. ¿Querés que busque?",
         cards: true,
       },
       {
@@ -544,8 +543,8 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
       {
         role: "bot" as const,
         text: isEn
-          ? "Found 3 doctors near you in Buenos Aires 📍\n\n🩺 Dr. Martín Rodríguez — General · 0.8 km · English ✓\n🩺 Dra. Laura Fernández — Internal Med · 1.2 km\n🩺 Dr. Pablo Giménez — General · 1.5 km · English ✓\n\nWant me to book a slot or get you an Uber there?"
-          : "Encontré 3 médicos cerca tuyo en Buenos Aires 📍\n\n🩺 Dr. Martín Rodríguez — General · 0.8 km · Inglés ✓\n🩺 Dra. Laura Fernández — Med. Interna · 1.2 km\n🩺 Dr. Pablo Giménez — General · 1.5 km · Inglés ✓\n\n¿Querés que reserve turno o te pida un Uber?",
+          ? "Found 3 doctors near you in Buenos Aires:\n\nDr. Martín Rodríguez — General · 0.8 km · English\nDra. Laura Fernández — Internal Med · 1.2 km\nDr. Pablo Giménez — General · 1.5 km · English\n\nWant me to book a slot or get you an Uber there?"
+          : "Encontré 3 médicos cerca tuyo en Buenos Aires:\n\nDr. Martín Rodríguez — General · 0.8 km · Inglés\nDra. Laura Fernández — Med. Interna · 1.2 km\nDr. Pablo Giménez — General · 1.5 km · Inglés\n\n¿Querés que reserve turno o te pida un Uber?",
       },
     ],
     // Tab 1 — Pharmacy delivery
@@ -559,22 +558,22 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
       {
         role: "bot" as const,
         text: isEn
-          ? "Of course! I'll search pharmacies near you for the best price 🏪"
-          : "¡Claro! Busco farmacias cerca tuyo con el mejor precio 🏪",
+          ? "Of course! I'll search pharmacies near you for the best price."
+          : "¡Claro! Busco farmacias cerca tuyo con el mejor precio.",
       },
       {
         role: "bot" as const,
         text: isEn
-          ? "Found options:\n\n💊 Ibupirac 400mg x20 — $2,850 ARS\n🍬 Strepsils Miel x16 — $3,200 ARS\n\n📦 Delivery via Rappi: ~25 min\n📦 Delivery via PedidosYa: ~30 min\n\nBoth deliver to your hotel. Which do you prefer?"
-          : "Encontré opciones:\n\n💊 Ibupirac 400mg x20 — $2.850 ARS\n🍬 Strepsils Miel x16 — $3.200 ARS\n\n📦 Envío por Rappi: ~25 min\n📦 Envío por PedidosYa: ~30 min\n\nLos dos entregan en tu hotel. ¿Cuál preferís?",
+          ? "Found options:\n\nIbupirac 400mg x20 — $2,850 ARS\nStrepsils Miel x16 — $3,200 ARS\n\nDelivery via Rappi: ~25 min\nDelivery via PedidosYa: ~30 min\n\nBoth deliver to your hotel. Which do you prefer?"
+          : "Encontré opciones:\n\nIbupirac 400mg x20 — $2.850 ARS\nStrepsils Miel x16 — $3.200 ARS\n\nEnvío por Rappi: ~25 min\nEnvío por PedidosYa: ~30 min\n\nLos dos entregan en tu hotel. ¿Cuál preferís?",
         cards: true,
       },
       { role: "user" as const, text: isEn ? "Rappi please!" : "¡Rappi por favor!" },
       {
         role: "bot" as const,
         text: isEn
-          ? "Opening Rappi now with your order ready 🚀\n\nFarmacia del Pueblo — Av. Corrientes 1234\nTotal: $6,050 ARS (~USD 5.20)\n\nYou'll get a push notification when it's on its way! 🔔"
-          : "Abriendo Rappi con tu pedido listo 🚀\n\nFarmacia del Pueblo — Av. Corrientes 1234\nTotal: $6.050 ARS (~USD 5,20)\n\n¡Te llega una notificación push cuando salga! 🔔",
+          ? "Opening Rappi now with your order ready \n\nFarmacia del Pueblo — Av. Corrientes 1234\nTotal: $6,050 ARS (~USD 5.20)\n\nYou'll get a push notification when it's on its way! "
+          : "Abriendo Rappi con tu pedido listo \n\nFarmacia del Pueblo — Av. Corrientes 1234\nTotal: $6.050 ARS (~USD 5,20)\n\n¡Te llega una notificación push cuando salga! ",
       },
     ],
     // Tab 2 — Transport to appointment
@@ -588,16 +587,16 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
       {
         role: "bot" as const,
         text: isEn
-          ? "Sure! Dr. Rodríguez's office is at Av. Santa Fe 2145, Palermo 📍\n\nHere are your ride options:"
-          : "¡Dale! El consultorio del Dr. Rodríguez está en Av. Santa Fe 2145, Palermo 📍\n\nAcá tenés las opciones de viaje:",
+          ? "Sure! Dr. Rodríguez's office is at Av. Santa Fe 2145, Palermo.\n\nHere are your ride options:"
+          : "¡Dale! El consultorio del Dr. Rodríguez está en Av. Santa Fe 2145, Palermo.\n\nAcá tenés las opciones de viaje:",
       },
       { role: "bot" as const, text: "", rides: true },
       { role: "user" as const, text: isEn ? "Uber please" : "Uber por favor" },
       {
         role: "bot" as const,
         text: isEn
-          ? "Opening Uber now 🚗\n\nDestination: Av. Santa Fe 2145, Palermo\nEstimated arrival: 8 min\nEstimated fare: $2,100–$2,800 ARS\n\nRemember your appointment is at 10:30. I'll send you a push reminder 30 min before! ⏰"
-          : "Abriendo Uber 🚗\n\nDestino: Av. Santa Fe 2145, Palermo\nLlegada estimada: 8 min\nTarifa estimada: $2.100–$2.800 ARS\n\nRecordá que tu turno es a las 10:30. ¡Te mando un push 30 min antes! ⏰",
+          ? "Opening Uber now.\n\nDestination: Av. Santa Fe 2145, Palermo\nEstimated arrival: 8 min\nEstimated fare: $2,100–$2,800 ARS\n\nRemember your appointment is at 10:30. I'll send you a push reminder 30 min before."
+          : "Abriendo Uber ahora.\n\nDestino: Av. Santa Fe 2145, Palermo\nLlegada estimada: 8 min\nTarifa estimada: $2.100–$2.800 ARS\n\nRecordá que tu turno es a las 10:30. Te mando un push 30 min antes.",
       },
     ],
   ];
@@ -619,7 +618,7 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
           </p>
         </div>
         <span className="text-[9px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold">
-          ✨ AI
+          AI
         </span>
       </div>
 
@@ -660,7 +659,7 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
               <div className="mt-2 border border-border rounded-xl overflow-hidden bg-white">
                 <div className="px-3 py-2 bg-surface/60 border-b border-border">
                   <p className="text-[11px] font-semibold text-ink">
-                    {isEn ? "🚗 Ride options" : "🚗 Opciones de viaje"}
+                    {isEn ? "Ride options" : "Opciones de viaje"}
                   </p>
                 </div>
                 <div className="divide-y divide-border">
@@ -711,8 +710,8 @@ function CoraConversationDemo({ pt, isEn }: { pt: (k: string) => string; isEn: b
             {"cards" in msg && msg.cards && (
               <div className="mt-2 bg-celeste-pale/50 border border-celeste/20 rounded-lg px-3 py-2 text-[10px] text-celeste-dark font-semibold">
                 {isEn
-                  ? "📋 Doctor cards with map, WhatsApp & ride options shown below"
-                  : "📋 Tarjetas de médicos con mapa, WhatsApp y opciones de viaje"}
+                  ? "Doctor cards with map, WhatsApp & ride options shown below"
+                  : "Tarjetas de médicos con mapa, WhatsApp y opciones de viaje"}
               </div>
             )}
           </div>

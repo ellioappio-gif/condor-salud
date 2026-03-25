@@ -193,7 +193,7 @@ export function assessSymptoms(description: string): SymptomAssessment {
       symptoms,
       severity: "emergencia",
       recommendation:
-        "⚠️ *EMERGENCIA* — Dirigite inmediatamente a la guardia más cercana o llamá al 107 (SAME). No esperes un turno.",
+        "*EMERGENCIA* — Dirigite inmediatamente a la guardia más cercana o llamá al 107 (SAME). No esperes un turno.",
       shouldSchedule: false,
     };
   }
@@ -205,7 +205,7 @@ export function assessSymptoms(description: string): SymptomAssessment {
       symptoms,
       severity: "urgente",
       recommendation:
-        "🔴 Los síntomas requieren atención pronto. Te recomendamos un turno dentro de las próximas 24 horas.",
+        "Los síntomas requieren atención pronto. Te recomendamos un turno dentro de las próximas 24 horas.",
       suggestedSpecialty: suggestSpecialty(lower),
       shouldSchedule: true,
     };
@@ -219,7 +219,7 @@ export function assessSymptoms(description: string): SymptomAssessment {
     return {
       symptoms,
       severity: "moderado",
-      recommendation: "🟡 Te sugerimos agendar un turno esta semana para una evaluación.",
+      recommendation: "Te sugerimos agendar un turno esta semana para una evaluación.",
       suggestedSpecialty: suggestSpecialty(lower),
       shouldSchedule: true,
     };
@@ -228,7 +228,7 @@ export function assessSymptoms(description: string): SymptomAssessment {
   return {
     symptoms,
     severity: "leve",
-    recommendation: "🟢 Los síntomas parecen leves. Podés agendar un turno cuando te quede cómodo.",
+    recommendation: "Los síntomas parecen leves. Podés agendar un turno cuando te quede cómodo.",
     suggestedSpecialty: suggestSpecialty(lower),
     shouldSchedule: true,
   };
@@ -284,16 +284,16 @@ export function buildReminderMessage(params: {
 }): string {
   let msg =
     `Hola ${params.patientName}, te recordamos tu turno en *${params.clinicName}*:\n\n` +
-    `📅 Fecha: *${params.date}*\n` +
-    `🕐 Hora: *${params.time}*\n` +
-    `👨‍⚕️ Profesional: *${params.doctorName}*\n` +
-    `📋 Tipo: ${params.appointmentType}\n`;
+    `Fecha: *${params.date}*\n` +
+    `Hora: *${params.time}*\n` +
+    `Profesional: *${params.doctorName}*\n` +
+    `Tipo: ${params.appointmentType}\n`;
 
   if (params.clinicAddress) {
-    msg += `\n📍 Dirección: ${params.clinicAddress}`;
+    msg += `\nDirección: ${params.clinicAddress}`;
   }
   if (params.mapsUrl) {
-    msg += `\n🗺️ Cómo llegar: ${params.mapsUrl}`;
+    msg += `\nCómo llegar: ${params.mapsUrl}`;
   }
 
   const options: string[] = [];
@@ -322,10 +322,10 @@ export function buildShortReminderMessage(params: {
   let msg = `Hola ${params.patientName}, tu turno es *hoy a las ${params.time}* con ${params.doctorName}.\n`;
 
   if (params.clinicAddress) {
-    msg += `\n📍 ${params.clinicAddress}`;
+    msg += `\n${params.clinicAddress}`;
   }
   if (params.mapsUrl) {
-    msg += `\n🗺️ ${params.mapsUrl}`;
+    msg += `\n${params.mapsUrl}`;
   }
 
   msg += "\n\n¡Te esperamos!";
@@ -407,15 +407,15 @@ export async function sendDigitalPrescription(
   prescription: Prescription,
 ): Promise<{ success: boolean; error?: string }> {
   let msg =
-    `📋 *Receta Digital*\n` +
+    `*Receta Digital*\n` +
     `━━━━━━━━━━━━━━━━━━\n\n` +
-    `👤 Paciente: *${prescription.patientName}*\n` +
-    `👨‍⚕️ Dr/a: *${prescription.doctorName}*\n` +
-    `🏥 Matrícula: ${prescription.doctorMatricula}\n` +
-    `📅 Fecha: ${prescription.date}\n`;
+    `Paciente: *${prescription.patientName}*\n` +
+    `Dr/a: *${prescription.doctorName}*\n` +
+    `Matrícula: ${prescription.doctorMatricula}\n` +
+    `Fecha: ${prescription.date}\n`;
 
   if (prescription.diagnosis) {
-    msg += `\n🔍 Diagnóstico: ${prescription.diagnosis}\n`;
+    msg += `\nDiagnóstico: ${prescription.diagnosis}\n`;
   }
 
   msg += `\n*Medicación:*\n`;
@@ -432,13 +432,13 @@ export async function sendDigitalPrescription(
   });
 
   if (prescription.instructions) {
-    msg += `\n📝 Instrucciones: ${prescription.instructions}\n`;
+    msg += `\nInstrucciones: ${prescription.instructions}\n`;
   }
 
   msg +=
     `\n━━━━━━━━━━━━━━━━━━\n` +
-    `🏥 ${config.clinicName}\n` +
-    `⚠️ Esta receta digital tiene validez legal conforme la Ley 27.553 de Receta Electrónica.\n` +
+    `${config.clinicName}\n` +
+    `Esta receta digital tiene validez legal conforme la Ley 27.553 de Receta Electrónica.\n` +
     `ID: ${prescription.id}`;
 
   return sendWhatsAppMessage(config, prescription.patientPhone, msg);
@@ -461,7 +461,7 @@ export function handleIncomingMessage(
   if (!state || state.stage === "completed") {
     return {
       response:
-        `¡Hola! 👋 Soy el asistente virtual de *${clinicName}*.\n\n` +
+        `¡Hola! Soy el asistente virtual de *${clinicName}*.\n\n` +
         `¿En qué puedo ayudarte?\n\n` +
         `*1* — Agendar un turno\n` +
         `*2* — Consultar por síntomas\n` +
@@ -483,7 +483,7 @@ export function handleIncomingMessage(
     if (lower === "1" || lower.includes("turno") || lower.includes("agendar")) {
       return {
         response:
-          "¡Perfecto! Vamos a agendar tu turno. 📅\n\n" +
+          "¡Perfecto! Vamos a agendar tu turno.\n\n" +
           "¿Con qué especialidad necesitás el turno? (Ej: clínica médica, cardiología, dermatología...)",
         newState: { ...state, stage: "scheduling", lastMessageAt: new Date() },
       };
@@ -492,7 +492,7 @@ export function handleIncomingMessage(
     if (lower === "2" || lower.includes("síntoma") || lower.includes("mal")) {
       return {
         response:
-          "Entendido. Voy a hacerte algunas preguntas para orientarte mejor. 🩺\n\n" +
+          "Entendido. Voy a hacerte algunas preguntas para orientarte mejor.\n\n" +
           "Describime tus síntomas con el mayor detalle posible:\n" +
           "- ¿Qué sentís?\n" +
           "- ¿Desde cuándo?\n" +
@@ -504,7 +504,7 @@ export function handleIncomingMessage(
     if (lower === "4" || lower.includes("recepción") || lower.includes("persona")) {
       return {
         response:
-          "Te comunico con recepción. Un momento por favor... 📞\n\n" +
+          "Te comunico con recepción. Un momento por favor...\n\n" +
           "Mientras tanto, podés llamar directamente a nuestro número.",
         newState: { ...state, stage: "completed", lastMessageAt: new Date() },
         action: "escalate",
@@ -573,7 +573,7 @@ export function handleIncomingMessage(
     }
 
     return {
-      response: "Entendido. Si cambiás de idea, escribinos cuando quieras. ¡Cuidate! 💙",
+      response: "Entendido. Si cambiás de idea, escribinos cuando quieras. ¡Cuidate! ",
       newState: { ...state, stage: "completed", lastMessageAt: new Date() },
     };
   }
@@ -583,7 +583,7 @@ export function handleIncomingMessage(
     return {
       response:
         `Perfecto, registré tu preferencia: *"${message}"*\n\n` +
-        "Nuestro equipo va a confirmar el turno a la brevedad y te enviamos los detalles por acá. 📋\n\n" +
+        "Nuestro equipo va a confirmar el turno a la brevedad y te enviamos los detalles por acá.\n\n" +
         "¿Necesitás algo más?",
       newState: {
         ...state,
@@ -609,7 +609,7 @@ export function handleIncomingMessage(
   // Confirmation / follow-up
   if (lower.includes("no") || lower.includes("gracias") || lower.includes("chau")) {
     return {
-      response: "¡Gracias por comunicarte! Cualquier cosa, escribinos. 💙",
+      response: "¡Gracias por comunicarte! Cualquier cosa, escribinos. ",
       newState: { ...state, stage: "completed", lastMessageAt: new Date() },
     };
   }
@@ -632,7 +632,7 @@ export function handleReminderReply(
 
   if (trimmed === "1" || trimmed.toLowerCase().includes("confirmar")) {
     return {
-      response: `✅ ¡Turno confirmado, ${patientName}! Te esperamos. Recordá llegar 10 minutos antes.`,
+      response: `¡Turno confirmado, ${patientName}! Te esperamos. Recordá llegar 10 minutos antes.`,
       action: "confirm",
     };
   }
@@ -640,7 +640,7 @@ export function handleReminderReply(
   if (trimmed === "2" || trimmed.toLowerCase().includes("cancelar")) {
     return {
       response:
-        `❌ Turno cancelado correctamente, ${patientName}.\n\n` +
+        `Turno cancelado correctamente, ${patientName}.\n\n` +
         `Para agendar uno nuevo, escribinos *TURNO* o llamanos.`,
       action: "cancel",
     };
@@ -649,7 +649,7 @@ export function handleReminderReply(
   if (trimmed === "3" || trimmed.toLowerCase().includes("reprogramar")) {
     return {
       response:
-        `🔄 ¿Qué día y horario te queda mejor, ${patientName}?\n\n` +
+        `¿Qué día y horario te queda mejor, ${patientName}?\n\n` +
         `Escribí tu preferencia y te confirmamos a la brevedad.`,
       action: "reschedule",
     };

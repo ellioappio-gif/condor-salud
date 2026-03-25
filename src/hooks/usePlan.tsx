@@ -5,6 +5,7 @@
 // Provides usePlan(), useFeature(), UpgradePrompt, TrialBanner, PlanBadge.
 
 import { useState, useEffect, createContext, useContext, type ReactNode } from "react";
+import { Clock } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
 // ─── Types ───────────────────────────────────────────────────
@@ -118,7 +119,7 @@ export function TrialBanner() {
   return (
     <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-amber-600 text-sm">⏱</span>
+        <Clock className="h-4 w-4 text-amber-600" />
         <span className="text-sm text-amber-800">
           {isEn
             ? `${trialDaysRemaining} day${trialDaysRemaining === 1 ? "" : "s"} left in your trial`

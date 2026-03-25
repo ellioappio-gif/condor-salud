@@ -86,7 +86,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
             className="mt-0.5 ml-1 text-[10px] text-ink-muted/60 select-none"
             aria-label="Powered by AI"
           >
-            ✨ AI
+            AI
           </span>
         )}
       </div>

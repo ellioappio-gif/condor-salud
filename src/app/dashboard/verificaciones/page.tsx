@@ -81,7 +81,7 @@ export default function VerificacionesAdminPage() {
       if (!res.ok) throw new Error();
 
       setVerifications((prev) => prev.filter((v) => v.id !== id));
-      showToast(status === "approved" ? "Médico verificado ✓" : "Verificación rechazada");
+      showToast(status === "approved" ? "Médico verificado" : "Verificación rechazada");
       setRejectionReason("");
     } catch {
       showToast("Error al procesar. Intentá de nuevo.");

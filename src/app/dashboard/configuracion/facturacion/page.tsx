@@ -52,21 +52,21 @@ export default function FacturacionConfigPage() {
         <div className="flex gap-2 mt-4 pt-4 border-t border-border">
           <button
             onClick={() =>
-              isDemo ? showDemo("Upgrade a Enterprise") : showToast("✅ Upgrade a Enterprise")
+              isDemo ? showDemo("Upgrade a Enterprise") : showToast("Upgrade a Enterprise")
             }
             className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-gold-dark transition"
           >
             Upgrade a Enterprise
           </button>
           <button
-            onClick={() => (isDemo ? showDemo("Cambiar plan") : showToast("✅ Cambiar plan"))}
+            onClick={() => (isDemo ? showDemo("Cambiar plan") : showToast("Cambiar plan"))}
             className="px-4 py-2 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Cambiar plan
           </button>
           <button
             onClick={() =>
-              isDemo ? showDemo("Cancelar suscripción") : showToast("✅ Cancelar suscripción")
+              isDemo ? showDemo("Cancelar suscripción") : showToast("Cancelar suscripción")
             }
             className="px-4 py-2 text-sm font-medium text-red-600 hover:underline"
           >
@@ -243,7 +243,7 @@ export default function FacturacionConfigPage() {
                     onClick={() =>
                       isDemo
                         ? showDemo("Descargar comprobante")
-                        : showToast("✅ Descargar comprobante")
+                        : showToast("Descargar comprobante")
                     }
                     className="text-xs text-celeste-dark font-medium hover:underline"
                   >
@@ -272,7 +272,7 @@ export default function FacturacionConfigPage() {
             </div>
           </div>
           <button
-            onClick={() => (isDemo ? showDemo("Cambiar tarjeta") : showToast("✅ Cambiar tarjeta"))}
+            onClick={() => (isDemo ? showDemo("Cambiar tarjeta") : showToast("Cambiar tarjeta"))}
             className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Cambiar tarjeta
@@ -305,7 +305,7 @@ export default function FacturacionConfigPage() {
         </div>
         <button
           onClick={() =>
-            isDemo ? showDemo("Editar datos fiscales") : showToast("✅ Editar datos fiscales")
+            isDemo ? showDemo("Editar datos fiscales") : showToast("Editar datos fiscales")
           }
           className="mt-3 text-xs text-celeste-dark font-medium hover:underline"
         >

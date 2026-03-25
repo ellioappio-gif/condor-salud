@@ -61,7 +61,7 @@ export default function InventarioPage() {
 
   const handleCrearIngreso = async () => {
     if (!ingNombre || !ingStock) {
-      showToast(`❌ ${t("inventory.completeFields")}`);
+      showToast(`${t("inventory.completeFields")}`);
       return;
     }
     const result = await execute({

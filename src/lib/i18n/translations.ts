@@ -1386,9 +1386,9 @@ const translations: Dict = {
     es: "Cora es la enfermera virtual con IA de Cóndor Salud. Habla español e inglés, hace triaje, busca médicos, pide remedios y hasta coordina un Uber al consultorio. Así se ven las conversaciones reales.",
     en: "Cora is Cóndor Salud's AI virtual nurse. She speaks Spanish and English, does triage, finds doctors, orders medication and even coordinates an Uber to the clinic. Here's what real conversations look like.",
   },
-  "partners.cora.tab0": { es: "🤒 Síntomas", en: "🤒 Symptoms" },
-  "partners.cora.tab1": { es: "💊 Farmacia", en: "💊 Pharmacy" },
-  "partners.cora.tab2": { es: "🚗 Transporte", en: "🚗 Transport" },
+  "partners.cora.tab0": { es: "Síntomas", en: "Symptoms" },
+  "partners.cora.tab1": { es: "Farmacia", en: "Pharmacy" },
+  "partners.cora.tab2": { es: "Transporte", en: "Transport" },
   "partners.cora.badge": {
     es: "IA + 20 intenciones · ES/EN · 24/7",
     en: "AI + 20 intents · ES/EN · 24/7",
@@ -1474,8 +1474,8 @@ const translations: Dict = {
     en: "Activate travelers and start earning.",
   },
   "partners.how.badge": {
-    es: "⚡ Tiempo promedio de integración: 3–5 días hábiles",
-    en: "⚡ Average integration time: 3–5 business days",
+    es: "Tiempo promedio de integración: 3–5 días hábiles",
+    en: "Average integration time: 3–5 business days",
   },
 
   "partners.form.kicker": { es: "EMPEZÁ AHORA", en: "GET STARTED" },
@@ -1703,9 +1703,9 @@ const translations: Dict = {
     es: "Cora es la enfermera virtual con IA de Cóndor Salud. Habla inglés y español, hace triaje, busca médicos, pide remedios y coordina transporte. Conversaciones reales de ciudadanos estadounidenses.",
     en: "Cora is Cóndor Salud's AI virtual nurse. She speaks English and Spanish, does triage, finds doctors, orders medication and coordinates transport. Real conversations from American citizens.",
   },
-  "embassy.cora.tab0": { es: "🤒 Emergencia", en: "🤒 Emergency" },
-  "embassy.cora.tab1": { es: "💊 Medicamentos", en: "💊 Medication" },
-  "embassy.cora.tab2": { es: "🚗 Transporte", en: "🚗 Transport" },
+  "embassy.cora.tab0": { es: "Emergencia", en: "Emergency" },
+  "embassy.cora.tab1": { es: "Medicamentos", en: "Medication" },
+  "embassy.cora.tab2": { es: "Transporte", en: "Transport" },
   "embassy.cora.badge": {
     es: "IA + Inglés nativo · Triaje clínico · 24/7",
     en: "AI + Native English · Clinical triage · 24/7",
@@ -1765,8 +1765,8 @@ const translations: Dict = {
     en: "Cora provides post-consultation follow-up, coordinates additional tests if needed, and is available 24/7 throughout the stay.",
   },
   "embassy.protocol.result": {
-    es: "✓ Resultado: atención médica completa en menos de 2 horas",
-    en: "✓ Result: complete medical care in under 2 hours",
+    es: "Resultado: atención médica completa en menos de 2 horas",
+    en: "Result: complete medical care in under 2 hours",
   },
   "embassy.protocol.resultDesc": {
     es: "Sin papeles, sin reclamos de seguros, sin barrera idiomática.",

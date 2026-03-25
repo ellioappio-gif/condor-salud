@@ -786,7 +786,7 @@ export default function InvestorPage() {
         </div>
 
         <div className="mt-6 bg-gold-50 border border-gold/30 rounded-xl p-5">
-          <p className="font-semibold text-sm text-ink">💡 Key Insight</p>
+          <p className="font-semibold text-sm text-ink">Key Insight</p>
           <p className="text-xs text-ink-light mt-1">
             No existing player combines billing + claims + patient portal + telemedicine + AI triage
             + tourism in one platform for Argentina. The closest US analog is&nbsp;
@@ -808,22 +808,22 @@ export default function InvestorPage() {
 
         <div className="grid sm:grid-cols-2 gap-4 mb-10">
           {[
-            ["Full marketing site (14 sections)", "✅ Live"],
-            ["24-module professional dashboard", "✅ Functional"],
-            ["9-section patient portal", "✅ Functional"],
-            ["AI chatbot Cora (20+ intents)", "✅ Functional"],
-            ["Supabase DB (23+ tables, RLS)", "✅ Connected"],
-            ["Authentication (Supabase + Google OAuth)", "✅ Working"],
-            ["14 external integrations wired", "✅ Code complete"],
-            ["Travel partnerships page (bilingual)", "✅ Live"],
-            ["Partner application → Supabase + email", "✅ Working"],
-            ["Digital prescriptions with QR", "✅ Built"],
-            ["Club Salud membership system", "✅ Built"],
-            ["Doctor verification gate", "✅ Built"],
-            ["Public doctor profiles (SEO)", "✅ Built"],
-            ["229 automated tests passing", "✅ Green"],
-            ["Deployed on Vercel", "✅ Live"],
-            ["Custom domains (.com + .com.ar)", "✅ Configured"],
+            ["Full marketing site (14 sections)", "Live"],
+            ["24-module professional dashboard", "Functional"],
+            ["9-section patient portal", "Functional"],
+            ["AI chatbot Cora (20+ intents)", "Functional"],
+            ["Supabase DB (23+ tables, RLS)", "Connected"],
+            ["Authentication (Supabase + Google OAuth)", "Working"],
+            ["14 external integrations wired", "Code complete"],
+            ["Travel partnerships page (bilingual)", "Live"],
+            ["Partner application → Supabase + email", "Working"],
+            ["Digital prescriptions with QR", "Built"],
+            ["Club Salud membership system", "Built"],
+            ["Doctor verification gate", "Built"],
+            ["Public doctor profiles (SEO)", "Built"],
+            ["229 automated tests passing", "Green"],
+            ["Deployed on Vercel", "Live"],
+            ["Custom domains (.com + .com.ar)", "Configured"],
           ].map(([item, status]) => (
             <div
               key={item}
@@ -1080,7 +1080,7 @@ export default function InvestorPage() {
 
         {/* Key Insight */}
         <div className="bg-gold/10 border border-gold/30 rounded-xl p-5 mb-10">
-          <p className="font-semibold text-sm text-ink">💡 Why This Matters</p>
+          <p className="font-semibold text-sm text-ink">Why This Matters</p>
           <p className="text-sm text-ink-light mt-2 leading-relaxed">
             At <strong className="text-ink">4–5% interest</strong> on $100K–$500K, this is genuinely
             cheap capital — cheaper than most angels (who take 15–25% equity), cheaper than SAFEs,
@@ -1191,7 +1191,7 @@ export default function InvestorPage() {
                   "4–5% interest",
                   "0%",
                   "Loan repaid with interest",
-                  "✅ Best option",
+                  "Best option",
                 ]}
               />
               <TR
@@ -1200,7 +1200,7 @@ export default function InvestorPage() {
                   "15–25% equity",
                   "15–25%",
                   "Dependent on exit",
-                  "❌ Expensive",
+                  "Expensive",
                 ]}
               />
               <TR
@@ -1209,7 +1209,7 @@ export default function InvestorPage() {
                   "Discount + cap",
                   "10–20%",
                   "Dependent on exit",
-                  "❌ No guaranteed return",
+                  "No guaranteed return",
                 ]}
               />
               <TR
@@ -1218,7 +1218,7 @@ export default function InvestorPage() {
                   "18–28% APR",
                   "0%",
                   "Personal liability",
-                  "❌ Predatory rate",
+                  "Predatory rate",
                 ]}
               />
             </tbody>

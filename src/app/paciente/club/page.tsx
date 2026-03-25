@@ -401,7 +401,7 @@ export default function ClubPage() {
               {/* CTA */}
               {isCurrentPlan ? (
                 <div className="text-center py-2.5 text-sm font-semibold text-celeste-dark bg-celeste/10 rounded-lg">
-                  {isEn ? "Current Plan" : "Plan Actual"} ✓
+                  {isEn ? "Current Plan" : "Plan Actual"}
                 </div>
               ) : (
                 <button

@@ -106,7 +106,7 @@ export default function FarmaciaPage() {
         </div>
         <button
           onClick={() =>
-            !isDemo ? showToast("✅ Nueva receta digital") : showDemo("Nueva receta digital")
+            !isDemo ? showToast("Nueva receta digital") : showDemo("Nueva receta digital")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
@@ -242,7 +242,7 @@ export default function FarmaciaPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(`✅ Agregar ${med.name} al carrito`)
+                            ? showToast(`Agregar ${med.name} al carrito`)
                             : showDemo(`Agregar ${med.name} al carrito`)
                         }
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
@@ -308,7 +308,7 @@ export default function FarmaciaPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(`✅ Cargar carrito para ${rx.patientName}`)
+                            ? showToast(`Cargar carrito para ${rx.patientName}`)
                             : showDemo(`Cargar carrito para ${rx.patientName}`)
                         }
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
@@ -319,7 +319,7 @@ export default function FarmaciaPage() {
                         onClick={() =>
                           !isDemo
                             ? showToast(
-                                `✅ Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
+                                `Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
                               )
                             : showDemo(
                                 `Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
@@ -335,7 +335,7 @@ export default function FarmaciaPage() {
                     <button
                       onClick={() =>
                         !isDemo
-                          ? showToast(`✅ Enviar recordatorio WhatsApp a ${rx.patientName}`)
+                          ? showToast(`Enviar recordatorio WhatsApp a ${rx.patientName}`)
                           : showDemo(`Enviar recordatorio WhatsApp a ${rx.patientName}`)
                       }
                       className="px-4 py-2 text-xs font-semibold border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
@@ -387,7 +387,7 @@ export default function FarmaciaPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(`✅ Ver tracking completo de ${del.id}`)
+                        ? showToast(`Ver tracking completo de ${del.id}`)
                         : showDemo(`Ver tracking completo de ${del.id}`)
                     }
                     className="text-xs font-medium text-celeste-dark hover:text-celeste transition"
@@ -550,7 +550,7 @@ export default function FarmaciaPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(`✅ Editar pedido recurrente ${order.id}`)
+                        ? showToast(`Editar pedido recurrente ${order.id}`)
                         : showDemo(`Editar pedido recurrente ${order.id}`)
                     }
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
@@ -562,8 +562,8 @@ export default function FarmaciaPage() {
                       !isDemo
                         ? showToast(
                             order.status === "Activo"
-                              ? `✅ Pausar pedido ${order.id}`
-                              : `✅ Reactivar pedido ${order.id}`,
+                              ? `Pausar pedido ${order.id}`
+                              : `Reactivar pedido ${order.id}`,
                           )
                         : showDemo(
                             order.status === "Activo"

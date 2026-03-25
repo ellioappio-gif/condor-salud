@@ -471,7 +471,7 @@ export default function DoctorPartnerPage() {
                 <div className="space-y-4 mb-8">
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-red-300 text-sm font-bold">✗</span>
+                      <span className="text-red-300 text-sm font-bold">—</span>
                     </div>
                     <div>
                       <p className="font-semibold text-white/90">
@@ -486,7 +486,7 @@ export default function DoctorPartnerPage() {
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-green-300 text-sm font-bold">✓</span>
+                      <span className="text-green-300 text-sm font-bold"></span>
                     </div>
                     <div>
                       <p className="font-semibold text-white/90">
@@ -503,7 +503,7 @@ export default function DoctorPartnerPage() {
 
                 <div className="bg-white/10 border border-white/20 rounded-xl p-4">
                   <p className="text-sm text-white/90 font-medium">
-                    💡{" "}
+                    {" "}
                     {isEn
                       ? "From your dashboard, simply click 'Bill through Cóndor' on any patient visit. We handle PAMI, OSDE, Swiss Medical, Galeno, Medifé, IOMA, Sancor Salud, Omint, and 270+ more."
                       : "Desde tu dashboard, simplemente hacé click en 'Facturar por Cóndor' en cualquier consulta. Gestionamos PAMI, OSDE, Swiss Medical, Galeno, Medifé, IOMA, Sancor Salud, Omint y 270+ más."}
@@ -540,14 +540,14 @@ export default function DoctorPartnerPage() {
                         {isEn ? "Bill through Cóndor" : "Facturar por Cóndor"} →
                       </span>
                       <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                        {isEn ? "Covered ✓" : "Cubierto ✓"}
+                        {isEn ? "Covered " : "Cubierto "}
                       </span>
                     </div>
                   </div>
 
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
                     <p className="text-xs font-bold text-green-700">
-                      ✓{" "}
+                      {" "}
                       {isEn
                         ? "Claim submitted — payment in 15 business days"
                         : "Reclamo enviado — cobro en 15 días hábiles"}
@@ -620,59 +620,59 @@ export default function DoctorPartnerPage() {
                   />
                   <ComparisonRow
                     feature={isEn ? "ROI guarantee" : "Garantía de ROI"}
-                    condor={isEn ? "✓ 12 months" : "✓ 12 meses"}
-                    others="✗"
+                    condor={isEn ? "12 months" : "12 meses"}
+                    others="—"
                   />
                   <ComparisonRow
                     feature={isEn ? "AI patient referrals" : "Derivaciones por IA"}
-                    condor="✓ Cora 24/7"
-                    others="✗"
+                    condor="Cora 24/7"
+                    others="—"
                     highlight
                   />
                   <ComparisonRow
                     feature={
                       isEn ? "Insurance billing (all)" : "Facturación obras sociales (todas)"
                     }
-                    condor="✓ 280+"
-                    others="✗"
+                    condor="280+"
+                    others="—"
                   />
                   <ComparisonRow
                     feature={isEn ? "Uber/Cabify integration" : "Integración Uber/Cabify"}
-                    condor="✓"
-                    others="✗"
+                    condor=""
+                    others="—"
                     highlight
                   />
                   <ComparisonRow
                     feature={isEn ? "Built-in teleconsulta" : "Teleconsulta integrada"}
-                    condor={isEn ? "✓ HD Video" : "✓ Video HD"}
+                    condor={isEn ? "HD Video" : "Video HD"}
                     others={isEn ? "Some (extra $)" : "Algunos (extra $)"}
                   />
                   <ComparisonRow
                     feature={isEn ? "SEO public profile" : "Perfil público con SEO"}
-                    condor="✓"
+                    condor=""
                     others={isEn ? "Limited" : "Limitado"}
                     highlight
                   />
                   <ComparisonRow
                     feature={isEn ? "WhatsApp reminders" : "Recordatorios WhatsApp"}
-                    condor={isEn ? "✓ Auto" : "✓ Auto"}
+                    condor={isEn ? "Auto" : "Auto"}
                     others={isEn ? "Manual" : "Manual"}
                   />
                   <ComparisonRow
                     feature={isEn ? "Medical tourism patients" : "Pacientes turismo médico"}
-                    condor="✓"
-                    others="✗"
+                    condor=""
+                    others="—"
                     highlight
                   />
                   <ComparisonRow
                     feature={isEn ? "Practice analytics" : "Analíticas de consultorio"}
-                    condor={isEn ? "✓ Full dashboard" : "✓ Dashboard completo"}
+                    condor={isEn ? "Full dashboard" : "Dashboard completo"}
                     others={isEn ? "Basic" : "Básico"}
                   />
                   <ComparisonRow
                     feature={isEn ? "Digital prescriptions (QR)" : "Recetas digitales (QR)"}
-                    condor="✓"
-                    others="✗"
+                    condor=""
+                    others="—"
                     highlight
                   />
                   <ComparisonRow

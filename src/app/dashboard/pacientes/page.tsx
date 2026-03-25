@@ -826,7 +826,7 @@ function LeadDetailPanel({
       <div className="p-4 border-b border-border flex items-center justify-between">
         <h3 className="font-semibold text-ink">Detalle de consulta</h3>
         <button onClick={onClose} className="text-ink-muted hover:text-ink text-xl">
-          ✕
+          ×
         </button>
       </div>
       <div className="p-4 space-y-4">
@@ -975,8 +975,8 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
                     minute: "2-digit",
                   })}
                   {msg.direction === "outbound" && (
-                    <span className="ml-1">
-                      {msg.status === "delivered" || msg.status === "read" ? "✓✓" : "✓"}
+                    <span className="ml-1 text-[10px] opacity-70">
+                      {msg.status === "delivered" || msg.status === "read" ? "Leido" : "Enviado"}
                     </span>
                   )}
                 </div>

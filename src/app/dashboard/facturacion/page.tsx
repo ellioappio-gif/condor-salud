@@ -70,7 +70,7 @@ export default function FacturacionPage() {
 
   const handleCrearFactura = async () => {
     if (!nfNumero || !nfPaciente || !nfMonto) {
-      showToast(`❌ ${t("billing.fillRequired")}`);
+      showToast(`${t("billing.fillRequired")}`);
       return;
     }
     const result = await execute({

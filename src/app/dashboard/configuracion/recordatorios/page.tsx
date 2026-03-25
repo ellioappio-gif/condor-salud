@@ -110,7 +110,7 @@ export default function RecordatoriosConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo("Enviar recordatorio manual")
-                : showToast("✅ Enviar recordatorio manual")
+                : showToast("Enviar recordatorio manual")
             }
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
@@ -120,7 +120,7 @@ export default function RecordatoriosConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo("Configurar WhatsApp Business API")
-                : showToast("✅ Configurar WhatsApp Business API")
+                : showToast("Configurar WhatsApp Business API")
             }
             className="px-4 py-2 text-sm font-semibold bg-[#25D366] text-white rounded-[4px] hover:bg-[#20BD5A] transition flex items-center gap-1.5"
           >
@@ -230,7 +230,7 @@ export default function RecordatoriosConfigPage() {
                   onClick={() =>
                     isDemo
                       ? showDemo(`Editar plantilla "${t.nombre}"`)
-                      : showToast(`✅ Editar plantilla "${t.nombre}"`)
+                      : showToast(`Editar plantilla "${t.nombre}"`)
                   }
                   className="text-xs text-celeste-dark font-medium hover:underline shrink-0"
                 >

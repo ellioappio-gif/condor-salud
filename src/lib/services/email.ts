@@ -81,7 +81,7 @@ function wrapHtml(title: string, body: string): string {
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:40px auto;background:white;border-radius:8px;border:1px solid #d4e4f0;overflow:hidden;">
     <tr>
       <td style="background:${BRAND_CELESTE};padding:24px 32px;">
-        <h1 style="margin:0;color:white;font-size:20px;font-weight:700;">🦅 Cóndor Salud</h1>
+        <h1 style="margin:0;color:white;font-size:20px;font-weight:700;">Cóndor Salud</h1>
       </td>
     </tr>
     <tr>
@@ -113,7 +113,7 @@ export async function sendTurnoReminder(opts: {
   const { to, paciente, fecha, hora, profesional, tipo } = opts;
   return sendEmail({
     to,
-    subject: `📅 Recordatorio de turno — ${fecha} ${hora}`,
+    subject: `Recordatorio de turno — ${fecha} ${hora}`,
     html: wrapHtml(
       "Recordatorio de turno",
       `
@@ -144,7 +144,7 @@ export async function sendAuditAlert(opts: {
   const { to, observaciones, altaSeveridad, montoRiesgo } = opts;
   return sendEmail({
     to,
-    subject: `⚠️ Auditoría: ${observaciones} observaciones nuevas`,
+    subject: `Auditoría: ${observaciones} observaciones nuevas`,
     html: wrapHtml(
       "Alerta de auditoría",
       `
@@ -173,7 +173,7 @@ export async function sendWelcomeEmail(opts: {
   const { to, nombre, clinicName } = opts;
   return sendEmail({
     to,
-    subject: "🦅 Bienvenido a Cóndor Salud",
+    subject: "Bienvenido a Cóndor Salud",
     html: wrapHtml(
       "Bienvenido",
       `

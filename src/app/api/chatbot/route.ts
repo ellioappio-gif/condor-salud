@@ -68,13 +68,13 @@ async function enrichCoverageResponse(
     if (plans.length > 0) {
       const plan = plans[0]!;
       const checks = [
-        plan.covers_general && (isEn ? "✅ General consultations" : "✅ Consultas generales"),
-        plan.covers_specialists && (isEn ? "✅ Specialists" : "✅ Especialistas"),
-        plan.covers_emergency && (isEn ? "✅ Emergency room" : "✅ Guardia"),
-        plan.covers_dental && (isEn ? "✅ Dental" : "✅ Odontología"),
-        plan.covers_telemedicine && (isEn ? "✅ Telemedicine" : "✅ Teleconsulta"),
-        plan.covers_medications && (isEn ? "✅ Medications" : "✅ Medicamentos"),
-        plan.covers_mental_health && (isEn ? "✅ Mental health" : "✅ Salud mental"),
+        plan.covers_general && (isEn ? "General consultations" : "Consultas generales"),
+        plan.covers_specialists && (isEn ? "Specialists" : "Especialistas"),
+        plan.covers_emergency && (isEn ? "Emergency room" : "Guardia"),
+        plan.covers_dental && (isEn ? "Dental" : "Odontología"),
+        plan.covers_telemedicine && (isEn ? "Telemedicine" : "Teleconsulta"),
+        plan.covers_medications && (isEn ? "Medications" : "Medicamentos"),
+        plan.covers_mental_health && (isEn ? "Mental health" : "Salud mental"),
       ].filter(Boolean);
 
       const copayInfo = plan.copay_general

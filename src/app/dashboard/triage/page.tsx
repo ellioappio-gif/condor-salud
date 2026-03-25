@@ -122,9 +122,7 @@ export default function TriagePage() {
         </div>
         <button
           onClick={() =>
-            !isDemo
-              ? showToast("✅ Nuevo triage de paciente")
-              : showDemo("Nuevo triage de paciente")
+            !isDemo ? showToast("Nuevo triage de paciente") : showDemo("Nuevo triage de paciente")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
@@ -326,7 +324,7 @@ export default function TriagePage() {
                 onClick={() =>
                   !isDemo
                     ? showToast(
-                        `✅ Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
+                        `Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
                       )
                     : showDemo(
                         `Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
@@ -375,7 +373,7 @@ export default function TriagePage() {
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast("✅ Adjuntar fotos al triage del paciente")
+                      ? showToast("Adjuntar fotos al triage del paciente")
                       : showDemo("Adjuntar fotos al triage del paciente")
                   }
                   className="mt-3 px-4 py-2 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
@@ -389,7 +387,7 @@ export default function TriagePage() {
               onClick={() =>
                 !isDemo
                   ? showToast(
-                      `✅ Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
+                      `Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
                     )
                   : showDemo(
                       `Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
@@ -629,7 +627,7 @@ export default function TriagePage() {
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast("✅ Agregar derivación al directorio médico")
+                      ? showToast("Agregar derivación al directorio médico")
                       : showDemo("Agregar derivación al directorio médico")
                   }
                   className="px-4 py-2.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
@@ -644,7 +642,7 @@ export default function TriagePage() {
                 onClick={() =>
                   !isDemo
                     ? showToast(
-                        `✅ Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
+                        `Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
                       )
                     : showDemo(
                         `Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
@@ -658,7 +656,7 @@ export default function TriagePage() {
                 onClick={() =>
                   !isDemo
                     ? showToast(
-                        "✅ Generar receta digital desde notas clínicas y enviar a Farmacia Online",
+                        "Generar receta digital desde notas clínicas y enviar a Farmacia Online",
                       )
                     : showDemo(
                         "Generar receta digital desde notas clínicas y enviar a Farmacia Online",
@@ -718,7 +716,7 @@ export default function TriagePage() {
                             onClick={() =>
                               !isDemo
                                 ? showToast(
-                                    `✅ Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
+                                    `Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
                                   )
                                 : showDemo(
                                     `Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
@@ -750,7 +748,7 @@ export default function TriagePage() {
                   onClick={() =>
                     !isDemo
                       ? showToast(
-                          `✅ Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
+                          `Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
                         )
                       : showDemo(
                           `Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,

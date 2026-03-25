@@ -84,7 +84,7 @@ export default function DemoFinanciadoresPage() {
 
         {/* insight card */}
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-5">
-          <h3 className="text-sm font-bold text-amber-800">📊 Insight</h3>
+          <h3 className="text-sm font-bold text-amber-800">Insight</h3>
           <p className="text-sm text-amber-700 mt-1">
             <strong>IOMA</strong> tiene el mayor porcentaje de rechazos (18%) y el mayor tiempo de
             cobro (82 días). Recomendamos priorizar la corrección de códigos y consultar la tabla de

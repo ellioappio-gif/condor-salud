@@ -27,7 +27,7 @@ const statusConfig = {
   approved: {
     icon: CheckCircle,
     color: "text-green-600 bg-green-50 border-green-200",
-    label: "Verificado ✓",
+    label: "Verificado",
     description: "Tu perfil ha sido verificado exitosamente.",
   },
   rejected: {
@@ -293,7 +293,7 @@ export default function VerificarCuentaPage() {
               <div className="mt-3 space-y-1">
                 {files.map((f, i) => (
                   <p key={i} className="text-sm text-gray-600">
-                    📎 {f.name}
+                    {f.name}
                   </p>
                 ))}
               </div>

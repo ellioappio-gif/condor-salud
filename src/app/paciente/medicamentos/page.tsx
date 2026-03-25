@@ -207,7 +207,7 @@ export default function MedicamentosPage() {
                       </div>
                       {med.refillable && (
                         <button
-                          onClick={() => showToast(`✅ ${t("patient.renewalSent")}`)}
+                          onClick={() => showToast(`${t("patient.renewalSent")}`)}
                           className="flex items-center gap-1 text-xs font-medium text-celeste-dark hover:text-celeste-700 transition"
                         >
                           <RefreshCw className="w-3 h-3" />

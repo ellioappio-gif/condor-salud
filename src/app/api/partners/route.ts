@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           from: "Cóndor Salud <notificaciones@condorsalud.com.ar>",
           to: ["partnerships@condorsalud.com.ar", "admin@condorsalud.com.ar"],
-          subject: `🤝 Nueva aplicación de partner: ${company}`,
+          subject: `Nueva aplicación de partner: ${company}`,
           html: `
             <h2>Nueva aplicación de partner</h2>
             <table style="border-collapse:collapse">
