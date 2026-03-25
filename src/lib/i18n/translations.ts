@@ -663,6 +663,7 @@ const translations: Dict = {
   "footer.patient": { es: "Portal Paciente", en: "Patient Portal" },
   "footer.waitlist": { es: "Waitlist", en: "Waitlist" },
   "footer.partners": { es: "Partners", en: "Partners" },
+  "footer.doctorPartner": { es: "Red Médica Partner", en: "Doctor Partner Network" },
   "footer.healthClub": { es: "Club Salud", en: "Club Salud" },
   "footer.embassy": { es: "Viajeros Americanos", en: "American Travelers" },
   "footer.colAccount": { es: "Cuenta", en: "Account" },
