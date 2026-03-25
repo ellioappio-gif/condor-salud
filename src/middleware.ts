@@ -97,9 +97,9 @@ function buildCspHeader(_nonce: string): string {
 }
 
 // ─── Middleware ───────────────────────────────────────────────
-// MEDICAL INDUSTRY: Authentication and verification are mandatory.
+// MEDICAL INDUSTRY: Authentication and verification are mandatory in production.
 // Dashboard requires: 1) Auth 2) Email verified 3) Onboarding complete.
-// No demo-browsable dashboard — all write AND read operations gated.
+// In development: dashboard is accessible without login for demo/testing.
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -121,6 +121,13 @@ export async function middleware(request: NextRequest) {
 
   // Public pages (landing, pricing, legal, patient portal) — no auth
   if (isPublicPage(pathname) && !pathname.startsWith("/dashboard")) {
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
+  }
+
+  // ── Development / Demo mode: skip auth for dashboard ─────
+  if (process.env.NODE_ENV !== "production") {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
     response.headers.set("Content-Security-Policy", cspHeader);
     return response;
