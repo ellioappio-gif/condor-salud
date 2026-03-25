@@ -227,6 +227,9 @@ export const dashboardTranslations: DashTranslation = {
   "nav.checkSymptoms": { es: "Chequear Síntomas", en: "Check Symptoms" },
   "nav.medicalHistory": { es: "Historia Clínica", en: "Medical Records" },
   "nav.myProfile": { es: "Mi Perfil", en: "My Profile" },
+  "nav.myPrescriptions": { es: "Mis Recetas", en: "My Prescriptions" },
+  "nav.healthClub": { es: "Health Club", en: "Health Club" },
+  "nav.healthTracker": { es: "Seguimiento", en: "Health Tracker" },
   "nav.professionalPortal": { es: "Portal profesional", en: "Professional portal" },
 
   // ─── Dashboard main ────────────────────────────────────────

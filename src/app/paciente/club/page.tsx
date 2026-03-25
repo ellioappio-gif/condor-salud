@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Crown,
   Star,
@@ -13,6 +14,12 @@ import {
   ChevronRight,
   Sparkles,
   Loader2,
+  Activity,
+  FileText,
+  UserSearch,
+  BadgeCheck,
+  ArrowRight,
+  Heart,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
@@ -228,6 +235,102 @@ export default function ClubPage() {
           )}
         </div>
       )}
+
+      {/* ─── Feature Hub Widgets ─── */}
+      <div>
+        <h2 className="text-xl font-display font-bold text-ink mb-4">
+          {isEn ? "Your Club Experience" : "Tu Experiencia Club"}
+        </h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Health Tracker */}
+          <Link
+            href="/paciente/salud"
+            className="group relative bg-white border border-border-light rounded-2xl p-5 hover:shadow-md hover:border-celeste/40 transition-all"
+          >
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mb-3">
+              <Activity className="w-5 h-5 text-emerald-600" />
+            </div>
+            <h3 className="font-bold text-sm text-ink mb-1">
+              {isEn ? "Health Tracker" : "Seguimiento de Salud"}
+            </h3>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              {isEn
+                ? "Track vitals, weight, glucose and more. Set goals and see trends."
+                : "Registrá signos vitales, peso, glucosa y más. Fijá metas y seguí tendencias."}
+            </p>
+            <ArrowRight className="absolute top-5 right-4 w-4 h-4 text-ink-200 group-hover:text-celeste transition" />
+          </Link>
+
+          {/* Digital Prescriptions */}
+          <Link
+            href="/paciente/recetas"
+            className="group relative bg-white border border-border-light rounded-2xl p-5 hover:shadow-md hover:border-celeste/40 transition-all"
+          >
+            <div className="w-10 h-10 rounded-xl bg-celeste-50 flex items-center justify-center mb-3">
+              <FileText className="w-5 h-5 text-celeste-dark" />
+            </div>
+            <h3 className="font-bold text-sm text-ink mb-1">
+              {isEn ? "My Prescriptions" : "Mis Recetas"}
+            </h3>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              {isEn
+                ? "View digital prescriptions with QR verification and club discounts."
+                : "Consultá recetas digitales con verificación QR y descuentos club."}
+            </p>
+            {membership?.plan && (
+              <span className="absolute top-4 right-4 text-[10px] font-bold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
+                -{Math.round(membership.plan.prescriptionDiscount * 100)}%
+              </span>
+            )}
+          </Link>
+
+          {/* Find a Doctor */}
+          <Link
+            href="/medicos"
+            className="group relative bg-white border border-border-light rounded-2xl p-5 hover:shadow-md hover:border-celeste/40 transition-all"
+          >
+            <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center mb-3">
+              <UserSearch className="w-5 h-5 text-violet-600" />
+            </div>
+            <h3 className="font-bold text-sm text-ink mb-1">
+              {isEn ? "Find a Doctor" : "Buscar Médico"}
+            </h3>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              {isEn
+                ? "Browse verified doctors, read reviews and book appointments."
+                : "Explorá médicos verificados, leé reseñas y pedí turno."}
+            </p>
+            <ArrowRight className="absolute top-5 right-4 w-4 h-4 text-ink-200 group-hover:text-celeste transition" />
+          </Link>
+
+          {/* Club Savings */}
+          <div className="relative bg-gradient-to-br from-gold/5 to-celeste/5 border border-gold/20 rounded-2xl p-5">
+            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center mb-3">
+              <Crown className="w-5 h-5 text-gold" />
+            </div>
+            <h3 className="font-bold text-sm text-ink mb-1">
+              {isEn ? "Club Savings" : "Ahorro Club"}
+            </h3>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              {membership?.plan
+                ? isEn
+                  ? `You save ${Math.round(membership.plan.prescriptionDiscount * 100)}% on all prescriptions plus ${membership.plan.maxTeleconsultas} free teleconsults.`
+                  : `Ahorrás ${Math.round(membership.plan.prescriptionDiscount * 100)}% en todas las recetas más ${membership.plan.maxTeleconsultas} teleconsultas gratis.`
+                : isEn
+                  ? "Join a plan below to start saving on prescriptions and teleconsults."
+                  : "Unite a un plan abajo para empezar a ahorrar en recetas y teleconsultas."}
+            </p>
+            {membership?.plan && (
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-celeste-dark bg-celeste/10 px-2 py-0.5 rounded-full">
+                  <BadgeCheck className="w-3 h-3" />
+                  {isEn ? "Active Member" : "Miembro Activo"}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* ─── Plan Cards ─── */}
       <div className="grid sm:grid-cols-3 gap-6">

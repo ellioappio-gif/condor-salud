@@ -38,6 +38,12 @@ const navItems = [
     tKey: "nav.myMedications",
   },
   {
+    label: "Mis Recetas",
+    href: "/paciente/recetas",
+    icon: FileText,
+    tKey: "nav.myPrescriptions",
+  },
+  {
     label: "Teleconsulta",
     href: "/paciente/teleconsulta",
     icon: Video,
