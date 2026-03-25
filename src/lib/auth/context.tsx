@@ -114,6 +114,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function bootstrap() {
+      // ── Demo user for local development ──
+      const DEMO_USER: User = {
+        id: "demo-doctor-001",
+        email: "demo@condorsalud.com",
+        name: "Dr. Rodriguez",
+        role: "admin",
+        clinicId: "demo-clinic-001",
+        clinicName: "Clinica San Martin",
+        isDemo: true,
+      };
+
       // ── Supabase Auth Mode ──
       if (isSupabaseConfigured()) {
         try {
@@ -131,7 +142,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setState({ user, isLoading: false, isAuthenticated: true });
             }
           } else if (!cancelled) {
-            setState({ user: null, isLoading: false, isAuthenticated: false });
+            // No Supabase session — use demo user in development
+            if (process.env.NODE_ENV !== "production") {
+              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
+            } else {
+              setState({ user: null, isLoading: false, isAuthenticated: false });
+            }
           }
 
           // Listen for auth state changes (login/logout/token refresh)
@@ -142,6 +158,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (newSession?.user) {
               const user = await resolveProfile(supabase, newSession.user);
               setState({ user, isLoading: false, isAuthenticated: true });
+            } else if (process.env.NODE_ENV !== "production") {
+              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
             } else {
               setState({ user: null, isLoading: false, isAuthenticated: false });
             }
@@ -153,7 +171,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
         } catch {
           if (!cancelled) {
-            setState({ user: null, isLoading: false, isAuthenticated: false });
+            if (process.env.NODE_ENV !== "production") {
+              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
+            } else {
+              setState({ user: null, isLoading: false, isAuthenticated: false });
+            }
           }
         }
         return;
