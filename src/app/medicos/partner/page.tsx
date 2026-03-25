@@ -19,22 +19,27 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
+  ClipboardList,
   CreditCard,
   DollarSign,
   FileText,
+  Fingerprint,
   Globe2,
   Heart,
+  Landmark,
   LineChart,
   MapPin,
   MessageSquare,
   Phone,
   Pill,
+  QrCode,
   Search,
   Shield,
   ShieldCheck,
   Sparkles,
   Star,
   Stethoscope,
+  Syringe,
   TrendingUp,
   Truck,
   Users,
@@ -445,6 +450,33 @@ export default function DoctorPartnerPage() {
                     : "Confirmaciones de turno, recordatorios y seguimiento automáticos por WhatsApp — el canal que tus pacientes ya usan."
                 }
               />
+              <Benefit
+                icon={Landmark}
+                title={isEn ? "Mi Argentina Gov Integration" : "Integración Mi Argentina"}
+                desc={
+                  isEn
+                    ? "Connected to Argentina's national digital health ecosystem: SISA registry, REFES facility verification, and Credencial de Salud Digital — all from your dashboard."
+                    : "Conectado al ecosistema nacional de salud digital: registro SISA, verificación REFES y Credencial de Salud Digital — todo desde tu dashboard."
+                }
+              />
+              <Benefit
+                icon={Fingerprint}
+                title={isEn ? "RENAPER Patient Verification" : "Verificación RENAPER de Pacientes"}
+                desc={
+                  isEn
+                    ? "Verify patient identity instantly through RENAPER integration. Reduce fraud, streamline onboarding, and ensure every patient record is accurate."
+                    : "Verificá la identidad de pacientes al instante con integración RENAPER. Reducí fraude, agilizá el alta y asegurá que cada ficha sea precisa."
+                }
+              />
+              <Benefit
+                icon={Syringe}
+                title={isEn ? "Digital Vaccination Records" : "Carnet de Vacunación Digital"}
+                desc={
+                  isEn
+                    ? "Access patient vaccination histories through the national digital vaccination certificate. No more paper records or missing data."
+                    : "Accedé al historial de vacunación de pacientes vía el carnet digital nacional. Sin más registros en papel ni datos perdidos."
+                }
+              />
             </div>
           </div>
         </section>
@@ -676,6 +708,13 @@ export default function DoctorPartnerPage() {
                     highlight
                   />
                   <ComparisonRow
+                    feature={
+                      isEn ? "Mi Argentina / SISA integration" : "Integración Mi Argentina / SISA"
+                    }
+                    condor=""
+                    others="—"
+                  />
+                  <ComparisonRow
                     feature={isEn ? "Per-appointment fee" : "Costo por turno"}
                     condor="$0"
                     others="$500–2.000"
@@ -686,7 +725,400 @@ export default function DoctorPartnerPage() {
           </div>
         </section>
 
-        {/* ── Plan & ROI ──────────────────────────────────── */}
+        {/* ── Mi Argentina & Government Integration ──────── */}
+        <section className="py-16 md:py-24 bg-gradient-to-br from-[#37bbed]/5 via-white to-[#f4ce14]/5">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 bg-[#37bbed]/10 text-[#37bbed] text-[11px] font-bold tracking-[2px] uppercase px-4 py-2 rounded-full border border-[#37bbed]/20 mb-4">
+                  <Landmark className="w-4 h-4" />
+                  {isEn ? "GOVERNMENT INTEGRATION" : "INTEGRACIÓN GOBIERNO"}
+                </div>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-4">
+                  {isEn
+                    ? "Connected to Argentina's digital health infrastructure"
+                    : "Conectado a la infraestructura de salud digital de Argentina"}
+                </h2>
+                <p className="text-base text-ink-light mb-6 leading-relaxed">
+                  {isEn
+                    ? "Cóndor Salud integrates with Mi Argentina and the national health systems — giving your practice direct access to government digital health services that streamline patient care and regulatory compliance."
+                    : "Cóndor Salud se integra con Mi Argentina y los sistemas nacionales de salud — dándole a tu consultorio acceso directo a servicios de salud digital del gobierno que agilizan la atención y el cumplimiento regulatorio."}
+                </p>
+
+                <div className="space-y-4">
+                  {[
+                    {
+                      icon: QrCode,
+                      titleEs: "Credencial de Salud Digital",
+                      titleEn: "Digital Health Credential",
+                      descEs:
+                        "Verificá la cobertura de obra social del paciente al instante con la Credencial de Salud Digital de Mi Argentina. Sin llamar a la obra social, sin esperar.",
+                      descEn:
+                        "Verify patient insurance coverage instantly via Mi Argentina's Digital Health Credential. No calling the insurer, no waiting.",
+                    },
+                    {
+                      icon: ClipboardList,
+                      titleEs: "Registro SISA / REFES",
+                      titleEn: "SISA / REFES Registry",
+                      descEs:
+                        "Tu consultorio queda registrado en el Sistema Integrado de Información Sanitaria (SISA) y el Registro Federal de Establecimientos de Salud (REFES). Visibilidad nacional.",
+                      descEn:
+                        "Your practice gets registered in the Integrated Health Information System (SISA) and Federal Health Facility Registry (REFES). National visibility.",
+                    },
+                    {
+                      icon: Syringe,
+                      titleEs: "Carnet de Vacunación Digital",
+                      titleEn: "Digital Vaccination Certificate",
+                      descEs:
+                        "Accedé al historial de vacunación completo del paciente desde el carnet digital nacional. Cero papel, cero datos perdidos.",
+                      descEn:
+                        "Access the patient's complete vaccination history from the national digital certificate. Zero paper, zero lost data.",
+                    },
+                    {
+                      icon: Fingerprint,
+                      titleEs: "Verificación RENAPER",
+                      titleEn: "RENAPER Identity Verification",
+                      descEs:
+                        "Verificá la identidad de pacientes en tiempo real con integración RENAPER. Prevení fraude y asegurá fichas médicas precisas.",
+                      descEn:
+                        "Verify patient identity in real time with RENAPER integration. Prevent fraud and ensure accurate medical records.",
+                    },
+                    {
+                      icon: FileText,
+                      titleEs: "Receta Electrónica Nacional",
+                      titleEn: "National Digital Prescriptions",
+                      descEs:
+                        "Emití recetas digitales compatibles con el sistema nacional de receta electrónica. Código QR verificable en cualquier farmacia del país.",
+                      descEn:
+                        "Issue digital prescriptions compatible with the national e-prescription system. QR code verifiable at any pharmacy nationwide.",
+                    },
+                  ].map((item) => (
+                    <div key={item.titleEs} className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-celeste/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <item.icon className="w-4.5 h-4.5 text-celeste-dark" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-ink">
+                          {isEn ? item.titleEn : item.titleEs}
+                        </p>
+                        <p className="text-xs text-ink-light leading-relaxed">
+                          {isEn ? item.descEn : item.descEs}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Gov integration visual */}
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl border border-border p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-[#37bbed] flex items-center justify-center">
+                      <Landmark className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-ink">Mi Argentina</p>
+                      <p className="text-[10px] text-ink-muted">
+                        {isEn
+                          ? "National Digital Health Platform"
+                          : "Plataforma Nacional de Salud Digital"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {[
+                      { label: "SISA", statusEs: "Registrado", statusEn: "Registered", ok: true },
+                      { label: "REFES", statusEs: "Verificado", statusEn: "Verified", ok: true },
+                      { label: "RENAPER", statusEs: "Conectado", statusEn: "Connected", ok: true },
+                      {
+                        label: isEn ? "Digital Credential" : "Credencial Digital",
+                        statusEs: "Activa",
+                        statusEn: "Active",
+                        ok: true,
+                      },
+                      {
+                        label: isEn ? "E-Prescription" : "Receta Electrónica",
+                        statusEs: "Habilitada",
+                        statusEn: "Enabled",
+                        ok: true,
+                      },
+                    ].map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex items-center justify-between bg-surface rounded-lg px-3 py-2.5"
+                      >
+                        <span className="text-xs font-medium text-ink">{row.label}</span>
+                        <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {isEn ? row.statusEn : row.statusEs}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-celeste-pale border border-celeste/20 rounded-xl p-4">
+                  <p className="text-xs text-ink-light leading-relaxed">
+                    <span className="font-semibold text-celeste-dark">
+                      {isEn ? "Compliance included:" : "Cumplimiento incluido:"}{" "}
+                    </span>
+                    {isEn
+                      ? "All regulatory integrations are handled by Cóndor Salud at no extra cost. Your practice stays compliant with national health registries automatically."
+                      : "Todas las integraciones regulatorias son gestionadas por Cóndor Salud sin costo extra. Tu consultorio cumple con los registros nacionales de salud automáticamente."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Partnership Agreement ──────────────────────── */}
+        <section className="py-16 md:py-24 bg-surface">
+          <div className="max-w-5xl mx-auto px-6">
+            <p className="text-[11px] font-bold tracking-[2.5px] text-celeste uppercase mb-2 text-center">
+              {isEn ? "PARTNERSHIP AGREEMENT" : "CONTRATO DE PARTNERSHIP"}
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-4 text-center">
+              {isEn
+                ? "What's included in your partnership"
+                : "Qué incluye tu contrato de partnership"}
+            </h2>
+            <p className="text-base text-ink-light text-center max-w-2xl mx-auto mb-12">
+              {isEn
+                ? "Modeled after established medical club agreements in Argentina, your partnership contract covers comprehensive services with clear terms and no surprises."
+                : "Basado en contratos de clubes médicos establecidos en Argentina, tu contrato de partnership cubre servicios integrales con términos claros y sin sorpresas."}
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              {/* Services Column */}
+              <div className="bg-white border border-border rounded-xl p-6">
+                <div className="w-10 h-10 rounded-xl bg-celeste/10 flex items-center justify-center mb-3">
+                  <Stethoscope className="w-5 h-5 text-celeste-dark" />
+                </div>
+                <h3 className="font-bold text-sm text-ink mb-3">
+                  {isEn ? "Network Services" : "Servicios de la Red"}
+                </h3>
+                <ul className="space-y-2">
+                  {(isEn
+                    ? [
+                        "Primary care consultations (in-person & virtual)",
+                        "Same-day attention for general medicine & cardiology",
+                        "Priority scheduling for 23+ specialties",
+                        "Diagnostic studies (ECG, echo, Doppler, ultrasound, X-ray, mammography)",
+                        "Digital prescriptions with national QR codes",
+                        "Patient identity verification via RENAPER",
+                        "Insurance billing through Cóndor for 280+ providers",
+                      ]
+                    : [
+                        "Consultas de atención primaria (presencial y virtual)",
+                        "Atención el mismo día para clínica médica y cardiología",
+                        "Turnos prioritarios para 23+ especialidades",
+                        "Estudios diagnósticos (ECG, eco, Doppler, ecografía, Rx, mamografía)",
+                        "Recetas digitales con código QR nacional",
+                        "Verificación de identidad de pacientes vía RENAPER",
+                        "Facturación de obras sociales por Cóndor para 280+ prestadoras",
+                      ]
+                  ).map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <Check className="w-3.5 h-3.5 text-celeste-dark mt-0.5 shrink-0" />
+                      <span className="text-xs text-ink-light leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Specialties Column */}
+              <div className="bg-white border border-border rounded-xl p-6">
+                <div className="w-10 h-10 rounded-xl bg-celeste/10 flex items-center justify-center mb-3">
+                  <Users className="w-5 h-5 text-celeste-dark" />
+                </div>
+                <h3 className="font-bold text-sm text-ink mb-3">
+                  {isEn ? "23+ Medical Specialties" : "23+ Especialidades Médicas"}
+                </h3>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                  {[
+                    { es: "Clínica Médica", en: "Internal Medicine" },
+                    { es: "Cardiología", en: "Cardiology" },
+                    { es: "Traumatología", en: "Orthopedics" },
+                    { es: "Urología", en: "Urology" },
+                    { es: "Dermatología", en: "Dermatology" },
+                    { es: "Gastroenterología", en: "Gastroenterology" },
+                    { es: "Ginecología", en: "Gynecology" },
+                    { es: "Oftalmología", en: "Ophthalmology" },
+                    { es: "Infectología", en: "Infectious Disease" },
+                    { es: "Neumonología", en: "Pulmonology" },
+                    { es: "Alergia", en: "Allergy" },
+                    { es: "Hematología", en: "Hematology" },
+                    { es: "ORL", en: "ENT" },
+                    { es: "Psicología", en: "Psychology" },
+                    { es: "Neurología", en: "Neurology" },
+                    { es: "Endocrinología", en: "Endocrinology" },
+                    { es: "Flebología", en: "Phlebology" },
+                    { es: "Cirugía Vascular", en: "Vascular Surgery" },
+                    { es: "Kinesiología", en: "Physiotherapy" },
+                    { es: "Fonoaudiología", en: "Speech Therapy" },
+                    { es: "Odontología", en: "Dentistry" },
+                  ].map((spec) => (
+                    <span key={spec.es} className="text-[11px] text-ink-light">
+                      {isEn ? spec.en : spec.es}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Contract Terms Column */}
+              <div className="bg-white border border-border rounded-xl p-6">
+                <div className="w-10 h-10 rounded-xl bg-celeste/10 flex items-center justify-center mb-3">
+                  <ShieldCheck className="w-5 h-5 text-celeste-dark" />
+                </div>
+                <h3 className="font-bold text-sm text-ink mb-3">
+                  {isEn ? "Clear Contract Terms" : "Términos Claros de Contrato"}
+                </h3>
+                <ul className="space-y-2.5">
+                  {(isEn
+                    ? [
+                        {
+                          label: "No pre-existing condition exclusions",
+                          desc: "Every patient is welcome, regardless of health history.",
+                        },
+                        {
+                          label: "No waiting periods",
+                          desc: "Start receiving patients from day one of your membership.",
+                        },
+                        {
+                          label: "Annual partnership with monthly billing",
+                          desc: "$10,000 ARS/month. Cancel anytime with 30 days notice.",
+                        },
+                        {
+                          label: "12-month ROI guarantee",
+                          desc: "If referrals don't cover your fees, we refund the difference.",
+                        },
+                        {
+                          label: "Transparent scope of services",
+                          desc: "Clear list of included and excluded services. No hidden limits.",
+                        },
+                        {
+                          label: "CABA jurisdiction",
+                          desc: "All disputes resolved in Buenos Aires courts.",
+                        },
+                      ]
+                    : [
+                        {
+                          label: "Sin exclusión de patologías preexistentes",
+                          desc: "Todo paciente es bienvenido, sin importar su historial de salud.",
+                        },
+                        {
+                          label: "Sin períodos de carencia",
+                          desc: "Empezá a recibir pacientes desde el día uno de tu membresía.",
+                        },
+                        {
+                          label: "Partnership anual con facturación mensual",
+                          desc: "$10.000 ARS/mes. Cancelá cuando quieras con 30 días de preaviso.",
+                        },
+                        {
+                          label: "Garantía de ROI a 12 meses",
+                          desc: "Si las derivaciones no cubren tu cuota, te devolvemos la diferencia.",
+                        },
+                        {
+                          label: "Alcance transparente de servicios",
+                          desc: "Lista clara de servicios incluidos y excluidos. Sin límites ocultos.",
+                        },
+                        {
+                          label: "Jurisdicción CABA",
+                          desc: "Cualquier controversia se resuelve en tribunales de Buenos Aires.",
+                        },
+                      ]
+                  ).map((term) => (
+                    <li key={term.label}>
+                      <p className="text-xs font-semibold text-ink">{term.label}</p>
+                      <p className="text-[11px] text-ink-muted leading-relaxed">{term.desc}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Diagnostic Studies Available */}
+            <div className="bg-white border border-border rounded-xl p-6">
+              <h3 className="font-bold text-sm text-ink mb-4 text-center">
+                {isEn
+                  ? "26+ Diagnostic Studies Available Through the Network"
+                  : "26+ Estudios Diagnósticos Disponibles en la Red"}
+              </h3>
+              <div className="flex flex-wrap justify-center gap-2">
+                {(isEn
+                  ? [
+                      "Lab Work",
+                      "X-Ray",
+                      "Spirometry",
+                      "Ultrasound & Doppler",
+                      "ECG",
+                      "Echocardiogram",
+                      "Echo-guided Biopsy",
+                      "Vascular Doppler",
+                      "Ankle-Brachial Index",
+                      "Stress Test",
+                      "Pharmacological Stress Echo",
+                      "Holter Monitor",
+                      "Blood Pressure Map",
+                      "Tilt Test",
+                      "Fundoscopy",
+                      "Pressotherapy",
+                      "Physiotherapy",
+                      "Pap & Colpo",
+                      "Pain Management",
+                      "Urodynamics",
+                      "Endoscopy",
+                      "Laryngoscopy",
+                      "Minor Ambulatory Surgery",
+                      "Allergy Testing",
+                      "Audiometry",
+                      "Mammography",
+                    ]
+                  : [
+                      "Laboratorio",
+                      "Radiografía",
+                      "Espirometría",
+                      "Ecografía y Doppler",
+                      "ECG",
+                      "Ecocardiograma",
+                      "Biopsia guiada por eco",
+                      "Doppler vascular",
+                      "Índice braquio-crural",
+                      "Ergometría",
+                      "Eco stress farmacológico",
+                      "Holter de arritmias",
+                      "MAPA",
+                      "Tilt test",
+                      "Fondo de ojo",
+                      "Presoterapia",
+                      "Kinesiología",
+                      "Pap y colpo",
+                      "Manejo del dolor",
+                      "Urodinamia",
+                      "VEDA/VCC",
+                      "Laringoscopía",
+                      "Cirugía menor ambulatoria",
+                      "Test de alergias",
+                      "Audiometría",
+                      "Mamografía",
+                    ]
+                ).map((study) => (
+                  <span
+                    key={study}
+                    className="text-[11px] bg-surface border border-border/60 rounded-lg px-3 py-1.5 text-ink-muted font-medium"
+                  >
+                    {study}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Plan & ROI (continued) ─────────────────────── */}
         <section id="planes" className="py-16 md:py-24">
           <div className="max-w-5xl mx-auto px-6">
             <div className="grid md:grid-cols-2 gap-10 items-start">
@@ -745,6 +1177,9 @@ export default function DoctorPartnerPage() {
                           "Digital prescriptions with QR codes",
                           "Medical tourism patient access",
                           "24/7 online appointment booking",
+                          "Mi Argentina / SISA / REFES integration",
+                          "RENAPER patient identity verification",
+                          "Access to 23+ specialties & 26+ diagnostic studies",
                           "$0 per-appointment fees — unlimited bookings",
                           "12-month ROI guarantee",
                         ]
@@ -760,6 +1195,9 @@ export default function DoctorPartnerPage() {
                           "Recetas digitales con código QR",
                           "Acceso a pacientes de turismo médico",
                           "Agenda de turnos online 24/7",
+                          "Integración Mi Argentina / SISA / REFES",
+                          "Verificación de identidad RENAPER",
+                          "Acceso a 23+ especialidades y 26+ estudios diagnósticos",
                           "$0 por turno — turnos ilimitados",
                           "Garantía de ROI a 12 meses",
                         ]
@@ -965,6 +1403,30 @@ export default function DoctorPartnerPage() {
                   a: isEn
                     ? "You can use both. There's no exclusivity requirement. Many doctors find they can cancel their other subscription within 2–3 months because Cóndor delivers better results at a lower price."
                     : "Podés usar ambas. No hay requisito de exclusividad. Muchos médicos descubren que pueden cancelar su otra suscripción en 2–3 meses porque Cóndor da mejores resultados a menor precio.",
+                },
+                {
+                  q: isEn
+                    ? "How does the Mi Argentina integration work?"
+                    : "¿Cómo funciona la integración con Mi Argentina?",
+                  a: isEn
+                    ? "We connect your practice to Argentina's national digital health infrastructure. This includes SISA (health information system), REFES (facility registry), RENAPER (identity verification), the Digital Health Credential for instant insurance verification, and the national e-prescription system. All integrations are set up automatically when you join — no extra cost, no extra work."
+                    : "Conectamos tu consultorio a la infraestructura de salud digital nacional de Argentina. Esto incluye SISA (sistema de información sanitaria), REFES (registro de establecimientos), RENAPER (verificación de identidad), la Credencial de Salud Digital para verificar obras sociales al instante y el sistema nacional de receta electrónica. Todas las integraciones se configuran automáticamente al sumarte — sin costo extra, sin trabajo adicional.",
+                },
+                {
+                  q: isEn
+                    ? "What does the partnership contract include?"
+                    : "¿Qué incluye el contrato de partnership?",
+                  a: isEn
+                    ? "Your partnership agreement covers: access to 23+ medical specialties and 26+ diagnostic studies through the network, same-day attention guarantees for general medicine and cardiology, insurance billing for 280+ providers, no exclusion of pre-existing conditions, no waiting periods, annual contract with monthly billing at $10,000 ARS/month, 30-day cancellation notice, 12-month ROI guarantee, and clear service scope with no hidden limits. The contract is governed by CABA jurisdiction."
+                    : "Tu contrato de partnership incluye: acceso a 23+ especialidades médicas y 26+ estudios diagnósticos a través de la red, garantía de atención el mismo día para clínica médica y cardiología, facturación de obras sociales para 280+ prestadoras, sin exclusión de patologías preexistentes, sin carencia, contrato anual con facturación mensual a $10.000 ARS/mes, cancelación con 30 días de preaviso, garantía de ROI a 12 meses y alcance de servicios claro sin límites ocultos. El contrato se rige por jurisdicción CABA.",
+                },
+                {
+                  q: isEn
+                    ? "What diagnostic equipment does the network have?"
+                    : "¿Qué equipamiento diagnóstico tiene la red?",
+                  a: isEn
+                    ? "The Cóndor Salud network includes facilities with multi-slice CT scanners, digital X-ray, dental CT, 3+ ultrasound machines (general and Doppler), echocardiography equipment, stress test systems (ergometric and pharmacological), Holter monitors, ambulatory blood pressure monitoring (ABPM), spirometry, ophthalmology equipment, and in-house laboratory services. All available to your patients through the network."
+                    : "La red de Cóndor Salud incluye centros con tomógrafo multicorte, rayos X digital, tomógrafo dental, 3+ ecógrafos (generales y Doppler), equipo de ecocardiografía, sistemas de ergometría y eco stress farmacológico, Holter, MAPA de presión arterial, espirometría, equipamiento de oftalmología y laboratorio propio. Todo disponible para tus pacientes a través de la red.",
                 },
               ].map((item, i) => (
                 <details key={i} className="group border border-border rounded-xl overflow-hidden">
