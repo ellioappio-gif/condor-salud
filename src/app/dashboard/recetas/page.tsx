@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   FileText,
   Plus,
@@ -159,13 +160,13 @@ export default function RecetasPage() {
             Creá y gestioná recetas con código QR verificable
           </p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
+        <Link
+          href="/dashboard/recetas/nueva"
           className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
         >
           <Plus className="w-4 h-4" />
           Nueva Receta
-        </button>
+        </Link>
       </div>
 
       {/* Search */}

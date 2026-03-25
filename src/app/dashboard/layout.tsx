@@ -46,6 +46,7 @@ import {
   UserCheck,
   FileHeart,
   MessageSquareWarning,
+  FilePlus2,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -72,6 +73,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/triage": Stethoscope,
   "/dashboard/disponibilidad": CalendarClock,
   "/dashboard/recetas": QrCode,
+  "/dashboard/recetas/nueva": FilePlus2,
   "/dashboard/verificaciones": BadgeCheck,
   "/dashboard/verificar-cuenta": UserCheck,
   "/dashboard/mi-perfil-publico": FileHeart,
@@ -128,7 +130,14 @@ const navSections = [
         tKey: "nav.interconsultas",
       },
       { label: "Triage", href: "/dashboard/triage", tKey: "nav.triage" },
-      { label: "Recetas Digitales", href: "/dashboard/recetas", tKey: "nav.digitalPrescriptions" },
+    ],
+  },
+  {
+    title: "RECETAS",
+    titleKey: "nav.prescriptions",
+    items: [
+      { label: "Prescribir Receta", href: "/dashboard/recetas/nueva", tKey: "nav.prescribeReceta" },
+      { label: "Historial Recetas", href: "/dashboard/recetas", tKey: "nav.digitalPrescriptions" },
     ],
   },
   {
@@ -182,6 +191,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/triage": "triage",
   "/dashboard/disponibilidad": "agenda",
   "/dashboard/recetas": "recetas-digitales",
+  "/dashboard/recetas/nueva": "recetas-digitales",
   "/dashboard/verificaciones": "verificacion-medica",
   "/dashboard/verificar-cuenta": "verificacion-medica",
   "/dashboard/mi-perfil-publico": "perfiles-publicos",
