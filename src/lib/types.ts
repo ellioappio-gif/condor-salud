@@ -493,18 +493,61 @@ export interface HealthTrackerItem {
 
 // ─── Feature: Digital Prescriptions with QR ──────────────────
 
-export type DigitalPrescriptionStatus = "active" | "dispensed" | "expired" | "cancelled";
+export type DigitalPrescriptionStatus =
+  | "draft"
+  | "active"
+  | "sent"
+  | "dispensed"
+  | "expired"
+  | "cancelled";
 
 export interface PrescriptionMedication {
   id: string;
   prescriptionId: string;
   medicationName: string;
+  genericName?: string;
   dosage: string;
   frequency: string;
   duration?: string;
   quantity?: number;
   notes?: string;
   sortOrder: number;
+  drug?: DrugSnapshot;
+}
+
+/** Snapshot of drug data at time of prescription (immutable) */
+export interface DrugSnapshot {
+  drugId: string;
+  troquel?: string;
+  alfabetaCode?: string;
+  monodrogaCode?: string;
+  genericName: string;
+  commercialName: string;
+  lab: string;
+  concentration: string;
+  presentation: string;
+  isControlled: boolean;
+}
+
+/** Structured diagnosis with optional ICD-10 code */
+export interface PrescriptionDiagnosis {
+  code?: string; // ICD-10 code, e.g. "J06.9"
+  description: string;
+}
+
+/** OSDE registration data stored per prescription */
+export interface OSDEPrescriptionData {
+  status:
+    | "registered"
+    | "partial"
+    | "not_osde"
+    | "no_credentials"
+    | "validation_error"
+    | "server_error"
+    | "config_error";
+  registeredAt?: string;
+  retriedAt?: string;
+  batchResults?: Record<string, { groupIdentifier?: string; success: boolean; error?: string }>;
 }
 
 export interface DigitalPrescription {
@@ -513,20 +556,91 @@ export interface DigitalPrescription {
   doctorProfileId?: string;
   patientId: string;
   patientName: string;
+  patientDni?: string;
   doctorName: string;
   doctorMatricula?: string;
+  doctorCuit?: string;
   specialty?: string;
   diagnosis?: string;
+  diagnoses?: PrescriptionDiagnosis[];
   notes?: string;
   verificationToken: string;
   status: DigitalPrescriptionStatus;
   issuedAt: string;
   expiresAt: string;
+  sentAt?: string;
+  sentVia?: ("whatsapp" | "email")[];
   dispensedAt?: string;
   dispensedBy?: string;
   pdfPath?: string;
+  pdfUrl?: string;
+  coverageName?: string;
+  coveragePlan?: string;
+  coverageNumber?: string;
+  osde?: OSDEPrescriptionData;
+  repeatOf?: string; // original prescription ID
   medications: PrescriptionMedication[];
   createdAt: string;
+}
+
+// ─── Vademécum / Drug Database ───────────────────────────────
+
+export interface VademecumDrug {
+  id: string;
+  commercialName: string;
+  genericName: string;
+  lab: string;
+  concentration: string;
+  presentation: string;
+  troquel?: string;
+  alfabetaCode?: string;
+  monodrogaCode?: string;
+  isControlled: boolean;
+  requiresPrescription: boolean;
+  category: string;
+  atcCode?: string;
+}
+
+export interface DrugInteraction {
+  id: string;
+  drugA: string;
+  drugB: string;
+  severity: "low" | "moderate" | "high" | "contraindicated";
+  description: string;
+  recommendation: string;
+}
+
+export interface VademecumSearchResult {
+  drugs: VademecumDrug[];
+  source: "api" | "cache" | "local";
+  total: number;
+}
+
+export interface InteractionCheckResult {
+  interactions: DrugInteraction[];
+  hasContraindicated: boolean;
+  hasHigh: boolean;
+}
+
+// ─── SISA (Sistema Integrado de Información Sanitaria) ───────
+
+export interface SISADoctorData {
+  nombre: string;
+  apellido: string;
+  dni: string;
+  cuil?: string;
+  provincia: string;
+  profesion: string;
+  especialidad: string;
+  matricula: string;
+  tipoMatricula: "nacional" | "provincial";
+  estado: "habilitado" | "inhabilitado" | "suspendido";
+}
+
+export interface SISAValidationResult {
+  valid: boolean;
+  data: SISADoctorData | null;
+  error?: string;
 }
 
 // ─── Feature: Doctor Verification ────────────────────────────

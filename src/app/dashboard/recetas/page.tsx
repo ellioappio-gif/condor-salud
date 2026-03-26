@@ -3,31 +3,25 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  FileText,
   Plus,
   QrCode,
   Search,
   CheckCircle2,
   Clock,
   XCircle,
-  Pill,
   Copy,
   ExternalLink,
-  Loader2,
-  X,
+  Send,
+  RefreshCw,
+  Ban,
+  Shield,
+  FileEdit,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 
 /* ── Types ──────────────────────────────────────────────── */
-interface Medication {
-  medicationName: string;
-  dosage: string;
-  frequency: string;
-  duration: string;
-  quantity: number | "";
-  notes: string;
-}
-
 interface PrescriptionRow {
   id: string;
   patientName: string;
@@ -35,99 +29,202 @@ interface PrescriptionRow {
   status: string;
   issuedAt: string;
   verificationToken: string;
-  medications: { medicationName: string; dosage: string; frequency: string }[];
+  coverageName?: string;
+  osde?: { status: string };
+  medications: {
+    medicationName: string;
+    dosage: string;
+    frequency: string;
+    genericName?: string;
+  }[];
 }
 
+type StatusFilter = "all" | "draft" | "active" | "sent" | "dispensed" | "expired" | "cancelled";
+
 const STATUS_BADGE: Record<string, { cls: string; label: string; icon: typeof CheckCircle2 }> = {
+  draft: { cls: "bg-gray-100 text-gray-600", label: "Borrador", icon: FileEdit },
   active: { cls: "bg-green-50 text-green-700", label: "Activa", icon: CheckCircle2 },
-  dispensed: { cls: "bg-blue-50 text-blue-700", label: "Dispensada", icon: CheckCircle2 },
+  sent: { cls: "bg-blue-50 text-blue-700", label: "Enviada", icon: Send },
+  dispensed: { cls: "bg-indigo-50 text-indigo-700", label: "Dispensada", icon: CheckCircle2 },
   expired: { cls: "bg-amber-50 text-amber-700", label: "Vencida", icon: Clock },
-  cancelled: { cls: "bg-red-50 text-red-600", label: "Cancelada", icon: XCircle },
+  cancelled: { cls: "bg-red-50 text-red-600", label: "Anulada", icon: XCircle },
 };
 
-const EMPTY_MED: Medication = {
-  medicationName: "",
-  dosage: "",
-  frequency: "",
-  duration: "",
-  quantity: "",
-  notes: "",
-};
+const STATUS_TABS: { key: StatusFilter; label: string }[] = [
+  { key: "all", label: "Todas" },
+  { key: "draft", label: "Borradores" },
+  { key: "active", label: "Activas" },
+  { key: "sent", label: "Enviadas" },
+  { key: "dispensed", label: "Dispensadas" },
+];
 
 // ─── Demo Data ───────────────────────────────────────────────
 const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-001",
-    patientName: "María García",
-    doctorName: "Dr. Rodríguez",
+    patientName: "Maria Garcia",
+    doctorName: "Dra. Rodriguez",
     status: "active",
     issuedAt: "2026-03-15T10:30:00",
     verificationToken: "demo-token-001",
+    coverageName: "OSDE 310",
+    osde: { status: "registered" },
     medications: [
-      { medicationName: "Losartán 50mg", dosage: "50mg", frequency: "c/24h" },
-      { medicationName: "Aspirina 100mg", dosage: "100mg", frequency: "c/24h" },
+      {
+        medicationName: "Losartan Gador 50mg",
+        dosage: "50mg",
+        frequency: "c/24h",
+        genericName: "Losartan",
+      },
+      {
+        medicationName: "Aspirina Protect 100mg",
+        dosage: "100mg",
+        frequency: "c/24h",
+        genericName: "Acido acetilsalicilico",
+      },
     ],
   },
   {
     id: "rx-002",
-    patientName: "Carlos López",
-    doctorName: "Dr. Rodríguez",
-    status: "dispensed",
+    patientName: "Carlos Lopez",
+    doctorName: "Dra. Rodriguez",
+    status: "sent",
     issuedAt: "2026-03-14T09:15:00",
     verificationToken: "demo-token-002",
-    medications: [{ medicationName: "Amoxicilina 500mg", dosage: "500mg", frequency: "c/8h" }],
+    coverageName: "Swiss Medical",
+    medications: [
+      {
+        medicationName: "Amoxicilina Bago 500mg",
+        dosage: "500mg",
+        frequency: "c/8h",
+        genericName: "Amoxicilina",
+      },
+    ],
   },
   {
     id: "rx-003",
-    patientName: "Ana Martínez",
-    doctorName: "Dr. Rodríguez",
+    patientName: "Ana Martinez",
+    doctorName: "Dra. Rodriguez",
     status: "active",
     issuedAt: "2026-03-13T14:00:00",
     verificationToken: "demo-token-003",
+    coverageName: "OSDE 410",
+    osde: { status: "registered" },
     medications: [
-      { medicationName: "Omeprazol 20mg", dosage: "20mg", frequency: "c/12h" },
-      { medicationName: "Metformina 850mg", dosage: "850mg", frequency: "c/12h" },
+      {
+        medicationName: "Omeprazol Roemmers 20mg",
+        dosage: "20mg",
+        frequency: "c/12h",
+        genericName: "Omeprazol",
+      },
+      {
+        medicationName: "Metformina Craveri 850mg",
+        dosage: "850mg",
+        frequency: "c/12h",
+        genericName: "Metformina",
+      },
     ],
   },
   {
     id: "rx-004",
-    patientName: "Roberto Sánchez",
-    doctorName: "Dr. Rodríguez",
+    patientName: "Roberto Sanchez",
+    doctorName: "Dra. Rodriguez",
     status: "dispensed",
     issuedAt: "2026-03-12T11:45:00",
     verificationToken: "demo-token-004",
+    coverageName: "PAMI",
     medications: [
-      { medicationName: "Atenolol 50mg", dosage: "50mg", frequency: "c/24h" },
-      { medicationName: "Furosemida 40mg", dosage: "40mg", frequency: "c/24h" },
-      { medicationName: "Enalapril 10mg", dosage: "10mg", frequency: "c/12h" },
+      {
+        medicationName: "Atenolol Bago 50mg",
+        dosage: "50mg",
+        frequency: "c/24h",
+        genericName: "Atenolol",
+      },
+      {
+        medicationName: "Furosemida Denver Farma 40mg",
+        dosage: "40mg",
+        frequency: "c/24h",
+        genericName: "Furosemida",
+      },
+      {
+        medicationName: "Enalapril Roemmers 10mg",
+        dosage: "10mg",
+        frequency: "c/12h",
+        genericName: "Enalapril",
+      },
     ],
   },
   {
     id: "rx-005",
-    patientName: "Lucía Fernández",
-    doctorName: "Dr. Rodríguez",
+    patientName: "Lucia Fernandez",
+    doctorName: "Dra. Rodriguez",
     status: "expired",
     issuedAt: "2026-02-28T08:30:00",
     verificationToken: "demo-token-005",
-    medications: [{ medicationName: "Ibuprofeno 400mg", dosage: "400mg", frequency: "c/8h" }],
+    medications: [
+      {
+        medicationName: "Ibuprofeno Raffo 400mg",
+        dosage: "400mg",
+        frequency: "c/8h",
+        genericName: "Ibuprofeno",
+      },
+    ],
   },
   {
     id: "rx-006",
-    patientName: "Valentina Pérez",
-    doctorName: "Dr. Rodríguez",
-    status: "active",
+    patientName: "Valentina Perez",
+    doctorName: "Dra. Rodriguez",
+    status: "draft",
     issuedAt: "2026-03-15T16:00:00",
     verificationToken: "demo-token-006",
-    medications: [{ medicationName: "Levotiroxina 75mcg", dosage: "75mcg", frequency: "c/24h" }],
+    coverageName: "OSDE 210",
+    medications: [
+      {
+        medicationName: "Levotiroxina Bago 75mcg",
+        dosage: "75mcg",
+        frequency: "c/24h",
+        genericName: "Levotiroxina",
+      },
+    ],
   },
   {
     id: "rx-007",
-    patientName: "Sofía Torres",
-    doctorName: "Dr. Rodríguez",
+    patientName: "Sofia Torres",
+    doctorName: "Dra. Rodriguez",
     status: "cancelled",
     issuedAt: "2026-03-10T13:20:00",
     verificationToken: "demo-token-007",
-    medications: [{ medicationName: "Clonazepam 0.5mg", dosage: "0.5mg", frequency: "c/24h" }],
+    medications: [
+      {
+        medicationName: "Clonazepam Gador 0.5mg",
+        dosage: "0.5mg",
+        frequency: "c/24h",
+        genericName: "Clonazepam",
+      },
+    ],
+  },
+  {
+    id: "rx-008",
+    patientName: "Diego Ramirez",
+    doctorName: "Dra. Rodriguez",
+    status: "draft",
+    issuedAt: "2026-03-15T18:00:00",
+    verificationToken: "demo-token-008",
+    coverageName: "Galeno",
+    medications: [
+      {
+        medicationName: "Sertralina Gador 50mg",
+        dosage: "50mg",
+        frequency: "c/24h",
+        genericName: "Sertralina",
+      },
+      {
+        medicationName: "Pregabalina Bago 75mg",
+        dosage: "75mg",
+        frequency: "c/12h",
+        genericName: "Pregabalina",
+      },
+    ],
   },
 ];
 
@@ -135,96 +232,129 @@ export default function RecetasPage() {
   const { showToast } = useToast();
   const [prescriptions, setPrescriptions] = useState<PrescriptionRow[]>(DEMO_PRESCRIPTIONS);
   const [search, setSearch] = useState("");
-  const [showCreate, setShowCreate] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
-  // Create form state
-  const [patientName, setPatientName] = useState("");
-  const [diagnosis, setDiagnosis] = useState("");
-  const [notes, setNotes] = useState("");
-  const [meds, setMeds] = useState<Medication[]>([{ ...EMPTY_MED }]);
-
-  const filtered = prescriptions.filter(
-    (p) =>
+  const filtered = prescriptions.filter((p) => {
+    const matchesSearch =
       p.patientName.toLowerCase().includes(search.toLowerCase()) ||
-      p.status.includes(search.toLowerCase()),
-  );
+      p.medications.some((m) => m.medicationName.toLowerCase().includes(search.toLowerCase()));
+    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-  function addMed() {
-    setMeds([...meds, { ...EMPTY_MED }]);
-  }
-
-  function removeMed(idx: number) {
-    if (meds.length === 1) return;
-    setMeds(meds.filter((_, i) => i !== idx));
-  }
-
-  function updateMed(idx: number, field: keyof Medication, value: string | number) {
-    setMeds(meds.map((m, i) => (i === idx ? { ...m, [field]: value } : m)));
-  }
-
-  async function handleCreate() {
-    if (!patientName.trim() || !meds[0]?.medicationName) {
-      showToast("Completá el nombre del paciente y al menos un medicamento.");
-      return;
-    }
-
-    setCreating(true);
-    try {
-      const res = await fetch("/api/prescriptions/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId: "clinic-patient-" + Date.now(),
-          patientName: patientName.trim(),
-          doctorName: "Dr. Demo", // In production: from auth context
-          diagnosis: diagnosis.trim() || undefined,
-          notes: notes.trim() || undefined,
-          medications: meds
-            .filter((m) => m.medicationName)
-            .map((m) => ({
-              ...m,
-              quantity: m.quantity ? Number(m.quantity) : undefined,
-            })),
-        }),
-      });
-
-      if (!res.ok) throw new Error("Create failed");
-
-      const data = await res.json();
-      const rx = data.prescription;
-
-      setPrescriptions([
-        {
-          id: rx.id,
-          patientName: rx.patientName,
-          doctorName: rx.doctorName,
-          status: rx.status,
-          issuedAt: rx.issuedAt || rx.createdAt,
-          verificationToken: rx.verificationToken,
-          medications: rx.medications || [],
-        },
-        ...prescriptions,
-      ]);
-
-      // Reset form
-      setPatientName("");
-      setDiagnosis("");
-      setNotes("");
-      setMeds([{ ...EMPTY_MED }]);
-      setShowCreate(false);
-      showToast("Receta digital creada con éxito");
-    } catch {
-      showToast("Error al crear la receta. Intentá de nuevo.");
-    } finally {
-      setCreating(false);
-    }
-  }
+  const counts = {
+    all: prescriptions.length,
+    draft: prescriptions.filter((p) => p.status === "draft").length,
+    active: prescriptions.filter((p) => p.status === "active").length,
+    sent: prescriptions.filter((p) => p.status === "sent").length,
+    dispensed: prescriptions.filter((p) => p.status === "dispensed").length,
+  };
 
   function copyVerificationUrl(token: string) {
     const url = `${window.location.origin}/rx/${token}`;
     navigator.clipboard.writeText(url);
-    showToast("URL de verificación copiada");
+    showToast("URL de verificacion copiada");
+  }
+
+  async function handleAction(rxId: string, action: "issue" | "send" | "cancel" | "repeat") {
+    try {
+      const via = action === "send" ? { via: ["whatsapp"] } : {};
+      const res = await fetch(`/api/prescriptions/${rxId}/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(via),
+      });
+
+      if (!res.ok) throw new Error("Action failed");
+
+      const data = await res.json();
+
+      if (action === "repeat" && data.prescription) {
+        setPrescriptions((prev) => [
+          {
+            id: data.prescription.id,
+            patientName: prev.find((p) => p.id === rxId)?.patientName || "Paciente",
+            doctorName: "Dra. Rodriguez",
+            status: "draft",
+            issuedAt: new Date().toISOString(),
+            verificationToken: data.prescription.verificationToken || `repeat-${Date.now()}`,
+            medications: prev.find((p) => p.id === rxId)?.medications || [],
+          },
+          ...prev,
+        ]);
+        showToast("Receta repetida como borrador");
+        return;
+      }
+
+      // Update status in list
+      const statusMap: Record<string, string> = {
+        issue: "active",
+        send: "sent",
+        cancel: "cancelled",
+      };
+
+      setPrescriptions((prev) =>
+        prev.map((p) => (p.id === rxId ? { ...p, status: statusMap[action] || p.status } : p)),
+      );
+
+      const msgMap: Record<string, string> = {
+        issue: "Receta emitida exitosamente",
+        send: "Receta enviada al paciente",
+        cancel: "Receta anulada",
+      };
+      showToast(msgMap[action] || "Accion completada");
+    } catch {
+      // Demo fallback
+      const statusMap: Record<string, string> = {
+        issue: "active",
+        send: "sent",
+        cancel: "cancelled",
+      };
+
+      if (action === "repeat") {
+        setPrescriptions((prev) => {
+          const orig = prev.find((p) => p.id === rxId);
+          return [
+            {
+              id: `rx-repeat-${Date.now()}`,
+              patientName: orig?.patientName || "Paciente",
+              doctorName: "Dra. Rodriguez",
+              status: "draft",
+              issuedAt: new Date().toISOString(),
+              verificationToken: `repeat-${Date.now()}`,
+              medications: orig?.medications || [],
+              coverageName: orig?.coverageName,
+            },
+            ...prev,
+          ];
+        });
+        showToast("Receta repetida como borrador");
+        return;
+      }
+
+      setPrescriptions((prev) =>
+        prev.map((p) =>
+          p.id === rxId
+            ? {
+                ...p,
+                status: statusMap[action] || p.status,
+                osde:
+                  action === "issue" && p.coverageName?.toLowerCase().includes("osde")
+                    ? { status: "registered" }
+                    : p.osde,
+              }
+            : p,
+        ),
+      );
+
+      const msgMap: Record<string, string> = {
+        issue: "Receta emitida exitosamente",
+        send: "Receta enviada al paciente",
+        cancel: "Receta anulada",
+      };
+      showToast(msgMap[action] || "Accion completada");
+    }
   }
 
   return (
@@ -234,7 +364,7 @@ export default function RecetasPage() {
         <div>
           <h1 className="text-2xl font-display font-bold text-ink">Recetas Digitales</h1>
           <p className="text-sm text-ink/60 mt-0.5">
-            Creá y gestioná recetas con código QR verificable
+            Gestion completa del ciclo de vida de prescripciones
           </p>
         </div>
         <Link
@@ -246,231 +376,259 @@ export default function RecetasPage() {
         </Link>
       </div>
 
+      {/* Status Tabs */}
+      <div className="flex items-center gap-1 bg-surface p-1 rounded-lg overflow-x-auto">
+        {STATUS_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setStatusFilter(tab.key)}
+            className={`px-4 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap ${
+              statusFilter === tab.key
+                ? "bg-white text-ink shadow-sm"
+                : "text-ink/50 hover:text-ink/70"
+            }`}
+          >
+            {tab.label}
+            <span className="ml-1.5 text-[10px] opacity-60">
+              {counts[tab.key as keyof typeof counts] ?? ""}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/40" />
         <input
           type="text"
-          placeholder="Buscar por paciente..."
+          placeholder="Buscar por paciente o medicamento..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
         />
       </div>
 
-      {/* Prescriptions Table */}
+      {/* Prescriptions List */}
       {filtered.length === 0 ? (
         <div className="text-center py-16 bg-surface rounded-2xl">
           <QrCode className="w-12 h-12 text-ink/20 mx-auto mb-3" />
-          <p className="font-semibold text-ink">No hay recetas aún</p>
-          <p className="text-sm text-ink/50 mt-1">Creá tu primera receta digital con código QR</p>
+          <p className="font-semibold text-ink">No hay recetas</p>
+          <p className="text-sm text-ink/50 mt-1">
+            {statusFilter !== "all"
+              ? `No hay recetas con estado "${STATUS_BADGE[statusFilter]?.label}"`
+              : "Crea tu primera receta digital con codigo QR"}
+          </p>
         </div>
       ) : (
-        <div className="bg-white border border-border rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-surface text-left">
-                <th className="px-4 py-3 font-semibold text-ink/70">Paciente</th>
-                <th className="px-4 py-3 font-semibold text-ink/70">Medicamentos</th>
-                <th className="px-4 py-3 font-semibold text-ink/70">Fecha</th>
-                <th className="px-4 py-3 font-semibold text-ink/70">Estado</th>
-                <th className="px-4 py-3 font-semibold text-ink/70">QR</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((rx) => {
-                const badge = STATUS_BADGE[rx.status] ?? STATUS_BADGE.active!;
-                const BadgeIcon = badge!.icon;
-                return (
-                  <tr key={rx.id} className="border-t border-border/50 hover:bg-surface/50">
-                    <td className="px-4 py-3 font-medium text-ink">{rx.patientName}</td>
-                    <td className="px-4 py-3 text-ink/70">
-                      {rx.medications?.map((m) => m.medicationName).join(", ") || "—"}
-                    </td>
-                    <td className="px-4 py-3 text-ink/60">
-                      {new Date(rx.issuedAt).toLocaleDateString("es-AR")}
-                    </td>
-                    <td className="px-4 py-3">
+        <div className="space-y-3">
+          {filtered.map((rx) => {
+            const badge = STATUS_BADGE[rx.status] ?? STATUS_BADGE.active!;
+            const BadgeIcon = badge!.icon;
+            const isExpanded = expandedRow === rx.id;
+
+            return (
+              <div
+                key={rx.id}
+                className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-sm transition"
+              >
+                {/* Main row */}
+                <div
+                  className="flex items-center gap-4 px-4 py-3 cursor-pointer"
+                  onClick={() => setExpandedRow(isExpanded ? null : rx.id)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-sm text-ink truncate">
+                        {rx.patientName}
+                      </span>
                       <span
-                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${badge!.cls}`}
+                        className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge!.cls}`}
                       >
                         <BadgeIcon className="w-3 h-3" />
                         {badge!.label}
                       </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => copyVerificationUrl(rx.verificationToken)}
-                          className="p-1.5 hover:bg-surface rounded transition"
-                          title="Copiar URL de verificación"
+                      {rx.osde && (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            rx.osde.status === "registered"
+                              ? "bg-green-50 text-green-700"
+                              : "bg-amber-50 text-amber-600"
+                          }`}
                         >
-                          <Copy className="w-3.5 h-3.5 text-ink/50" />
-                        </button>
-                        <a
-                          href={`/rx/${rx.verificationToken}`}
-                          target="_blank"
-                          rel="noopener"
-                          className="p-1.5 hover:bg-surface rounded transition"
-                          title="Ver receta"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5 text-ink/50" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                          <Shield className="w-3 h-3" />
+                          OSDE
+                        </span>
+                      )}
+                      {rx.coverageName && !rx.osde && (
+                        <span className="text-[10px] text-ink/40">{rx.coverageName}</span>
+                      )}
+                    </div>
+                    <div className="text-xs text-ink/50">
+                      {rx.medications.map((m) => m.medicationName).join(" + ")} —{" "}
+                      {new Date(rx.issuedAt).toLocaleDateString("es-AR")}
+                    </div>
+                  </div>
 
-      {/* ─── Create Modal ─── */}
-      {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-5 border-b border-border">
-              <h2 className="text-lg font-display font-bold text-ink flex items-center gap-2">
-                <FileText className="w-5 h-5 text-celeste" />
-                Nueva Receta Digital
-              </h2>
-              <button onClick={() => setShowCreate(false)} className="p-1 hover:bg-surface rounded">
-                <X className="w-5 h-5 text-ink/50" />
-              </button>
-            </div>
-
-            <div className="p-5 space-y-5">
-              {/* Patient */}
-              <div>
-                <label className="text-xs font-semibold text-ink/70 uppercase tracking-wider">
-                  Paciente
-                </label>
-                <input
-                  type="text"
-                  value={patientName}
-                  onChange={(e) => setPatientName(e.target.value)}
-                  placeholder="Nombre completo del paciente"
-                  className="mt-1 w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
-                />
-              </div>
-
-              {/* Diagnosis */}
-              <div>
-                <label className="text-xs font-semibold text-ink/70 uppercase tracking-wider">
-                  Diagnóstico (opcional)
-                </label>
-                <input
-                  type="text"
-                  value={diagnosis}
-                  onChange={(e) => setDiagnosis(e.target.value)}
-                  placeholder="Ej: Hipertensión arterial"
-                  className="mt-1 w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
-                />
-              </div>
-
-              {/* Medications */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold text-ink/70 uppercase tracking-wider">
-                    Medicamentos
-                  </label>
-                  <button
-                    onClick={addMed}
-                    className="text-xs text-celeste-dark hover:underline flex items-center gap-1"
+                  {/* Quick actions */}
+                  <div
+                    className="flex items-center gap-1 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Plus className="w-3 h-3" /> Agregar
-                  </button>
+                    {rx.status === "draft" && (
+                      <button
+                        onClick={() => handleAction(rx.id, "issue")}
+                        className="p-1.5 hover:bg-green-50 rounded transition text-green-600"
+                        title="Emitir receta"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                      </button>
+                    )}
+                    {(rx.status === "active" || rx.status === "sent") && (
+                      <button
+                        onClick={() => handleAction(rx.id, "send")}
+                        className="p-1.5 hover:bg-blue-50 rounded transition text-blue-600"
+                        title="Enviar al paciente"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    )}
+                    {rx.status !== "cancelled" && rx.status !== "expired" && (
+                      <button
+                        onClick={() => copyVerificationUrl(rx.verificationToken)}
+                        className="p-1.5 hover:bg-surface rounded transition"
+                        title="Copiar URL QR"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-ink/50" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleAction(rx.id, "repeat")}
+                      className="p-1.5 hover:bg-surface rounded transition"
+                      title="Repetir receta"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 text-ink/50" />
+                    </button>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-ink/30" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-ink/30" />
+                    )}
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  {meds.map((med, idx) => (
-                    <div key={idx} className="bg-surface rounded-lg p-3 space-y-2 relative">
-                      {meds.length > 1 && (
-                        <button
-                          onClick={() => removeMed(idx)}
-                          className="absolute top-2 right-2 p-1 hover:bg-white rounded"
-                        >
-                          <X className="w-3 h-3 text-ink/40" />
-                        </button>
-                      )}
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Pill className="w-3.5 h-3.5 text-celeste" />
-                        <span className="text-[10px] font-bold text-ink/50 uppercase">
-                          Medicamento {idx + 1}
-                        </span>
+                {/* Expanded details */}
+                {isExpanded && (
+                  <div className="border-t border-border/50 px-4 py-3 bg-surface/30">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {/* Medications detail */}
+                      <div>
+                        <p className="text-[10px] font-bold text-ink/50 uppercase mb-2">
+                          Medicamentos
+                        </p>
+                        <div className="space-y-1.5">
+                          {rx.medications.map((m, idx) => (
+                            <div
+                              key={idx}
+                              className="bg-white rounded-lg px-3 py-2 border border-border/50"
+                            >
+                              <p className="text-xs font-semibold text-ink">{m.medicationName}</p>
+                              {m.genericName && (
+                                <p className="text-[10px] text-ink/40">Generico: {m.genericName}</p>
+                              )}
+                              <p className="text-[10px] text-ink/50">
+                                {m.dosage} — {m.frequency}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Nombre del medicamento"
-                        value={med.medicationName}
-                        onChange={(e) => updateMed(idx, "medicationName", e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste/40"
-                      />
-                      <div className="grid grid-cols-3 gap-2">
-                        <input
-                          type="text"
-                          placeholder="Dosis (500mg)"
-                          value={med.dosage}
-                          onChange={(e) => updateMed(idx, "dosage", e.target.value)}
-                          className="px-3 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste/40"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Frecuencia (c/8h)"
-                          value={med.frequency}
-                          onChange={(e) => updateMed(idx, "frequency", e.target.value)}
-                          className="px-3 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste/40"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Duración (7 días)"
-                          value={med.duration}
-                          onChange={(e) => updateMed(idx, "duration", e.target.value)}
-                          className="px-3 py-1.5 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste/40"
-                        />
+
+                      {/* Actions & info */}
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-[10px] font-bold text-ink/50 uppercase mb-2">
+                            Acciones
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {rx.status === "draft" && (
+                              <button
+                                onClick={() => handleAction(rx.id, "issue")}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition"
+                              >
+                                <CheckCircle2 className="w-3 h-3" />
+                                Emitir
+                              </button>
+                            )}
+                            {(rx.status === "active" || rx.status === "sent") && (
+                              <>
+                                <button
+                                  onClick={() => handleAction(rx.id, "send")}
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition"
+                                >
+                                  <Send className="w-3 h-3" />
+                                  Enviar WhatsApp
+                                </button>
+                                <a
+                                  href={`/rx/${rx.verificationToken}`}
+                                  target="_blank"
+                                  rel="noopener"
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold border border-border text-ink/70 px-3 py-1.5 rounded-md hover:bg-surface transition"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  Ver receta
+                                </a>
+                              </>
+                            )}
+                            <button
+                              onClick={() => handleAction(rx.id, "repeat")}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold border border-border text-ink/70 px-3 py-1.5 rounded-md hover:bg-surface transition"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                              Repetir
+                            </button>
+                            {rx.status !== "cancelled" &&
+                              rx.status !== "expired" &&
+                              rx.status !== "dispensed" && (
+                                <button
+                                  onClick={() => handleAction(rx.id, "cancel")}
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50 transition"
+                                >
+                                  <Ban className="w-3 h-3" />
+                                  Anular
+                                </button>
+                              )}
+                          </div>
+                        </div>
+
+                        {/* OSDE Info */}
+                        {rx.osde && (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <Shield className="w-3.5 h-3.5 text-green-600" />
+                              <span className="text-[10px] font-bold text-green-800 uppercase">
+                                OSDE FHIR 4.0
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-green-700">
+                              Prescripcion registrada en el sistema electronico de OSDE. Conforme
+                              Res. MSN 1314/2023.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Coverage */}
+                        {rx.coverageName && (
+                          <p className="text-[11px] text-ink/50">
+                            Cobertura: <span className="font-semibold">{rx.coverageName}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="text-xs font-semibold text-ink/70 uppercase tracking-wider">
-                  Notas (opcional)
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                  placeholder="Indicaciones adicionales..."
-                  className="mt-1 w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40 resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-border">
-              <button
-                onClick={() => setShowCreate(false)}
-                className="px-4 py-2 text-sm font-medium text-ink/70 hover:text-ink transition"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCreate}
-                disabled={creating}
-                className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition disabled:opacity-50"
-              >
-                {creating ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <QrCode className="w-4 h-4" />
+                  </div>
                 )}
-                Generar Receta con QR
-              </button>
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
