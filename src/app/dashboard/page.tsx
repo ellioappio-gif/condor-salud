@@ -436,7 +436,7 @@ export default function DashboardPage() {
                 <Link
                   key={i}
                   href="/dashboard/agenda"
-                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2 block"
+                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
                   role="listitem"
                 >
                   <span className="font-mono text-[10px] text-ink-muted w-10">{t.hora}</span>
@@ -469,7 +469,7 @@ export default function DashboardPage() {
                 <Link
                   key={i}
                   href="/dashboard/auditoria"
-                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2 block"
+                  className="flex items-center gap-3 py-2 border-b border-border-light last:border-0 hover:bg-celeste-pale/30 transition rounded px-2 -mx-2"
                   role="listitem"
                 >
                   <span
