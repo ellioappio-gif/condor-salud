@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Plus,
@@ -18,20 +18,29 @@ import {
   FileEdit,
   ChevronDown,
   ChevronUp,
+  Calendar,
+  TrendingUp,
+  Pill,
+  Filter,
+  Download,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
+import PrescriptionStatusBadge from "@/components/prescriptions/PrescriptionStatusBadge";
 
 /* ── Types ──────────────────────────────────────────────── */
 interface PrescriptionRow {
   id: string;
   patientName: string;
+  patientDni?: string;
   doctorName: string;
   status: string;
   issuedAt: string;
   verificationToken: string;
   coverageName?: string;
+  diagnosis?: string;
   osde?: { status: string };
+  rcta?: { status: string; prescriptionId?: string; pdfUrl?: string };
   medications: {
     medicationName: string;
     dosage: string;
@@ -41,15 +50,7 @@ interface PrescriptionRow {
 }
 
 type StatusFilter = "all" | "draft" | "active" | "sent" | "dispensed" | "expired" | "cancelled";
-
-const STATUS_BADGE: Record<string, { cls: string; label: string; icon: typeof CheckCircle2 }> = {
-  draft: { cls: "bg-gray-100 text-gray-600", label: "Borrador", icon: FileEdit },
-  active: { cls: "bg-green-50 text-green-700", label: "Activa", icon: CheckCircle2 },
-  sent: { cls: "bg-blue-50 text-blue-700", label: "Enviada", icon: Send },
-  dispensed: { cls: "bg-indigo-50 text-indigo-700", label: "Dispensada", icon: CheckCircle2 },
-  expired: { cls: "bg-amber-50 text-amber-700", label: "Vencida", icon: Clock },
-  cancelled: { cls: "bg-red-50 text-red-600", label: "Anulada", icon: XCircle },
-};
+type CoverageFilter = "all" | "osde" | "obra_social" | "prepaga" | "particular";
 
 const STATUS_TABS: { key: StatusFilter; label: string }[] = [
   { key: "all", label: "Todas" },
@@ -59,16 +60,45 @@ const STATUS_TABS: { key: StatusFilter; label: string }[] = [
   { key: "dispensed", label: "Dispensadas" },
 ];
 
+const COVERAGE_FILTERS: { key: CoverageFilter; label: string }[] = [
+  { key: "all", label: "Todas" },
+  { key: "osde", label: "OSDE" },
+  { key: "obra_social", label: "Obra Social" },
+  { key: "prepaga", label: "Prepaga" },
+  { key: "particular", label: "Particular" },
+];
+
+const PREPAGA_NAMES = [
+  "swiss medical",
+  "galeno",
+  "medicus",
+  "omint",
+  "medife",
+  "hospital italiano",
+];
+const OBRA_SOCIAL_NAMES = ["pami", "ioma", "osecac", "union personal", "accord salud"];
+
+function getCoverageType(name?: string): CoverageFilter {
+  if (!name) return "particular";
+  const lower = name.toLowerCase();
+  if (lower.includes("osde")) return "osde";
+  if (PREPAGA_NAMES.some((p) => lower.includes(p))) return "prepaga";
+  if (OBRA_SOCIAL_NAMES.some((o) => lower.includes(o))) return "obra_social";
+  return "particular";
+}
+
 // ─── Demo Data ───────────────────────────────────────────────
 const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-001",
     patientName: "Maria Garcia",
+    patientDni: "28.456.789",
     doctorName: "Dra. Rodriguez",
     status: "active",
     issuedAt: "2026-03-15T10:30:00",
     verificationToken: "demo-token-001",
     coverageName: "OSDE 310",
+    diagnosis: "I10 — Hipertension esencial",
     osde: { status: "registered" },
     medications: [
       {
@@ -88,14 +118,21 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-002",
     patientName: "Carlos Lopez",
+    patientDni: "32.987.654",
     doctorName: "Dra. Rodriguez",
     status: "sent",
     issuedAt: "2026-03-14T09:15:00",
     verificationToken: "demo-token-002",
     coverageName: "Swiss Medical",
+    diagnosis: "J06.9 — Infeccion aguda de las vias respiratorias superiores",
+    rcta: {
+      status: "registered",
+      prescriptionId: "RCTA-2026-00482",
+      pdfUrl: "/api/prescriptions/rx-002/pdf",
+    },
     medications: [
       {
-        medicationName: "Amoxicilina Bago 500mg",
+        medicationName: "Amoxidal 500mg",
         dosage: "500mg",
         frequency: "c/8h",
         genericName: "Amoxicilina",
@@ -105,11 +142,13 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-003",
     patientName: "Ana Martinez",
+    patientDni: "25.123.456",
     doctorName: "Dra. Rodriguez",
     status: "active",
     issuedAt: "2026-03-13T14:00:00",
     verificationToken: "demo-token-003",
     coverageName: "OSDE 410",
+    diagnosis: "E11 — Diabetes mellitus tipo 2",
     osde: { status: "registered" },
     medications: [
       {
@@ -129,11 +168,14 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-004",
     patientName: "Roberto Sanchez",
+    patientDni: "20.654.321",
     doctorName: "Dra. Rodriguez",
     status: "dispensed",
     issuedAt: "2026-03-12T11:45:00",
     verificationToken: "demo-token-004",
     coverageName: "PAMI",
+    diagnosis: "I50 — Insuficiencia cardiaca",
+    rcta: { status: "registered", prescriptionId: "RCTA-2026-00479" },
     medications: [
       {
         medicationName: "Atenolol Bago 50mg",
@@ -158,13 +200,15 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-005",
     patientName: "Lucia Fernandez",
+    patientDni: "35.789.012",
     doctorName: "Dra. Rodriguez",
     status: "expired",
     issuedAt: "2026-02-28T08:30:00",
     verificationToken: "demo-token-005",
+    diagnosis: "M54.5 — Lumbago no especificado",
     medications: [
       {
-        medicationName: "Ibuprofeno Raffo 400mg",
+        medicationName: "Ibupirac 400mg",
         dosage: "400mg",
         frequency: "c/8h",
         genericName: "Ibuprofeno",
@@ -174,11 +218,13 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-006",
     patientName: "Valentina Perez",
+    patientDni: "30.456.789",
     doctorName: "Dra. Rodriguez",
     status: "draft",
     issuedAt: "2026-03-15T16:00:00",
     verificationToken: "demo-token-006",
     coverageName: "OSDE 210",
+    diagnosis: "E03 — Hipotiroidismo",
     medications: [
       {
         medicationName: "Levotiroxina Bago 75mcg",
@@ -191,10 +237,13 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-007",
     patientName: "Sofia Torres",
+    patientDni: "27.234.567",
     doctorName: "Dra. Rodriguez",
     status: "cancelled",
     issuedAt: "2026-03-10T13:20:00",
     verificationToken: "demo-token-007",
+    coverageName: "Medicus",
+    rcta: { status: "error" },
     medications: [
       {
         medicationName: "Clonazepam Gador 0.5mg",
@@ -207,11 +256,14 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
   {
     id: "rx-008",
     patientName: "Diego Ramirez",
+    patientDni: "33.567.890",
     doctorName: "Dra. Rodriguez",
     status: "draft",
     issuedAt: "2026-03-15T18:00:00",
     verificationToken: "demo-token-008",
     coverageName: "Galeno",
+    diagnosis: "F32.0 — Episodio depresivo leve",
+    rcta: { status: "pending_credentials" },
     medications: [
       {
         medicationName: "Sertralina Gador 50mg",
@@ -227,6 +279,44 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
       },
     ],
   },
+  {
+    id: "rx-009",
+    patientName: "Gabriela Moreno",
+    patientDni: "29.876.543",
+    doctorName: "Dra. Rodriguez",
+    status: "active",
+    issuedAt: "2026-03-14T16:45:00",
+    verificationToken: "demo-token-009",
+    coverageName: "Galeno",
+    diagnosis: "N39.0 — Infeccion de vias urinarias",
+    rcta: { status: "registered", prescriptionId: "RCTA-2026-00481" },
+    medications: [
+      {
+        medicationName: "Ciprofloxacina Roemmers 500mg",
+        dosage: "500mg",
+        frequency: "c/12h",
+        genericName: "Ciprofloxacina",
+      },
+    ],
+  },
+  {
+    id: "rx-010",
+    patientName: "Fernando Ruiz",
+    patientDni: "22.345.678",
+    doctorName: "Dra. Rodriguez",
+    status: "sent",
+    issuedAt: "2026-03-11T10:00:00",
+    verificationToken: "demo-token-010",
+    diagnosis: "K21 — Enfermedad por reflujo gastroesofagico",
+    medications: [
+      {
+        medicationName: "Omeprazol Bago 20mg",
+        dosage: "20mg",
+        frequency: "c/24h",
+        genericName: "Omeprazol",
+      },
+    ],
+  },
 ];
 
 export default function RecetasPage() {
@@ -235,15 +325,23 @@ export default function RecetasPage() {
   const [prescriptions, setPrescriptions] = useState<PrescriptionRow[]>(DEMO_PRESCRIPTIONS);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [coverageFilter, setCoverageFilter] = useState<CoverageFilter>("all");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const filtered = prescriptions.filter((p) => {
-    const matchesSearch =
-      p.patientName.toLowerCase().includes(search.toLowerCase()) ||
-      p.medications.some((m) => m.medicationName.toLowerCase().includes(search.toLowerCase()));
-    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filtered = useMemo(() => {
+    return prescriptions.filter((p) => {
+      const matchesSearch =
+        !search ||
+        p.patientName.toLowerCase().includes(search.toLowerCase()) ||
+        (p.patientDni && p.patientDni.includes(search)) ||
+        p.medications.some((m) => m.medicationName.toLowerCase().includes(search.toLowerCase()));
+      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+      const matchesCoverage =
+        coverageFilter === "all" || getCoverageType(p.coverageName) === coverageFilter;
+      return matchesSearch && matchesStatus && matchesCoverage;
+    });
+  }, [prescriptions, search, statusFilter, coverageFilter]);
 
   const counts = {
     all: prescriptions.length,
@@ -252,6 +350,24 @@ export default function RecetasPage() {
     sent: prescriptions.filter((p) => p.status === "sent").length,
     dispensed: prescriptions.filter((p) => p.status === "dispensed").length,
   };
+
+  /* ── Stats ── */
+  const thisMonth = prescriptions.filter((p) => {
+    const d = new Date(p.issuedAt);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+
+  const drugCounts: Record<string, number> = {};
+  prescriptions.forEach((p) =>
+    p.medications.forEach((m) => {
+      const name = m.genericName || m.medicationName;
+      drugCounts[name] = (drugCounts[name] || 0) + 1;
+    }),
+  );
+  const topDrug = Object.entries(drugCounts).sort(([, a], [, b]) => b - a)[0];
+  const rctaRegistered = prescriptions.filter((p) => p.rcta?.status === "registered").length;
+  const osdeRegistered = prescriptions.filter((p) => p.osde?.status === "registered").length;
 
   function copyVerificationUrl(token: string) {
     const url = `${window.location.origin}/rx/${token}`;
@@ -282,6 +398,7 @@ export default function RecetasPage() {
             issuedAt: new Date().toISOString(),
             verificationToken: data.prescription.verificationToken || `repeat-${Date.now()}`,
             medications: prev.find((p) => p.id === rxId)?.medications || [],
+            coverageName: prev.find((p) => p.id === rxId)?.coverageName,
           },
           ...prev,
         ]);
@@ -289,13 +406,11 @@ export default function RecetasPage() {
         return;
       }
 
-      // Update status in list
       const statusMap: Record<string, string> = {
         issue: "active",
         send: "sent",
         cancel: "cancelled",
       };
-
       setPrescriptions((prev) =>
         prev.map((p) => (p.id === rxId ? { ...p, status: statusMap[action] || p.status } : p)),
       );
@@ -345,6 +460,12 @@ export default function RecetasPage() {
                   action === "issue" && p.coverageName?.toLowerCase().includes("osde")
                     ? { status: "registered" }
                     : p.osde,
+                rcta:
+                  action === "issue" &&
+                  !p.coverageName?.toLowerCase().includes("osde") &&
+                  p.coverageName
+                    ? { status: "registered", prescriptionId: `RCTA-${Date.now()}` }
+                    : p.rcta,
               }
             : p,
         ),
@@ -357,6 +478,14 @@ export default function RecetasPage() {
       };
       showToast(msgMap[action] || "Accion completada");
     }
+  }
+
+  function formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   }
 
   return (
@@ -378,36 +507,139 @@ export default function RecetasPage() {
         </Link>
       </div>
 
-      {/* Status Tabs */}
-      <div className="flex items-center gap-1 bg-surface p-1 rounded-lg overflow-x-auto">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setStatusFilter(tab.key)}
-            className={`px-4 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap ${
-              statusFilter === tab.key
-                ? "bg-white text-ink shadow-sm"
-                : "text-ink/50 hover:text-ink/70"
-            }`}
-          >
-            {tab.label}
-            <span className="ml-1.5 text-[10px] opacity-60">
-              {counts[tab.key as keyof typeof counts] ?? ""}
-            </span>
-          </button>
-        ))}
+      {/* ── Stats Bar ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-white border border-border rounded-xl p-4">
+          <div className="flex items-center gap-2 text-ink/50 mb-1">
+            <Calendar className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase">Este mes</span>
+          </div>
+          <p className="text-2xl font-bold text-ink">{thisMonth.length}</p>
+          <p className="text-[10px] text-ink/40">prescripciones emitidas</p>
+        </div>
+        <div className="bg-white border border-border rounded-xl p-4">
+          <div className="flex items-center gap-2 text-ink/50 mb-1">
+            <Pill className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase">Mas prescripto</span>
+          </div>
+          <p className="text-lg font-bold text-ink truncate">{topDrug?.[0] ?? "—"}</p>
+          <p className="text-[10px] text-ink/40">
+            {topDrug ? `${topDrug[1]} recetas` : "sin datos"}
+          </p>
+        </div>
+        <div className="bg-white border border-border rounded-xl p-4">
+          <div className="flex items-center gap-2 text-green-600 mb-1">
+            <Shield className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase">RCTA Registradas</span>
+          </div>
+          <p className="text-2xl font-bold text-green-700">{rctaRegistered}</p>
+          <p className="text-[10px] text-ink/40">via QBI2 Innovamed</p>
+        </div>
+        <div className="bg-white border border-border rounded-xl p-4">
+          <div className="flex items-center gap-2 text-blue-600 mb-1">
+            <TrendingUp className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase">OSDE Registradas</span>
+          </div>
+          <p className="text-2xl font-bold text-blue-700">{osdeRegistered}</p>
+          <p className="text-[10px] text-ink/40">via FHIR 4.0</p>
+        </div>
       </div>
+
+      {/* ── Filters Row ── */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Status Tabs */}
+        <div className="flex items-center gap-1 bg-surface p-1 rounded-lg overflow-x-auto flex-1">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setStatusFilter(tab.key)}
+              className={`px-4 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap ${
+                statusFilter === tab.key
+                  ? "bg-white text-ink shadow-sm"
+                  : "text-ink/50 hover:text-ink/70"
+              }`}
+            >
+              {tab.label}
+              <span className="ml-1.5 text-[10px] opacity-60">
+                {counts[tab.key as keyof typeof counts] ?? ""}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Coverage + Filters toggle */}
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border transition ${
+            showFilters || coverageFilter !== "all"
+              ? "bg-celeste/10 border-celeste text-celeste-dark"
+              : "border-border text-ink/60 hover:bg-surface"
+          }`}
+        >
+          <Filter className="w-3.5 h-3.5" />
+          Filtros
+          {coverageFilter !== "all" && (
+            <span className="bg-celeste text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              1
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* ── Sidebar Filters Panel ── */}
+      {showFilters && (
+        <div className="bg-surface/50 border border-border rounded-xl p-4 flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="text-[10px] font-bold text-ink/50 uppercase block mb-1.5">
+              Cobertura
+            </label>
+            <div className="flex items-center gap-1">
+              {COVERAGE_FILTERS.map((cf) => (
+                <button
+                  key={cf.key}
+                  onClick={() => setCoverageFilter(cf.key)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition ${
+                    coverageFilter === cf.key
+                      ? "bg-white text-ink shadow-sm"
+                      : "text-ink/50 hover:text-ink/70 hover:bg-white/50"
+                  }`}
+                >
+                  {cf.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setStatusFilter("all");
+              setCoverageFilter("all");
+              setSearch("");
+            }}
+            className="text-xs text-red-500 hover:text-red-700 font-semibold"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/40" />
         <input
           type="text"
-          placeholder="Buscar por paciente o medicamento..."
+          placeholder="Buscar por paciente, DNI o medicamento..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
         />
+      </div>
+
+      {/* ── Results summary ── */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-ink/50">
+          {filtered.length} receta{filtered.length !== 1 ? "s" : ""}
+          {statusFilter !== "all" || coverageFilter !== "all" ? " (filtradas)" : ""}
+        </p>
       </div>
 
       {/* Prescriptions List */}
@@ -416,16 +648,14 @@ export default function RecetasPage() {
           <QrCode className="w-12 h-12 text-ink/20 mx-auto mb-3" />
           <p className="font-semibold text-ink">No hay recetas</p>
           <p className="text-sm text-ink/50 mt-1">
-            {statusFilter !== "all"
-              ? `No hay recetas con estado "${STATUS_BADGE[statusFilter]?.label}"`
+            {statusFilter !== "all" || coverageFilter !== "all"
+              ? "No hay recetas que coincidan con los filtros seleccionados"
               : "Crea tu primera receta digital con codigo QR"}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map((rx) => {
-            const badge = STATUS_BADGE[rx.status] ?? STATUS_BADGE.active!;
-            const BadgeIcon = badge!.icon;
             const isExpanded = expandedRow === rx.id;
 
             return (
@@ -439,38 +669,35 @@ export default function RecetasPage() {
                   onClick={() => setExpandedRow(isExpanded ? null : rx.id)}
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-sm text-ink truncate">
-                        {rx.patientName}
-                      </span>
-                      <span
-                        className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge!.cls}`}
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <Link
+                        href={`/dashboard/recetas/${rx.id}`}
+                        className="font-semibold text-sm text-ink truncate hover:text-celeste-dark transition"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <BadgeIcon className="w-3 h-3" />
-                        {badge!.label}
-                      </span>
-                      {rx.osde && (
-                        <span
-                          className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                            rx.osde.status === "registered"
-                              ? "bg-green-50 text-green-700"
-                              : "bg-amber-50 text-amber-600"
-                          }`}
-                        >
-                          <Shield className="w-3 h-3" />
-                          OSDE
+                        {rx.patientName}
+                      </Link>
+                      {rx.patientDni && (
+                        <span className="text-[10px] text-ink/40 font-mono">
+                          DNI {rx.patientDni}
                         </span>
                       )}
-                      {rx.coverageName && !rx.osde && (
-                        <span className="text-[10px] text-ink/40">{rx.coverageName}</span>
-                      )}
+                      <PrescriptionStatusBadge
+                        status={rx.status}
+                        osde={rx.osde}
+                        rcta={rx.rcta}
+                        compact
+                      />
                     </div>
-                    <div className="text-xs text-ink/50">
-                      {rx.medications.map((m) => m.medicationName).join(" + ")} —{" "}
-                      {new Date(rx.issuedAt).toLocaleDateString(
-                        locale === "en" ? "en-US" : "es-AR",
-                      )}
+                    <div className="flex items-center gap-2 text-xs text-ink/50">
+                      <span className="truncate">
+                        {rx.medications.map((m) => m.medicationName).join(" + ")}
+                      </span>
+                      <span className="shrink-0">— {formatDate(rx.issuedAt)}</span>
                     </div>
+                    {rx.diagnosis && (
+                      <p className="text-[10px] text-ink/40 mt-0.5 truncate">{rx.diagnosis}</p>
+                    )}
                   </div>
 
                   {/* Quick actions */}
@@ -527,7 +754,7 @@ export default function RecetasPage() {
                       {/* Medications detail */}
                       <div>
                         <p className="text-[10px] font-bold text-ink/50 uppercase mb-2">
-                          Medicamentos
+                          Medicamentos ({rx.medications.length}/3)
                         </p>
                         <div className="space-y-1.5">
                           {rx.medications.map((m, idx) => (
@@ -545,9 +772,17 @@ export default function RecetasPage() {
                             </div>
                           ))}
                         </div>
+                        {rx.diagnosis && (
+                          <div className="mt-3">
+                            <p className="text-[10px] font-bold text-ink/50 uppercase mb-1">
+                              Diagnostico
+                            </p>
+                            <p className="text-xs text-ink/70">{rx.diagnosis}</p>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Actions & info */}
+                      {/* Actions & Registration */}
                       <div className="space-y-3">
                         <div>
                           <p className="text-[10px] font-bold text-ink/50 uppercase mb-2">
@@ -583,6 +818,17 @@ export default function RecetasPage() {
                                 </a>
                               </>
                             )}
+                            {rx.rcta?.pdfUrl && (
+                              <a
+                                href={rx.rcta.pdfUrl}
+                                target="_blank"
+                                rel="noopener"
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold border border-border text-ink/70 px-3 py-1.5 rounded-md hover:bg-surface transition"
+                              >
+                                <Download className="w-3 h-3" />
+                                PDF RCTA
+                              </a>
+                            )}
                             <button
                               onClick={() => handleAction(rx.id, "repeat")}
                               className="inline-flex items-center gap-1.5 text-xs font-semibold border border-border text-ink/70 px-3 py-1.5 rounded-md hover:bg-surface transition"
@@ -604,16 +850,70 @@ export default function RecetasPage() {
                           </div>
                         </div>
 
-                        {/* OSDE Info */}
-                        {rx.osde && (
+                        {/* RCTA Registration */}
+                        {rx.rcta && rx.rcta.status === "registered" && (
                           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                             <div className="flex items-center gap-1.5 mb-1">
                               <Shield className="w-3.5 h-3.5 text-green-600" />
                               <span className="text-[10px] font-bold text-green-800 uppercase">
-                                OSDE FHIR 4.0
+                                RCTA QBI2
                               </span>
                             </div>
                             <p className="text-[11px] text-green-700">
+                              Registrada en RCTA — ID:{" "}
+                              <span className="font-mono font-semibold">
+                                {rx.rcta.prescriptionId}
+                              </span>
+                            </p>
+                          </div>
+                        )}
+
+                        {rx.rcta && rx.rcta.status === "pending_credentials" && (
+                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <Clock className="w-3.5 h-3.5 text-amber-600" />
+                              <span className="text-[10px] font-bold text-amber-800 uppercase">
+                                Credenciales RCTA pendientes
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-amber-700">
+                              PDF generado. Solicitar credenciales Innovamed:{" "}
+                              <a
+                                href="https://wa.me/5491121935123"
+                                target="_blank"
+                                rel="noopener"
+                                className="underline font-semibold"
+                              >
+                                wa.me/5491121935123
+                              </a>
+                            </p>
+                          </div>
+                        )}
+
+                        {rx.rcta && rx.rcta.status === "error" && (
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <XCircle className="w-3.5 h-3.5 text-red-600" />
+                              <span className="text-[10px] font-bold text-red-800 uppercase">
+                                Error RCTA
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-red-700">
+                              No se pudo registrar en RCTA. Se genero PDF de respaldo.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* OSDE Info */}
+                        {rx.osde && (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <Shield className="w-3.5 h-3.5 text-blue-600" />
+                              <span className="text-[10px] font-bold text-blue-800 uppercase">
+                                OSDE FHIR 4.0
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-blue-700">
                               Prescripcion registrada en el sistema electronico de OSDE. Conforme
                               Res. MSN 1314/2023.
                             </p>
