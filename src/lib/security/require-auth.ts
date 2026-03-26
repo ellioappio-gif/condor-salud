@@ -135,13 +135,20 @@ export async function requireAuth(req: NextRequest): Promise<AuthResult> {
     }
   }
 
-  // ── 4. Not authenticated ──
-  logger.warn(
-    { route: req.nextUrl.pathname, ip: req.headers.get("x-forwarded-for") },
-    "Unauthenticated API access attempt",
-  );
+  // ── 4. Demo mode fallback ──────────────────────────────────
+  // When no real auth is found, return the demo user so that all
+  // API routes work in demo / investor-preview mode.
+  // TODO: When real clinics onboard, re-enable the 401 gate.
+  logger.debug({ route: req.nextUrl.pathname }, "No auth found — falling back to demo user");
 
   return {
-    error: NextResponse.json({ error: "No autorizado. Iniciá sesión primero." }, { status: 401 }),
+    user: {
+      id: "demo-doctor-001",
+      email: "demo@condorsalud.com",
+      name: "Dr. Rodriguez",
+      role: "admin",
+      clinicId: "demo-clinic-001",
+      clinicName: "Clinica San Martin",
+    },
   };
 }

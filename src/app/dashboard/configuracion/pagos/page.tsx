@@ -28,15 +28,192 @@ interface Transaction {
   metodo: string;
 }
 
-/* ---------- NOTE: No hardcoded payment/transaction/billing data. ─── */
-// Authenticated users see real data from MercadoPago integration.
-// Mock data for demo/marketing lives only in src/lib/services/data.ts.
-// UI config constants (colors, icons, accepted methods) are kept below.
+/* ---------- Demo Data for payment methods, transactions, billing rules ─── */
+const paymentMethods: PaymentMethod[] = [
+  {
+    id: "pm1",
+    paciente: "María García",
+    tipo: "Visa",
+    ultimos4: "4532",
+    vencimiento: "09/28",
+    autoBilling: true,
+    addedAt: "2026-01-15",
+  },
+  {
+    id: "pm2",
+    paciente: "Carlos López",
+    tipo: "Mastercard",
+    ultimos4: "8721",
+    vencimiento: "03/27",
+    autoBilling: true,
+    addedAt: "2026-02-03",
+  },
+  {
+    id: "pm3",
+    paciente: "Ana Martínez",
+    tipo: "MercadoPago",
+    ultimos4: "—",
+    alias: "ana.martinez.mp",
+    autoBilling: false,
+    addedAt: "2026-02-18",
+  },
+  {
+    id: "pm4",
+    paciente: "Roberto Sánchez",
+    tipo: "CBU/Alias",
+    ultimos4: "—",
+    alias: "RSAN.PAMI.AR",
+    autoBilling: true,
+    addedAt: "2025-12-20",
+  },
+  {
+    id: "pm5",
+    paciente: "Lucía Fernández",
+    tipo: "Visa",
+    ultimos4: "1098",
+    vencimiento: "11/27",
+    autoBilling: false,
+    addedAt: "2026-03-01",
+  },
+  {
+    id: "pm6",
+    paciente: "Valentina Pérez",
+    tipo: "Amex",
+    ultimos4: "3344",
+    vencimiento: "06/28",
+    autoBilling: true,
+    addedAt: "2026-01-28",
+  },
+];
 
-const paymentMethods: PaymentMethod[] = [];
-const transactions: Transaction[] = [];
+const transactions: Transaction[] = [
+  {
+    id: "TX-001847",
+    fecha: "2026-03-10",
+    paciente: "María García",
+    concepto: "Copago consulta cardiología",
+    monto: 4500,
+    estado: "Aprobado",
+    metodo: "Visa ****4532",
+  },
+  {
+    id: "TX-001846",
+    fecha: "2026-03-10",
+    paciente: "Carlos López",
+    concepto: "Copago ECG",
+    monto: 6200,
+    estado: "Aprobado",
+    metodo: "Mastercard ****8721",
+  },
+  {
+    id: "TX-001845",
+    fecha: "2026-03-09",
+    paciente: "Valentina Pérez",
+    concepto: "Copago RMN cerebro",
+    monto: 12000,
+    estado: "Aprobado",
+    metodo: "Amex ****3344",
+  },
+  {
+    id: "TX-001844",
+    fecha: "2026-03-09",
+    paciente: "Ana Martínez",
+    concepto: "Copago laboratorio",
+    monto: 3800,
+    estado: "Pendiente",
+    metodo: "MercadoPago",
+  },
+  {
+    id: "TX-001843",
+    fecha: "2026-03-08",
+    paciente: "Roberto Sánchez",
+    concepto: "Copago ecografía",
+    monto: 2500,
+    estado: "Aprobado",
+    metodo: "CBU RSAN.PAMI",
+  },
+  {
+    id: "TX-001842",
+    fecha: "2026-03-08",
+    paciente: "Lucía Fernández",
+    concepto: "Copago consulta",
+    monto: 4500,
+    estado: "Rechazado",
+    metodo: "Visa ****1098",
+  },
+  {
+    id: "TX-001841",
+    fecha: "2026-03-07",
+    paciente: "Facundo Díaz",
+    concepto: "Copago hemograma",
+    monto: 1800,
+    estado: "Aprobado",
+    metodo: "MercadoPago QR",
+  },
+  {
+    id: "TX-001840",
+    fecha: "2026-03-07",
+    paciente: "Martín Gómez",
+    concepto: "Copago endoscopia",
+    monto: 8500,
+    estado: "Aprobado",
+    metodo: "Transferencia",
+  },
+  {
+    id: "TX-001839",
+    fecha: "2026-03-06",
+    paciente: "Sofía Torres",
+    concepto: "Copago consulta PAMI",
+    monto: 0,
+    estado: "Aprobado",
+    metodo: "Sin copago (PAMI)",
+  },
+  {
+    id: "TX-001838",
+    fecha: "2026-03-06",
+    paciente: "Camila Ruiz",
+    concepto: "Reembolso consulta cancelada",
+    monto: 4500,
+    estado: "Reembolsado",
+    metodo: "Visa ****4532",
+  },
+];
+
 const billingRules: { financiador: string; copago: boolean; monto: string; autoCharge: boolean }[] =
-  [];
+  [
+    {
+      financiador: "OSDE",
+      copago: true,
+      monto: "$4.500 (consulta) / $6.200 (práctica)",
+      autoCharge: true,
+    },
+    {
+      financiador: "Swiss Medical",
+      copago: true,
+      monto: "$3.800 (consulta) / $5.500 (práctica)",
+      autoCharge: true,
+    },
+    { financiador: "PAMI", copago: false, monto: "Sin copago", autoCharge: false },
+    {
+      financiador: "Galeno",
+      copago: true,
+      monto: "$4.200 (consulta) / $6.800 (práctica)",
+      autoCharge: true,
+    },
+    {
+      financiador: "Medifé",
+      copago: true,
+      monto: "$3.500 (consulta) / $5.000 (práctica)",
+      autoCharge: false,
+    },
+    { financiador: "IOMA", copago: false, monto: "Sin copago", autoCharge: false },
+    {
+      financiador: "OSECAC",
+      copago: true,
+      monto: "$2.800 (consulta) / $4.500 (práctica)",
+      autoCharge: true,
+    },
+  ];
 
 const estadoColor: Record<string, string> = {
   Aprobado: "bg-green-50 text-green-700",

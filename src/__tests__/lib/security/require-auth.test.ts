@@ -57,35 +57,39 @@ describe("requireAuth", () => {
     expect(result.user?.role).toBe("admin");
   });
 
-  it("returns 401 when no cookies at all", async () => {
+  it("returns demo user when no cookies at all (demo mode)", async () => {
     const { requireAuth } = await import("@/lib/security/require-auth");
     const req = makeRequest({});
     const result = await requireAuth(req);
 
-    expect(result.error).toBeDefined();
-    expect(result.user).toBeUndefined();
-    const body = await result.error!.json();
-    expect(body.error).toContain("No autorizado");
-    expect(result.error!.status).toBe(401);
+    // DEMO MODE: returns demo user instead of 401
+    expect(result.error).toBeUndefined();
+    expect(result.user).toBeDefined();
+    expect(result.user?.id).toBe("demo-doctor-001");
+    expect(result.user?.email).toBe("demo@condorsalud.com");
   });
 
-  it("returns 401 when session cookie is corrupt", async () => {
+  it("returns demo user when session cookie is corrupt (demo mode)", async () => {
     const { requireAuth } = await import("@/lib/security/require-auth");
     const req = makeRequest({ condor_session: "not-json" });
     const result = await requireAuth(req);
 
-    expect(result.error).toBeDefined();
-    expect(result.error!.status).toBe(401);
+    // DEMO MODE: falls through to demo user instead of 401
+    expect(result.error).toBeUndefined();
+    expect(result.user).toBeDefined();
+    expect(result.user?.id).toBe("demo-doctor-001");
   });
 
-  it("returns 401 when session cookie is missing required fields", async () => {
+  it("returns demo user when session cookie is missing required fields (demo mode)", async () => {
     const { requireAuth } = await import("@/lib/security/require-auth");
     const partial = { id: "u1" }; // missing email and role
     const req = makeRequest({ condor_session: JSON.stringify(partial) });
     const result = await requireAuth(req);
 
-    expect(result.error).toBeDefined();
-    expect(result.error!.status).toBe(401);
+    // DEMO MODE: falls through to demo user instead of 401
+    expect(result.error).toBeUndefined();
+    expect(result.user).toBeDefined();
+    expect(result.user?.id).toBe("demo-doctor-001");
   });
 
   it("falls back to supabase auth when no condor_session", async () => {

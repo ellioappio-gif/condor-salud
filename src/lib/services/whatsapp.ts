@@ -11,6 +11,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
+import { isSupabaseConfigured } from "@/lib/env";
 
 const log = logger.child({ module: "whatsapp" });
 
@@ -94,6 +95,17 @@ export function toWhatsAppFormat(phone: string): string {
  * 6. Send auto-reply if first contact
  */
 export async function processIncomingMessage(payload: IncomingMessage) {
+  if (!isSupabaseConfigured()) {
+    log.info("DEMO MODE — incoming message ignored");
+    return {
+      success: true,
+      leadId: "lead-demo",
+      conversationId: "conv-demo",
+      messageId: "msg-demo",
+      isNewLead: false,
+    };
+  }
+
   const supabase = getServiceClient();
   const fromPhone = normalizePhone(payload.From);
   const toPhone = normalizePhone(payload.To);
@@ -321,6 +333,11 @@ export async function sendMessage(params: SendMessageParams): Promise<{
   twilioSid?: string;
   error?: string;
 }> {
+  if (!isSupabaseConfigured()) {
+    log.info({ to: params.to, body: params.body }, "DEMO MODE — message not sent");
+    return { success: true, twilioSid: `demo-${Date.now()}` };
+  }
+
   const supabase = getServiceClient();
   const client = await getTwilioClient();
   const to = toWhatsAppFormat(params.to);
@@ -393,7 +410,292 @@ export async function sendMessage(params: SendMessageParams): Promise<{
 
 // ─── Get Conversations ───────────────────────────────────────
 
+const DEMO_CONVERSATIONS = [
+  {
+    id: "conv-1",
+    clinic_id: "demo-clinic-001",
+    lead_id: "lead-1",
+    paciente_id: null,
+    channel: "whatsapp",
+    status: "open",
+    subject: "Consulta dolor de cabeza",
+    unread_count: 2,
+    last_message_at: "2026-03-15T09:32:00",
+    created_at: "2026-03-15T09:30:00",
+    lead: {
+      id: "lead-1",
+      nombre: "Lucía Fernández",
+      telefono: "+5491155550101",
+      estado: "nuevo",
+      tags: ["urgente"],
+      financiador: "OSDE",
+    },
+    paciente: null,
+  },
+  {
+    id: "conv-2",
+    clinic_id: "demo-clinic-001",
+    lead_id: "lead-2",
+    paciente_id: null,
+    channel: "whatsapp",
+    status: "open",
+    subject: "Turno chequeo anual",
+    unread_count: 0,
+    last_message_at: "2026-03-15T10:00:00",
+    created_at: "2026-03-14T14:00:00",
+    lead: {
+      id: "lead-2",
+      nombre: "Matías Romero",
+      telefono: "+5491155550102",
+      estado: "contactado",
+      tags: ["chequeo"],
+      financiador: "Swiss Medical",
+    },
+    paciente: null,
+  },
+  {
+    id: "conv-3",
+    clinic_id: "demo-clinic-001",
+    lead_id: "lead-3",
+    paciente_id: null,
+    channel: "whatsapp",
+    status: "open",
+    subject: "Dermatología - manchas",
+    unread_count: 1,
+    last_message_at: "2026-03-14T16:00:00",
+    created_at: "2026-03-13T11:00:00",
+    lead: {
+      id: "lead-3",
+      nombre: "Valentina Sosa",
+      telefono: "+5491155550103",
+      estado: "interesado",
+      tags: ["dermatología"],
+      financiador: "Galeno",
+    },
+    paciente: null,
+  },
+  {
+    id: "conv-4",
+    clinic_id: "demo-clinic-001",
+    lead_id: "lead-5",
+    paciente_id: "p-demo-1",
+    channel: "whatsapp",
+    status: "closed",
+    subject: "Control post-operatorio",
+    unread_count: 0,
+    last_message_at: "2026-03-10T14:00:00",
+    created_at: "2026-03-08T10:00:00",
+    lead: {
+      id: "lead-5",
+      nombre: "Carolina Méndez",
+      telefono: "+5491155550105",
+      estado: "convertido",
+      tags: ["post-op"],
+      financiador: "Medifé",
+    },
+    paciente: {
+      id: "p-demo-1",
+      nombre: "Carolina Méndez",
+      telefono: "+5491155550105",
+      financiador: "Medifé",
+    },
+  },
+  {
+    id: "conv-5",
+    clinic_id: "demo-clinic-001",
+    lead_id: "lead-10",
+    paciente_id: "p-demo-3",
+    channel: "whatsapp",
+    status: "closed",
+    subject: "Consulta pediátrica",
+    unread_count: 0,
+    last_message_at: "2026-03-11T10:00:00",
+    created_at: "2026-03-10T16:00:00",
+    lead: {
+      id: "lead-10",
+      nombre: "Julieta Vargas",
+      telefono: "+5491155550110",
+      estado: "convertido",
+      tags: ["pediatría"],
+      financiador: "Galeno",
+    },
+    paciente: {
+      id: "p-demo-3",
+      nombre: "Julieta Vargas",
+      telefono: "+5491155550110",
+      financiador: "Galeno",
+    },
+  },
+];
+
+const DEMO_MESSAGES: Record<
+  string,
+  Array<{
+    id: string;
+    clinic_id: string;
+    conversation_id: string;
+    direction: string;
+    sender_type: string;
+    sender_id: string;
+    sender_name: string;
+    body: string;
+    media_url: string | null;
+    media_type: string | null;
+    twilio_sid: string | null;
+    status: string;
+    created_at: string;
+  }>
+> = {
+  "conv-1": [
+    {
+      id: "msg-1a",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-1",
+      direction: "inbound",
+      sender_type: "lead",
+      sender_id: "lead-1",
+      sender_name: "Lucía Fernández",
+      body: "Hola, quería consultar porque tengo dolores de cabeza frecuentes desde hace dos semanas.",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "delivered",
+      created_at: "2026-03-15T09:30:00",
+    },
+    {
+      id: "msg-1b",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-1",
+      direction: "outbound",
+      sender_type: "staff",
+      sender_id: "demo-doctor-001",
+      sender_name: "Clínica San Martín",
+      body: "Hola Lucía! Gracias por contactarnos. ¿Podría contarnos un poco más? ¿El dolor es localizado o general? ¿Toma alguna medicación?",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "sent",
+      created_at: "2026-03-15T09:31:00",
+    },
+    {
+      id: "msg-1c",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-1",
+      direction: "inbound",
+      sender_type: "lead",
+      sender_id: "lead-1",
+      sender_name: "Lucía Fernández",
+      body: "Es en la zona de la frente, generalmente por la tarde. No tomo nada por el momento.",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "delivered",
+      created_at: "2026-03-15T09:32:00",
+    },
+  ],
+  "conv-2": [
+    {
+      id: "msg-2a",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-2",
+      direction: "inbound",
+      sender_type: "lead",
+      sender_id: "lead-2",
+      sender_name: "Matías Romero",
+      body: "Buen día, quisiera sacar turno para un chequeo general. Tengo Swiss Medical.",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "delivered",
+      created_at: "2026-03-14T14:00:00",
+    },
+    {
+      id: "msg-2b",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-2",
+      direction: "outbound",
+      sender_type: "staff",
+      sender_id: "demo-doctor-001",
+      sender_name: "Clínica San Martín",
+      body: "Hola Matías! Tenemos turnos disponibles esta semana. ¿Le conviene martes o jueves por la mañana?",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "sent",
+      created_at: "2026-03-14T14:05:00",
+    },
+    {
+      id: "msg-2c",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-2",
+      direction: "inbound",
+      sender_type: "lead",
+      sender_id: "lead-2",
+      sender_name: "Matías Romero",
+      body: "El jueves a las 10 me viene perfecto. Gracias!",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "delivered",
+      created_at: "2026-03-15T10:00:00",
+    },
+  ],
+  "conv-3": [
+    {
+      id: "msg-3a",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-3",
+      direction: "inbound",
+      sender_type: "lead",
+      sender_id: "lead-3",
+      sender_name: "Valentina Sosa",
+      body: "Hola, tengo unas manchas en el brazo que aparecieron hace un mes. ¿Puedo enviar fotos?",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "delivered",
+      created_at: "2026-03-13T11:00:00",
+    },
+    {
+      id: "msg-3b",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-3",
+      direction: "outbound",
+      sender_type: "staff",
+      sender_id: "demo-doctor-001",
+      sender_name: "Clínica San Martín",
+      body: "Hola Valentina! Sí, puede enviarnos las fotos por acá. Se las vamos a derivar a nuestra dermatóloga.",
+      media_url: null,
+      media_type: null,
+      twilio_sid: null,
+      status: "sent",
+      created_at: "2026-03-13T11:05:00",
+    },
+    {
+      id: "msg-3c",
+      clinic_id: "demo-clinic-001",
+      conversation_id: "conv-3",
+      direction: "inbound",
+      sender_type: "lead",
+      sender_id: "lead-3",
+      sender_name: "Valentina Sosa",
+      body: "Acá le mando las fotos. Son las manchas del antebrazo derecho.",
+      media_url: "https://placehold.co/400x300?text=Foto+dermatológica",
+      media_type: "image/jpeg",
+      twilio_sid: null,
+      status: "delivered",
+      created_at: "2026-03-14T16:00:00",
+    },
+  ],
+};
+
 export async function getConversations(clinicId: string, status?: string) {
+  if (!isSupabaseConfigured()) {
+    let convs = [...DEMO_CONVERSATIONS];
+    if (status) convs = convs.filter((c) => c.status === status);
+    return convs;
+  }
+
   const supabase = getServiceClient();
   let query = supabase
     .from("conversations")
@@ -417,6 +719,10 @@ export async function getConversations(clinicId: string, status?: string) {
 // ─── Get Messages for a Conversation ─────────────────────────
 
 export async function getMessages(conversationId: string, limit = 50) {
+  if (!isSupabaseConfigured()) {
+    return DEMO_MESSAGES[conversationId] ?? [];
+  }
+
   const supabase = getServiceClient();
   const { data, error } = await supabase
     .from("messages")
@@ -432,6 +738,8 @@ export async function getMessages(conversationId: string, limit = 50) {
 // ─── Mark Conversation as Read ───────────────────────────────
 
 export async function markConversationRead(conversationId: string) {
+  if (!isSupabaseConfigured()) return; // DEMO MODE — no-op
+
   const supabase = getServiceClient();
   await supabase.from("conversations").update({ unread_count: 0 }).eq("id", conversationId);
 }

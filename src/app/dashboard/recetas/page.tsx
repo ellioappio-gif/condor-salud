@@ -54,9 +54,86 @@ const EMPTY_MED: Medication = {
   notes: "",
 };
 
+// ─── Demo Data ───────────────────────────────────────────────
+const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
+  {
+    id: "rx-001",
+    patientName: "María García",
+    doctorName: "Dr. Rodríguez",
+    status: "active",
+    issuedAt: "2026-03-15T10:30:00",
+    verificationToken: "demo-token-001",
+    medications: [
+      { medicationName: "Losartán 50mg", dosage: "50mg", frequency: "c/24h" },
+      { medicationName: "Aspirina 100mg", dosage: "100mg", frequency: "c/24h" },
+    ],
+  },
+  {
+    id: "rx-002",
+    patientName: "Carlos López",
+    doctorName: "Dr. Rodríguez",
+    status: "dispensed",
+    issuedAt: "2026-03-14T09:15:00",
+    verificationToken: "demo-token-002",
+    medications: [{ medicationName: "Amoxicilina 500mg", dosage: "500mg", frequency: "c/8h" }],
+  },
+  {
+    id: "rx-003",
+    patientName: "Ana Martínez",
+    doctorName: "Dr. Rodríguez",
+    status: "active",
+    issuedAt: "2026-03-13T14:00:00",
+    verificationToken: "demo-token-003",
+    medications: [
+      { medicationName: "Omeprazol 20mg", dosage: "20mg", frequency: "c/12h" },
+      { medicationName: "Metformina 850mg", dosage: "850mg", frequency: "c/12h" },
+    ],
+  },
+  {
+    id: "rx-004",
+    patientName: "Roberto Sánchez",
+    doctorName: "Dr. Rodríguez",
+    status: "dispensed",
+    issuedAt: "2026-03-12T11:45:00",
+    verificationToken: "demo-token-004",
+    medications: [
+      { medicationName: "Atenolol 50mg", dosage: "50mg", frequency: "c/24h" },
+      { medicationName: "Furosemida 40mg", dosage: "40mg", frequency: "c/24h" },
+      { medicationName: "Enalapril 10mg", dosage: "10mg", frequency: "c/12h" },
+    ],
+  },
+  {
+    id: "rx-005",
+    patientName: "Lucía Fernández",
+    doctorName: "Dr. Rodríguez",
+    status: "expired",
+    issuedAt: "2026-02-28T08:30:00",
+    verificationToken: "demo-token-005",
+    medications: [{ medicationName: "Ibuprofeno 400mg", dosage: "400mg", frequency: "c/8h" }],
+  },
+  {
+    id: "rx-006",
+    patientName: "Valentina Pérez",
+    doctorName: "Dr. Rodríguez",
+    status: "active",
+    issuedAt: "2026-03-15T16:00:00",
+    verificationToken: "demo-token-006",
+    medications: [{ medicationName: "Levotiroxina 75mcg", dosage: "75mcg", frequency: "c/24h" }],
+  },
+  {
+    id: "rx-007",
+    patientName: "Sofía Torres",
+    doctorName: "Dr. Rodríguez",
+    status: "cancelled",
+    issuedAt: "2026-03-10T13:20:00",
+    verificationToken: "demo-token-007",
+    medications: [{ medicationName: "Clonazepam 0.5mg", dosage: "0.5mg", frequency: "c/24h" }],
+  },
+];
+
 export default function RecetasPage() {
   const { showToast } = useToast();
-  const [prescriptions, setPrescriptions] = useState<PrescriptionRow[]>([]);
+  const [prescriptions, setPrescriptions] = useState<PrescriptionRow[]>(DEMO_PRESCRIPTIONS);
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);

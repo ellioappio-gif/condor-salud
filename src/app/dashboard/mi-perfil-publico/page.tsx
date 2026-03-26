@@ -126,29 +126,44 @@ const PROVINCES = [
 // ─── Defaults ────────────────────────────────────────────────
 
 const defaultForm: ProfileForm = {
-  displayName: "",
+  displayName: "Dr. Martín Rodríguez",
   specialty: "Medicina General",
-  subSpecialties: [],
-  bioEs: "",
-  bioEn: "",
+  subSpecialties: ["Cardiología Preventiva", "Medicina Interna"],
+  bioEs:
+    "Médico clínico con más de 15 años de experiencia en atención primaria y cardiología preventiva. Director médico de Clínica San Martín. Especializado en el manejo integral del paciente con factores de riesgo cardiovascular, diabetes y enfermedades metabólicas. Miembro de la Sociedad Argentina de Cardiología.",
+  bioEn:
+    "General practitioner with over 15 years of experience in primary care and preventive cardiology. Medical director of Clínica San Martín. Specialized in comprehensive management of patients with cardiovascular risk factors, diabetes, and metabolic diseases.",
   photoUrl: "",
-  phone: "",
-  whatsapp: "",
-  email: "",
-  bookingUrl: "",
-  address: "",
-  city: "",
-  province: "",
-  insuranceAccepted: [],
-  languages: ["es"],
-  education: [],
-  experienceYears: "",
-  teleconsultaAvailable: false,
-  consultationFeeArs: "",
-  consultationFeeUsd: "",
-  seoTitle: "",
-  seoDescription: "",
-  published: false,
+  phone: "+54 11 4567-8901",
+  whatsapp: "5491145678901",
+  email: "dr.rodriguez@clinicasanmartin.com.ar",
+  bookingUrl: "https://condorsalud.com/medicos/dr-rodriguez",
+  address: "Av. Rivadavia 4321, Piso 3° B",
+  city: "Buenos Aires",
+  province: "CABA",
+  insuranceAccepted: ["OSDE", "Swiss Medical", "Galeno", "Medifé", "PAMI", "IOMA", "OSECAC"],
+  languages: ["es", "en"],
+  education: [
+    { institution: "Universidad de Buenos Aires (UBA)", degree: "Médico", year: 2010 },
+    {
+      institution: "Hospital Italiano de Buenos Aires",
+      degree: "Residencia Medicina Interna",
+      year: 2014,
+    },
+    {
+      institution: "Sociedad Argentina de Cardiología",
+      degree: "Posgrado Cardiología Preventiva",
+      year: 2016,
+    },
+  ],
+  experienceYears: 15,
+  teleconsultaAvailable: true,
+  consultationFeeArs: 22000,
+  consultationFeeUsd: 35,
+  seoTitle: "Dr. Martín Rodríguez – Medicina General | Cóndor Salud",
+  seoDescription:
+    "Médico clínico en CABA con 15 años de experiencia. Cardiología preventiva, medicina interna. Turnos online. OSDE, Swiss Medical, Galeno, PAMI.",
+  published: true,
 };
 
 // ─── Main Component ──────────────────────────────────────────
@@ -157,7 +172,7 @@ export default function MiPerfilPublicoPage() {
   const [form, setForm] = useState<ProfileForm>(defaultForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [slug, setSlug] = useState<string | null>(null);
+  const [slug, setSlug] = useState<string | null>("dr-rodriguez");
   const [saved, setSaved] = useState(false);
   const [newSubSpec, setNewSubSpec] = useState("");
   const [newInsurance, setNewInsurance] = useState("");

@@ -8,6 +8,7 @@
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
+import { isSupabaseConfigured } from "@/lib/env";
 
 const log = logger.child({ module: "crm" });
 
@@ -80,6 +81,244 @@ function getServiceClient() {
   return createClient(url, key);
 }
 
+// ─── Demo Data (used when Supabase is not configured) ────────
+
+const DEMO_LEADS: Lead[] = [
+  {
+    id: "lead-1",
+    clinic_id: "demo-clinic-001",
+    paciente_id: null,
+    nombre: "Lucía Fernández",
+    telefono: "+5491155550101",
+    email: "lucia.f@gmail.com",
+    motivo: "Consulta por dolor de cabeza frecuente",
+    fuente: "whatsapp",
+    estado: "nuevo",
+    prioridad: 1,
+    assigned_to: null,
+    tags: ["urgente"],
+    financiador: "OSDE",
+    notas: null,
+    first_contact_at: "2026-03-15T09:30:00",
+    last_message_at: "2026-03-15T09:32:00",
+    converted_at: null,
+    metadata: {},
+    created_at: "2026-03-15T09:30:00",
+    updated_at: "2026-03-15T09:32:00",
+  },
+  {
+    id: "lead-2",
+    clinic_id: "demo-clinic-001",
+    paciente_id: null,
+    nombre: "Matías Romero",
+    telefono: "+5491155550102",
+    email: "matias.r@hotmail.com",
+    motivo: "Quiero sacar turno para chequeo anual",
+    fuente: "web",
+    estado: "contactado",
+    prioridad: 2,
+    assigned_to: "demo-doctor-001",
+    tags: ["chequeo"],
+    financiador: "Swiss Medical",
+    notas: "[15/03/2026 10:00] Se contactó por WhatsApp, confirmó horario.",
+    first_contact_at: "2026-03-14T14:00:00",
+    last_message_at: "2026-03-15T10:00:00",
+    converted_at: null,
+    metadata: {},
+    created_at: "2026-03-14T14:00:00",
+    updated_at: "2026-03-15T10:00:00",
+  },
+  {
+    id: "lead-3",
+    clinic_id: "demo-clinic-001",
+    paciente_id: null,
+    nombre: "Valentina Sosa",
+    telefono: "+5491155550103",
+    email: "valen.sosa@gmail.com",
+    motivo: "Consulta dermatológica - manchas en la piel",
+    fuente: "landing",
+    estado: "interesado",
+    prioridad: 1,
+    assigned_to: "demo-doctor-001",
+    tags: ["dermatología", "seguimiento"],
+    financiador: "Galeno",
+    notas: "[14/03/2026 16:00] Envió fotos, derivar a dermatóloga.",
+    first_contact_at: "2026-03-13T11:00:00",
+    last_message_at: "2026-03-14T16:00:00",
+    converted_at: null,
+    metadata: {},
+    created_at: "2026-03-13T11:00:00",
+    updated_at: "2026-03-14T16:00:00",
+  },
+  {
+    id: "lead-4",
+    clinic_id: "demo-clinic-001",
+    paciente_id: null,
+    nombre: "Santiago Díaz",
+    telefono: "+5491155550104",
+    email: null,
+    motivo: "Me recomendaron al Dr. Rodríguez",
+    fuente: "referido",
+    estado: "turno_agendado",
+    prioridad: 3,
+    assigned_to: "demo-doctor-001",
+    tags: ["referido", "medicina-general"],
+    financiador: "PAMI",
+    notas: "[13/03/2026 09:30] Turno agendado para el 20/03.",
+    first_contact_at: "2026-03-12T18:00:00",
+    last_message_at: "2026-03-13T09:30:00",
+    converted_at: null,
+    metadata: {},
+    created_at: "2026-03-12T18:00:00",
+    updated_at: "2026-03-13T09:30:00",
+  },
+  {
+    id: "lead-5",
+    clinic_id: "demo-clinic-001",
+    paciente_id: "p-demo-1",
+    nombre: "Carolina Méndez",
+    telefono: "+5491155550105",
+    email: "caro.mendez@yahoo.com",
+    motivo: "Control post-operatorio",
+    fuente: "chatbot",
+    estado: "convertido",
+    prioridad: 2,
+    assigned_to: "demo-doctor-001",
+    tags: ["post-op", "seguimiento"],
+    financiador: "Medifé",
+    notas: "[10/03/2026] Convertida a paciente. Primera consulta exitosa.",
+    first_contact_at: "2026-03-08T10:00:00",
+    last_message_at: "2026-03-10T14:00:00",
+    converted_at: "2026-03-10T14:00:00",
+    metadata: {},
+    created_at: "2026-03-08T10:00:00",
+    updated_at: "2026-03-10T14:00:00",
+  },
+  {
+    id: "lead-6",
+    clinic_id: "demo-clinic-001",
+    paciente_id: "p-demo-2",
+    nombre: "Ignacio Peralta",
+    telefono: "+5491155550106",
+    email: "nacho.peralta@gmail.com",
+    motivo: "Consulta por resultados de laboratorio",
+    fuente: "whatsapp",
+    estado: "convertido",
+    prioridad: 2,
+    assigned_to: null,
+    tags: ["laboratorio"],
+    financiador: "OSDE",
+    notas: "[09/03/2026] Ya era paciente, se vinculó lead.",
+    first_contact_at: "2026-03-07T08:00:00",
+    last_message_at: "2026-03-09T11:00:00",
+    converted_at: "2026-03-09T11:00:00",
+    metadata: {},
+    created_at: "2026-03-07T08:00:00",
+    updated_at: "2026-03-09T11:00:00",
+  },
+  {
+    id: "lead-7",
+    clinic_id: "demo-clinic-001",
+    paciente_id: null,
+    nombre: "Facundo Ríos",
+    telefono: "+5491155550107",
+    email: "facundo.r@outlook.com",
+    motivo: "Consulta general",
+    fuente: "web",
+    estado: "perdido",
+    prioridad: 3,
+    assigned_to: null,
+    tags: [],
+    financiador: null,
+    notas: "[07/03/2026] No respondió al follow-up. Marcado como perdido.",
+    first_contact_at: "2026-03-05T12:00:00",
+    last_message_at: "2026-03-05T12:00:00",
+    converted_at: null,
+    metadata: {},
+    created_at: "2026-03-05T12:00:00",
+    updated_at: "2026-03-07T09:00:00",
+  },
+  {
+    id: "lead-8",
+    clinic_id: "demo-clinic-001",
+    paciente_id: null,
+    nombre: "Camila Torres",
+    telefono: "+5491155550108",
+    email: "camila.t@gmail.com",
+    motivo: "Necesito certificado médico para trabajo",
+    fuente: "manual",
+    estado: "nuevo",
+    prioridad: 1,
+    assigned_to: null,
+    tags: ["certificado", "laboral"],
+    financiador: "Unión Personal",
+    notas: null,
+    first_contact_at: "2026-03-15T08:00:00",
+    last_message_at: "2026-03-15T08:00:00",
+    converted_at: null,
+    metadata: {},
+    created_at: "2026-03-15T08:00:00",
+    updated_at: "2026-03-15T08:00:00",
+  },
+  {
+    id: "lead-9",
+    clinic_id: "demo-clinic-001",
+    paciente_id: null,
+    nombre: "Pablo Acosta",
+    telefono: "+5491155550109",
+    email: "pablo.acosta@gmail.com",
+    motivo: "Consulta por vacunación COVID refuerzo",
+    fuente: "chatbot",
+    estado: "contactado",
+    prioridad: 2,
+    assigned_to: "demo-doctor-001",
+    tags: ["vacunación"],
+    financiador: "Swiss Medical",
+    notas: "[14/03/2026] Se le informó disponibilidad de turnos.",
+    first_contact_at: "2026-03-14T07:00:00",
+    last_message_at: "2026-03-14T15:00:00",
+    converted_at: null,
+    metadata: {},
+    created_at: "2026-03-14T07:00:00",
+    updated_at: "2026-03-14T15:00:00",
+  },
+  {
+    id: "lead-10",
+    clinic_id: "demo-clinic-001",
+    paciente_id: "p-demo-3",
+    nombre: "Julieta Vargas",
+    telefono: "+5491155550110",
+    email: "juli.vargas@live.com",
+    motivo: "Consulta pediátrica para mi hijo",
+    fuente: "whatsapp",
+    estado: "convertido",
+    prioridad: 1,
+    assigned_to: "demo-doctor-001",
+    tags: ["pediatría", "familiar"],
+    financiador: "Galeno",
+    notas: "[11/03/2026] Turno con Dra. Martínez (pediatría). Convertida.",
+    first_contact_at: "2026-03-10T16:00:00",
+    last_message_at: "2026-03-11T10:00:00",
+    converted_at: "2026-03-11T10:00:00",
+    metadata: {},
+    created_at: "2026-03-10T16:00:00",
+    updated_at: "2026-03-11T10:00:00",
+  },
+];
+
+const DEMO_LEAD_STATS: LeadStats = {
+  total: 10,
+  nuevo: 2,
+  contactado: 2,
+  interesado: 1,
+  turno_agendado: 1,
+  convertido: 3,
+  perdido: 1,
+  byFuente: { whatsapp: 3, web: 2, referido: 1, landing: 1, chatbot: 2, manual: 1 },
+  conversionRate: 30,
+  avgTimeToConvert: 48,
+};
+
 // ─── Lead CRUD ───────────────────────────────────────────────
 
 /** Get leads with filtering, pagination, and search */
@@ -88,6 +327,28 @@ export async function getLeads(
   filters: LeadFilters = {},
   supabase?: SupabaseClient,
 ) {
+  if (!isSupabaseConfigured()) {
+    // DEMO MODE — filter in-memory
+    let filtered = [...DEMO_LEADS];
+    if (filters.estado) {
+      const estados = Array.isArray(filters.estado) ? filters.estado : [filters.estado];
+      filtered = filtered.filter((l) => estados.includes(l.estado));
+    }
+    if (filters.fuente) filtered = filtered.filter((l) => l.fuente === filters.fuente);
+    if (filters.search) {
+      const s = filters.search.toLowerCase();
+      filtered = filtered.filter(
+        (l) =>
+          l.nombre?.toLowerCase().includes(s) ||
+          l.telefono.includes(s) ||
+          l.email?.toLowerCase().includes(s),
+      );
+    }
+    const offset = filters.offset ?? 0;
+    const limit = filters.limit ?? 50;
+    return { leads: filtered.slice(offset, offset + limit), total: filtered.length };
+  }
+
   const db = supabase ?? getServiceClient();
   let query = db
     .from("leads")
@@ -142,6 +403,10 @@ export async function getLeads(
 
 /** Get a single lead by ID */
 export async function getLead(leadId: string, supabase?: SupabaseClient) {
+  if (!isSupabaseConfigured()) {
+    return DEMO_LEADS.find((l) => l.id === leadId) ?? null;
+  }
+
   const db = supabase ?? getServiceClient();
   const { data, error } = await db
     .from("leads")
@@ -166,6 +431,11 @@ export async function updateLeadStatus(
   estado: LeadEstado,
   supabase?: SupabaseClient,
 ) {
+  if (!isSupabaseConfigured()) {
+    const lead = DEMO_LEADS.find((l) => l.id === leadId);
+    return lead ? { ...lead, estado } : null;
+  }
+
   const db = supabase ?? getServiceClient();
   const updates: Record<string, unknown> = { estado };
 
@@ -190,6 +460,11 @@ export async function assignLead(
   staffId: string | null,
   supabase?: SupabaseClient,
 ) {
+  if (!isSupabaseConfigured()) {
+    const lead = DEMO_LEADS.find((l) => l.id === leadId);
+    return lead ? { ...lead, assigned_to: staffId } : null;
+  }
+
   const db = supabase ?? getServiceClient();
   const { data, error } = await db
     .from("leads")
@@ -207,6 +482,11 @@ export async function assignLead(
 
 /** Add tags to a lead */
 export async function addLeadTags(leadId: string, tags: string[], supabase?: SupabaseClient) {
+  if (!isSupabaseConfigured()) {
+    const lead = DEMO_LEADS.find((l) => l.id === leadId);
+    return lead ? { ...lead, tags: Array.from(new Set([...lead.tags, ...tags])) } : null;
+  }
+
   const db = supabase ?? getServiceClient();
   // Fetch current tags, merge, deduplicate
   const { data: lead } = await db.from("leads").select("tags").eq("id", leadId).single();
@@ -226,6 +506,13 @@ export async function addLeadTags(leadId: string, tags: string[], supabase?: Sup
 
 /** Add notes to a lead */
 export async function addLeadNote(leadId: string, note: string, supabase?: SupabaseClient) {
+  if (!isSupabaseConfigured()) {
+    const lead = DEMO_LEADS.find((l) => l.id === leadId);
+    if (!lead) return null;
+    const ts = new Date().toLocaleString("es-AR");
+    return { ...lead, notas: lead.notas ? `${lead.notas}\n\n[${ts}] ${note}` : `[${ts}] ${note}` };
+  }
+
   const db = supabase ?? getServiceClient();
   const { data: lead } = await db.from("leads").select("notas").eq("id", leadId).single();
   const timestamp = new Date().toLocaleString("es-AR");
@@ -264,6 +551,10 @@ export async function convertLeadToPatient(
   },
   supabase?: SupabaseClient,
 ) {
+  if (!isSupabaseConfigured()) {
+    return { success: true, pacienteId: `p-demo-${Date.now()}`, alreadyLinked: false };
+  }
+
   const db = supabase ?? getServiceClient();
 
   // Get lead
@@ -330,6 +621,8 @@ export async function getLeadStats(
   clinicId: string,
   supabase?: SupabaseClient,
 ): Promise<LeadStats> {
+  if (!isSupabaseConfigured()) return DEMO_LEAD_STATS;
+
   const db = supabase ?? getServiceClient();
 
   // Get counts by estado
@@ -412,6 +705,32 @@ export async function createManualLead(
   },
   supabase?: SupabaseClient,
 ) {
+  if (!isSupabaseConfigured()) {
+    // DEMO MODE — return a fake new lead
+    return {
+      id: `lead-demo-${Date.now()}`,
+      clinic_id: clinicId,
+      paciente_id: null,
+      nombre: data.nombre,
+      telefono: data.telefono,
+      email: data.email || null,
+      motivo: data.motivo || null,
+      fuente: data.fuente || "manual",
+      estado: "nuevo" as LeadEstado,
+      prioridad: 2,
+      assigned_to: data.assignedTo || null,
+      tags: data.tags || [],
+      financiador: data.financiador || null,
+      notas: null,
+      first_contact_at: new Date().toISOString(),
+      last_message_at: new Date().toISOString(),
+      converted_at: null,
+      metadata: {},
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } satisfies Lead;
+  }
+
   const db = supabase ?? getServiceClient();
 
   const { data: lead, error } = await db

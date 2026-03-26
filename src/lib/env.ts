@@ -287,9 +287,12 @@ export const serverEnv: ServerEnv = new Proxy({} as ServerEnv, {
 export const clientEnv: ClientEnv = validateClientEnv();
 
 // ─── Helper: Check if Supabase is configured ────────────────
+// DEMO MODE: Force false so all services return rich mock data.
+// TODO: When real clinics onboard, restore the original check:
+//   const url = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
+//   return !!url && !url.includes("placeholder") && !url.includes("your-project");
 export function isSupabaseConfigured(): boolean {
-  const url = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
-  return !!url && !url.includes("placeholder") && !url.includes("your-project");
+  return false;
 }
 
 // ─── Helper: Check if Sentry is configured ──────────────────
