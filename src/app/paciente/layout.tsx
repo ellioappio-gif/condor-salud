@@ -70,6 +70,7 @@ const navItems = [
 // Demo insurance info (mocked)
 const DEMO_INSURANCE = "OSDE 310";
 const DEMO_MEMBER_ID = "08-29384756-3";
+const IS_DEMO_DATA = true; // Flag for demo badge visibility
 
 export default function PatientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -114,6 +115,12 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
         <div
           className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") setSidebarOpen(false);
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label={t("aria.closeMenu")}
         />
       )}
 
@@ -234,6 +241,14 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
 
         {/* Content */}
         <main id="patient-content" className="flex-1 overflow-y-auto bg-surface p-4 lg:p-6">
+          {IS_DEMO_DATA && (
+            <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+              <span className="inline-flex items-center rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                DEMO
+              </span>
+              {t("demo.banner") ?? "Estás viendo datos de demostración"}
+            </div>
+          )}
           <SWRProvider>
             <ToastProvider>{children}</ToastProvider>
           </SWRProvider>

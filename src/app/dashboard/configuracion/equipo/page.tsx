@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useAuth } from "@/lib/auth/context";
 import { isSupabaseConfigured } from "@/lib/env";
 import { Loader2, AlertCircle, UserPlus, X, Send } from "lucide-react";
@@ -55,6 +56,7 @@ const inputClass =
 
 export default function EquipoPage() {
   const { showToast } = useToast();
+  const { t, locale } = useLocale();
   const { user } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -123,13 +125,13 @@ export default function EquipoPage() {
         showToast(data.error || "Error al enviar la invitación");
         return;
       }
-      showToast("Invitación enviada correctamente.");
+      showToast(t("toast.config.inviteSent"), "success");
       setShowInvite(false);
       setInviteEmail("");
       setInviteRole("recepcion");
       fetchTeam(); // Refresh
     } catch {
-      showToast("Error de conexión.");
+      showToast(t("toast.config.connectionError"), "error");
     } finally {
       setInviting(false);
     }
@@ -144,11 +146,11 @@ export default function EquipoPage() {
         body: JSON.stringify({ invitationId: invId }),
       });
       if (res.ok) {
-        showToast("Invitación cancelada.");
+        showToast(t("toast.config.inviteCancelled"));
         fetchTeam();
       }
     } catch {
-      showToast("Error al cancelar.");
+      showToast(t("toast.config.cancelError"), "error");
     }
   };
 
@@ -348,8 +350,9 @@ export default function EquipoPage() {
                 <p className="text-xs font-semibold text-ink">{inv.email}</p>
                 <p className="text-[10px] text-ink-muted">
                   Rol: {ROLE_LABELS[inv.role] || inv.role} · Enviada:{" "}
-                  {new Date(inv.created_at).toLocaleDateString("es-AR")} · Expira:{" "}
-                  {new Date(inv.expires_at).toLocaleDateString("es-AR")}
+                  {new Date(inv.created_at).toLocaleDateString(locale === "en" ? "en-US" : "es-AR")}{" "}
+                  · Expira:{" "}
+                  {new Date(inv.expires_at).toLocaleDateString(locale === "en" ? "en-US" : "es-AR")}
                 </p>
               </div>
               {isAdmin && (

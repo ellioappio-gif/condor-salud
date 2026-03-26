@@ -74,13 +74,13 @@ export default function AuditoriaPage() {
       const result = await updateAuditItem(id, { estado: "resuelto" });
       setActionLoading(null);
       if (result.success) {
-        showToast("Observación resuelta");
+        showToast(t("toast.audit.resolved"));
         loadData();
       } else {
         showToast(`${result.error}`);
       }
     },
-    [loadData, showToast],
+    [loadData, showToast, t],
   );
 
   const handleMarkReviewed = useCallback(
@@ -89,13 +89,13 @@ export default function AuditoriaPage() {
       const result = await updateAuditItem(id, { estado: "revisado" });
       setActionLoading(null);
       if (result.success) {
-        showToast("Observación revisada");
+        showToast(t("toast.audit.reviewed"));
         loadData();
       } else {
         showToast(`${result.error}`);
       }
     },
-    [loadData, showToast],
+    [loadData, showToast, t],
   );
 
   const handleRunAudit = useCallback(async () => {

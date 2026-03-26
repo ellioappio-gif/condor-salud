@@ -22,6 +22,7 @@ import {
   Pill,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { usePatientName } from "@/lib/hooks/usePatientName";
 import { useMyProfile } from "@/hooks/use-patient-data";
 import type { PatientProfile } from "@/lib/services/patient-data";
@@ -30,6 +31,7 @@ import type { PatientProfile } from "@/lib/services/patient-data";
 type Section = "personal" | "medical" | "settings";
 
 export default function PerfilPage() {
+  const { locale } = useLocale();
   const { showToast } = useToast();
   const { name: cookieName, setName: setCookieName, initials } = usePatientName();
   const { data: fetchedProfile } = useMyProfile(cookieName ?? undefined);
@@ -161,7 +163,9 @@ export default function PerfilPage() {
             {
               icon: Calendar,
               label: "Fecha de nacimiento",
-              value: new Date(profile.birthDate + "T12:00").toLocaleDateString("es-AR"),
+              value: new Date(profile.birthDate + "T12:00").toLocaleDateString(
+                locale === "en" ? "en-US" : "es-AR",
+              ),
             },
             { icon: User, label: "Género", value: profile.gender },
             { icon: MapPin, label: "Dirección", value: `${profile.address}, ${profile.city}` },

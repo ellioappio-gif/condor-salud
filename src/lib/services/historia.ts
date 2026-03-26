@@ -4,6 +4,7 @@
 
 import { isSupabaseConfigured } from "@/lib/env";
 import { delay } from "@/lib/utils";
+import { isDCM4CHEEConfigured, searchPatientDICOMStudies } from "@/lib/dcm4chee/service";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -164,6 +165,16 @@ export async function getHistoriaClinica(
             : "",
         ].filter(Boolean),
       });
+    }
+
+    // 5. DICOM studies from DCM4CHEE (if configured)
+    if (isDCM4CHEEConfigured()) {
+      try {
+        const dicomEvents = await searchPatientDICOMStudies(patientName, patientName);
+        events.push(...dicomEvents);
+      } catch (error) {
+        console.error("Error fetching DICOM studies:", error);
+      }
     }
 
     // Sort all events by date descending

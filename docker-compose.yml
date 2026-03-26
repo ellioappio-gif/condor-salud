@@ -49,3 +49,38 @@ services:
         reservations:
           cpus: "0.25"
           memory: 256M
+
+  # ── DCM4CHEE PACS Archive ───────────────────────────────────
+  dcm4chee:
+    image: dcm4che/dcm4chee-arc-psql:5.31.1
+    ports:
+      - "8080:8080"   # Web UI
+      - "8443:8443"   # HTTPS
+      - "11112:11112" # DICOM
+      - "2762:2762"   # HL7
+    environment:
+      - POSTGRES_HOST=dcm4chee-db
+      - POSTGRES_DB=pacsdb
+      - POSTGRES_USER=pacs
+      - POSTGRES_PASSWORD=pacs
+      - WILDFLY_ADMIN_USER=admin
+      - WILDFLY_ADMIN_PASSWORD=admin
+    depends_on:
+      - dcm4chee-db
+    restart: unless-stopped
+    volumes:
+      - dcm4chee-data:/opt/wildfly/standalone/data
+
+  dcm4chee-db:
+    image: dcm4che/postgres-dcm4chee:15.4-31
+    environment:
+      - POSTGRES_DB=pacsdb
+      - POSTGRES_USER=pacs
+      - POSTGRES_PASSWORD=pacs
+    restart: unless-stopped
+    volumes:
+      - dcm4chee-db-data:/var/lib/postgresql/data
+
+volumes:
+  dcm4chee-data:
+  dcm4chee-db-data:

@@ -1,5 +1,8 @@
+"use client";
+
 import { type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/context";
 import { Pagination } from "./Pagination";
 
 interface Column<T> {
@@ -25,13 +28,14 @@ export function DataTable<T>({
   columns,
   data,
   keyExtractor,
-  emptyMessage = "No hay datos para mostrar",
+  emptyMessage,
   caption,
   className,
   onRowClick,
   stickyHeader = false,
   pageSize = 20,
 }: DataTableProps<T>) {
+  const { t } = useLocale();
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / pageSize);
   const paginatedData = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -39,7 +43,7 @@ export function DataTable<T>({
   if (data.length === 0) {
     return (
       <div className="text-center py-12 text-ink-muted text-sm" role="status">
-        {emptyMessage}
+        {emptyMessage ?? t("common.noData")}
       </div>
     );
   }

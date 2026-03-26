@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { FacturaEstado } from "@/lib/types";
+import { Pagination } from "@/components/ui/Pagination";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
@@ -51,6 +52,7 @@ export default function FacturacionPage() {
   const [filtroEstado, setFiltroEstado] = useState("todos");
   const [showNuevaFactura, setShowNuevaFactura] = useState(false);
   const [detalleFactura, setDetalleFactura] = useState<(typeof facturas)[number] | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // ─── Nueva factura form state ────────────────────────────
   const [nfNumero, setNfNumero] = useState("");
@@ -117,6 +119,14 @@ export default function FacturacionPage() {
       return true;
     });
   }, [facturas, filtroFinanciador, filtroEstado]);
+
+  const PAGE_SIZE = 25;
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginatedData = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filtroFinanciador, filtroEstado]);
 
   const totals = useMemo(() => {
     const totalFacturado = facturas.reduce((s, f) => s + f.monto, 0);
@@ -279,7 +289,7 @@ export default function FacturacionPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((f) => (
+              {paginatedData.map((f) => (
                 <tr
                   key={f.id}
                   className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -319,6 +329,8 @@ export default function FacturacionPage() {
           </table>
         </div>
       </Card>
+
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
 
       {/* ─── Nueva Factura Modal ──────────────────────────── */}
       {showNuevaFactura && (

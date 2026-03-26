@@ -83,7 +83,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
         </div>
         {isBot && msg.source === "ai" && (
           <span
-            className="mt-0.5 ml-1 text-[10px] text-ink-muted/60 select-none"
+            className="mt-0.5 ml-1 text-[10px] text-gray-500 select-none"
             aria-label="Powered by AI"
           >
             AI
@@ -715,7 +715,7 @@ export default function Chatbot() {
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="w-10 h-10 rounded-full bg-celeste-dark hover:bg-celeste text-white flex items-center justify-center transition disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+              className="w-10 h-10 rounded-full bg-celeste-dark hover:bg-celeste text-white flex items-center justify-center transition disabled:opacity-60 disabled:cursor-not-allowed flex-shrink-0"
               aria-label={t("chatbot.sendButton")}
             >
               <svg

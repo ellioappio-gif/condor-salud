@@ -10,7 +10,7 @@ export default function Footer() {
   const { t } = useLocale();
 
   return (
-    <footer className="border-t border-border pt-10 pb-8">
+    <footer className="border-t border-border pt-10 pb-8" aria-label={t("aria.siteFooter")}>
       <div className="max-w-6xl mx-auto px-6 lg:px-10">
         {/* Brand — centered */}
         <div className="flex justify-center mb-8">
@@ -24,13 +24,16 @@ export default function Footer() {
             />
             <div className="font-display font-bold text-lg">
               <span className="text-celeste-dark group-hover:text-celeste transition">CÓNDOR </span>
-              <span className="text-gold">SALUD</span>
+              <span className="text-gold-dark">SALUD</span>
             </div>
           </Link>
         </div>
 
         {/* Nav columns — centered */}
-        <div className="flex flex-wrap justify-center gap-12 text-[13px] mb-8">
+        <nav
+          aria-label={t("aria.footerNav")}
+          className="flex flex-wrap justify-center gap-12 text-[13px] mb-8"
+        >
           <div className="space-y-2">
             <p className="font-semibold text-ink text-xs uppercase tracking-wider">
               {t("footer.colSolution")}
@@ -129,13 +132,12 @@ export default function Footer() {
               {t("footer.terms")}
             </Link>
           </div>
-        </div>
+        </nav>
 
         {/* Bottom divider + copyright */}
         <div className="border-t border-border pt-4 text-center">
           <p className="text-[11px] text-ink-muted">
-            {t("footer.copy")}
-            {new Date().getFullYear()}
+            {t("footer.copy")} {new Date().getFullYear()}
           </p>
         </div>
       </div>

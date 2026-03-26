@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/context";
 
 interface PaginationProps {
   currentPage: number;
@@ -11,6 +12,7 @@ interface PaginationProps {
 }
 
 export function Pagination({ currentPage, totalPages, onPageChange, className }: PaginationProps) {
+  const { t } = useLocale();
   if (totalPages <= 1) return null;
 
   // Build visible page numbers: first, last, current ± 1
@@ -28,13 +30,13 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
   return (
     <nav
       className={cn("flex items-center justify-center gap-1 pt-4", className)}
-      aria-label="Paginación"
+      aria-label={t("common.pagination")}
     >
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="p-1.5 rounded text-ink-muted hover:text-ink hover:bg-surface transition disabled:opacity-30 disabled:cursor-not-allowed"
-        aria-label="Página anterior"
+        aria-label={t("common.prevPage")}
       >
         <ChevronLeft className="w-4 h-4" />
       </button>
@@ -65,7 +67,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="p-1.5 rounded text-ink-muted hover:text-ink hover:bg-surface transition disabled:opacity-30 disabled:cursor-not-allowed"
-        aria-label="Página siguiente"
+        aria-label={t("common.nextPage")}
       >
         <ChevronRight className="w-4 h-4" />
       </button>

@@ -49,7 +49,7 @@ The platform serves two audiences:
 - AI symptom checker with Argentine OTC medicine recommendations (brand names, dosing, red flags)
 - Geolocation-powered nearby services with Google Maps directions
 - OTC medicine delivery via Rappi and PedidosYa
-- Nubix Cloud RIS/PACS integration for medical imaging
+- dcm4chee Archive 5 open-source PACS integration for medical imaging
 - SSS nomenclator code management with per-payer pricing
 
 ---
@@ -304,18 +304,18 @@ A full-featured marketing site composed of 14 section components:
 - Auto-routing to appropriate specialty
 - Photo upload capability for visible symptoms
 
-#### Nubix RIS/PACS (`/dashboard/nubix`)
+#### dcm4chee Archive PACS (`/dashboard/nubix`)
 
 - Medical imaging management platform
 - 16 DICOM modalities: CR, CT, MR, US, MG, ECG, DX, NM, PT, XA, RF, OT, SC, ES, IO, BI
 - Radiology study listing with filters (modality, status, date, patient)
 - Report management (preliminary → final → delivered)
 - Result delivery via WhatsApp, email, or patient portal
-- Embedded DICOM viewer
-- Appointment scheduling for imaging studies
+- Embedded DICOM viewer (OHIF / Weasis)
+- Appointment scheduling via Modality Worklist (MWL)
 - KPIs: studies today, pending reports, average turnaround
 
-**Integrates with:** Nubix Cloud API (full REST client with auth)
+**Integrates with:** dcm4chee Archive 5 DICOMweb API (QIDO-RS, WADO-RS, STOW-RS, MWL)
 
 ---
 
@@ -537,7 +537,7 @@ All POST endpoints use input sanitization and structured logging via the API gua
 | **MercadoPago**          | Online payments (copagos, coseguros)                   | UI built, SDK installed           |
 | **Resend**               | Transactional email                                    | SDK installed                     |
 | **Upstash Redis**        | Production rate limiting and caching                   | SDK installed, in-memory fallback |
-| **Nubix Cloud**          | RIS/PACS medical imaging (188-line HTTP client)        | Full client + mock fallback       |
+| **dcm4chee Archive 5**   | Open-source PACS/VNA (DICOMweb client)                 | Full client + mock fallback       |
 | **Google Places API**    | Doctor directory, photos, ratings, coordinates         | Full server-side proxy            |
 | **PAMI**                 | Argentine public health insurance API                  | Env vars defined, stub ready      |
 | **AFIP WSFE**            | Argentine electronic invoicing                         | Env vars defined, stub ready      |
@@ -699,7 +699,7 @@ Typed hooks for every module:
 - `useFinanciadores()`, `useInflacion()`, `useAlertas()`
 - `useAgenda()`, `useInventario()`, `useNomenclador()`
 - `useFarmacia()`, `useTelemedicina()`, `useDirectorio()`
-- `useTriage()`, `useNubix()`
+- `useTriage()`, `useNubixStudies()`, `useNubixKPIs()`
 
 ### Plan System
 

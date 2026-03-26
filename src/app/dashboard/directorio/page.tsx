@@ -189,7 +189,7 @@ export default function DirectorioPage() {
         <button
           onClick={() =>
             !isDemo
-              ? showToast("Agregar nuevo médico al directorio")
+              ? showToast(t("toast.directorio.addDoctor"))
               : showDemo("Agregar nuevo médico al directorio")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
@@ -390,7 +390,9 @@ export default function DirectorioPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() =>
-                    !isDemo ? showToast("Semana anterior") : showDemo("Semana anterior")
+                    !isDemo
+                      ? showToast(t("toast.directorio.prevWeek"))
+                      : showDemo("Semana anterior")
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
@@ -398,7 +400,9 @@ export default function DirectorioPage() {
                 </button>
                 <button
                   onClick={() =>
-                    !isDemo ? showToast("Semana siguiente") : showDemo("Semana siguiente")
+                    !isDemo
+                      ? showToast(t("toast.directorio.nextWeek"))
+                      : showDemo("Semana siguiente")
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >

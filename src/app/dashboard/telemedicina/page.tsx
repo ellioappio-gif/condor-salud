@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Pagination } from "@/components/ui/Pagination";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
@@ -20,6 +23,7 @@ export default function TelemedicinPage() {
   const { showToast } = useToast();
   const isDemo = useIsDemo();
   const [tab, setTab] = useState<Tab>("sala");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // ─── SWR data hooks ─────────────────────────────────────────
   const { data: waitingRoom = [] } = useWaitingRoom();
@@ -35,63 +39,44 @@ export default function TelemedicinPage() {
     { key: "resumen", label: t("telemedicine.whatsAppSummary") },
   ];
 
-  const kpiCards = kpis
-    ? [
-        {
-          label: t("telemedicine.inWaitingRoom"),
-          value: String(kpis.inWaiting),
-          change: t("telemedicine.connected"),
-          color: "text-celeste-dark",
-        },
-        {
-          label: t("telemedicine.consultationsToday"),
-          value: String(kpis.todayCount),
-          change: t("telemedicine.completed"),
-          color: "text-celeste-dark",
-        },
-        {
-          label: t("telemedicine.autoBilled"),
-          value: String(kpis.billed),
-          change: t("telemedicine.autoBilling"),
-          color: "text-green-600",
-        },
-        {
-          label: t("telemedicine.prescriptionsSent"),
-          value: String(kpis.prescriptionsSent),
-          change: t("telemedicine.withPharmacy"),
-          color: "text-gold",
-        },
-      ]
-    : [
-        {
-          label: t("telemedicine.inWaitingRoom"),
-          value: "3",
-          change: "1 sin intake",
-          color: "text-celeste-dark",
-        },
-        {
-          label: t("telemedicine.consultationsToday"),
-          value: "11",
-          change: "8 completadas",
-          color: "text-celeste-dark",
-        },
-        {
-          label: t("telemedicine.autoBilled"),
-          value: "8",
-          change: "$186.400 total",
-          color: "text-green-600",
-        },
-        {
-          label: t("telemedicine.prescriptionsSent"),
-          value: "6",
-          change: "4 con farmacia",
-          color: "text-gold",
-        },
-      ];
+  const kpiCards = [
+    {
+      label: t("telemedicine.inWaitingRoom"),
+      value: kpis ? String(kpis.inWaiting) : "",
+      change: kpis ? t("telemedicine.connected") : "",
+      color: "text-celeste-dark",
+    },
+    {
+      label: t("telemedicine.consultationsToday"),
+      value: kpis ? String(kpis.todayCount) : "",
+      change: kpis ? t("telemedicine.completed") : "",
+      color: "text-celeste-dark",
+    },
+    {
+      label: t("telemedicine.autoBilled"),
+      value: kpis ? String(kpis.billed) : "",
+      change: kpis ? t("telemedicine.autoBilling") : "",
+      color: "text-green-600",
+    },
+    {
+      label: t("telemedicine.prescriptionsSent"),
+      value: kpis ? String(kpis.prescriptionsSent) : "",
+      change: kpis ? t("telemedicine.withPharmacy") : "",
+      color: "text-gold",
+    },
+  ];
 
   const wr = waitingRoom;
   const rc = recentConsultations;
   const sc = scheduledConsultations;
+
+  const PAGE_SIZE = 25;
+  const totalPages = Math.ceil(rc.length / PAGE_SIZE);
+  const paginatedRc = rc.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tab]);
 
   return (
     <div id="main-content" className="p-6 space-y-6">
@@ -104,7 +89,7 @@ export default function TelemedicinPage() {
         <button
           onClick={() =>
             !isDemo
-              ? showToast("Iniciar nueva videoconsulta")
+              ? showToast(t("toast.telemed.newCall"))
               : showDemo("Iniciar nueva videoconsulta")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
@@ -118,7 +103,11 @@ export default function TelemedicinPage() {
         {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-lg p-5">
             <p className="text-xs text-ink-muted">{kpi.label}</p>
-            <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
+            {!kpis ? (
+              <Skeleton className="h-8 w-20 mt-1" />
+            ) : (
+              <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
+            )}
             <p className="text-xs text-ink-muted mt-1">{kpi.change}</p>
           </div>
         ))}
@@ -145,6 +134,13 @@ export default function TelemedicinPage() {
       {tab === "sala" && (
         <div className="space-y-4">
           <p className="text-sm text-ink-light">{t("telemedicine.waitingRoomDesc")}</p>
+
+          {wr.length === 0 && (
+            <EmptyState
+              title={t("telemedicine.noData")}
+              description={t("telemedicine.waitingRoomDesc")}
+            />
+          )}
 
           <div className="space-y-3">
             {wr.map((p) => (
@@ -294,7 +290,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast("Abrir videoconsulta activa — compartir pantalla")
+                    ? showToast(t("toast.telemed.shareScreen"))
                     : showDemo("Abrir videoconsulta activa — compartir pantalla")
                 }
                 className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
@@ -304,7 +300,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast("Iniciar grabación de sesión")
+                    ? showToast(t("toast.telemed.startRecording"))
                     : showDemo("Iniciar grabación de sesión")
                 }
                 className="px-4 py-2 text-xs font-semibold border border-celeste-dark text-celeste-dark rounded hover:bg-celeste-pale transition"
@@ -314,7 +310,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast("Finalizar videoconsulta activa")
+                    ? showToast(t("toast.telemed.endCall"))
                     : showDemo("Finalizar videoconsulta activa")
                 }
                 className="px-4 py-2 text-xs font-semibold border border-red-300 text-red-600 rounded hover:bg-red-50 transition"
@@ -354,7 +350,7 @@ export default function TelemedicinPage() {
                 </tr>
               </thead>
               <tbody>
-                {rc.map((c) => (
+                {paginatedRc.map((c) => (
                   <tr
                     key={c.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -395,6 +391,12 @@ export default function TelemedicinPage() {
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
 

@@ -152,7 +152,7 @@ export const farmaciaActionSchema = z.discriminatedUnion("action", [
 
 export type FarmaciaActionInput = z.infer<typeof farmaciaActionSchema>;
 
-// ─── Nubix (PACS) action schemas ─────────────────────────────
+// ─── PACS (dcm4chee) action schemas ──────────────────────────
 export const nubixActionSchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("send-results"),

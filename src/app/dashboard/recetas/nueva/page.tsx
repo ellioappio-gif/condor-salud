@@ -22,6 +22,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import type { VademecumDrug, DrugInteraction } from "@/lib/types";
 
 /** Generate a simple unique token without crypto.randomUUID */
@@ -142,6 +143,7 @@ function useInteractionCheck() {
 /* ── Main Component ────────────────────────────────────── */
 export default function NuevaRecetaPage() {
   const { showToast } = useToast();
+  const { t } = useLocale();
   const drugSearch = useDrugSearch();
   const interactionCheck = useInteractionCheck();
 
@@ -221,13 +223,13 @@ export default function NuevaRecetaPage() {
 
   async function handleCreate(asDraft: boolean = false) {
     if (!patientName.trim() || !meds[0]?.medicationName) {
-      showToast("Completa el nombre del paciente y al menos un medicamento.");
+      showToast(t("toast.recetas.fillRequired"), "warning");
       return;
     }
 
     // Block if contraindicated interaction
     if (interactionCheck.hasContraindicated) {
-      showToast("Hay interacciones CONTRAINDICADAS. Revisa los medicamentos antes de continuar.");
+      showToast(t("toast.recetas.contraindicated"), "error");
       return;
     }
 
@@ -316,9 +318,9 @@ export default function NuevaRecetaPage() {
     if (!created) return;
     try {
       navigator.clipboard.writeText(created.verificationUrl);
-      showToast("URL de verificacion copiada");
+      showToast(t("toast.recetas.urlCopied"));
     } catch {
-      showToast("No se pudo copiar la URL");
+      showToast(t("toast.recetas.copyError"), "error");
     }
   }
 

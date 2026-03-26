@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useWhatsAppConfig, useSaveWhatsAppConfig } from "@/lib/hooks/useCRM";
 import type { WhatsAppTemplate } from "@/lib/types";
 
@@ -115,6 +116,7 @@ const ESTADO_COLOR: Record<string, string> = {
 /* ---------- Component ---------- */
 export default function WhatsAppConfigPage() {
   const { showToast } = useToast();
+  const { t } = useLocale();
   const {
     config: savedConfig,
     templates: savedTemplates,
@@ -237,9 +239,9 @@ export default function WhatsAppConfigPage() {
 
       setDirty(false);
       refresh();
-      showToast("Configuracion guardada");
+      showToast(t("toast.config.saved"));
     } catch {
-      showToast("Error al guardar");
+      showToast(t("toast.config.saveError"), "error");
     }
   };
 
@@ -285,7 +287,7 @@ export default function WhatsAppConfigPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showToast("Mensaje de prueba enviado (simulado)")}
+            onClick={() => showToast(t("toast.config.testMessage"))}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Enviar prueba

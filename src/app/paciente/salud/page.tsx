@@ -16,6 +16,7 @@ import {
   Calendar,
   Trash2,
 } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -168,6 +169,7 @@ const DEMO_TIMELINE: TrackerItem[] = [
 // ─── Main Component ──────────────────────────────────────────
 
 export default function SaludPage() {
+  const { locale } = useLocale();
   const [categories, setCategories] = useState<Category[]>(DEMO_CATEGORIES);
   const [timeline, setTimeline] = useState<TrackerItem[]>(DEMO_TIMELINE);
   const [loading, setLoading] = useState(false);
@@ -399,10 +401,13 @@ export default function SaludPage() {
                 <div className="text-right text-xs text-gray-400 flex-shrink-0">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    {new Date(item.measuredAt).toLocaleDateString("es-AR", {
-                      day: "numeric",
-                      month: "short",
-                    })}
+                    {new Date(item.measuredAt).toLocaleDateString(
+                      locale === "en" ? "en-US" : "es-AR",
+                      {
+                        day: "numeric",
+                        month: "short",
+                      },
+                    )}
                   </div>
                   <p>
                     {new Date(item.measuredAt).toLocaleTimeString("es-AR", {

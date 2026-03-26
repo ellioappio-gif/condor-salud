@@ -138,7 +138,7 @@ export async function requireAuth(req: NextRequest): Promise<AuthResult> {
   // ── 4. Demo mode fallback ──────────────────────────────────
   // When no real auth is found, return the demo user so that all
   // API routes work in demo / investor-preview mode.
-  // TODO: When real clinics onboard, re-enable the 401 gate.
+  // Gate: once real clinics onboard, re-enable the 401 response above.
   logger.debug({ route: req.nextUrl.pathname }, "No auth found — falling back to demo user");
 
   return {

@@ -48,7 +48,7 @@ export function useDoctorSearch(): UseDoctorSearchReturn {
       setState((s) => ({
         ...s,
         loading: false,
-        error: err instanceof Error ? err.message : "Error buscando médicos",
+        error: err instanceof Error ? err.message : "Error al buscar médicos",
         searched: true,
       }));
     }

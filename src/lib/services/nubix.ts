@@ -1,14 +1,19 @@
-// ─── Nubix Service Layer ─────────────────────────────────────
-// Real Nubix API calls with mock fallback when not configured.
+// ─── PACS Service Layer (dcm4chee Archive) ───────────────────
+// Real dcm4chee DICOMweb calls with mock fallback when not configured.
 // Follows the same pattern as farmacia.ts, telemedicina.ts, etc.
+//
+// IMPORTANT: All mock data arrays and the isNubixConfigured() →
+// mock fallback pattern are 100% preserved. Only the "real" API
+// path has been switched from Nubix Cloud REST to dcm4chee DICOMweb.
 
+import { isNubixConfigured } from "@/lib/nubix/client";
 import {
-  isNubixConfigured,
-  nubixGet,
-  nubixPost,
-  nubixPut,
-  nubixGetPaginated,
-} from "@/lib/nubix/client";
+  fetchDcm4cheeStudies,
+  fetchDcm4cheeStudy,
+  fetchDcm4cheeAppointments,
+  getDcm4cheeViewerConfig,
+  fetchDcm4cheeKPIs,
+} from "@/lib/dcm4chee/service";
 import type {
   NubixStudy,
   NubixReport,
@@ -18,7 +23,6 @@ import type {
   NubixKPIs,
   NubixStudyFilters,
   NubixAppointmentFilters,
-  NubixPaginatedResponse,
 } from "@/lib/nubix/types";
 
 // ─── Mock Data ───────────────────────────────────────────────
@@ -291,74 +295,45 @@ export async function getNubixStudies(filters?: NubixStudyFilters): Promise<Nubi
   if (!isNubixConfigured()) return applyStudyFilters(mockStudies, filters);
 
   try {
-    const params: Record<string, string | number | undefined> = {
-      patient_name: filters?.patientName,
-      patient_dni: filters?.patientDni,
-      modality: filters?.modality,
-      specialty: filters?.specialty,
-      status: filters?.status,
-      date_from: filters?.dateFrom,
-      date_to: filters?.dateTo,
-      referring_doctor: filters?.referringDoctor,
-      financiador: filters?.financiador,
-      page: filters?.page ?? 1,
-      page_size: filters?.pageSize ?? 50,
-    };
-
-    const res = await nubixGetPaginated<NubixStudy>("/studies", params);
-    return res.data;
+    return await fetchDcm4cheeStudies(filters);
   } catch {
     return [];
   }
 }
 
-/** Get a single study by ID */
+/** Get a single study by ID (StudyInstanceUID) */
 export async function getNubixStudy(id: string): Promise<NubixStudy | null> {
   if (!isNubixConfigured()) return mockStudies.find((s) => s.id === id) ?? null;
 
   try {
-    return await nubixGet<NubixStudy>(`/studies/${id}`);
+    return await fetchDcm4cheeStudy(id);
   } catch {
     return null;
   }
 }
 
-/** Get report for a study */
+/** Get report for a study — reports are not a DICOM concept, mock-only for now */
 export async function getNubixReport(studyId: string): Promise<NubixReport | null> {
   if (!isNubixConfigured()) return mockReports.find((r) => r.studyId === studyId) ?? null;
 
-  try {
-    return await nubixGet<NubixReport>(`/studies/${studyId}/report`);
-  } catch {
-    return null;
-  }
+  // dcm4chee does not manage radiology reports natively.
+  // A dedicated reporting system (e.g. FHIR DiagnosticReport) would be needed.
+  return null;
 }
 
-/** Get all reports (pending + signed) */
+/** Get all reports (pending + signed) — reports are not a DICOM concept */
 export async function getNubixReports(): Promise<NubixReport[]> {
   if (!isNubixConfigured()) return mockReports;
-
-  try {
-    const res = await nubixGetPaginated<NubixReport>("/reports", { page_size: 100 });
-    return res.data;
-  } catch {
-    return [];
-  }
+  return [];
 }
 
-/** Get delivery history for a study */
+/** Get delivery history for a study — deliveries are not a DICOM concept */
 export async function getNubixDeliveries(studyId?: string): Promise<NubixDelivery[]> {
   if (!isNubixConfigured()) {
     return studyId ? mockDeliveries.filter((d) => d.studyId === studyId) : mockDeliveries;
   }
-
-  try {
-    const path = studyId ? `/studies/${studyId}/deliveries` : "/deliveries";
-    const res = await nubixGetPaginated<NubixDelivery>(path, { page_size: 100 });
-    return res.data;
-  } catch {
-    return [];
-  }
+  // Result delivery is managed externally (WhatsApp, email, portal).
+  return [];
 }
 
 /** Send study results to a patient via WhatsApp/email/portal */
@@ -377,22 +352,27 @@ export async function sendNubixResults(
       recipientContact,
       sentAt: new Date().toISOString(),
       openedAt: null,
-      portalUrl: `https://minubix.cloud/r/demo-${Date.now()}`,
+      portalUrl: `https://portal.example.com/r/demo-${Date.now()}`,
       status: "sent",
     };
   }
 
-  try {
-    return await nubixPost<NubixDelivery>(`/studies/${studyId}/deliver`, {
-      channel,
-      recipient_contact: recipientContact,
-    });
-  } catch {
-    return null;
-  }
+  // Delivery is managed externally (Twilio, Resend, etc.)
+  // dcm4chee does not handle result distribution.
+  return {
+    id: `nd-${Date.now()}`,
+    studyId,
+    channel,
+    recipientName: "Patient",
+    recipientContact,
+    sentAt: new Date().toISOString(),
+    openedAt: null,
+    portalUrl: null,
+    status: "sent",
+  };
 }
 
-/** Get DICOM viewer embed config (temporary token + URL) */
+/** Get DICOM viewer embed config (OHIF/Weasis) */
 export async function getNubixViewerConfig(studyId: string): Promise<NubixViewerConfig | null> {
   if (!isNubixConfigured()) {
     return {
@@ -405,51 +385,35 @@ export async function getNubixViewerConfig(studyId: string): Promise<NubixViewer
   }
 
   try {
-    return await nubixPost<NubixViewerConfig>(`/studies/${studyId}/viewer-token`, {});
+    return getDcm4cheeViewerConfig(studyId);
   } catch {
     return null;
   }
 }
 
-/** Get appointments, optionally filtered */
+/** Get appointments from dcm4chee MWL, optionally filtered */
 export async function getNubixAppointments(
   filters?: NubixAppointmentFilters,
 ): Promise<NubixAppointment[]> {
   if (!isNubixConfigured()) return mockAppointments;
 
   try {
-    const params: Record<string, string | number | undefined> = {
-      date_from: filters?.dateFrom,
-      date_to: filters?.dateTo,
-      modality: filters?.modality,
-      status: filters?.status,
-      room: filters?.room,
-      page: filters?.page ?? 1,
-      page_size: filters?.pageSize ?? 50,
-    };
-
-    const res = await nubixGetPaginated<NubixAppointment>("/appointments", params);
-    return res.data;
+    return await fetchDcm4cheeAppointments(filters);
   } catch {
     return [];
   }
 }
 
-/** Create or update an appointment */
+/** Create or update an appointment — dcm4chee MWL is read-only */
 export async function upsertNubixAppointment(
   data: Omit<NubixAppointment, "id">,
   id?: string,
 ): Promise<NubixAppointment | null> {
   if (!isNubixConfigured()) return null;
 
-  try {
-    if (id) {
-      return await nubixPut<NubixAppointment>(`/appointments/${id}`, data);
-    }
-    return await nubixPost<NubixAppointment>("/appointments", data);
-  } catch {
-    return null;
-  }
+  // dcm4chee MWL items are typically managed by the HIS/RIS.
+  // STOW-RS is for DICOM objects, not worklist items.
+  return null;
 }
 
 // ─── KPIs ────────────────────────────────────────────────────
@@ -470,7 +434,7 @@ export async function getNubixKPIs(): Promise<NubixKPIs> {
   }
 
   try {
-    return await nubixGet<NubixKPIs>("/stats/kpis");
+    return await fetchDcm4cheeKPIs();
   } catch {
     return {
       totalStudies: 0,

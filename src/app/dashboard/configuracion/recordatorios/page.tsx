@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
 
@@ -75,6 +76,7 @@ const estadoColors: Record<string, string> = {
 export default function RecordatoriosConfigPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const { t } = useLocale();
   const isDemo = useIsDemo();
   const [activeTemplates, setActiveTemplates] = useState(
     DEFAULT_TEMPLATES.reduce(
@@ -110,7 +112,7 @@ export default function RecordatoriosConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo("Enviar recordatorio manual")
-                : showToast("Enviar recordatorio manual")
+                : showToast(t("toast.config.sendManualReminder"))
             }
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
@@ -120,7 +122,7 @@ export default function RecordatoriosConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo("Configurar WhatsApp Business API")
-                : showToast("Configurar WhatsApp Business API")
+                : showToast(t("toast.config.configWhatsApp"))
             }
             className="px-4 py-2 text-sm font-semibold bg-[#25D366] text-white rounded-[4px] hover:bg-[#20BD5A] transition flex items-center gap-1.5"
           >

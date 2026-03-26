@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
 import { formatCurrency } from "@/lib/utils";
@@ -234,6 +235,7 @@ const cardIcon: Record<string, string> = {
 export default function PagosConfigPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const { t } = useLocale();
   const isDemo = useIsDemo();
   const [tab, setTab] = useState<"overview" | "methods" | "transactions" | "rules">("overview");
   const [mpConnected] = useState(true);
@@ -284,7 +286,9 @@ export default function PagosConfigPage() {
         <div className="flex gap-2">
           <button
             onClick={() =>
-              isDemo ? showDemo("Generar link de pago") : showToast("Generar link de pago")
+              isDemo
+                ? showDemo("Generar link de pago")
+                : showToast(t("toast.config.generatePayLink"))
             }
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
@@ -294,7 +298,7 @@ export default function PagosConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo("Guardar configuración de pagos")
-                : showToast("Guardar configuración de pagos")
+                : showToast(t("toast.config.savePayConfig"))
             }
             className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
           >
@@ -366,7 +370,7 @@ export default function PagosConfigPage() {
               onClick={() =>
                 isDemo
                   ? showDemo("Configurar MercadoPago OAuth")
-                  : showToast("Configurar MercadoPago OAuth")
+                  : showToast(t("toast.config.configMP"))
               }
               className="px-3 py-1.5 text-[10px] font-semibold border border-border rounded hover:border-celeste-dark hover:text-celeste-dark transition"
             >
@@ -558,7 +562,7 @@ export default function PagosConfigPage() {
               onClick={() =>
                 isDemo
                   ? showDemo("Agregar método de pago manualmente")
-                  : showToast("Agregar método de pago manualmente")
+                  : showToast(t("toast.config.addPayMethod"))
               }
               className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
             >
@@ -674,7 +678,7 @@ export default function PagosConfigPage() {
               onClick={() =>
                 isDemo
                   ? showDemo("Exportar transacciones CSV")
-                  : showToast("Exportar transacciones CSV")
+                  : showToast(t("toast.config.exportCSV"))
               }
               className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
             >
@@ -739,7 +743,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Página anterior de transacciones")
-                    : showToast("Página anterior de transacciones")
+                    : showToast(t("toast.config.prevTransPage"))
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
@@ -752,7 +756,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Ver página 2 de transacciones")
-                    : showToast("Ver página 2 de transacciones")
+                    : showToast(t("toast.config.transPage2"))
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
@@ -762,7 +766,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Ver página 3 de transacciones")
-                    : showToast("Ver página 3 de transacciones")
+                    : showToast(t("toast.config.transPage3"))
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
@@ -772,7 +776,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Siguiente página de transacciones")
-                    : showToast("Siguiente página de transacciones")
+                    : showToast(t("toast.config.nextTransPage"))
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >

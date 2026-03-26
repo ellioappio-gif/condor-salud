@@ -2,11 +2,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
 
 export default function NotificacionesConfigPage() {
   const { showToast } = useToast();
+  const { t } = useLocale();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
   const [prefs, setPrefs] = useState({
@@ -181,7 +183,7 @@ export default function NotificacionesConfigPage() {
           onClick={() =>
             isDemo
               ? showDemo("Guardar preferencias de notificaciones")
-              : showToast("Guardar preferencias de notificaciones")
+              : showToast(t("toast.config.saveNotifPrefs"))
           }
           className="px-5 py-2.5 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
@@ -189,7 +191,9 @@ export default function NotificacionesConfigPage() {
         </button>
         <button
           onClick={() =>
-            isDemo ? showDemo("Restablecer configuración") : showToast("Restablecer configuración")
+            isDemo
+              ? showDemo("Restablecer configuración")
+              : showToast(t("toast.config.resetConfig"))
           }
           className="px-5 py-2.5 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-ink transition"
         >

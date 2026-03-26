@@ -56,7 +56,7 @@ export default function Navbar() {
           />
           <div className="font-display font-bold text-lg leading-tight">
             <span className="text-celeste-dark">CÓNDOR </span>
-            <span className="text-gold">SALUD</span>
+            <span className="text-gold-dark">SALUD</span>
           </div>
         </Link>
 

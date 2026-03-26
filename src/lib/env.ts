@@ -108,10 +108,13 @@ const serverSchema = z.object({
   UPSTASH_REDIS_URL: z.string().url().optional(),
   UPSTASH_REDIS_TOKEN: z.string().optional(),
 
-  // ── Nubix Cloud (RIS/PACS) ─────────────────────────────────
-  NUBIX_API_URL: z.string().url().optional(),
-  NUBIX_API_KEY: z.string().optional(),
-  NUBIX_TENANT_ID: z.string().optional(),
+  // ── dcm4chee Archive (PACS/VNA — open-source DICOMweb) ─────
+  DCM4CHEE_BASE_URL: z.string().url().optional(),
+  DCM4CHEE_AET: z.string().optional(),
+  DCM4CHEE_AUTH_TOKEN: z.string().optional(),
+  DCM4CHEE_USERNAME: z.string().optional(),
+  DCM4CHEE_PASSWORD: z.string().optional(),
+  DCM4CHEE_SECURE: z.string().optional(),
 
   // ── Anthropic (Claude AI for Cora chatbot) ─────────────────
   ANTHROPIC_API_KEY: z.string().optional(),
@@ -287,12 +290,18 @@ export const serverEnv: ServerEnv = new Proxy({} as ServerEnv, {
 export const clientEnv: ClientEnv = validateClientEnv();
 
 // ─── Helper: Check if Supabase is configured ────────────────
-// DEMO MODE: Force false so all services return rich mock data.
-// TODO: When real clinics onboard, restore the original check:
-//   const url = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
-//   return !!url && !url.includes("placeholder") && !url.includes("your-project");
 export function isSupabaseConfigured(): boolean {
-  return false;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return (
+    !!url &&
+    !!key &&
+    !url.includes("your-supabase") &&
+    !url.includes("your-project") &&
+    !url.includes("placeholder") &&
+    url.startsWith("https://") &&
+    key.length > 20
+  );
 }
 
 // ─── Helper: Check if Sentry is configured ──────────────────

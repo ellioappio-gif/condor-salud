@@ -13,6 +13,7 @@ export { Modal } from "./Modal";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { EmptyState } from "./EmptyState";
 export { Toggle } from "./Toggle";
+export { FileUpload } from "./FileUpload";
 export {
   Skeleton,
   KPICardSkeleton,

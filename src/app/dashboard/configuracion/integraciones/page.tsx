@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 
 interface Integracion {
   id: string;
@@ -105,6 +106,7 @@ export default function IntegracionesPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
+  const { t } = useLocale();
   const activas = integraciones.filter((i) => i.estado === "Conectado").length;
   const errores = integraciones.filter((i) => i.estado === "Error").length;
 
@@ -126,7 +128,11 @@ export default function IntegracionesPage() {
           </p>
         </div>
         <button
-          onClick={() => (isDemo ? showDemo("Nueva integración") : showToast("Nueva integración"))}
+          onClick={() =>
+            isDemo
+              ? showDemo(t("toast.config.newIntegration"))
+              : showToast(t("toast.config.newIntegration"))
+          }
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
           + Nueva integración

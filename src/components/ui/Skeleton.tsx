@@ -1,15 +1,19 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/context";
 
 interface SkeletonProps {
   className?: string;
 }
 
 export function Skeleton({ className }: SkeletonProps) {
+  const { t } = useLocale();
   return (
     <div
       className={cn("animate-pulse bg-border/60 rounded-[4px]", className)}
       role="status"
-      aria-label="Cargando..."
+      aria-label={t("common.loading")}
     />
   );
 }
@@ -28,7 +32,7 @@ export function KPICardSkeleton() {
 
 export function KPIGridSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Cargando indicadores...">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" role="status" aria-busy="true">
       {Array.from({ length: count }).map((_, i) => (
         <KPICardSkeleton key={i} />
       ))}
@@ -69,7 +73,7 @@ export function FilterBarSkeleton() {
 
 export function PageSkeleton() {
   return (
-    <div className="space-y-5" role="status" aria-label="Cargando página...">
+    <div className="space-y-5" role="status" aria-busy="true">
       <div className="space-y-2">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-72" />

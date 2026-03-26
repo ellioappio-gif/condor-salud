@@ -16,7 +16,7 @@
 8. [Resend (Transactional Email)](#8-resend-transactional-email)
 9. [Upstash Redis (Rate Limiting / Caching)](#9-upstash-redis)
 10. [Sentry (Error Monitoring)](#10-sentry)
-11. [Nubix Cloud (RIS/PACS — Medical Imaging)](#11-nubix-cloud)
+11. [dcm4chee Archive 5 (PACS)](#11-dcm4chee-archive-5-pacs)x-cloud)
 12. [AFIP WSFE v1 (Electronic Invoicing — Argentina)](#12-afip-wsfe-v1)
 13. [PAMI (Public Health Insurance — Argentina)](#13-pami)
 14. [Google Places API (Doctor Search)](#14-google-places-api-doctor-search)
@@ -923,52 +923,60 @@ transaction.finish();
 
 ---
 
-## 11. Nubix Cloud
+## 11. dcm4chee Archive 5 (PACS)
 
-**Website**: <https://www.nubix.cloud>  
-**API Docs**: ⚠️ **No public API documentation** — requires business partnership  
-**Used for**: RIS/PACS medical imaging, DICOM viewer, radiology reports
+**Website**: <https://web.dcm4che.org>  
+**API Docs**: <https://petstore.swagger.io/?url=https://dcm4che.github.io/dicomweb/openapi.json> (DICOMweb)  
+**Used for**: Open-source PACS/VNA, DICOM viewer (OHIF/Weasis), medical imaging archive
 
-### 11.1 Known Capabilities (from marketing)
+### 11.1 DICOMweb Capabilities
 
-- **Solutions**: Radiología, Dental, Cirugía, Cardiología, Neumología, Gastroenterología, etc.
-- **Features**: AI analysis, DICOM viewer, WhatsApp result delivery, appointment management
-- **Compliance**: HIPAA, DICOM, HL7
-- **Scale**: 700M+ files processed, 5+ countries
-- **Integrations**: Zapier, custom webhooks
+- **QIDO-RS**: Query studies, series, instances, patients, MWL items
+- **WADO-RS**: Retrieve DICOM objects, metadata, thumbnails, rendered images
+- **STOW-RS**: Store DICOM objects
+- **MWL-RS**: Modality Worklist (scheduled procedures / appointments)
+- **Compliance**: IHE, DICOM, HL7 FHIR-compatible
+- **Viewers**: OHIF Viewer, Weasis (integrated)
 
-### 11.2 Expected API Endpoints (from our integration code)
+### 11.2 DICOMweb API Endpoints
 
-Based on our built integration (`src/lib/nubix/client.ts`, `src/lib/services/nubix.ts`):
+Based on our integration (`src/lib/dcm4chee/client.ts`, `src/lib/dcm4chee/service.ts`):
 
-| Category         | Endpoint                       | Description                         |
-| ---------------- | ------------------------------ | ----------------------------------- |
-| **Studies**      | `GET /studies`                 | List imaging studies (with filters) |
-|                  | `GET /studies/{id}`            | Get study detail                    |
-|                  | `GET /studies/{id}/report`     | Get study report (PDF/structured)   |
-|                  | `GET /studies/{id}/viewer`     | Get DICOM viewer embed config       |
-|                  | `GET /studies/{id}/deliveries` | Get result delivery history         |
-|                  | `POST /studies/{id}/deliver`   | Send results via channel            |
-| **Reports**      | `GET /reports`                 | List all reports                    |
-| **Appointments** | `GET /appointments`            | List imaging appointments           |
-|                  | `POST /appointments`           | Create appointment                  |
-|                  | `PUT /appointments/{id}`       | Update appointment                  |
-| **Analytics**    | `GET /kpis`                    | Dashboard KPIs                      |
-| **Deliveries**   | `GET /deliveries`              | List all deliveries                 |
+| Category    | Endpoint                                                      | Description                                  |
+| ----------- | ------------------------------------------------------------- | -------------------------------------------- |
+| **QIDO-RS** | `GET /rs/studies`                                             | Search studies (PatientName, modality, date) |
+|             | `GET /rs/studies?StudyInstanceUID={uid}`                      | Get study by UID                             |
+|             | `GET /rs/studies/count`                                       | Study count                                  |
+|             | `GET /rs/studies/{uid}/series`                                | Get series for a study                       |
+|             | `GET /rs/studies/{uid}/series/{uid}/instances`                | Get instances for a series                   |
+|             | `GET /rs/mwlitems`                                            | Modality Worklist (appointments)             |
+|             | `GET /rs/mwlitems/count`                                      | MWL item count                               |
+| **WADO-RS** | `GET /rs/studies/{uid}/metadata`                              | Study metadata                               |
+|             | `GET /rs/studies/{uid}/thumbnail`                             | Study thumbnail                              |
+|             | `GET /rs/studies/{uid}/series/{uid}/instances/{uid}/rendered` | Rendered instance (JPEG/PNG)                 |
+| **STOW-RS** | `POST /rs/studies`                                            | Store DICOM instances                        |
+| **Viewer**  | `GET /viewer/viewer/{uid}`                                    | OHIF viewer URL                              |
+|             | `GET /weasis?studyUID={uid}`                                  | Weasis viewer URL                            |
 
-### 11.3 Authentication (Expected)
+### 11.3 Authentication
 
 ```http
-Authorization: Bearer {NUBIX_API_KEY}
-X-Tenant-ID: {NUBIX_TENANT_ID}
-Content-Type: application/json
+Authorization: Bearer {DCM4CHEE_AUTH_TOKEN}   # Keycloak
+# — or —
+Authorization: Basic {base64(user:pass)}       # Basic auth
+Accept: application/dicom+json
 ```
 
-### 11.4 Next Steps
+### 11.4 DICOM JSON Format
 
-- Contact Nubix sales for API documentation: <https://www.nubix.cloud>
-- Request sandbox/staging credentials
-- Validate our integration types against actual API schema
+Responses use DICOM JSON (tag-keyed attributes):
+
+```json
+{
+  "00100010": { "vr": "PN", "Value": [{ "Alphabetic": "DOE^JOHN" }] },
+  "0020000D": { "vr": "UI", "Value": ["1.2.840..."] }
+}
+```
 
 ---
 
@@ -1182,10 +1190,12 @@ SENTRY_AUTH_TOKEN=
 SENTRY_ORG=
 SENTRY_PROJECT=
 
-# Nubix Cloud
-NUBIX_API_URL=
-NUBIX_API_KEY=
-NUBIX_TENANT_ID=
+# dcm4chee Archive 5 (PACS)
+DCM4CHEE_BASE_URL=
+DCM4CHEE_AET=DCM4CHEE
+DCM4CHEE_AUTH_TOKEN=
+DCM4CHEE_USERNAME=
+DCM4CHEE_PASSWORD=
 
 # AFIP
 AFIP_CUIT=
@@ -1219,17 +1229,17 @@ GOOGLE_MAPS_API_KEY=
 
 ## Authentication Summary
 
-| Service           | Method                         | Header/Format                                       |
-| ----------------- | ------------------------------ | --------------------------------------------------- |
-| **Supabase**      | API Key + JWT                  | `apikey: {anon_key}`, `Authorization: Bearer {jwt}` |
-| **Google**        | OAuth 2.0 Bearer               | `Authorization: Bearer {access_token}`              |
-| **Google Places** | API Key                        | `X-Goog-Api-Key: {key}`                             |
-| **Daily.co**      | API Key                        | `Authorization: Bearer {DAILY_API_KEY}`             |
-| **Twilio**        | Basic Auth                     | `Authorization: Basic {base64(sid:token)}`          |
-| **MercadoPago**   | Bearer Token                   | `Authorization: Bearer {ACCESS_TOKEN}`              |
-| **Resend**        | API Key                        | `Authorization: Bearer re_xxxxxxxxx`                |
-| **Upstash**       | REST Token                     | Via SDK config or `Authorization: Bearer {token}`   |
-| **Sentry**        | DSN + Auth Token               | DSN in client config, Auth Token for API            |
-| **Nubix**         | API Key + Tenant               | `Authorization: Bearer {key}`, `X-Tenant-ID: {id}`  |
-| **AFIP**          | X.509 Certificate + WSAA Token | SOAP headers with Token + Sign                      |
-| **Google Places** | API Key                        | `X-Goog-Api-Key: {key}`                             |
+| Service           | Method                         | Header/Format                                                              |
+| ----------------- | ------------------------------ | -------------------------------------------------------------------------- |
+| **Supabase**      | API Key + JWT                  | `apikey: {anon_key}`, `Authorization: Bearer {jwt}`                        |
+| **Google**        | OAuth 2.0 Bearer               | `Authorization: Bearer {access_token}`                                     |
+| **Google Places** | API Key                        | `X-Goog-Api-Key: {key}`                                                    |
+| **Daily.co**      | API Key                        | `Authorization: Bearer {DAILY_API_KEY}`                                    |
+| **Twilio**        | Basic Auth                     | `Authorization: Basic {base64(sid:token)}`                                 |
+| **MercadoPago**   | Bearer Token                   | `Authorization: Bearer {ACCESS_TOKEN}`                                     |
+| **Resend**        | API Key                        | `Authorization: Bearer re_xxxxxxxxx`                                       |
+| **Upstash**       | REST Token                     | Via SDK config or `Authorization: Bearer {token}`                          |
+| **Sentry**        | DSN + Auth Token               | DSN in client config, Auth Token for API                                   |
+| **dcm4chee**      | Bearer Token / Basic Auth      | `Authorization: Bearer {token}` or Basic, `Accept: application/dicom+json` |
+| **AFIP**          | X.509 Certificate + WSAA Token | SOAP headers with Token + Sign                                             |
+| **Google Places** | API Key                        | `X-Goog-Api-Key: {key}`                                                    |

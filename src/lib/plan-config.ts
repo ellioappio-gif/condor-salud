@@ -24,6 +24,7 @@ export type ModuleId =
   | "directorio"
   | "interconsultas"
   | "triage"
+  | "nubix"
   | "chatbot"
   | "club-salud"
   | "recetas-digitales"
@@ -280,6 +281,14 @@ export const MODULES: ModuleDef[] = [
     deps: ["directorio"],
   },
   {
+    id: "nubix",
+    label: "PACS / Imagen Médica",
+    desc: "Visualización DICOM, integración dcm4chee Archive 5, entrega de resultados.",
+    price: 8000,
+    category: "servicios",
+    phase: 2,
+  },
+  {
     id: "verificacion-medica",
     label: "Verificación Médica",
     desc: "Verificación de matrícula y credenciales profesionales con badge público.",
@@ -321,6 +330,7 @@ export const CATEGORIES: CategoryDef[] = [
       "directorio",
       "interconsultas",
       "triage",
+      "nubix",
       "chatbot",
       "club-salud",
       "recetas-digitales",

@@ -1108,8 +1108,8 @@ export const dashboardTranslations: DashTranslation = {
   // ─── Nubix / Imagen médica ─────────────────────────────────
   "nubix.title": { es: "Imagen Médica", en: "Medical Imaging" },
   "nubix.subtitle": {
-    es: "Estudios DICOM, informes y entrega de resultados en la nube",
-    en: "DICOM studies, reports and cloud-based result delivery",
+    es: "Estudios DICOM, informes y entrega de resultados — dcm4chee Archive",
+    en: "DICOM studies, reports and result delivery — dcm4chee Archive",
   },
   "nubix.studies": { es: "Estudios", en: "Studies" },
   "nubix.appointments": { es: "Turnos", en: "Appointments" },
@@ -1123,7 +1123,7 @@ export const dashboardTranslations: DashTranslation = {
   "nubix.arrived": { es: "Llegó", en: "Arrived" },
   "nubix.noStudies": { es: "No hay estudios registrados.", en: "No studies registered." },
   "nubix.noDeliveries": { es: "No hay entregas registradas.", en: "No deliveries registered." },
-  "nubix.viewerTitle": { es: "Visor DICOM — NUBIX Cloud", en: "DICOM Viewer — NUBIX Cloud" },
+  "nubix.viewerTitle": { es: "Visor DICOM — dcm4chee", en: "DICOM Viewer — dcm4chee" },
   "nubix.selectStudy": {
     es: "Seleccioná un estudio para ver en el visor DICOM",
     en: "Select a study to view in the DICOM viewer",
@@ -2485,6 +2485,34 @@ export const dashboardTranslations: DashTranslation = {
   },
   "nubix.storage": { es: "Almacenamiento:", en: "Storage:" },
   "nubix.gbUsed": { es: "GB usados", en: "GB used" },
+  "nubix.pacsConnected": { es: "PACS Conectado", en: "PACS Connected" },
+  "nubix.pacsDisconnected": { es: "PACS Desconectado", en: "PACS Disconnected" },
+  "nubix.demoMode": { es: "Modo demo", en: "Demo mode" },
+  "nubix.seriesPanel": { es: "Series", en: "Series" },
+  "nubix.instances": { es: "instancias", en: "instances" },
+  "nubix.openInViewer": { es: "Abrir en visor", en: "Open in viewer" },
+  "nubix.viewSeries": { es: "Ver series", en: "View series" },
+  "nubix.clearFilters": { es: "Limpiar filtros", en: "Clear filters" },
+  "nubix.searchByName": { es: "Nombre del paciente", en: "Patient name" },
+  "nubix.searchById": { es: "ID del paciente", en: "Patient ID" },
+  "nubix.dateFrom": { es: "Fecha desde", en: "Date from" },
+  "nubix.dateTo": { es: "Fecha hasta", en: "Date to" },
+  "nubix.search": { es: "Buscar", en: "Search" },
+  "nubix.totalStudiesKpi": { es: "Total estudios", en: "Total studies" },
+  "nubix.activeModalities": { es: "Modalidades activas", en: "Active modalities" },
+  "nubix.todayStudiesKpi": { es: "Estudios hoy", en: "Studies today" },
+  "nubix.totalInstances": { es: "Instancias totales", en: "Total instances" },
+  "nubix.series": { es: "Series", en: "Series" },
+  "nubix.emptyTitle": { es: "Sin estudios DICOM", en: "No DICOM studies" },
+  "nubix.emptyDescription": {
+    es: "No se encontraron estudios con los filtros seleccionados.",
+    en: "No studies found with the selected filters.",
+  },
+  "nubix.errorTitle": { es: "Error de conexión PACS", en: "PACS connection error" },
+  "nubix.errorDescription": {
+    es: "No se pudo conectar con el servidor dcm4chee. Verificá la configuración.",
+    en: "Could not connect to dcm4chee server. Check the configuration.",
+  },
 
   // ─── Wizard (extended) ────────────────────────────────────
   "wizard.showToc": { es: "Mostrar índice", en: "Show index" },
@@ -2880,4 +2908,11 @@ export const dashboardTranslations: DashTranslation = {
   "reviews.comment": { es: "Comentario", en: "Comment" },
   "reviews.doctor": { es: "Médico", en: "Doctor" },
   "reviews.patient": { es: "Paciente", en: "Patient" },
+  "reviews.subtitle": {
+    es: "Gestione las reseñas de pacientes antes de que aparezcan públicamente.",
+    en: "Manage patient reviews before they appear publicly.",
+  },
+  "reviews.filterLabel": { es: "Filtrar por estado", en: "Filter by status" },
+  "reviews.listLabel": { es: "Reseñas a moderar", en: "Reviews to moderate" },
+  "reviews.verified": { es: "VERIFICADO", en: "VERIFIED" },
 };

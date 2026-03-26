@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Pagination } from "@/components/ui/Pagination";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 import { useTriages, useTriageKPIs } from "@/lib/hooks/useModules";
 import {
   bodySystems,
@@ -18,6 +22,7 @@ type Tab = "sintomas" | "detalle" | "notas" | "intake" | "clinicas" | "routing";
 export default function TriagePage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const { t } = useLocale();
   const isDemo = useIsDemo();
   const [tab, setTab] = useState<Tab>("sintomas");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -29,6 +34,7 @@ export default function TriagePage() {
   const [clinicalNotes, setClinicalNotes] = useState("");
   const [selectedICD, setSelectedICD] = useState<string[]>([]);
   const [treatmentPlan, setTreatmentPlan] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // ─── SWR data hooks ─────────────────────────────────────────
   const { data: triages = [] } = useTriages();
@@ -45,6 +51,17 @@ export default function TriagePage() {
       : "Pendiente",
     status: t.status,
   }));
+
+  const PAGE_SIZE = 25;
+  const totalPages = Math.ceil(intakeHistory.length / PAGE_SIZE);
+  const paginatedIntake = intakeHistory.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tab]);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "sintomas", label: "Síntomas" },
@@ -71,44 +88,32 @@ export default function TriagePage() {
     new Set(selectedSymptoms.map((s) => symptomToSpecialty[s]).filter(Boolean)),
   );
 
-  const kpiCards = kpis
-    ? [
-        {
-          label: "Triages hoy",
-          value: String(kpis.todayCount),
-          change: "Registrados",
-          color: "text-celeste-dark",
-        },
-        {
-          label: "En espera",
-          value: String(kpis.pending),
-          change: "Pendientes",
-          color: "text-gold",
-        },
-        {
-          label: "Derivados",
-          value: String(kpis.routed),
-          change: "Con especialidad",
-          color: "text-celeste-dark",
-        },
-        {
-          label: "Alta severidad",
-          value: String(kpis.highSeverity),
-          change: "Severidad >= 7",
-          color: "text-green-600",
-        },
-      ]
-    : [
-        { label: "Triages hoy", value: "18", change: "5 urgentes", color: "text-celeste-dark" },
-        { label: "En espera", value: "4", change: "2 alta severidad", color: "text-gold" },
-        { label: "Derivados", value: "14", change: "6 especialidades", color: "text-celeste-dark" },
-        {
-          label: "Notas clínicas",
-          value: "11",
-          change: "Hoy completadas",
-          color: "text-green-600",
-        },
-      ];
+  const kpiCards = [
+    {
+      label: "Triages hoy",
+      value: kpis ? String(kpis.todayCount) : "",
+      change: kpis ? "Registrados" : "",
+      color: "text-celeste-dark",
+    },
+    {
+      label: "En espera",
+      value: kpis ? String(kpis.pending) : "",
+      change: kpis ? "Pendientes" : "",
+      color: "text-gold",
+    },
+    {
+      label: "Derivados",
+      value: kpis ? String(kpis.routed) : "",
+      change: kpis ? "Con especialidad" : "",
+      color: "text-celeste-dark",
+    },
+    {
+      label: "Alta severidad",
+      value: kpis ? String(kpis.highSeverity) : "",
+      change: kpis ? "Severidad >= 7" : "",
+      color: "text-green-600",
+    },
+  ];
 
   return (
     <div id="main-content" className="p-6 space-y-6">
@@ -122,7 +127,7 @@ export default function TriagePage() {
         </div>
         <button
           onClick={() =>
-            !isDemo ? showToast("Nuevo triage de paciente") : showDemo("Nuevo triage de paciente")
+            !isDemo ? showToast(t("toast.triage.newTriage")) : showDemo("Nuevo triage de paciente")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
@@ -135,7 +140,11 @@ export default function TriagePage() {
         {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-lg p-5">
             <p className="text-xs text-ink-muted">{kpi.label}</p>
-            <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
+            {!kpis ? (
+              <Skeleton className="h-8 w-20 mt-1" />
+            ) : (
+              <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
+            )}
             <p className="text-xs text-ink-muted mt-1">{kpi.change}</p>
           </div>
         ))}
@@ -373,7 +382,7 @@ export default function TriagePage() {
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast("Adjuntar fotos al triage del paciente")
+                      ? showToast(t("toast.triage.attachPhotos"))
                       : showDemo("Adjuntar fotos al triage del paciente")
                   }
                   className="mt-3 px-4 py-2 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
@@ -471,6 +480,14 @@ export default function TriagePage() {
 
           {/* Intake history */}
           <h3 className="text-sm font-semibold text-ink">Historial de intakes</h3>
+
+          {intakeHistory.length === 0 && (
+            <EmptyState
+              title={t("common.noData") ?? "Sin datos"}
+              description={t("common.noDataDescription") ?? "No hay datos para mostrar."}
+            />
+          )}
+
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
@@ -496,7 +513,7 @@ export default function TriagePage() {
                 </tr>
               </thead>
               <tbody>
-                {intakeHistory.map((h) => (
+                {paginatedIntake.map((h) => (
                   <tr
                     key={h.id}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -539,6 +556,12 @@ export default function TriagePage() {
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
 
@@ -627,7 +650,7 @@ export default function TriagePage() {
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast("Agregar derivación al directorio médico")
+                      ? showToast(t("toast.triage.addReferral"))
                       : showDemo("Agregar derivación al directorio médico")
                   }
                   className="px-4 py-2.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"

@@ -2,6 +2,7 @@
 
 import { Button } from "./Button";
 import { Modal } from "./Modal";
+import { useLocale } from "@/lib/i18n/context";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -21,11 +22,12 @@ export function ConfirmDialog({
   onConfirm,
   title,
   message,
-  confirmLabel = "Confirmar",
-  cancelLabel = "Cancelar",
+  confirmLabel,
+  cancelLabel,
   variant = "primary",
   loading,
 }: ConfirmDialogProps) {
+  const { t } = useLocale();
   return (
     <Modal
       open={open}
@@ -35,14 +37,14 @@ export function ConfirmDialog({
       footer={
         <>
           <Button variant="outline" onClick={onClose} disabled={loading}>
-            {cancelLabel}
+            {cancelLabel ?? t("common.cancel")}
           </Button>
           <Button
             variant={variant === "danger" ? "danger" : "primary"}
             onClick={onConfirm}
             loading={loading}
           >
-            {confirmLabel}
+            {confirmLabel ?? t("common.confirm")}
           </Button>
         </>
       }

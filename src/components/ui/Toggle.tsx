@@ -37,7 +37,7 @@ export function Toggle({
         className={cn(
           "relative inline-flex h-5 w-9 flex-shrink-0 rounded-full transition-colors duration-200",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2",
-          checked ? "bg-celeste-dark" : "bg-border",
+          checked ? "bg-celeste-dark" : "bg-gray-300",
         )}
       >
         <span

@@ -108,7 +108,7 @@ const DEMO_REVIEWS: ReviewForModeration[] = [
 // ─── Page ────────────────────────────────────────────────────
 
 export default function ReviewModerationPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [reviews, setReviews] = useState<ReviewForModeration[]>(DEMO_REVIEWS);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected">("pending");
@@ -165,13 +165,11 @@ export default function ReviewModerationPage() {
     <main className="mx-auto max-w-5xl px-4 py-8" role="main">
       <header className="mb-8">
         <h1 className="font-display text-2xl font-bold text-[#1A1A1A]">{t("reviews.title")}</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Gestione las reseñas de pacientes antes de que aparezcan públicamente.
-        </p>
+        <p className="mt-1 text-sm text-gray-500">{t("reviews.subtitle")}</p>
       </header>
 
       {/* Filter tabs */}
-      <nav aria-label="Review status filter" className="mb-6 flex gap-2">
+      <nav aria-label={t("reviews.filterLabel")} className="mb-6 flex gap-2">
         {(["pending", "approved", "rejected"] as const).map((s) => (
           <button
             key={s}
@@ -194,7 +192,7 @@ export default function ReviewModerationPage() {
           <div
             className="h-8 w-8 animate-spin rounded-full border-4 border-[#75AADB] border-t-transparent"
             role="status"
-            aria-label="Loading"
+            aria-label={t("common.loading")}
           />
         </div>
       )}
@@ -208,7 +206,7 @@ export default function ReviewModerationPage() {
 
       {/* Review cards */}
       {!loading && reviews.length > 0 && (
-        <ul className="space-y-4" role="list" aria-label="Reviews to moderate">
+        <ul className="space-y-4" role="list" aria-label={t("reviews.listLabel")}>
           {reviews.map((review) => (
             <li
               key={review.id}
@@ -229,7 +227,7 @@ export default function ReviewModerationPage() {
 
                   {/* Rating + patient */}
                   <div className="flex items-center gap-2">
-                    <span className="text-lg" aria-label={`${review.rating} de 5 estrellas`}>
+                    <span className="text-lg" aria-label={`${review.rating} / 5`}>
                       {renderStars(review.rating)}
                     </span>
                     <span className="text-sm font-medium text-gray-700">
@@ -237,7 +235,7 @@ export default function ReviewModerationPage() {
                     </span>
                     {review.isVerifiedPatient && (
                       <span className="rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-bold text-green-700">
-                        VERIFICADO
+                        {t("reviews.verified")}
                       </span>
                     )}
                   </div>
@@ -254,11 +252,14 @@ export default function ReviewModerationPage() {
 
                   {/* Date */}
                   <time className="mt-2 block text-xs text-gray-400" dateTime={review.createdAt}>
-                    {new Date(review.createdAt).toLocaleDateString("es-AR", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
+                    {new Date(review.createdAt).toLocaleDateString(
+                      locale === "en" ? "en-US" : "es-AR",
+                      {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )}
                   </time>
                 </div>
 
@@ -269,7 +270,7 @@ export default function ReviewModerationPage() {
                       onClick={() => handleAction(review.id, "approve")}
                       disabled={actionLoading === review.id}
                       className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
-                      aria-label={`Aprobar reseña de ${review.patientDisplayName}`}
+                      aria-label={`${t("reviews.approve")} — ${review.patientDisplayName}`}
                     >
                       {t("reviews.approve")}
                     </button>
@@ -277,7 +278,7 @@ export default function ReviewModerationPage() {
                       onClick={() => handleAction(review.id, "reject")}
                       disabled={actionLoading === review.id}
                       className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100 disabled:opacity-50"
-                      aria-label={`Rechazar reseña de ${review.patientDisplayName}`}
+                      aria-label={`${t("reviews.reject")} — ${review.patientDisplayName}`}
                     >
                       {t("reviews.reject")}
                     </button>

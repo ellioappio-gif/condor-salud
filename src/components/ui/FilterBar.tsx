@@ -2,6 +2,7 @@
 
 import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/context";
 import { Input } from "./Input";
 import { Select, type SelectOption } from "./Select";
 
@@ -22,6 +23,7 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ filters, actions, className }: FilterBarProps) {
+  const { t } = useLocale();
   return (
     <div
       className={cn(
@@ -29,7 +31,7 @@ export function FilterBar({ filters, actions, className }: FilterBarProps) {
         className,
       )}
       role="search"
-      aria-label="Filtros"
+      aria-label={t("common.filters")}
     >
       {filters.map((f) =>
         f.type === "select" ? (
@@ -48,9 +50,9 @@ export function FilterBar({ filters, actions, className }: FilterBarProps) {
               label={f.label}
               value={f.value}
               onChange={(e) => f.onChange(e.target.value)}
-              placeholder={f.placeholder || "Buscar..."}
+              placeholder={f.placeholder || t("common.search")}
               type="search"
-              aria-label={f.label || "Buscar"}
+              aria-label={f.label || t("common.search")}
             />
           </div>
         ),

@@ -14,6 +14,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 
 interface Verification {
   id: string;
@@ -42,6 +43,7 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 
 export default function VerificacionesAdminPage() {
   const { showToast } = useToast();
+  const { t, locale } = useLocale();
   const [verifications, setVerifications] = useState<Verification[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -84,7 +86,7 @@ export default function VerificacionesAdminPage() {
       showToast(status === "approved" ? "Médico verificado" : "Verificación rechazada");
       setRejectionReason("");
     } catch {
-      showToast("Error al procesar. Intentá de nuevo.");
+      showToast(t("toast.verificaciones.processError"), "error");
     } finally {
       setReviewing(null);
     }
@@ -138,7 +140,9 @@ export default function VerificacionesAdminPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-ink/40">
-                      {new Date(v.submittedAt).toLocaleDateString("es-AR")}
+                      {new Date(v.submittedAt).toLocaleDateString(
+                        locale === "en" ? "en-US" : "es-AR",
+                      )}
                     </span>
                     <span className="text-xs font-medium bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
                       {v.documents.length} docs

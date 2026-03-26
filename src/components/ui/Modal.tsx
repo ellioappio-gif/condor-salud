@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode, type MouseEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useId,
+  type ReactNode,
+  type MouseEvent,
+  type KeyboardEvent,
+} from "react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/context";
 
 interface ModalProps {
   open: boolean;
@@ -29,8 +37,12 @@ export function Modal({
   size = "md",
   className,
 }: ModalProps) {
+  const { t } = useLocale();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
+  const reactId = useId();
+  const titleId = `modal-title-${reactId}`;
+  const contentId = `modal-content-${reactId}`;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -75,18 +87,19 @@ export function Modal({
       )}
       onClick={handleBackdropClick}
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
+      aria-describedby={contentId}
     >
       <div className="flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 id="modal-title" className="text-lg font-bold text-ink">
+          <h2 id={titleId} className="text-lg font-bold text-ink">
             {title}
           </h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-[4px] text-ink-muted hover:bg-surface hover:text-ink transition-colors"
-            aria-label="Cerrar"
+            aria-label={t("common.close")}
           >
             <svg
               className="w-5 h-5"
@@ -105,7 +118,9 @@ export function Modal({
           </button>
         </div>
         {/* Body */}
-        <div className="px-6 py-5 overflow-y-auto">{children}</div>
+        <div id={contentId} className="px-6 py-5 overflow-y-auto">
+          {children}
+        </div>
         {/* Footer */}
         {footer && (
           <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-surface/50">

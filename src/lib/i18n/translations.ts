@@ -1845,6 +1845,202 @@ const translations: Dict = {
   "seg.label": { es: "Estoy buscando como:", en: "I'm looking as a:" },
   "seg.provider": { es: "Clínica / Profesional", en: "Clinic / Provider" },
   "seg.tourist": { es: "Paciente / Turista", en: "Patient / Tourist" },
+
+  // ── Common / shared labels ────────────────────────────────
+  "common.loading": { es: "Cargando…", en: "Loading…" },
+  "common.close": { es: "Cerrar", en: "Close" },
+  "common.confirm": { es: "Confirmar", en: "Confirm" },
+  "common.cancel": { es: "Cancelar", en: "Cancel" },
+  "common.search": { es: "Buscar…", en: "Search…" },
+  "common.filters": { es: "Filtros", en: "Filters" },
+  "common.noData": { es: "No hay datos para mostrar", en: "No data to display" },
+  "common.noDataDescription": {
+    es: "Probá ajustando los filtros de búsqueda.",
+    en: "Try adjusting your search filters.",
+  },
+  "common.kpi": { es: "Indicadores clave", en: "Key indicators" },
+  "common.pagination": { es: "Paginación", en: "Pagination" },
+  "common.prevPage": { es: "Página anterior", en: "Previous page" },
+  "common.nextPage": { es: "Página siguiente", en: "Next page" },
+
+  // ── Aria labels ────────────────────────────────────────────
+  "aria.closeMenu": { es: "Cerrar menú", en: "Close menu" },
+  "aria.mainNav": { es: "Navegación principal", en: "Main navigation" },
+  "aria.footerNav": { es: "Navegación del pie de página", en: "Footer navigation" },
+  "aria.siteFooter": { es: "Pie de página del sitio", en: "Site footer" },
+
+  // ── Demo mode ─────────────────────────────────────────────
+  "demo.banner": { es: "Estás viendo datos de demostración", en: "You are viewing demo data" },
+
+  // ── FileUpload component ──────────────────────────────────
+  "fileUpload.title": { es: "Subir archivos", en: "Upload files" },
+  "fileUpload.drop": {
+    es: "Arrastrá archivos o hacé clic para subir",
+    en: "Drag files or click to upload",
+  },
+  "fileUpload.dropActive": { es: "Soltá los archivos acá", en: "Drop files here" },
+  "fileUpload.takePhoto": { es: "Tomar foto", en: "Take photo" },
+  "fileUpload.maxFiles": { es: "Máximo {n} archivos permitidos", en: "Maximum {n} files allowed" },
+  "fileUpload.tooLarge": {
+    es: "El archivo excede el tamaño máximo",
+    en: "File exceeds maximum size",
+  },
+  "fileUpload.uploaded": { es: "Archivos subidos", en: "Uploaded files" },
+  "fileUpload.remove": { es: "Eliminar {name}", en: "Remove {name}" },
+
+  // ── Doctor search hook ────────────────────────────────────
+  "doctor.searchError": { es: "Error buscando médicos", en: "Error searching doctors" },
+
+  // ── Toast messages — directorio ───────────────────────────
+  "toast.directorio.addDoctor": {
+    es: "Agregar nuevo médico al directorio",
+    en: "Add new doctor to directory",
+  },
+  "toast.directorio.prevWeek": { es: "Semana anterior", en: "Previous week" },
+  "toast.directorio.nextWeek": { es: "Semana siguiente", en: "Next week" },
+
+  // ── Toast messages — pacientes ────────────────────────────
+  "toast.pacientes.convertLead": {
+    es: "Usá la pestaña Consultas → Convertir lead para registrar un nuevo paciente",
+    en: "Use the Queries tab → Convert lead to register a new patient",
+  },
+  "toast.pacientes.updateError": { es: "Error al actualizar", en: "Update error" },
+  "toast.pacientes.editorSoon": {
+    es: "Editor de paciente — próximamente con formulario completo",
+    en: "Patient editor — full form coming soon",
+  },
+
+  // ── Toast messages — configuración ────────────────────────
+  "toast.config.saved": { es: "Configuración guardada", en: "Configuration saved" },
+  "toast.config.saveError": { es: "Error al guardar", en: "Error saving" },
+  "toast.config.testMessage": {
+    es: "Mensaje de prueba enviado (simulado)",
+    en: "Test message sent (simulated)",
+  },
+  "toast.config.inviteSent": {
+    es: "Invitación enviada correctamente.",
+    en: "Invitation sent successfully.",
+  },
+  "toast.config.connectionError": { es: "Error de conexión.", en: "Connection error." },
+  "toast.config.inviteCancelled": { es: "Invitación cancelada.", en: "Invitation cancelled." },
+  "toast.config.cancelError": { es: "Error al cancelar.", en: "Error cancelling." },
+  "toast.config.saveNotifPrefs": {
+    es: "Guardar preferencias de notificaciones",
+    en: "Save notification preferences",
+  },
+  "toast.config.resetConfig": { es: "Restablecer configuración", en: "Reset configuration" },
+  "toast.config.sendManualReminder": {
+    es: "Enviar recordatorio manual",
+    en: "Send manual reminder",
+  },
+  "toast.config.configWhatsApp": {
+    es: "Configurar WhatsApp Business API",
+    en: "Configure WhatsApp Business API",
+  },
+  "toast.config.generatePayLink": { es: "Generar link de pago", en: "Generate payment link" },
+  "toast.config.savePayConfig": {
+    es: "Guardar configuración de pagos",
+    en: "Save payment configuration",
+  },
+  "toast.config.configMP": {
+    es: "Configurar MercadoPago OAuth",
+    en: "Configure MercadoPago OAuth",
+  },
+  "toast.config.addPayMethod": {
+    es: "Agregar método de pago manualmente",
+    en: "Add payment method manually",
+  },
+  "toast.config.exportCSV": { es: "Exportar transacciones CSV", en: "Export transactions CSV" },
+  "toast.config.prevTransPage": {
+    es: "Página anterior de transacciones",
+    en: "Previous transactions page",
+  },
+  "toast.config.transPage2": {
+    es: "Ver página 2 de transacciones",
+    en: "View transactions page 2",
+  },
+  "toast.config.transPage3": {
+    es: "Ver página 3 de transacciones",
+    en: "View transactions page 3",
+  },
+  "toast.config.nextTransPage": {
+    es: "Siguiente página de transacciones",
+    en: "Next transactions page",
+  },
+  "toast.config.clinicUpdated": {
+    es: "Datos de la clínica actualizados correctamente.",
+    en: "Clinic data updated successfully.",
+  },
+  "toast.config.clinicSaveError": { es: "Error al guardar: ", en: "Error saving: " },
+  "toast.config.clinicConnectionError": {
+    es: "Error de conexión al guardar.",
+    en: "Connection error while saving.",
+  },
+  "toast.config.upgrade": { es: "Upgrade a Enterprise", en: "Upgrade to Enterprise" },
+  "toast.config.changePlan": { es: "Cambiar plan", en: "Change plan" },
+  "toast.config.cancelSubscription": { es: "Cancelar suscripción", en: "Cancel subscription" },
+  "toast.config.downloadReceipt": { es: "Descargar comprobante", en: "Download receipt" },
+  "toast.config.changeCard": { es: "Cambiar tarjeta", en: "Change card" },
+  "toast.config.editBilling": { es: "Editar datos fiscales", en: "Edit billing info" },
+  "toast.config.newIntegration": { es: "Nueva integración", en: "New integration" },
+
+  // ── Toast messages — farmacia ─────────────────────────────
+  "toast.farmacia.newRx": { es: "Nueva receta digital", en: "New digital prescription" },
+
+  // ── Toast messages — telemedicina ─────────────────────────
+  "toast.telemed.newCall": {
+    es: "Iniciar nueva videoconsulta",
+    en: "Start new video consultation",
+  },
+  "toast.telemed.shareScreen": {
+    es: "Abrir videoconsulta activa — compartir pantalla",
+    en: "Open active video call — share screen",
+  },
+  "toast.telemed.startRecording": {
+    es: "Iniciar grabación de sesión",
+    en: "Start session recording",
+  },
+  "toast.telemed.endCall": {
+    es: "Finalizar videoconsulta activa",
+    en: "End active video consultation",
+  },
+
+  // ── Toast messages — triage ───────────────────────────────
+  "toast.triage.newTriage": { es: "Nuevo triage de paciente", en: "New patient triage" },
+  "toast.triage.attachPhotos": {
+    es: "Adjuntar fotos al triage del paciente",
+    en: "Attach photos to patient triage",
+  },
+  "toast.triage.addReferral": {
+    es: "Agregar derivación al directorio médico",
+    en: "Add referral to medical directory",
+  },
+
+  // ── Toast messages — auditoría ────────────────────────────
+  "toast.audit.resolved": { es: "Observación resuelta", en: "Observation resolved" },
+  "toast.audit.reviewed": { es: "Observación revisada", en: "Observation reviewed" },
+
+  // ── Toast messages — recetas ──────────────────────────────
+  "toast.recetas.urlCopied": { es: "URL de verificación copiada", en: "Verification URL copied" },
+  "toast.recetas.repeatDraft": {
+    es: "Receta repetida como borrador",
+    en: "Prescription repeated as draft",
+  },
+  "toast.recetas.fillRequired": {
+    es: "Completa el nombre del paciente y al menos un medicamento.",
+    en: "Fill in the patient name and at least one medication.",
+  },
+  "toast.recetas.contraindicated": {
+    es: "Hay interacciones CONTRAINDICADAS. Revisa los medicamentos antes de continuar.",
+    en: "There are CONTRAINDICATED interactions. Review medications before continuing.",
+  },
+  "toast.recetas.copyError": { es: "No se pudo copiar la URL", en: "Could not copy URL" },
+
+  // ── Toast messages — verificaciones ───────────────────────
+  "toast.verificaciones.processError": {
+    es: "Error al procesar. Intentá de nuevo.",
+    en: "Processing error. Try again.",
+  },
 };
 
 export default translations;

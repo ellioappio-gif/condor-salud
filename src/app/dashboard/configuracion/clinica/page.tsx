@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 import { isSupabaseConfigured } from "@/lib/env";
 import { Building2, Save, Loader2, AlertCircle } from "lucide-react";
 
@@ -28,6 +29,7 @@ const inputClass =
 export default function ClinicaConfigPage() {
   const { showToast } = useToast();
   const { user } = useAuth();
+  const { t } = useLocale();
   const [clinic, setClinic] = useState<ClinicData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -100,7 +102,7 @@ export default function ClinicaConfigPage() {
         .eq("id", clinic.id);
 
       if (updateErr) {
-        showToast("Error al guardar: " + updateErr.message);
+        showToast(t("toast.config.clinicSaveError") + updateErr.message);
         return;
       }
 
@@ -117,9 +119,9 @@ export default function ClinicaConfigPage() {
           : prev,
       );
       setEditMode(false);
-      showToast("Datos de la clínica actualizados correctamente.");
+      showToast(t("toast.config.clinicUpdated"));
     } catch {
-      showToast("Error de conexión al guardar.");
+      showToast(t("toast.config.clinicConnectionError"));
     } finally {
       setSaving(false);
     }

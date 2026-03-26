@@ -14,7 +14,7 @@ const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
 const NotificationCenter = dynamic(() => import("@/components/NotificationCenter"), { ssr: false });
 
 import { SWRProvider } from "@/lib/swr";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth, useIsDemo } from "@/lib/auth/context";
 import { usePlanSafe } from "@/lib/plan-context";
 import { useLocale } from "@/lib/i18n/context";
 import type { ModuleId } from "@/lib/plan-config";
@@ -47,6 +47,7 @@ import {
   FileHeart,
   MessageSquareWarning,
   FilePlus2,
+  ScanLine,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -78,6 +79,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/verificar-cuenta": UserCheck,
   "/dashboard/mi-perfil-publico": FileHeart,
   "/dashboard/moderacion-resenas": MessageSquareWarning,
+  "/dashboard/nubix": ScanLine,
 };
 
 const navSections = [
@@ -130,6 +132,7 @@ const navSections = [
         tKey: "nav.interconsultas",
       },
       { label: "Triage", href: "/dashboard/triage", tKey: "nav.triage" },
+      { label: "PACS", href: "/dashboard/nubix", tKey: "nav.nubix" },
     ],
   },
   {
@@ -189,6 +192,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/directorio": "directorio",
   "/dashboard/interconsultas": "interconsultas",
   "/dashboard/triage": "triage",
+  "/dashboard/nubix": "nubix",
   "/dashboard/disponibilidad": "agenda",
   "/dashboard/recetas": "recetas-digitales",
   "/dashboard/recetas/nueva": "recetas-digitales",
@@ -204,6 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, logout, isLoading } = useAuth();
   const plan = usePlanSafe();
   const { t, locale } = useLocale();
+  const isDemo = useIsDemo();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isNavVisible = (href: string): boolean => {
@@ -310,6 +315,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </svg>
           </button>
         </div>
+
+        {/* Demo badge in sidebar */}
+        {isDemo && (
+          <div className="mx-3 mt-2 flex items-center gap-1.5 rounded border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
+            DEMO
+          </div>
+        )}
 
         {/* Nav */}
         <nav className="flex-1 py-3 px-3 overflow-y-auto" aria-label={t("aria.dashboardMenu")}>
@@ -484,6 +497,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           role="main"
           tabIndex={-1}
         >
+          {isDemo && (
+            <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+              <span className="inline-flex items-center rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                DEMO
+              </span>
+              {t("demo.banner") ?? "Estás viendo datos de demostración"}
+            </div>
+          )}
           <SWRProvider>
             <ToastProvider>
               <DemoModalProvider>{children}</DemoModalProvider>

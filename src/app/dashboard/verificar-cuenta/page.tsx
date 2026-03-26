@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Shield, Upload, CheckCircle, Clock, AlertCircle, FileText, Loader2 } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -61,6 +62,7 @@ const DEMO_VERIFICATION: VerificationStatus = {
 // ─── Main Component ──────────────────────────────────────────
 
 export default function VerificarCuentaPage() {
+  const { locale } = useLocale();
   const [verification, setVerification] = useState<VerificationStatus | null>(DEMO_VERIFICATION);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -190,7 +192,12 @@ export default function VerificarCuentaPage() {
                 {verification.matriculaProvincial && (
                   <p>Matrícula Provincial: {verification.matriculaProvincial}</p>
                 )}
-                <p>Enviado: {new Date(verification.submittedAt).toLocaleDateString("es-AR")}</p>
+                <p>
+                  Enviado:{" "}
+                  {new Date(verification.submittedAt).toLocaleDateString(
+                    locale === "en" ? "en-US" : "es-AR",
+                  )}
+                </p>
               </div>
 
               {verification.documents.length > 0 && (

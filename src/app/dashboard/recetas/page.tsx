@@ -20,6 +20,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 
 /* ── Types ──────────────────────────────────────────────── */
 interface PrescriptionRow {
@@ -230,6 +231,7 @@ const DEMO_PRESCRIPTIONS: PrescriptionRow[] = [
 
 export default function RecetasPage() {
   const { showToast } = useToast();
+  const { t, locale } = useLocale();
   const [prescriptions, setPrescriptions] = useState<PrescriptionRow[]>(DEMO_PRESCRIPTIONS);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -254,7 +256,7 @@ export default function RecetasPage() {
   function copyVerificationUrl(token: string) {
     const url = `${window.location.origin}/rx/${token}`;
     navigator.clipboard.writeText(url);
-    showToast("URL de verificacion copiada");
+    showToast(t("toast.recetas.urlCopied"));
   }
 
   async function handleAction(rxId: string, action: "issue" | "send" | "cancel" | "repeat") {
@@ -283,7 +285,7 @@ export default function RecetasPage() {
           },
           ...prev,
         ]);
-        showToast("Receta repetida como borrador");
+        showToast(t("toast.recetas.repeatDraft"));
         return;
       }
 
@@ -329,7 +331,7 @@ export default function RecetasPage() {
             ...prev,
           ];
         });
-        showToast("Receta repetida como borrador");
+        showToast(t("toast.recetas.repeatDraft"));
         return;
       }
 
@@ -465,7 +467,9 @@ export default function RecetasPage() {
                     </div>
                     <div className="text-xs text-ink/50">
                       {rx.medications.map((m) => m.medicationName).join(" + ")} —{" "}
-                      {new Date(rx.issuedAt).toLocaleDateString("es-AR")}
+                      {new Date(rx.issuedAt).toLocaleDateString(
+                        locale === "en" ? "en-US" : "es-AR",
+                      )}
                     </div>
                   </div>
 

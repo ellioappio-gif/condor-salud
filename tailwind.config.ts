@@ -16,7 +16,7 @@ const config: Config = {
           800: "#2B4D6E",
           900: "#1C344D",
           DEFAULT: "#75AADB",
-          dark: "#4A7FAF",
+          dark: "#3A6A99",
           light: "#A8CCE8",
           pale: "#E4F0F9",
         },
@@ -49,7 +49,7 @@ const config: Config = {
           800: "#262626",
           900: "#1A1A1A",
           light: "#666666",
-          muted: "#999999",
+          muted: "#737373",
         },
         border: { DEFAULT: "#D4E4F0", light: "#E8F0F6" },
         success: {

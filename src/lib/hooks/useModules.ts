@@ -83,7 +83,7 @@ export function useTriageKPIs() {
   return useSWR<TriageKPIs>("/api/triage?resource=kpis");
 }
 
-// ─── Nubix Cloud (RIS/PACS) ─────────────────────────────────
+// ─── dcm4chee Archive (PACS / Medical Imaging) ──────────────
 
 export function useNubixStudies() {
   return useSWR("/api/nubix?resource=studies");

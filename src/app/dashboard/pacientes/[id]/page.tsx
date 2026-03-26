@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 import { usePacientes, useTurnos, useFacturas } from "@/hooks/use-data";
 import { EmptyState, TableSkeleton } from "@/components/ui";
 import { Users, Calendar, FileText } from "lucide-react";
@@ -18,6 +19,7 @@ export default function PacienteDetailPage({ params }: { params: Promise<{ id: s
   const { id } = use(params);
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const { t } = useLocale();
   const isDemo = useIsDemo();
 
   // ── Data hooks ─────────────────────────────────────────────
@@ -42,7 +44,7 @@ export default function PacienteDetailPage({ params }: { params: Promise<{ id: s
       showDemo("Editar paciente");
       return;
     }
-    showToast("Editor de paciente — proximamente con formulario completo");
+    showToast(t("toast.pacientes.editorSoon"));
   };
 
   // ── Loading state ──────────────────────────────────────────

@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Pagination } from "@/components/ui/Pagination";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 import { formatCurrency } from "@/lib/utils";
 import {
   useMedications,
@@ -18,11 +22,13 @@ type Tab = "catalogo" | "recetas" | "delivery" | "copago" | "recurrentes";
 export default function FarmaciaPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
+  const { t } = useLocale();
   const isDemo = useIsDemo();
   const [tab, setTab] = useState<Tab>("catalogo");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("Todas");
   const [copagoFinanciador, setCopagoFinanciador] = useState("PAMI");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // ─── SWR data hooks ─────────────────────────────────────────
   const { data: medications = [] } = useMedications();
@@ -49,50 +55,46 @@ export default function FarmaciaPage() {
     return matchesSearch && matchesCategory;
   });
 
+  const PAGE_SIZE = 25;
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginatedData = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tab, search, categoryFilter]);
+
   const getCoverageForFinanciador = (med: (typeof meds)[number]) => {
     if (copagoFinanciador === "PAMI") return med.pamiCoverage;
     if (copagoFinanciador === "Obra Social") return med.osCoverage;
     return med.prepagaCoverage;
   };
 
-  const kpiCards = kpis
-    ? [
-        {
-          label: "Pedidos hoy",
-          value: String(kpis.ordersToday),
-          change: "Desde servicio",
-          color: "text-celeste-dark",
-        },
-        {
-          label: "En camino",
-          value: String(kpis.inTransit),
-          change: "Rappi + PedidosYa",
-          color: "text-celeste-dark",
-        },
-        {
-          label: "Recetas pendientes",
-          value: String(kpis.pendingRx),
-          change: "Pendientes",
-          color: "text-gold",
-        },
-        {
-          label: "Recurrentes activos",
-          value: String(kpis.activeRecurring),
-          change: "Activos",
-          color: "text-green-600",
-        },
-      ]
-    : [
-        { label: "Pedidos hoy", value: "23", change: "+8 vs ayer", color: "text-celeste-dark" },
-        { label: "En camino", value: "5", change: "Rappi + PedidosYa", color: "text-celeste-dark" },
-        { label: "Recetas pendientes", value: "12", change: "4 urgentes", color: "text-gold" },
-        {
-          label: "Recurrentes activos",
-          value: "47",
-          change: "8 este mes",
-          color: "text-green-600",
-        },
-      ];
+  const kpiCards = [
+    {
+      label: "Pedidos hoy",
+      value: kpis ? String(kpis.ordersToday) : "",
+      change: kpis ? "Desde servicio" : "",
+      color: "text-celeste-dark",
+    },
+    {
+      label: "En camino",
+      value: kpis ? String(kpis.inTransit) : "",
+      change: kpis ? "Rappi + PedidosYa" : "",
+      color: "text-celeste-dark",
+    },
+    {
+      label: "Recetas pendientes",
+      value: kpis ? String(kpis.pendingRx) : "",
+      change: kpis ? "Pendientes" : "",
+      color: "text-gold",
+    },
+    {
+      label: "Recurrentes activos",
+      value: kpis ? String(kpis.activeRecurring) : "",
+      change: kpis ? "Activos" : "",
+      color: "text-green-600",
+    },
+  ];
 
   return (
     <div id="main-content" className="p-6 space-y-6">
@@ -106,7 +108,7 @@ export default function FarmaciaPage() {
         </div>
         <button
           onClick={() =>
-            !isDemo ? showToast("Nueva receta digital") : showDemo("Nueva receta digital")
+            !isDemo ? showToast(t("toast.farmacia.newRx")) : showDemo("Nueva receta digital")
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
@@ -119,7 +121,11 @@ export default function FarmaciaPage() {
         {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-lg p-5">
             <p className="text-xs text-ink-muted">{kpi.label}</p>
-            <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
+            {!kpis ? (
+              <Skeleton className="h-8 w-20 mt-1" />
+            ) : (
+              <p className={`text-2xl font-display font-bold ${kpi.color} mt-1`}>{kpi.value}</p>
+            )}
             <p className="text-xs text-ink-muted mt-1">{kpi.change}</p>
           </div>
         ))}
@@ -166,96 +172,113 @@ export default function FarmaciaPage() {
             </select>
           </div>
 
-          <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th scope="col" className="text-left font-medium px-5 py-3">
-                    Medicamento
-                  </th>
-                  <th scope="col" className="text-left font-medium px-5 py-3">
-                    Laboratorio
-                  </th>
-                  <th scope="col" className="text-left font-medium px-5 py-3">
-                    Categoría
-                  </th>
-                  <th scope="col" className="text-right font-medium px-5 py-3">
-                    Precio
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    PAMI
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    OS
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    Prepaga
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    Stock
-                  </th>
-                  <th scope="col" className="text-right font-medium px-5 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((med) => (
-                  <tr
-                    key={med.id}
-                    className="border-t border-border-light hover:bg-celeste-pale/30 transition"
-                  >
-                    <td className="px-5 py-3 font-medium text-ink">
-                      {med.name}
-                      {med.requiresPrescription && (
-                        <span className="ml-2 text-[10px] bg-celeste-pale text-celeste-dark px-1.5 py-0.5 rounded font-bold">
-                          Rx
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-ink-light">{med.lab}</td>
-                    <td className="px-5 py-3 text-ink-light">{med.category}</td>
-                    <td className="px-5 py-3 text-right font-medium text-ink">
-                      {formatCurrency(med.price)}
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <span className="text-green-600 font-medium">{med.pamiCoverage}%</span>
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <span className="text-celeste-dark font-medium">{med.osCoverage}%</span>
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <span className="text-ink-light font-medium">{med.prepagaCoverage}%</span>
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          med.stock === "Disponible"
-                            ? "bg-green-50 text-green-700"
-                            : med.stock === "Sin stock"
-                              ? "bg-red-50 text-red-600"
-                              : "bg-gold-pale text-gold"
-                        }`}
+          {filtered.length === 0 ? (
+            <EmptyState
+              title={t("common.noData") ?? "Sin resultados"}
+              description={
+                t("common.noDataDescription") ?? "Probá ajustando los filtros de búsqueda."
+              }
+            />
+          ) : (
+            <>
+              <div className="bg-white border border-border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                      <th scope="col" className="text-left font-medium px-5 py-3">
+                        Medicamento
+                      </th>
+                      <th scope="col" className="text-left font-medium px-5 py-3">
+                        Laboratorio
+                      </th>
+                      <th scope="col" className="text-left font-medium px-5 py-3">
+                        Categoría
+                      </th>
+                      <th scope="col" className="text-right font-medium px-5 py-3">
+                        Precio
+                      </th>
+                      <th scope="col" className="text-center font-medium px-5 py-3">
+                        PAMI
+                      </th>
+                      <th scope="col" className="text-center font-medium px-5 py-3">
+                        OS
+                      </th>
+                      <th scope="col" className="text-center font-medium px-5 py-3">
+                        Prepaga
+                      </th>
+                      <th scope="col" className="text-center font-medium px-5 py-3">
+                        Stock
+                      </th>
+                      <th scope="col" className="text-right font-medium px-5 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData.map((med) => (
+                      <tr
+                        key={med.id}
+                        className="border-t border-border-light hover:bg-celeste-pale/30 transition"
                       >
-                        {med.stock}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      <button
-                        onClick={() =>
-                          !isDemo
-                            ? showToast(`Agregar ${med.name} al carrito`)
-                            : showDemo(`Agregar ${med.name} al carrito`)
-                        }
-                        className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
-                        disabled={med.stock === "Sin stock"}
-                      >
-                        {med.stock === "Sin stock" ? "—" : "Agregar"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        <td className="px-5 py-3 font-medium text-ink">
+                          {med.name}
+                          {med.requiresPrescription && (
+                            <span className="ml-2 text-[10px] bg-celeste-pale text-celeste-dark px-1.5 py-0.5 rounded font-bold">
+                              Rx
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-ink-light">{med.lab}</td>
+                        <td className="px-5 py-3 text-ink-light">{med.category}</td>
+                        <td className="px-5 py-3 text-right font-medium text-ink">
+                          {formatCurrency(med.price)}
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <span className="text-green-600 font-medium">{med.pamiCoverage}%</span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <span className="text-celeste-dark font-medium">{med.osCoverage}%</span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <span className="text-ink-light font-medium">{med.prepagaCoverage}%</span>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <span
+                            className={`text-xs font-medium px-2 py-0.5 rounded ${
+                              med.stock === "Disponible"
+                                ? "bg-green-50 text-green-700"
+                                : med.stock === "Sin stock"
+                                  ? "bg-red-50 text-red-600"
+                                  : "bg-gold-pale text-gold"
+                            }`}
+                          >
+                            {med.stock}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          <button
+                            onClick={() =>
+                              !isDemo
+                                ? showToast(`Agregar ${med.name} al carrito`)
+                                : showDemo(`Agregar ${med.name} al carrito`)
+                            }
+                            className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
+                            disabled={med.stock === "Sin stock"}
+                          >
+                            {med.stock === "Sin stock" ? "—" : "Agregar"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </>
+          )}
         </div>
       )}
 

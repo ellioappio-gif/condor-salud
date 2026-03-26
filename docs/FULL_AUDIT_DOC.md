@@ -96,10 +96,10 @@ All dashboard pages are **browsable without authentication** using hardcoded dem
 
 ### Video & Imaging
 
-| Technology                  | Version | Purpose                            |
-| --------------------------- | ------- | ---------------------------------- |
-| Daily.co                    | 0.87.0  | WebRTC video consultations         |
-| Nubix Cloud (custom client) | —       | RIS/PACS DICOM imaging integration |
+| Technology                    | Version | Purpose                                  |
+| ----------------------------- | ------- | ---------------------------------------- |
+| Daily.co                      | 0.87.0  | WebRTC video consultations               |
+| dcm4chee Archive 5 (DICOMweb) | —       | Open-source PACS/VNA imaging integration |
 
 ### Security & Auth
 
@@ -261,7 +261,7 @@ src/
 | `/dashboard/directorio`     | Mod 16 | Medical directory (search, availability, Google Places + scraping)    |
 | `/dashboard/triage`         | Mod 17 | AI triage system (symptoms, routing, clinical notes)                  |
 | `/dashboard/interconsultas` | Mod 18 | Physician referral network (interconsultas, study requests)           |
-| `/dashboard/nubix`          | Mod 19 | RIS/PACS imaging (studies, DICOM viewer, reports)                     |
+| `/dashboard/nubix`          | Mod 19 | PACS imaging — dcm4chee Archive (studies, DICOM viewer, reports)      |
 | `/dashboard/wizard`         | —      | Interactive onboarding tour                                           |
 | `/dashboard/configuracion`  | —      | Settings hub (10 sub-pages)                                           |
 
@@ -319,8 +319,8 @@ src/
 | `GET /api/farmacia`       | GET     | ✅   | 10/60s     | Pharmacy data (medications, prescriptions, deliveries, KPIs)            |
 | `POST /api/farmacia`      | POST    | ✅   | 10/60s     | Create prescriptions or update delivery status                          |
 | `GET /api/coverage`       | GET     | —    | 30/60s     | Insurance coverage lookup (Supabase + static fallback)                  |
-| `GET /api/nubix`          | GET     | ✅   | 10/60s     | Nubix RIS/PACS data (studies, reports, viewer, KPIs)                    |
-| `POST /api/nubix`         | POST    | ✅   | 10/60s     | Nubix actions (send results, upsert appointments)                       |
+| `GET /api/nubix`          | GET     | ✅   | 10/60s     | PACS data via dcm4chee (studies, viewer, KPIs)                          |
+| `POST /api/nubix`         | POST    | ✅   | 10/60s     | PACS actions (send results, upsert appointments)                        |
 
 ### Telemedicine APIs
 
@@ -762,14 +762,14 @@ Matches all routes except: `_next/static`, `_next/image`, `favicon.ico`, `logos/
 2. **Interconsultas** — Referral requests with priority/estado tracking
 3. **Estudios** — Study order requests (laboratorio, imagen, cardiología)
 
-### Module 19: Nubix RIS/PACS (`/dashboard/nubix`)
+### Module 19: dcm4chee Archive PACS (`/dashboard/nubix`)
 
 4 sub-tabs:
 
 1. **Estudios** — Radiology study list with modality, status, urgency
-2. **Turnos** — Imaging appointment management
+2. **Turnos** — Imaging appointment management (MWL)
 3. **Entregas** — Result delivery (WhatsApp, email, patient portal, SMS)
-4. **Visor** — DICOM viewer integration (Nubix Cloud + local OHIF fallback)
+4. **Visor** — DICOM viewer integration (OHIF / Weasis via dcm4chee)
 
 ### Settings: Configuración (`/dashboard/configuracion`)
 
@@ -921,25 +921,25 @@ User Message → Emergency Detection (rule-based, never skipped)
 
 ### Domain Services
 
-| Service            | File                | Key Functions                                                                                                                                                      |
-| ------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Facturación**    | `facturacion.ts`    | getFacturas, getFacturaById, createFactura, updateFactura, getFacturaStats, submitToFinanciador                                                                    |
-| **Rechazos**       | `rechazos.ts`       | getRechazos, reprocesarRechazo, descartarRechazo, getRechazoStats, getMotivoBreakdown                                                                              |
-| **Financiadores**  | `financiadores.ts`  | getFinanciadores, getFinanciadoresExtended, getFinanciadorById, updateFinanciador, getFinanciadorStats                                                             |
-| **Inflación**      | `inflacion.ts`      | getInflacionMensual, getFinanciadoresInflacion, getInflacionResumen, getInflacionTrend                                                                             |
-| **Auditoría**      | `audit.ts`          | getAuditoriaFiltered, updateAuditStatus, runAutoAudit, getAuditStats                                                                                               |
-| **Nomenclador**    | `nomenclador.ts`    | getNomencladorEntries, getNomencladorById, updateNomenclador, getNomencladorStats                                                                                  |
-| **Inventario**     | `inventario.ts`     | getInventarioItems, createItem, updateItem, adjustStock, getInventarioStats                                                                                        |
-| **Turnos**         | `turnos.ts`         | getTurnos, createTurno, confirmTurno, cancelTurno, attendTurno, getAvailableSlots, checkConflict, getTurnoStats                                                    |
-| **Reportes**       | `reportes.ts`       | getReportesList, generateReport, getReportesByCategoria, getReportStats                                                                                            |
-| **Historia**       | `historia.ts`       | getPatientTimeline, getHistoriaClinica, getHistoriaStats, getHistoriaSummary                                                                                       |
-| **Farmacia**       | `farmacia.ts`       | getMedications, getPrescriptions, getDeliveries, getRecurringOrders, getFarmaciaKPIs                                                                               |
-| **Telemedicina**   | `telemedicina.ts`   | getWaitingRoom, getConsultations, getScheduledConsultations, createVideoRoom, sendWhatsAppSummary, getTelemedicinaKPIs                                             |
-| **Directorio**     | `directorio.ts`     | getDoctors, getDoctorReviews, getDoctorAvailability, getDirectorioKPIs                                                                                             |
-| **Triage**         | `triage.ts`         | getTriages, getTriageKPIs, createTriage, saveClinicalNote, uploadTriagePhoto. Constants: BODY_SYSTEM_SYMPTOMS, SYMPTOM_SPECIALTY_MAP, ICD10_CODES, SEVERITY_LABELS |
-| **Interconsultas** | `interconsultas.ts` | getNetworkDoctors, getInterconsultas, createInterconsulta, getSolicitudesEstudio, createSolicitud, getInterconsultaStats                                           |
-| **Nubix**          | `nubix.ts`          | getStudies, getStudyById, getReports, getDeliveries, getViewerConfig, getAppointments, upsertAppointment, getNubixKPIs                                             |
-| **Onboarding**     | `onboarding.ts`     | saveClinicSetup, saveOnboardingProgress, getOnboardingStatus, linkProfileToClinic                                                                                  |
+| Service             | File                | Key Functions                                                                                                                                                      |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Facturación**     | `facturacion.ts`    | getFacturas, getFacturaById, createFactura, updateFactura, getFacturaStats, submitToFinanciador                                                                    |
+| **Rechazos**        | `rechazos.ts`       | getRechazos, reprocesarRechazo, descartarRechazo, getRechazoStats, getMotivoBreakdown                                                                              |
+| **Financiadores**   | `financiadores.ts`  | getFinanciadores, getFinanciadoresExtended, getFinanciadorById, updateFinanciador, getFinanciadorStats                                                             |
+| **Inflación**       | `inflacion.ts`      | getInflacionMensual, getFinanciadoresInflacion, getInflacionResumen, getInflacionTrend                                                                             |
+| **Auditoría**       | `audit.ts`          | getAuditoriaFiltered, updateAuditStatus, runAutoAudit, getAuditStats                                                                                               |
+| **Nomenclador**     | `nomenclador.ts`    | getNomencladorEntries, getNomencladorById, updateNomenclador, getNomencladorStats                                                                                  |
+| **Inventario**      | `inventario.ts`     | getInventarioItems, createItem, updateItem, adjustStock, getInventarioStats                                                                                        |
+| **Turnos**          | `turnos.ts`         | getTurnos, createTurno, confirmTurno, cancelTurno, attendTurno, getAvailableSlots, checkConflict, getTurnoStats                                                    |
+| **Reportes**        | `reportes.ts`       | getReportesList, generateReport, getReportesByCategoria, getReportStats                                                                                            |
+| **Historia**        | `historia.ts`       | getPatientTimeline, getHistoriaClinica, getHistoriaStats, getHistoriaSummary                                                                                       |
+| **Farmacia**        | `farmacia.ts`       | getMedications, getPrescriptions, getDeliveries, getRecurringOrders, getFarmaciaKPIs                                                                               |
+| **Telemedicina**    | `telemedicina.ts`   | getWaitingRoom, getConsultations, getScheduledConsultations, createVideoRoom, sendWhatsAppSummary, getTelemedicinaKPIs                                             |
+| **Directorio**      | `directorio.ts`     | getDoctors, getDoctorReviews, getDoctorAvailability, getDirectorioKPIs                                                                                             |
+| **Triage**          | `triage.ts`         | getTriages, getTriageKPIs, createTriage, saveClinicalNote, uploadTriagePhoto. Constants: BODY_SYSTEM_SYMPTOMS, SYMPTOM_SPECIALTY_MAP, ICD10_CODES, SEVERITY_LABELS |
+| **Interconsultas**  | `interconsultas.ts` | getNetworkDoctors, getInterconsultas, createInterconsulta, getSolicitudesEstudio, createSolicitud, getInterconsultaStats                                           |
+| **PACS (dcm4chee)** | `nubix.ts`          | getStudies, getStudyById, getReports, getDeliveries, getViewerConfig, getAppointments, upsertAppointment, getNubixKPIs                                             |
+| **Onboarding**      | `onboarding.ts`     | saveClinicSetup, saveOnboardingProgress, getOnboardingStatus, linkProfileToClinic                                                                                  |
 
 ### Infrastructure Services
 
@@ -993,8 +993,8 @@ User Message → Emergency Detection (rule-based, never skipped)
 | `useDirectorioKPIs()`         | Directorio   | DirectorioKPIs     |
 | `useTriages()`                | Triage       | Triage[]           |
 | `useTriageKPIs()`             | Triage       | TriageKPIs         |
-| `useNubixStudies(filters)`    | Nubix        | Study[]            |
-| `useNubixKPIs()`              | Nubix        | NubixKPIs          |
+| `useNubixStudies(filters)`    | PACS         | Study[]            |
+| `useNubixKPIs()`              | PACS         | NubixKPIs          |
 
 ### Utility Hooks
 
@@ -1151,7 +1151,7 @@ Logger auto-redacts: email, DNI, CUIL, password, token, secret, authorization
 | **PostHog**            | Product analytics                 | `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`                              |
 | **Sentry**             | Error tracking, performance       | `SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`                  |
 | **Upstash Redis**      | Rate limiting                     | `UPSTASH_REDIS_URL`, `UPSTASH_REDIS_TOKEN`                                         |
-| **Nubix Cloud**        | RIS/PACS DICOM imaging            | `NUBIX_API_URL`, `NUBIX_API_KEY`, `NUBIX_TENANT_ID`                                |
+| **dcm4chee Archive**   | Open-source PACS (DICOMweb)       | `DCM4CHEE_BASE_URL`, `DCM4CHEE_AET`, `DCM4CHEE_AUTH_TOKEN`                         |
 | **Google Places**      | Doctor search, photos, ratings    | `GOOGLE_PLACES_API_KEY`, `GOOGLE_MAPS_API_KEY`                                     |
 | **PAMI API**           | National health insurance         | `PAMI_API_URL`, `PAMI_API_TOKEN`                                                   |
 | **AFIP WSFEV1**        | Electronic invoicing              | `AFIP_CERT_PATH`, `AFIP_KEY_PATH`, `AFIP_CUIT`                                     |
@@ -1204,7 +1204,7 @@ Logger auto-redacts: email, DNI, CUIL, password, token, secret, authorization
 
 ### Structured Logging (Pino)
 
-- JSON logging with child loggers per module: `authLog`, `apiLog`, `emailLog`, `nubixLog`, `chatbotLog`
+- JSON logging with child loggers per module: `authLog`, `apiLog`, `emailLog`, `pacsLog`, `chatbotLog`
 - Auto-redacts PII (email, DNI, password, token)
 - Log levels: fatal, error, warn, info, debug, trace
 - `clientLog` provides browser-compatible logging with same API shape
@@ -1249,14 +1249,14 @@ Logger auto-redacts: email, DNI, CUIL, password, token, secret, authorization
 
 **Servicios:**
 
-| ID             | Module                 | Price (ARS/month) | Phase |
-| -------------- | ---------------------- | ----------------- | ----- |
-| farmacia       | Farmacia Online        | $6,000            | 3     |
-| telemedicina   | Telemedicina           | $7,000            | 3     |
-| directorio     | Directorio Médico      | $2,500            | 3     |
-| interconsultas | Red de Interconsultas  | $4,000            | 3     |
-| triage         | Triage Inteligente     | $5,000            | 3     |
-| nubix          | Nubix Cloud (RIS/PACS) | $8,000            | 4     |
+| ID             | Module                | Price (ARS/month) | Phase |
+| -------------- | --------------------- | ----------------- | ----- |
+| farmacia       | Farmacia Online       | $6,000            | 3     |
+| telemedicina   | Telemedicina          | $7,000            | 3     |
+| directorio     | Directorio Médico     | $2,500            | 3     |
+| interconsultas | Red de Interconsultas | $4,000            | 3     |
+| triage         | Triage Inteligente    | $5,000            | 3     |
+| nubix          | PACS / Imagen Médica  | $8,000            | 4     |
 
 ### Preset Plans
 
@@ -1334,7 +1334,7 @@ const { isExporting, exportError, exportPDF, exportExcel } = useExport();
 | **Analytics**      | NEXT_PUBLIC_POSTHOG_KEY, NEXT_PUBLIC_POSTHOG_HOST                                     |
 | **Monitoring**     | SENTRY_DSN, NEXT_PUBLIC_SENTRY_DSN, SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT     |
 | **Rate Limiting**  | UPSTASH_REDIS_URL, UPSTASH_REDIS_TOKEN                                                |
-| **Imaging**        | NUBIX_API_URL, NUBIX_API_KEY, NUBIX_TENANT_ID                                         |
+| **Imaging**        | DCM4CHEE_BASE_URL, DCM4CHEE_AET, DCM4CHEE_AUTH_TOKEN                                  |
 | **Insurance APIs** | PAMI_API_URL, PAMI_API_TOKEN, SWISS_MEDICAL_CLIENT_ID, SWISS_MEDICAL_CLIENT_SECRET    |
 | **AFIP**           | AFIP_CERT_PATH, AFIP_KEY_PATH, AFIP_CUIT                                              |
 | **Security**       | SESSION_ENCRYPTION_KEY                                                                |
@@ -1456,7 +1456,8 @@ condor-salud/
 │       ├── auth/ (context.tsx, rbac.ts)
 │       ├── hooks/ (useGeolocation, useModules, useNearbyServices, usePatientName)
 │       ├── i18n/ (context.tsx, translations.ts)
-│       ├── nubix/ (client.ts, types.ts, index.ts)
+│       ├── dcm4chee/ (client.ts, service.ts, types.ts, index.ts)
+│       ├── nubix/ (client.ts, types.ts, index.ts) — compat layer → dcm4chee
 │       ├── security/ (api-guard, crypto, rate-limit, require-auth, sanitize)
 │       ├── services/ (26 service files)
 │       ├── supabase/ (client, server, middleware, database.types)

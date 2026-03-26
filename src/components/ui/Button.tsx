@@ -14,7 +14,8 @@ const variantStyles: Record<Variant, string> = {
   primary: "bg-celeste-dark text-white hover:bg-celeste focus-visible:ring-celeste-dark",
   secondary:
     "bg-celeste-pale text-celeste-dark hover:bg-celeste-light/30 focus-visible:ring-celeste",
-  outline: "border border-border text-ink hover:bg-surface focus-visible:ring-celeste",
+  outline:
+    "border border-celeste-dark bg-transparent text-celeste-dark hover:bg-celeste-pale focus-visible:ring-celeste-dark",
   ghost: "text-ink-light hover:bg-surface hover:text-ink focus-visible:ring-celeste",
   danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
   gold: "bg-celeste-dark text-white hover:bg-celeste focus-visible:ring-celeste-dark",

@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState, type DragEvent } from "react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/context";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -95,6 +96,7 @@ export function FileUpload({
   enableCamera,
   className,
 }: FileUploadProps) {
+  const { t } = useLocale();
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -108,11 +110,11 @@ export function FileUpload({
 
       for (const file of Array.from(incoming)) {
         if (existingCount + newFiles.length >= maxFiles) {
-          setError(`Máximo ${maxFiles} archivos permitidos`);
+          setError(t("fileUpload.maxFiles").replace("{n}", String(maxFiles)));
           break;
         }
         if (file.size > maxSize) {
-          setError(`"${file.name}" excede el límite de ${formatFileSize(maxSize)}`);
+          setError(t("fileUpload.tooLarge"));
           continue;
         }
 
@@ -142,7 +144,7 @@ export function FileUpload({
         onChange([...files, ...newFiles]);
       }
     },
-    [files, onChange, maxFiles, maxSize],
+    [files, onChange, maxFiles, maxSize, t],
   );
 
   const handleDrop = useCallback(
@@ -203,7 +205,7 @@ export function FileUpload({
             inputRef.current?.click();
           }
         }}
-        aria-label={label || "Subir archivos"}
+        aria-label={label || t("fileUpload.title")}
         className={cn(
           "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2",
@@ -230,7 +232,7 @@ export function FileUpload({
         </svg>
 
         <p className="text-sm font-medium text-ink">
-          {isDragging ? "Soltá los archivos acá" : "Arrastrá archivos o hacé clic para subir"}
+          {isDragging ? t("fileUpload.dropActive") : t("fileUpload.drop")}
         </p>
         <p className="mt-1 text-xs text-ink-muted">
           XLSX, CSV, PDF, PNG, JPG — máx. {formatFileSize(maxSize)}
@@ -245,7 +247,7 @@ export function FileUpload({
               cameraRef.current?.click();
             }}
             className="mt-3 inline-flex items-center gap-2 rounded-lg border border-celeste-200 bg-white px-4 py-2 text-sm font-medium text-celeste-dark hover:bg-celeste-50 transition"
-            aria-label="Tomar foto con la cámara"
+            aria-label={t("fileUpload.takePhoto")}
           >
             <svg
               className="h-4 w-4"
@@ -266,7 +268,7 @@ export function FileUpload({
                 d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"
               />
             </svg>
-            Tomar foto
+            {t("fileUpload.takePhoto")}
           </button>
         )}
 
@@ -308,7 +310,7 @@ export function FileUpload({
 
       {/* File list */}
       {files.length > 0 && (
-        <ul className="space-y-2" aria-label="Archivos subidos">
+        <ul className="space-y-2" aria-label={t("fileUpload.uploaded")}>
           {files.map((f) => {
             const badge = getFileTypeBadge(f.type);
             return (
@@ -345,7 +347,7 @@ export function FileUpload({
                     removeFile(f.id);
                   }}
                   className="p-1.5 rounded-md text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
-                  aria-label={`Eliminar ${f.name}`}
+                  aria-label={t("fileUpload.remove").replace("{name}", f.name)}
                   disabled={disabled}
                 >
                   <svg

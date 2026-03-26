@@ -1,5 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { KPI } from "@/lib/types";
+import { useLocale } from "@/lib/i18n/context";
 
 interface KPICardProps {
   kpi: KPI;
@@ -30,7 +33,7 @@ export function KPICard({ kpi, className }: KPICardProps) {
       <p className="text-2xl font-bold text-ink mt-1">{kpi.value}</p>
       <p
         className={cn("text-xs font-medium mt-1", kpi.up ? "text-success-600" : "text-red-500")}
-        aria-label={`Cambio: ${kpi.change}`}
+        aria-label={`${kpi.change}`}
       >
         <span className="inline-flex items-center gap-0.5">
           <svg
@@ -59,11 +62,12 @@ interface KPIGridProps {
 }
 
 export function KPIGrid({ kpis, className }: KPIGridProps) {
+  const { t } = useLocale();
   return (
     <div
       className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}
       role="region"
-      aria-label="Indicadores clave"
+      aria-label={t("common.kpi")}
     >
       {kpis.map((kpi) => (
         <KPICard key={kpi.label} kpi={kpi} />

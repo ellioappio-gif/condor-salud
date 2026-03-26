@@ -1,6 +1,11 @@
-// ─── Nubix Cloud Integration Types ───────────────────────────
-// TypeScript types for the Nubix RIS/PACS cloud platform.
-// See https://nubix.cloud for platform documentation.
+// ─── PACS Integration Types (dcm4chee Archive) ──────────────
+// TypeScript types for the DICOM imaging module.
+// Backend: dcm4chee Archive 5 — open-source PACS/VNA.
+// See https://web.dcm4che.org/ for platform documentation.
+//
+// NOTE: Type names retain the "Nubix" prefix for backward
+// compatibility with the UI layer. The underlying data now
+// comes from dcm4chee DICOMweb endpoints.
 
 // ─── Enums ───────────────────────────────────────────────────
 
@@ -49,7 +54,7 @@ export type NubixSpecialty =
 
 // ─── Core Entities ───────────────────────────────────────────
 
-/** A DICOM imaging study stored in Nubix Cloud */
+/** A DICOM imaging study stored in dcm4chee Archive */
 export interface NubixStudy {
   id: string;
   accessionNumber: string;
@@ -68,7 +73,7 @@ export interface NubixStudy {
   reportingDoctor: string | null;
   reportStatus: NubixReportStatus;
   financiador: string;
-  viewerUrl: string; // Deep link to Nubix DICOM viewer
+  viewerUrl: string; // Deep link to OHIF/Weasis DICOM viewer
   thumbnailUrl: string | null;
   createdAt: string;
   updatedAt: string;
@@ -103,7 +108,7 @@ export interface NubixDelivery {
   status: "sent" | "delivered" | "opened" | "failed";
 }
 
-/** A patient appointment/slot in Nubix scheduling */
+/** A patient appointment/slot in the PACS scheduling system */
 export interface NubixAppointment {
   id: string;
   patientName: string;
@@ -121,7 +126,7 @@ export interface NubixAppointment {
   notes: string;
 }
 
-/** Nubix DICOM viewer embed configuration */
+/** DICOM viewer embed configuration (OHIF/Weasis) */
 export interface NubixViewerConfig {
   studyId: string;
   embedUrl: string;

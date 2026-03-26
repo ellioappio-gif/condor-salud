@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { Pagination } from "@/components/ui/Pagination";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
@@ -17,6 +18,7 @@ import {
 } from "@/lib/hooks/useCRM";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useIsDemo } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 import { usePacientes } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
 
@@ -97,6 +99,7 @@ export default function PacientesPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
+  const { t } = useLocale();
   const { execute, isExecuting } = useCrudAction(isDemo);
   const { exportPDF, exportExcel, isExporting } = useExport();
   const [activeTab, setActiveTab] = useState<PacientesTab>(initialTab);
@@ -123,7 +126,7 @@ export default function PacientesPage() {
       showDemo("Nuevo paciente");
       return;
     }
-    showToast("Usá la pestaña Consultas → Convertir lead para registrar un nuevo paciente");
+    showToast(t("toast.pacientes.convertLead"));
   };
 
   // Patient data: real from Supabase or demo
@@ -480,6 +483,16 @@ function PacientesTabView({
   filtroEstado: string;
   setFiltroEstado: (v: string) => void;
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PAGE_SIZE = 25;
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginatedFiltered = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filtroFinanciador, filtroEstado]);
+
   return (
     <div className="space-y-4">
       {/* KPI cards */}
@@ -567,7 +580,7 @@ function PacientesTabView({
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {paginatedFiltered.map((p) => (
                 <tr
                   key={p.id}
                   className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -616,6 +629,8 @@ function PacientesTabView({
           </table>
         </div>
       </Card>
+
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
     </div>
   );
 }
@@ -738,6 +753,7 @@ function LeadCard({
   isSelected: boolean;
   onClick: () => void;
 }) {
+  const { locale } = useLocale();
   return (
     <button
       onClick={onClick}
@@ -772,7 +788,8 @@ function LeadCard({
       </div>
       {lead.last_message_at && (
         <div className="text-[10px] text-ink-muted mt-1.5">
-          Último msg: {new Date(lead.last_message_at).toLocaleDateString("es-AR")}
+          Último msg:{" "}
+          {new Date(lead.last_message_at).toLocaleDateString(locale === "en" ? "en-US" : "es-AR")}
         </div>
       )}
     </button>
@@ -809,6 +826,7 @@ function LeadDetailPanel({
   refreshLeads: () => void;
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
 }) {
+  const { t } = useLocale();
   const { trigger: updateLead, isMutating } = useUpdateLead(lead.id);
 
   const handleStatusChange = async (newEstado: LeadEstado) => {
@@ -817,7 +835,7 @@ function LeadDetailPanel({
       showToast(`Movido a "${newEstado}"`);
       refreshLeads();
     } catch {
-      showToast("Error al actualizar");
+      showToast(t("toast.pacientes.updateError"), "error");
     }
   };
 
