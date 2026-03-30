@@ -52,14 +52,7 @@ export function canAccessRoute(role: UserRole, path: string): boolean {
       "configuracion:write",
       "equipo:manage",
     ],
-    medico: [
-      "pacientes:read",
-      "pacientes:write",
-      "agenda:read",
-      "agenda:write",
-      "reportes:read",
-      "auditoria:read",
-    ],
+    medico: ["pacientes:read", "pacientes:write", "agenda:read", "agenda:write"],
     facturacion: [
       "pacientes:read",
       "facturacion:read",

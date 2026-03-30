@@ -15,6 +15,7 @@ const NotificationCenter = dynamic(() => import("@/components/NotificationCenter
 
 import { SWRProvider } from "@/lib/swr";
 import { useAuth, useIsDemo } from "@/lib/auth/context";
+import { canAccessRoute } from "@/lib/auth/rbac";
 import { usePlanSafe } from "@/lib/plan-context";
 import { useLocale } from "@/lib/i18n/context";
 import type { ModuleId } from "@/lib/plan-config";
@@ -219,9 +220,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isNavVisible = (href: string): boolean => {
-    // Always show: dashboard home, configuracion and sub-pages
+    // Always show: dashboard home
     if (href === "/dashboard") return true;
+    // Role-based access check
+    if (user?.role && !canAccessRoute(user.role as any, href)) return false;
+    // Configuracion only for admin
+    if (href.startsWith("/dashboard/configuracion") && user?.role !== "admin") return false;
     if (href.startsWith("/dashboard/configuracion")) return true;
+    // Alta clínica only for admin
+    if (href === "/dashboard/alta-clinica" && user?.role !== "admin") return false;
+    // Wizard only for admin
+    if (href === "/dashboard/wizard" && user?.role !== "admin") return false;
     const moduleId = ROUTE_MODULE_MAP[href];
     if (!moduleId) return true; // Unknown routes always visible
     return plan.isModuleSelected(moduleId);

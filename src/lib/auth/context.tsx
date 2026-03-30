@@ -74,14 +74,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "configuracion:write",
     "equipo:manage",
   ],
-  medico: [
-    "pacientes:read",
-    "pacientes:write",
-    "agenda:read",
-    "agenda:write",
-    "reportes:read",
-    "auditoria:read",
-  ],
+  medico: ["pacientes:read", "pacientes:write", "agenda:read", "agenda:write"],
   facturacion: [
     "pacientes:read",
     "facturacion:read",
