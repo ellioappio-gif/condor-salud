@@ -13,6 +13,8 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/dashboard/pacientes": "pacientes:read",
   "/dashboard/agenda": "agenda:read",
+  "/dashboard/disponibilidad": "agenda:read",
+  "/dashboard/turnos-online": "agenda:read",
   "/dashboard/facturacion": "facturacion:read",
   "/dashboard/rechazos": "facturacion:read",
   "/dashboard/financiadores": "facturacion:read",
@@ -30,6 +32,8 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/dashboard/nubix": "pacientes:read",
   "/dashboard/directorio": "pacientes:read",
   "/dashboard/triage": "pacientes:read",
+  "/dashboard/recetas": "pacientes:write",
+  "/dashboard/recetas/nueva": "pacientes:write",
   "/dashboard/wizard": "configuracion:read",
   "/dashboard/interconsultas": "pacientes:read",
 };

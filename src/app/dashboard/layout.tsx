@@ -224,6 +224,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (href === "/dashboard") return true;
     // Role-based access check
     if (user?.role && !canAccessRoute(user.role as any, href)) return false;
+    // Recetas: only admin + medico can prescribe
+    if (href.startsWith("/dashboard/recetas") && user?.role !== "admin" && user?.role !== "medico")
+      return false;
     // Configuracion only for admin
     if (href.startsWith("/dashboard/configuracion") && user?.role !== "admin") return false;
     if (href.startsWith("/dashboard/configuracion")) return true;
