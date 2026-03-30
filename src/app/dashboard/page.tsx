@@ -67,6 +67,9 @@ export default function DashboardPage() {
   const plan = usePlanSafe();
 
   // ── Persist wizard banner dismissal per clinic ────────────
+  // Only show to admins whose clinic hasn't completed onboarding yet
+  const isAdmin = user?.role === "admin";
+  const clinicOnboarded = user?.onboardingComplete ?? false;
   const bannerKey = user?.clinicId
     ? `condor_wizard_banner_dismissed_${user.clinicId}`
     : "condor_wizard_banner_dismissed";
@@ -74,13 +77,18 @@ export default function DashboardPage() {
   const [showWizardBanner, setShowWizardBanner] = useState(false);
 
   useEffect(() => {
+    // Non-admins never see it; already-onboarded clinics never see it
+    if (!isAdmin || clinicOnboarded) {
+      setShowWizardBanner(false);
+      return;
+    }
     try {
       const dismissed = localStorage.getItem(bannerKey);
       setShowWizardBanner(dismissed !== "true");
     } catch {
       setShowWizardBanner(true);
     }
-  }, [bannerKey]);
+  }, [bannerKey, isAdmin, clinicOnboarded]);
 
   const dismissBanner = useCallback(() => {
     setShowWizardBanner(false);

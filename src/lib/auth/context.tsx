@@ -16,6 +16,8 @@ export interface User {
   avatarUrl?: string;
   /** True when the clinic is in demo mode — actions show DemoModal */
   isDemo: boolean;
+  /** True when the clinic has finished onboarding */
+  onboardingComplete: boolean;
 }
 
 interface AuthState {
@@ -116,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clinicId: "demo-clinic-001",
         clinicName: "Clinica San Martin",
         isDemo: true,
+        onboardingComplete: false,
       };
 
       // ── Supabase Auth Mode ──
@@ -385,7 +388,7 @@ async function resolveProfile(supabase, authUser): Promise<User> {
   try {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role, full_name, avatar_url, clinic_id, clinics(name, demo)")
+      .select("role, full_name, avatar_url, clinic_id, clinics(name, demo, onboarding_completed)")
       .eq("id", authUser.id)
       .single();
 
@@ -399,6 +402,7 @@ async function resolveProfile(supabase, authUser): Promise<User> {
         clinicName: profile.clinics?.name || "",
         avatarUrl: profile.avatar_url || authUser.user_metadata?.avatar_url,
         isDemo: profile.clinics?.demo ?? false,
+        onboardingComplete: profile.clinics?.onboarding_completed ?? false,
       };
     }
   } catch {
@@ -415,6 +419,7 @@ async function resolveProfile(supabase, authUser): Promise<User> {
     clinicName: authUser.user_metadata?.clinic_name || "",
     avatarUrl: authUser.user_metadata?.avatar_url,
     isDemo: true, // No clinic linked yet → treat as demo
+    onboardingComplete: false,
   };
 }
 
