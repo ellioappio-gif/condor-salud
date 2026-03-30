@@ -45,25 +45,13 @@ const statusConfig = {
   },
 };
 
-// ─── Demo verification status ────────────────────────────────
-const DEMO_VERIFICATION: VerificationStatus = {
-  id: "ver-demo-001",
-  status: "approved",
-  matriculaNacional: "MN 45.892",
-  matriculaProvincial: "MP 12.340 (CABA)",
-  submittedAt: "2026-02-20T10:00:00",
-  documents: [
-    { id: "doc-1", type: "matricula_frente", fileName: "matricula_nacional_frente.jpg" },
-    { id: "doc-2", type: "matricula_dorso", fileName: "matricula_nacional_dorso.jpg" },
-    { id: "doc-3", type: "dni_frente", fileName: "dni_frente.jpg" },
-  ],
-};
+// ─── No demo data – real verification status comes from API ──
 
 // ─── Main Component ──────────────────────────────────────────
 
 export default function VerificarCuentaPage() {
   const { locale } = useLocale();
-  const [verification, setVerification] = useState<VerificationStatus | null>(DEMO_VERIFICATION);
+  const [verification, setVerification] = useState<VerificationStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 

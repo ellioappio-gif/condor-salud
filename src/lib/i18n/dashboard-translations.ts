@@ -207,6 +207,7 @@ export const dashboardTranslations: DashTranslation = {
   "nav.alerts": { es: "Alertas", en: "Alerts" },
   "nav.users": { es: "Usuarios", en: "Users" },
   "nav.availability": { es: "Disponibilidad", en: "Availability" },
+  "nav.pricing": { es: "Precios", en: "Pricing" },
   "nav.verification": { es: "Verificación", en: "Verification" },
   "nav.inflation": { es: "Inflación", en: "Inflation" },
   "nav.payments": { es: "Pagos", en: "Payments" },

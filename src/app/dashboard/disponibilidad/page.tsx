@@ -88,67 +88,18 @@ function formatWeekRange(dates: { date: string }[]): string {
   return `${start} — ${end}`;
 }
 
-// Demo doctors for the availability grid
-const DEMO_DOCTORS: Doctor[] = [
-  { id: "doc-1", name: "Dr. Rodríguez", specialty: "Medicina General" },
-  { id: "doc-2", name: "Dra. Fernández", specialty: "Cardiología" },
-  { id: "doc-3", name: "Dr. Molina", specialty: "Diagnóstico por Imagen" },
-  { id: "doc-4", name: "Dra. López", specialty: "Laboratorio" },
-  { id: "doc-5", name: "Lic. Gómez", specialty: "Nutrición" },
-  { id: "doc-6", name: "Lic. Martín", specialty: "Kinesiología" },
-];
+// No hardcoded demo doctors – real data comes from /api/doctors
 
-// Demo availability slots for the current week
-function getDemoSlots(doctorId: string): AvailabilitySlot[] {
-  const today = new Date();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - today.getDay() + 1);
-  const slots: AvailabilitySlot[] = [];
-  const times = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-  ];
-  for (let day = 0; day < 5; day++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + day);
-    const dateStr = d.toISOString().split("T")[0] ?? "";
-    for (const t of times) {
-      const booked = Math.random() < 0.25;
-      slots.push({
-        id: `${doctorId}-${dateStr}-${t}`,
-        doctor_id: doctorId,
-        date: dateStr,
-        time_slot: t,
-        booked,
-        patient_id: booked ? "p" + Math.floor(Math.random() * 12 + 1) : null,
-      });
-    }
-  }
-  return slots;
-}
-
-// NOTE: No hardcoded doctors. Real data comes from /api/doctors.
-// New clinics start with an empty list until team members are added.
+// NOTE: No hardcoded slots. Real data comes from /api/availability.
+// New clinics start with an empty grid until slots are created.
 
 export default function DisponibilidadPage() {
   const { t, locale } = useLocale();
   const [weekOffset, setWeekOffset] = useState(0);
-  const [selectedDoctor, setSelectedDoctor] = useState<string>("doc-1");
-  const [doctors, setDoctors] = useState<Doctor[]>(DEMO_DOCTORS);
-  const [slots, setSlots] = useState<AvailabilitySlot[]>(getDemoSlots("doc-1"));
-  const [loading, setLoading] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -166,14 +117,19 @@ export default function DisponibilidadPage() {
         const res = await fetch("/api/doctors?active=true");
         if (res.ok) {
           const data = await res.json();
-          if (data.doctors?.length) setDoctors(data.doctors);
+          if (data.doctors?.length) {
+            setDoctors(data.doctors);
+            if (!selectedDoctor) setSelectedDoctor(data.doctors[0].id);
+          }
         }
       } catch {
-        // Keep demo doctors
+        // Real API unavailable — leave empty
+      } finally {
+        setLoading(false);
       }
     }
     loadDoctors();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fetch availability ─────────────────────────────────────
   const fetchSlots = useCallback(async () => {
@@ -184,16 +140,12 @@ export default function DisponibilidadPage() {
       const res = await fetch(`/api/availability?${params}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.slots?.length) {
-          setSlots(data.slots);
-        } else {
-          setSlots(getDemoSlots(selectedDoctor));
-        }
+        setSlots(data.slots?.length ? data.slots : []);
       } else {
-        setSlots(getDemoSlots(selectedDoctor));
+        setSlots([]);
       }
     } catch {
-      setSlots(getDemoSlots(selectedDoctor));
+      setSlots([]);
     } finally {
       setLoading(false);
     }

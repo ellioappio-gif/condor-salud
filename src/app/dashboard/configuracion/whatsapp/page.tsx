@@ -25,11 +25,11 @@ interface PageTemplate {
   active: boolean;
 }
 
-/* ---------- Defaults (shown in demo + pre-filled for new users) ---------- */
-const DEFAULT_CLINIC_ADDRESS = "Av. San Martin 1520, Piso 2, CABA";
-const DEFAULT_CLINIC_PHONE = "(011) 4523-8800";
-const DEFAULT_CLINIC_NAME = "Centro Medico San Martin";
-const DEFAULT_GMAPS = "https://maps.google.com/?q=Av+San+Martin+1520+CABA+Argentina";
+/* ---------- Defaults (pre-filled for new users; populated from DB once saved) ---------- */
+const DEFAULT_CLINIC_ADDRESS = "";
+const DEFAULT_CLINIC_PHONE = "";
+const DEFAULT_CLINIC_NAME = "";
+const DEFAULT_GMAPS = "";
 
 const DEFAULT_REMINDER_SETTINGS: ReminderSettings = {
   hoursBeforeFirst: 24,

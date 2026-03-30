@@ -68,116 +68,7 @@ interface PrescriptionDetail {
   }[];
 }
 
-/* ── Demo Data ── */
-const DEMO_RX: Record<string, PrescriptionDetail> = {
-  "rx-001": {
-    id: "rx-001",
-    patientName: "Maria Garcia",
-    patientDni: "28.456.789",
-    doctorName: "Dra. Maria Rodriguez",
-    doctorMatricula: "MN-12345",
-    status: "active",
-    issuedAt: "2026-03-15T10:30:00",
-    expiresAt: "2026-04-14T10:30:00",
-    verificationToken: "demo-token-001",
-    coverageName: "OSDE 310",
-    coveragePlan: "310",
-    coverageNumber: "0310-01234567-00",
-    diagnosis: "I10 — Hipertension esencial",
-    osde: {
-      status: "registered",
-      registeredAt: "2026-03-15T10:30:05",
-      groupIdentifier: "OSDE-RX-2026-03150001",
-    },
-    medications: [
-      {
-        medicationName: "Losartan Gador 50mg",
-        genericName: "Losartan",
-        dosage: "50mg",
-        frequency: "c/24h",
-        duration: "30 dias",
-        quantity: 30,
-        troquel: "38291",
-      },
-      {
-        medicationName: "Aspirina Protect 100mg",
-        genericName: "Acido acetilsalicilico",
-        dosage: "100mg",
-        frequency: "c/24h",
-        duration: "30 dias",
-        quantity: 30,
-        troquel: "21534",
-      },
-    ],
-    auditTrail: [
-      {
-        action: "created",
-        timestamp: "2026-03-15T10:29:55",
-        actor: "Dra. Rodriguez",
-        detail: "Borrador creado",
-      },
-      {
-        action: "issued",
-        timestamp: "2026-03-15T10:30:00",
-        actor: "Dra. Rodriguez",
-        detail: "Receta emitida",
-      },
-      {
-        action: "osde_registered",
-        timestamp: "2026-03-15T10:30:05",
-        actor: "Sistema",
-        detail: "Registrada en OSDE FHIR 4.0",
-      },
-    ],
-  },
-  "rx-002": {
-    id: "rx-002",
-    patientName: "Carlos Lopez",
-    patientDni: "32.987.654",
-    doctorName: "Dra. Maria Rodriguez",
-    doctorMatricula: "MN-12345",
-    status: "sent",
-    issuedAt: "2026-03-14T09:15:00",
-    expiresAt: "2026-04-13T09:15:00",
-    verificationToken: "demo-token-002",
-    coverageName: "Swiss Medical",
-    coverageNumber: "SM-0098765",
-    diagnosis: "J06.9 — Infeccion aguda de las vias respiratorias superiores",
-    rcta: {
-      status: "registered",
-      prescriptionId: "RCTA-2026-00482",
-      pdfUrl: "/api/prescriptions/rx-002/pdf",
-      issuedAt: "2026-03-14T09:15:02",
-    },
-    medications: [
-      {
-        medicationName: "Amoxidal 500mg",
-        genericName: "Amoxicilina",
-        dosage: "500mg",
-        frequency: "c/8h",
-        duration: "7 dias",
-        quantity: 21,
-        troquel: "15782",
-      },
-    ],
-    auditTrail: [
-      { action: "created", timestamp: "2026-03-14T09:14:30", actor: "Dra. Rodriguez" },
-      { action: "issued", timestamp: "2026-03-14T09:15:00", actor: "Dra. Rodriguez" },
-      {
-        action: "rcta_registered",
-        timestamp: "2026-03-14T09:15:02",
-        actor: "Sistema",
-        detail: "Registrada en RCTA QBI2 — ID: RCTA-2026-00482",
-      },
-      {
-        action: "sent_whatsapp",
-        timestamp: "2026-03-14T09:16:00",
-        actor: "Dra. Rodriguez",
-        detail: "Enviada por WhatsApp",
-      },
-    ],
-  },
-};
+/* ── No demo data – real prescriptions come from API ── */
 
 export default function RecetaDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { showToast } = useToast();
@@ -189,18 +80,17 @@ export default function RecetaDetailPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     params.then(({ id }) => {
       setRxId(id);
-      // Try API first, then demo fallback
       fetch(`/api/prescriptions/${id}`)
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data?.prescription) {
             setRx(data.prescription);
           } else {
-            setRx(DEMO_RX[id] || null);
+            setRx(null);
           }
         })
         .catch(() => {
-          setRx(DEMO_RX[id] || null);
+          setRx(null);
         })
         .finally(() => setLoading(false));
     });

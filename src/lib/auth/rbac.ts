@@ -35,6 +35,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/dashboard/recetas": "pacientes:write",
   "/dashboard/recetas/nueva": "pacientes:write",
   "/dashboard/wizard": "configuracion:read",
+  "/dashboard/precios": "agenda:read",
   "/dashboard/interconsultas": "pacientes:read",
 };
 

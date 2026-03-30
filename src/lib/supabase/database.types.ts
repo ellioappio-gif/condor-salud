@@ -1557,6 +1557,55 @@ export interface Database {
           },
         ];
       };
+      clinic_services: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          name: string;
+          description: string | null;
+          category: string;
+          price: number;
+          currency: string;
+          duration_min: number | null;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          name: string;
+          description?: string | null;
+          category?: string;
+          price?: number;
+          currency?: string;
+          duration_min?: number | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          name?: string;
+          description?: string | null;
+          category?: string;
+          price?: number;
+          currency?: string;
+          duration_min?: number | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "clinic_services_clinic_id_fkey";
+            columns: ["clinic_id"];
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       team_invitations: {
         Row: {
           id: string;

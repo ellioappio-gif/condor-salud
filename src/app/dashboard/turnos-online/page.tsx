@@ -103,9 +103,7 @@ export default function TurnosOnlinePage() {
           }
         }
       } catch {
-        // Fallback: use demo data
-        setClinicSlug("demo");
-        setPublicUrl("/reservar/demo");
+        // Real API unavailable
       }
     }
     getClinicSlug();
@@ -128,8 +126,7 @@ export default function TurnosOnlinePage() {
       setTotalPages(data.pagination?.totalPages || 1);
     } catch {
       showToast(lang === "en" ? "Error loading bookings" : "Error cargando turnos", "error");
-      // Demo fallback
-      setBookings(getDemoBookings());
+      setBookings([]);
       setTotalPages(1);
     } finally {
       setLoading(false);
@@ -589,65 +586,4 @@ function formatDate(fecha: string): string {
   }
 }
 
-function getDemoBookings(): Booking[] {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tStr = tomorrow.toISOString().slice(0, 10);
-
-  return [
-    {
-      id: "demo-1",
-      patient_name: "Sarah Johnson",
-      patient_email: "sarah@example.com",
-      patient_phone: "+14155551234",
-      patient_language: "en",
-      doctor_id: "d1",
-      doctor_name: "Dr. Martín Ruiz",
-      specialty: "Clínica General",
-      fecha: tStr,
-      hora: "10:00",
-      hora_fin: "10:30",
-      tipo: "presencial",
-      status: "confirmed",
-      notes: null,
-      booked_via: "web",
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: "demo-2",
-      patient_name: "María López",
-      patient_email: "maria@ejemplo.com",
-      patient_phone: "+5491155551234",
-      patient_language: "es",
-      doctor_id: "d2",
-      doctor_name: "Dra. Carolina Vega",
-      specialty: "Dermatología",
-      fecha: tStr,
-      hora: "11:00",
-      hora_fin: "11:30",
-      tipo: "teleconsulta",
-      status: "pending",
-      notes: null,
-      booked_via: "whatsapp",
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: "demo-3",
-      patient_name: "James Miller",
-      patient_email: "james@example.com",
-      patient_phone: "+12125559876",
-      patient_language: "en",
-      doctor_id: "d1",
-      doctor_name: "Dr. Martín Ruiz",
-      specialty: "Clínica General",
-      fecha: tStr,
-      hora: "14:00",
-      hora_fin: "14:30",
-      tipo: "presencial",
-      status: "pending",
-      notes: null,
-      booked_via: "cora",
-      created_at: new Date().toISOString(),
-    },
-  ];
-}
+// No demo bookings – real data comes from /api/clinics/:slug/bookings

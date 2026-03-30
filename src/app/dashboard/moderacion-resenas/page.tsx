@@ -22,94 +22,13 @@ interface ReviewForModeration {
   };
 }
 
-// ─── Demo Reviews ────────────────────────────────────────────
-const DEMO_REVIEWS: ReviewForModeration[] = [
-  {
-    id: "rev-1",
-    doctorProfileId: "dr-rodriguez",
-    patientDisplayName: "María G.",
-    rating: 5,
-    title: "Excelente profesional",
-    body: "El Dr. Rodríguez me atendió con mucha paciencia y dedicación. Explicó todo claramente y me sentí muy cómoda. Lo recomiendo 100%.",
-    isVerifiedPatient: true,
-    status: "pending",
-    createdAt: "2026-03-14T10:30:00",
-    doctor: {
-      displayName: "Dr. Martín Rodríguez",
-      slug: "dr-rodriguez",
-      specialty: "Medicina General",
-    },
-  },
-  {
-    id: "rev-2",
-    doctorProfileId: "dr-rodriguez",
-    patientDisplayName: "Carlos L.",
-    rating: 4,
-    title: "Muy buena atención",
-    body: "La clínica es moderna y bien equipada. La espera fue mínima. El doctor fue muy profesional, aunque hubiese preferido un poco más de tiempo en la consulta.",
-    isVerifiedPatient: true,
-    status: "pending",
-    createdAt: "2026-03-12T14:15:00",
-    doctor: {
-      displayName: "Dr. Martín Rodríguez",
-      slug: "dr-rodriguez",
-      specialty: "Medicina General",
-    },
-  },
-  {
-    id: "rev-3",
-    doctorProfileId: "dr-rodriguez",
-    patientDisplayName: "Ana M.",
-    rating: 5,
-    title: "Turno rápido y eficiente",
-    body: "Pude sacar turno online y me atendieron a la hora exacta. El seguimiento por WhatsApp fue un plus increíble. La receta digital con QR es muy práctica.",
-    isVerifiedPatient: false,
-    status: "pending",
-    createdAt: "2026-03-10T09:00:00",
-    doctor: {
-      displayName: "Dr. Martín Rodríguez",
-      slug: "dr-rodriguez",
-      specialty: "Medicina General",
-    },
-  },
-  {
-    id: "rev-4",
-    doctorProfileId: "dra-fernandez",
-    patientDisplayName: "Roberto S.",
-    rating: 5,
-    title: "La mejor cardióloga",
-    body: "La Dra. Fernández es una profesional excepcional. Me explicó los resultados del electrocardiograma de forma clara y sencilla.",
-    isVerifiedPatient: true,
-    status: "pending",
-    createdAt: "2026-03-09T16:30:00",
-    doctor: {
-      displayName: "Dra. Laura Fernández",
-      slug: "dra-fernandez",
-      specialty: "Cardiología",
-    },
-  },
-  {
-    id: "rev-5",
-    doctorProfileId: "dr-rodriguez",
-    patientDisplayName: "Lucía F.",
-    rating: 3,
-    body: "La consulta fue correcta pero tuve que esperar 40 minutos. Los estudios estaban bien organizados.",
-    isVerifiedPatient: true,
-    status: "pending",
-    createdAt: "2026-03-08T11:00:00",
-    doctor: {
-      displayName: "Dr. Martín Rodríguez",
-      slug: "dr-rodriguez",
-      specialty: "Medicina General",
-    },
-  },
-];
+// ─── No demo data – real reviews come from API ──────────────
 
 // ─── Page ────────────────────────────────────────────────────
 
 export default function ReviewModerationPage() {
   const { t, locale } = useLocale();
-  const [reviews, setReviews] = useState<ReviewForModeration[]>(DEMO_REVIEWS);
+  const [reviews, setReviews] = useState<ReviewForModeration[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);

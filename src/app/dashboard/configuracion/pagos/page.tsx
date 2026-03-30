@@ -29,8 +29,8 @@ interface Transaction {
   metodo: string;
 }
 
-/* ---------- Demo Data for payment methods, transactions, billing rules ─── */
-const paymentMethods: PaymentMethod[] = [
+/* ---------- Demo Data (only shown when clinic.demo = true) ─── */
+const DEMO_PAYMENT_METHODS: PaymentMethod[] = [
   {
     id: "pm1",
     paciente: "María García",
@@ -87,7 +87,7 @@ const paymentMethods: PaymentMethod[] = [
   },
 ];
 
-const transactions: Transaction[] = [
+const DEMO_TRANSACTIONS: Transaction[] = [
   {
     id: "TX-001847",
     fecha: "2026-03-10",
@@ -180,41 +180,45 @@ const transactions: Transaction[] = [
   },
 ];
 
-const billingRules: { financiador: string; copago: boolean; monto: string; autoCharge: boolean }[] =
-  [
-    {
-      financiador: "OSDE",
-      copago: true,
-      monto: "$4.500 (consulta) / $6.200 (práctica)",
-      autoCharge: true,
-    },
-    {
-      financiador: "Swiss Medical",
-      copago: true,
-      monto: "$3.800 (consulta) / $5.500 (práctica)",
-      autoCharge: true,
-    },
-    { financiador: "PAMI", copago: false, monto: "Sin copago", autoCharge: false },
-    {
-      financiador: "Galeno",
-      copago: true,
-      monto: "$4.200 (consulta) / $6.800 (práctica)",
-      autoCharge: true,
-    },
-    {
-      financiador: "Medifé",
-      copago: true,
-      monto: "$3.500 (consulta) / $5.000 (práctica)",
-      autoCharge: false,
-    },
-    { financiador: "IOMA", copago: false, monto: "Sin copago", autoCharge: false },
-    {
-      financiador: "OSECAC",
-      copago: true,
-      monto: "$2.800 (consulta) / $4.500 (práctica)",
-      autoCharge: true,
-    },
-  ];
+const DEMO_BILLING_RULES: {
+  financiador: string;
+  copago: boolean;
+  monto: string;
+  autoCharge: boolean;
+}[] = [
+  {
+    financiador: "OSDE",
+    copago: true,
+    monto: "$4.500 (consulta) / $6.200 (práctica)",
+    autoCharge: true,
+  },
+  {
+    financiador: "Swiss Medical",
+    copago: true,
+    monto: "$3.800 (consulta) / $5.500 (práctica)",
+    autoCharge: true,
+  },
+  { financiador: "PAMI", copago: false, monto: "Sin copago", autoCharge: false },
+  {
+    financiador: "Galeno",
+    copago: true,
+    monto: "$4.200 (consulta) / $6.800 (práctica)",
+    autoCharge: true,
+  },
+  {
+    financiador: "Medifé",
+    copago: true,
+    monto: "$3.500 (consulta) / $5.000 (práctica)",
+    autoCharge: false,
+  },
+  { financiador: "IOMA", copago: false, monto: "Sin copago", autoCharge: false },
+  {
+    financiador: "OSECAC",
+    copago: true,
+    monto: "$2.800 (consulta) / $4.500 (práctica)",
+    autoCharge: true,
+  },
+];
 
 const estadoColor: Record<string, string> = {
   Aprobado: "bg-green-50 text-green-700",
@@ -238,6 +242,11 @@ export default function PagosConfigPage() {
   const { t } = useLocale();
   const isDemo = useIsDemo();
   const [tab, setTab] = useState<"overview" | "methods" | "transactions" | "rules">("overview");
+
+  // Data: show demo data only for demo clinics
+  const paymentMethods = isDemo ? DEMO_PAYMENT_METHODS : [];
+  const transactions = isDemo ? DEMO_TRANSACTIONS : [];
+  const billingRules = isDemo ? DEMO_BILLING_RULES : [];
   const [mpConnected] = useState(true);
   const [autoChargeEnabled, setAutoChargeEnabled] = useState(true);
   const [paymentLinkEnabled, setPaymentLinkEnabled] = useState(true);

@@ -281,22 +281,10 @@ export default function NuevaRecetaPage() {
         registrations: data.registrations,
       });
     } catch {
-      // Demo fallback
-      const mockId = "RX-" + Math.random().toString(36).slice(2, 10).toUpperCase();
-      const mockToken = Math.random().toString(36).slice(2, 14);
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      setCreated({
-        id: mockId,
-        verificationToken: mockToken,
-        verificationUrl: `${origin}/rx/${mockToken}`,
-        patientName: patientName.trim(),
-        medications: filteredMeds,
-        status: asDraft ? "draft" : "active",
-        registrations: {
-          osde: isOsde ? { status: asDraft ? "pending" : "registered" } : undefined,
-          rcta: !isOsde && coverage.coverageName ? { status: "pending_credentials" } : undefined,
-        },
-      });
+      showToast("Error al crear la receta. Intente nuevamente.", "error");
+      setCreating(false);
+      setLoadingLabel("");
+      return;
     }
 
     showToast(asDraft ? "Borrador guardado" : "Receta digital creada con exito");
