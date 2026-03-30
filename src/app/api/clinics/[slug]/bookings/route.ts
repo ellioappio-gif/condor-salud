@@ -87,7 +87,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
     }
 
     // Enrich with doctor names
-    const doctorIds = [...new Set((bookings ?? []).map((b) => b.doctor_id).filter(Boolean))];
+    const doctorIds = Array.from(new Set((bookings ?? []).map((b) => b.doctor_id).filter(Boolean)));
     let doctorMap: Record<string, string> = {};
     if (doctorIds.length > 0) {
       const { data: docs } = await sb

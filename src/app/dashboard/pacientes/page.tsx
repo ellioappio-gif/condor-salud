@@ -215,7 +215,9 @@ export default function PacientesPage() {
         breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Pacientes" }]}
         actions={
           activeTab === "leads" ? (
-            <Button onClick={handleNuevoLead}>+ Nueva consulta</Button>
+            <Button onClick={handleNuevoLead} data-tour="btn-nueva-consulta">
+              + Nueva consulta
+            </Button>
           ) : activeTab === "pacientes" ? (
             <div className="flex gap-2">
               <button
@@ -244,10 +246,15 @@ export default function PacientesPage() {
           active={activeTab === "leads"}
           onClick={() => setActiveTab("leads")}
           badge={leadTotal > 0 ? leadTotal : undefined}
+          data-tour="tab-leads"
         >
           Consultas nuevas
         </TabButton>
-        <TabButton active={activeTab === "pacientes"} onClick={() => setActiveTab("pacientes")}>
+        <TabButton
+          active={activeTab === "pacientes"}
+          onClick={() => setActiveTab("pacientes")}
+          data-tour="tab-pacientes"
+        >
           Pacientes
         </TabButton>
         <TabButton
@@ -309,16 +316,19 @@ function TabButton({
   onClick,
   badge,
   children,
+  "data-tour": dataTour,
 }: {
   active: boolean;
   onClick: () => void;
   badge?: number;
   children: React.ReactNode;
+  "data-tour"?: string;
 }) {
   return (
     <button
       role="tab"
       aria-selected={active}
+      data-tour={dataTour}
       className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
         active
           ? "border-celeste text-celeste-dark"
@@ -393,7 +403,7 @@ function LeadsTab({
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3" role="search" aria-label="Filtrar leads">
-        <div className="w-72">
+        <div className="w-72" data-tour="leads-search">
           <Input
             placeholder="Buscar por nombre, teléfono o email..."
             value={search}
@@ -416,7 +426,10 @@ function LeadsTab({
       {isLoading ? (
         <div className="text-center py-12 text-ink-muted">Cargando consultas...</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4"
+          data-tour="leads-pipeline"
+        >
           {PIPELINE_COLUMNS.map((col) => (
             <div key={col.key} className="space-y-2">
               <div className="flex items-center gap-2 pb-2 border-b border-border">
@@ -521,7 +534,7 @@ function PacientesTabView({
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3" role="search" aria-label="Buscar y filtrar pacientes">
-        <div className="w-72">
+        <div className="w-72" data-tour="pacientes-search">
           <Input
             placeholder="Buscar por nombre o DNI..."
             value={search}

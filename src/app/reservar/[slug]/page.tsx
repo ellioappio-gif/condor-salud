@@ -131,8 +131,8 @@ export default function PublicBookingPage() {
     if (!settings || !clinic?.operatingHours) return [];
     const dayName = ["dom", "lun", "mar", "mie", "jue", "vie", "sab"];
     const d = new Date(selectedDate + "T12:00:00");
-    const dayKey = dayName[d.getDay()];
-    const hours = clinic.operatingHours[dayKey];
+    const dayKey = dayName[d.getDay()] as string;
+    const hours = clinic.operatingHours[dayKey as keyof typeof clinic.operatingHours];
     if (!hours) return [];
 
     const slots: string[] = [];

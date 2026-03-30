@@ -26,7 +26,7 @@ export interface WhatsAppBookingResult {
 export async function handleBookingReply(
   fromPhone: string,
   messageBody: string,
-  clinicId: string,
+  clinicId?: string,
 ): Promise<WhatsAppBookingResult> {
   if (!isSupabaseConfigured()) {
     return { handled: false };
@@ -62,17 +62,17 @@ export async function handleBookingReply(
 
   if (isClinicPhone && (isConfirm || isReject)) {
     // Clinic staff is confirming/rejecting the most recent pending booking
-    return handleClinicAction(sbAny, clinicId, isConfirm ? "confirm" : "cancel", text);
+    return handleClinicAction(sbAny, clinicId || "", isConfirm ? "confirm" : "cancel", text);
   }
 
   if (isCancel) {
     // Patient is cancelling their booking
-    return handlePatientCancel(sbAny, clinicId, fromPhone);
+    return handlePatientCancel(sbAny, clinicId || "", fromPhone);
   }
 
   // Confirm from non-clinic phone — might be patient confirming attendance
   if (isConfirm) {
-    return handlePatientCancel(sbAny, clinicId, fromPhone); // no-op, just ack
+    return handlePatientCancel(sbAny, clinicId || "", fromPhone); // no-op, just ack
   }
 
   return { handled: false };

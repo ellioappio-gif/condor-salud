@@ -12,6 +12,10 @@ import { DemoModalProvider } from "@/components/DemoModal";
 const WhatsAppFloat = dynamic(() => import("@/components/WhatsAppFloat"), { ssr: false });
 const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
 const NotificationCenter = dynamic(() => import("@/components/NotificationCenter"), { ssr: false });
+const PageTourWrapper = dynamic(
+  () => import("@/components/PageTourWrapper").then((m) => ({ default: m.PageTourWrapper })),
+  { ssr: false },
+);
 
 import { SWRProvider } from "@/lib/swr";
 import { useAuth, useIsDemo } from "@/lib/auth/context";
@@ -430,6 +434,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {t("action.modifyPlan")}
             </Link>
           </div>
+          {/* Interactive guide launcher (recepcion only) */}
+          {user?.role === "recepcion" && (
+            <div className="mt-2 px-3">
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent("trigger-tour"))}
+                className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-ink-muted hover:text-celeste-dark hover:bg-celeste-pale rounded-lg transition w-full text-left"
+              >
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+                  />
+                </svg>
+                Guia interactiva
+              </button>
+            </div>
+          )}
         </nav>
 
         {/* Bottom user section */}
@@ -538,6 +566,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <DemoModalProvider>{children}</DemoModalProvider>
             </ToastProvider>
           </SWRProvider>
+          <PageTourWrapper />
         </main>
         <WhatsAppFloat />
         <Chatbot />

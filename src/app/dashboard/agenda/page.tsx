@@ -254,22 +254,25 @@ export default function AgendaPage() {
             <Download className="w-3.5 h-3.5" />
             Excel
           </button>
-          <button
-            onClick={() => setVista("semana")}
-            className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "semana" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
-          >
-            {t("label.week")}
-          </button>
-          <button
-            onClick={() => setVista("lista")}
-            className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "lista" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
-          >
-            {t("label.list")}
-          </button>
+          <div className="flex gap-0" data-tour="agenda-view-toggle">
+            <button
+              onClick={() => setVista("semana")}
+              className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "semana" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
+            >
+              {t("label.week")}
+            </button>
+            <button
+              onClick={() => setVista("lista")}
+              className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "lista" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}
+            >
+              {t("label.list")}
+            </button>
+          </div>
           <RequirePermission permission="agenda:write">
             <button
               onClick={() => setShowNewModal(true)}
               className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition flex items-center gap-1.5"
+              data-tour="btn-nuevo-turno"
             >
               <Plus className="w-4 h-4" /> {t("schedule.newAppointment")}
             </button>
@@ -278,7 +281,7 @@ export default function AgendaPage() {
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-tour="agenda-kpi">
         {[
           {
             label: t("schedule.totalAppointments"),
@@ -314,7 +317,7 @@ export default function AgendaPage() {
       </div>
 
       {/* Prof filter */}
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center" data-tour="agenda-profesional-filter">
         <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
           {t("label.professional")}:
         </span>
@@ -345,7 +348,10 @@ export default function AgendaPage() {
 
       {/* List view */}
       {!isLoading && vista === "lista" && (
-        <div className="bg-white border border-border rounded-lg overflow-hidden">
+        <div
+          className="bg-white border border-border rounded-lg overflow-hidden"
+          data-tour="agenda-table"
+        >
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">

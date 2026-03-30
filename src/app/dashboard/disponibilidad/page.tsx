@@ -313,6 +313,7 @@ export default function DisponibilidadPage() {
             onClick={saveChanges}
             disabled={saving}
             className="flex items-center gap-2 rounded-[4px] bg-celeste-dark px-4 py-2 text-sm font-medium text-white hover:bg-celeste-dark/90 disabled:opacity-50 transition-colors"
+            data-tour="disponibilidad-save"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {t("availability.saveChanges")}
@@ -322,7 +323,7 @@ export default function DisponibilidadPage() {
 
       {/* Doctor selector + week nav */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white rounded-[4px] border border-ink/10 p-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" data-tour="disponibilidad-doctor-select">
           <label className="text-sm font-medium text-ink/70">
             {t("availability.professional")}
           </label>
@@ -340,7 +341,7 @@ export default function DisponibilidadPage() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" data-tour="disponibilidad-week-nav">
           <button
             onClick={() => setWeekOffset((p) => p - 1)}
             className="rounded-[4px] border border-ink/20 p-2 hover:bg-ink/5 transition-colors"
@@ -390,7 +391,10 @@ export default function DisponibilidadPage() {
           <Loader2 className="h-6 w-6 animate-spin text-celeste-dark" />
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-[4px] border border-ink/10 bg-white">
+        <div
+          className="overflow-x-auto rounded-[4px] border border-ink/10 bg-white"
+          data-tour="disponibilidad-grid"
+        >
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-ink/5">

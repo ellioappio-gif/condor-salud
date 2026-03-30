@@ -48,17 +48,20 @@ type StatusFilter = "all" | "pending" | "confirmed" | "cancelled" | "completed" 
 
 // ─── Status badge helper ─────────────────────────────────────
 
-const STATUS_CONFIG: Record<string, { label: string; labelEn: string; color: string }> = {
+const STATUS_CONFIG = {
   pending: { label: "Pendiente", labelEn: "Pending", color: "bg-yellow-100 text-yellow-800" },
   notified: { label: "Notificada", labelEn: "Notified", color: "bg-blue-100 text-blue-800" },
   confirmed: { label: "Confirmada", labelEn: "Confirmed", color: "bg-green-100 text-green-800" },
   cancelled: { label: "Cancelada", labelEn: "Cancelled", color: "bg-red-100 text-red-800" },
   completed: { label: "Completada", labelEn: "Completed", color: "bg-gray-100 text-gray-700" },
   no_show: { label: "No asistió", labelEn: "No Show", color: "bg-orange-100 text-orange-800" },
-};
+} as const;
+
+type StatusKey = keyof typeof STATUS_CONFIG;
 
 function StatusBadge({ status, lang }: { status: string; lang: string }) {
-  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
+  const key = (status in STATUS_CONFIG ? status : "pending") as StatusKey;
+  const cfg = STATUS_CONFIG[key];
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}
@@ -163,7 +166,7 @@ export default function TurnosOnlinePage() {
         no_show: { es: "Marcado como no asistió", en: "Marked as no-show" },
       };
 
-      showToast(lang === "en" ? labels[action].en : labels[action].es, "success");
+      showToast(lang === "en" ? labels[action]!.en : labels[action]!.es, "success");
       fetchBookings();
     } catch (err) {
       showToast(
@@ -229,7 +232,10 @@ export default function TurnosOnlinePage() {
 
         {/* Public URL card */}
         {publicUrl && (
-          <div className="flex items-center gap-2 bg-surface border border-border rounded-lg px-4 py-2">
+          <div
+            className="flex items-center gap-2 bg-surface border border-border rounded-lg px-4 py-2"
+            data-tour="turnos-online-url"
+          >
             <Globe className="h-4 w-4 text-celeste shrink-0" />
             <span className="text-xs text-muted-foreground truncate max-w-[200px]">
               {publicUrl}
@@ -255,7 +261,10 @@ export default function TurnosOnlinePage() {
       </div>
 
       {/* Filters bar */}
-      <div className="flex flex-wrap items-center gap-3 bg-surface border border-border rounded-lg px-4 py-3">
+      <div
+        className="flex flex-wrap items-center gap-3 bg-surface border border-border rounded-lg px-4 py-3"
+        data-tour="turnos-online-filters"
+      >
         <Filter className="h-4 w-4 text-muted-foreground" />
         <select
           value={statusFilter}
@@ -303,7 +312,10 @@ export default function TurnosOnlinePage() {
       </div>
 
       {/* Bookings table */}
-      <div className="bg-white border border-border rounded-lg overflow-hidden">
+      <div
+        className="bg-white border border-border rounded-lg overflow-hidden"
+        data-tour="turnos-online-table"
+      >
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-celeste" />
@@ -408,7 +420,7 @@ export default function TurnosOnlinePage() {
                         <StatusBadge status={b.status} lang={lang} />
                       </td>
                       {/* Actions */}
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right" data-tour="turnos-online-actions">
                         <ActionButtons
                           booking={b}
                           loading={actionLoading === b.id}

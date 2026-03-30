@@ -15,9 +15,10 @@ const log = createClientLogger("clinic-notifications");
 
 export interface BookingNotifyInput {
   bookingId: string;
-  clinicId: string;
+  clinicId?: string;
   clinicName: string;
-  clinicEmail: string;
+  clinicEmail?: string;
+  clinicAddress?: string;
   clinicPhone: string | null;
   doctorName: string;
   patientName: string;
@@ -58,7 +59,7 @@ export async function notifyClinicNewBooking(input: BookingNotifyInput): Promise
   // 1. Email to clinic
   try {
     const emailResult = await sendEmail({
-      to: input.clinicEmail,
+      to: input.clinicEmail || "",
       subject: `Nuevo turno: ${input.patientName} — ${input.hora} ${dateFormatted}`,
       html: buildClinicBookingEmailHtml({
         ...input,
@@ -96,7 +97,7 @@ export async function notifyClinicNewBooking(input: BookingNotifyInput): Promise
       const waResult = await sendMessage({
         to: input.clinicPhone,
         body: waBody,
-        clinicId: input.clinicId,
+        clinicId: input.clinicId || "",
       });
       result.whatsappSent = waResult.success;
       result.whatsappSid = waResult.twilioSid;
@@ -218,7 +219,7 @@ export async function notifyPatientConfirmation(input: BookingNotifyInput): Prom
       const waResult = await sendMessage({
         to: input.patientPhone,
         body,
-        clinicId: input.clinicId,
+        clinicId: input.clinicId || "",
       });
       result.whatsappSent = waResult.success;
       result.whatsappSid = waResult.twilioSid;
@@ -300,7 +301,7 @@ export async function notifyPatientCancellation(
       const waResult = await sendMessage({
         to: input.patientPhone,
         body,
-        clinicId: input.clinicId,
+        clinicId: input.clinicId || "",
       });
       result.whatsappSent = waResult.success;
     } catch {
@@ -372,7 +373,7 @@ export async function sendBookingReminder(input: BookingNotifyInput): Promise<No
       const waResult = await sendMessage({
         to: input.patientPhone,
         body,
-        clinicId: input.clinicId,
+        clinicId: input.clinicId || "",
       });
       result.whatsappSent = waResult.success;
     } catch {
