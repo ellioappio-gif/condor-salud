@@ -101,7 +101,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
 
   const handleLogout = () => {
     localStorage.removeItem("condor_session");
-    router.push("/");
+    window.location.href = "/";
   };
 
   return (

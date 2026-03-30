@@ -266,8 +266,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   const handleLogout = async () => {
-    await logout();
-    router.push("/auth/login");
+    try {
+      await logout();
+    } catch {
+      // Best-effort — always redirect regardless
+    }
+    window.location.href = "/auth/login";
   };
 
   const displayName = user?.name || "Dr. Rodríguez";
