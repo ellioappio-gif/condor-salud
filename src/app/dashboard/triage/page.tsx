@@ -40,16 +40,16 @@ export default function TriagePage() {
   const { data: triages = [] } = useTriages();
   const { data: kpis } = useTriageKPIs();
 
-  const intakeHistory = triages.map((t) => ({
-    id: t.code || t.id,
-    patient: t.patientName,
-    date: t.date,
-    symptoms: t.symptoms || [],
-    severity: t.severity,
-    routedTo: t.routedSpecialty
-      ? `${t.routedSpecialty}${t.routedDoctor ? ` — ${t.routedDoctor}` : ""}`
-      : "Pendiente",
-    status: t.status,
+  const intakeHistory = triages.map((tr) => ({
+    id: tr.code || tr.id,
+    patient: tr.patientName,
+    date: tr.date,
+    symptoms: tr.symptoms || [],
+    severity: tr.severity,
+    routedTo: tr.routedSpecialty
+      ? `${tr.routedSpecialty}${tr.routedDoctor ? ` — ${tr.routedDoctor}` : ""}`
+      : t("label.pending"),
+    status: tr.status,
   }));
 
   const PAGE_SIZE = 25;
@@ -64,12 +64,12 @@ export default function TriagePage() {
   }, [tab]);
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "sintomas", label: "Síntomas" },
-    { key: "detalle", label: "Detalle" },
-    { key: "notas", label: "Notas paciente" },
-    { key: "intake", label: "Intake médico" },
-    { key: "clinicas", label: "Notas clínicas" },
-    { key: "routing", label: "Routing" },
+    { key: "sintomas", label: t("triage.symptoms") },
+    { key: "detalle", label: t("triage.detail") },
+    { key: "notas", label: t("triage.patientNotesTab") },
+    { key: "intake", label: t("triage.medicalIntake") },
+    { key: "clinicas", label: t("triage.clinicalNotes") },
+    { key: "routing", label: t("triage.routing") },
   ];
 
   const toggleSymptom = (symptom: string) => {
@@ -88,29 +88,34 @@ export default function TriagePage() {
     new Set(selectedSymptoms.map((s) => symptomToSpecialty[s]).filter(Boolean)),
   );
 
+  const statusLabels: Record<string, string> = {
+    Completado: t("triage.statusCompleted"),
+    Pendiente: t("label.pending"),
+  };
+
   const kpiCards = [
     {
-      label: "Triages hoy",
+      label: t("triage.todayCount"),
       value: kpis ? String(kpis.todayCount) : "",
-      change: kpis ? "Registrados" : "",
+      change: kpis ? t("triage.registered") : "",
       color: "text-celeste-dark",
     },
     {
-      label: "En espera",
+      label: t("triage.waiting"),
       value: kpis ? String(kpis.pending) : "",
-      change: kpis ? "Pendientes" : "",
+      change: kpis ? t("triage.pendingCount") : "",
       color: "text-gold",
     },
     {
-      label: "Derivados",
+      label: t("triage.referred"),
       value: kpis ? String(kpis.routed) : "",
-      change: kpis ? "Con especialidad" : "",
+      change: kpis ? t("triage.withSpecialty") : "",
       color: "text-celeste-dark",
     },
     {
-      label: "Alta severidad",
+      label: t("triage.highSeverity"),
       value: kpis ? String(kpis.highSeverity) : "",
-      change: kpis ? "Severidad >= 7" : "",
+      change: kpis ? t("triage.severityGte7") : "",
       color: "text-green-600",
     },
   ];
@@ -120,18 +125,16 @@ export default function TriagePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Triage de Síntomas</h1>
-          <p className="text-sm text-ink-light mt-1">
-            Registro de síntomas, notas médicas, intake pre-consulta y routing por especialidad
-          </p>
+          <h1 className="text-2xl font-display font-bold text-ink">{t("triage.title")}</h1>
+          <p className="text-sm text-ink-light mt-1">{t("triage.triageSubtitle")}</p>
         </div>
         <button
           onClick={() =>
-            !isDemo ? showToast(t("toast.triage.newTriage")) : showDemo("Nuevo triage de paciente")
+            !isDemo ? showToast(t("toast.triage.newTriage")) : showDemo(t("triage.newTriageDemo"))
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
-          + Nuevo triage
+          {t("triage.newTriage")}
         </button>
       </div>
 
@@ -152,17 +155,17 @@ export default function TriagePage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border overflow-x-auto">
-        {tabs.map((t) => (
+        {tabs.map((tb) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={tb.key}
+            onClick={() => setTab(tb.key)}
             className={`px-4 py-2.5 text-sm font-medium transition border-b-2 -mb-px whitespace-nowrap ${
-              tab === t.key
+              tab === tb.key
                 ? "border-celeste-dark text-celeste-dark"
                 : "border-transparent text-ink-muted hover:text-ink"
             }`}
           >
-            {t.label}
+            {tb.label}
           </button>
         ))}
       </div>
@@ -170,10 +173,7 @@ export default function TriagePage() {
       {/* ─── 14.1 Symptom Dropdown by Body System ─── */}
       {tab === "sintomas" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Seleccioná los síntomas del paciente organizados por sistema corporal. Multi-selección
-            habilitada.
-          </p>
+          <p className="text-sm text-ink-light">{t("triage.symptomsDesc")}</p>
 
           {selectedSymptoms.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -195,7 +195,7 @@ export default function TriagePage() {
                 onClick={() => setSelectedSymptoms([])}
                 className="text-xs text-ink-muted hover:text-red-500 transition"
               >
-                Limpiar todo
+                {t("triage.clearAll")}
               </button>
             </div>
           )}
@@ -229,7 +229,8 @@ export default function TriagePage() {
               onClick={() => setTab("detalle")}
               className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >
-              Continuar con detalle ({selectedSymptoms.length} síntomas)
+              {t("triage.continueWithSymptoms")} ({selectedSymptoms.length}{" "}
+              {t("triage.symptomsLower")})
             </button>
           )}
         </div>
@@ -238,13 +239,11 @@ export default function TriagePage() {
       {/* ─── 14.2 Symptom Detail Fields ─── */}
       {tab === "detalle" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Detallá duración, severidad, frecuencia y triggers de los síntomas seleccionados.
-          </p>
+          <p className="text-sm text-ink-light">{t("triage.detailDesc")}</p>
 
           {selectedSymptoms.length === 0 && (
             <div className="bg-gold-pale border border-gold/30 rounded-lg p-4 text-sm text-ink-light">
-              Primero seleccioná síntomas en la pestaña anterior.
+              {t("triage.selectSymptomsFirst")}
             </div>
           )}
 
@@ -263,10 +262,12 @@ export default function TriagePage() {
 
               {/* Duration */}
               <div>
-                <label className="text-xs text-ink-muted block mb-1">Duración</label>
+                <label className="text-xs text-ink-muted block mb-1">
+                  {t("triage.durationLabel")}
+                </label>
                 <input
                   type="text"
-                  placeholder="Ej: 3 días, 2 semanas, desde ayer..."
+                  placeholder={t("triage.durationPlaceholder")}
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                   className="w-full px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
@@ -276,7 +277,8 @@ export default function TriagePage() {
               {/* Severity */}
               <div>
                 <label className="text-xs text-ink-muted block mb-1">
-                  Severidad: <span className="font-bold text-ink">{severity}/10</span>{" "}
+                  {t("triage.severityLabel")}{" "}
+                  <span className="font-bold text-ink">{severity}/10</span>{" "}
                   <span className="text-celeste-dark">({severityLabels[severity]})</span>
                 </label>
                 <input
@@ -285,7 +287,7 @@ export default function TriagePage() {
                   max={10}
                   value={severity}
                   onChange={(e) => setSeverity(Number(e.target.value))}
-                  aria-label={`Severidad: ${severity} de 10`}
+                  aria-label={`${t("triage.severityLabel")} ${severity}/10`}
                   className="w-full accent-celeste-dark"
                 />
                 <div className="flex justify-between text-[10px] text-ink-muted">
@@ -297,7 +299,9 @@ export default function TriagePage() {
 
               {/* Frequency */}
               <div>
-                <label className="text-xs text-ink-muted block mb-1">Frecuencia</label>
+                <label className="text-xs text-ink-muted block mb-1">
+                  {t("triage.frequencyLabel")}
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {frequencyOptions.map((f) => (
                     <button
@@ -318,11 +322,11 @@ export default function TriagePage() {
               {/* Triggers */}
               <div>
                 <label className="text-xs text-ink-muted block mb-1">
-                  Triggers / Desencadenantes
+                  {t("triage.triggersLabel")}
                 </label>
                 <input
                   type="text"
-                  placeholder="Ej: al caminar, después de comer, en la mañana..."
+                  placeholder={t("triage.triggersPlaceholder")}
                   value={triggers}
                   onChange={(e) => setTriggers(e.target.value)}
                   className="w-full px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
@@ -333,15 +337,15 @@ export default function TriagePage() {
                 onClick={() =>
                   !isDemo
                     ? showToast(
-                        `Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
+                        `${t("triage.saveDetail")}: ${selectedSymptoms.join(", ")} — ${t("triage.severity")} ${severity}/10, ${frequency}, ${t("triage.durationLabel")}: ${duration || "N/A"}`,
                       )
                     : showDemo(
-                        `Guardar detalle: ${selectedSymptoms.join(", ")} — Severidad ${severity}/10, ${frequency}, Duración: ${duration || "N/A"}`,
+                        `${t("triage.saveDetail")}: ${selectedSymptoms.join(", ")} — ${t("triage.severity")} ${severity}/10, ${frequency}, ${t("triage.durationLabel")}: ${duration || "N/A"}`,
                       )
                 }
                 className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
               >
-                Guardar detalle
+                {t("triage.saveDetail")}
               </button>
             </div>
           )}
@@ -351,18 +355,15 @@ export default function TriagePage() {
       {/* ─── 14.3 Free-text Notes + Photos ─── */}
       {tab === "notas" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Notas de texto libre del paciente con opción de adjuntar fotos (heridas, erupciones,
-            estudios).
-          </p>
+          <p className="text-sm text-ink-light">{t("triage.notesDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg p-6 space-y-4">
             <div>
               <label className="text-xs text-ink-muted block mb-1">
-                Notas del paciente (texto libre)
+                {t("triage.patientNotes")}
               </label>
               <textarea
-                placeholder="El paciente describe sus síntomas en sus propias palabras..."
+                placeholder={t("triage.patientNotesPlaceholder")}
                 value={freeNotes}
                 onChange={(e) => setFreeNotes(e.target.value)}
                 rows={6}
@@ -371,23 +372,23 @@ export default function TriagePage() {
             </div>
 
             <div>
-              <label className="text-xs text-ink-muted block mb-1">Adjuntar fotos</label>
+              <label className="text-xs text-ink-muted block mb-1">
+                {t("triage.attachPhotos")}
+              </label>
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                <p className="text-sm text-ink-muted">
-                  Arrastrá imágenes aquí o hacé click para seleccionar
-                </p>
+                <p className="text-sm text-ink-muted">{t("triage.dragPhotos")}</p>
                 <p className="text-xs text-ink-muted mt-1">
-                  JPG, PNG hasta 10MB. Fotos de heridas, erupciones, estudios previos.
+                  {t("triage.photoFormat")}. {t("triage.photoExamples")}
                 </p>
                 <button
                   onClick={() =>
                     !isDemo
                       ? showToast(t("toast.triage.attachPhotos"))
-                      : showDemo("Adjuntar fotos al triage del paciente")
+                      : showDemo(t("triage.attachPhotosDemo"))
                   }
                   className="mt-3 px-4 py-2 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                 >
-                  Seleccionar archivos
+                  {t("triage.selectFiles")}
                 </button>
               </div>
             </div>
@@ -396,15 +397,15 @@ export default function TriagePage() {
               onClick={() =>
                 !isDemo
                   ? showToast(
-                      `Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
+                      `${t("triage.saveNotes")}: ${freeNotes.substring(0, 50) || t("triage.noNotes")}...`,
                     )
                   : showDemo(
-                      `Guardar notas del paciente: ${freeNotes.substring(0, 50) || "Sin notas"}...`,
+                      `${t("triage.saveNotes")}: ${freeNotes.substring(0, 50) || t("triage.noNotes")}...`,
                     )
               }
               className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >
-              Guardar notas
+              {t("triage.saveNotes")}
             </button>
           </div>
         </div>
@@ -413,23 +414,20 @@ export default function TriagePage() {
       {/* ─── 14.4 Doctor-Facing Intake Summary ─── */}
       {tab === "intake" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Resumen compilado antes de que comience la consulta. El médico ve todo el intake en un
-            solo lugar.
-          </p>
+          <p className="text-sm text-ink-light">{t("triage.intakeDesc")}</p>
 
           {/* Current intake preview */}
           <div className="bg-white border border-border rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-ink">Intake actual — Vista del médico</h3>
+              <h3 className="text-sm font-semibold text-ink">{t("triage.intakeView")}</h3>
               <span className="text-[10px] font-bold bg-celeste-pale text-celeste-dark px-2.5 py-1 rounded">
-                PRE-CONSULTA
+                {t("triage.preConsultation")}
               </span>
             </div>
 
             <div className="space-y-4">
               <div>
-                <p className="text-[10px] text-ink-muted mb-1">SÍNTOMAS REPORTADOS</p>
+                <p className="text-[10px] text-ink-muted mb-1">{t("triage.reportedSymptoms")}</p>
                 {selectedSymptoms.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5">
                     {selectedSymptoms.map((s) => (
@@ -442,13 +440,13 @@ export default function TriagePage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-ink-muted italic">Sin síntomas seleccionados</p>
+                  <p className="text-xs text-ink-muted italic">{t("triage.noSymptoms")}</p>
                 )}
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-[10px] text-ink-muted">Severidad</p>
+                  <p className="text-[10px] text-ink-muted">{t("triage.severity")}</p>
                   <p
                     className={`text-sm font-bold ${severity >= 7 ? "text-red-600" : severity >= 4 ? "text-gold" : "text-green-600"}`}
                   >
@@ -456,22 +454,22 @@ export default function TriagePage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-ink-muted">Frecuencia</p>
+                  <p className="text-[10px] text-ink-muted">{t("triage.frequencyLabel")}</p>
                   <p className="text-sm font-medium text-ink">{frequency}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-ink-muted">Duración</p>
+                  <p className="text-[10px] text-ink-muted">{t("triage.durationLabel")}</p>
                   <p className="text-sm font-medium text-ink">{duration || "—"}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-ink-muted">Triggers</p>
+                  <p className="text-[10px] text-ink-muted">{t("triage.triggersShort")}</p>
                   <p className="text-sm font-medium text-ink">{triggers || "—"}</p>
                 </div>
               </div>
 
               {freeNotes && (
                 <div>
-                  <p className="text-[10px] text-ink-muted mb-1">NOTAS DEL PACIENTE</p>
+                  <p className="text-[10px] text-ink-muted mb-1">{t("triage.patientNotesTitle")}</p>
                   <div className="bg-[#F8FAFB] rounded p-3 text-xs text-ink-light">{freeNotes}</div>
                 </div>
               )}
@@ -479,7 +477,7 @@ export default function TriagePage() {
           </div>
 
           {/* Intake history */}
-          <h3 className="text-sm font-semibold text-ink">Historial de intakes</h3>
+          <h3 className="text-sm font-semibold text-ink">{t("triage.intakeHistory")}</h3>
 
           {intakeHistory.length === 0 && (
             <EmptyState
@@ -496,19 +494,19 @@ export default function TriagePage() {
                     ID
                   </th>
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Paciente
+                    {t("label.patient")}
                   </th>
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Síntomas
+                    {t("triage.symptoms")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Severidad
+                    {t("triage.severity")}
                   </th>
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Derivado a
+                    {t("triage.routedTo")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Estado
+                    {t("label.status")}
                   </th>
                 </tr>
               </thead>
@@ -548,7 +546,7 @@ export default function TriagePage() {
                             : "bg-celeste-pale text-celeste-dark"
                         }`}
                       >
-                        {h.status}
+                        {statusLabels[h.status] ?? h.status}
                       </span>
                     </td>
                   </tr>
@@ -568,15 +566,13 @@ export default function TriagePage() {
       {/* ─── 14.5 Doctor Clinical Notes ─── */}
       {tab === "clinicas" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Notas clínicas post-consulta: diagnóstico ICD-10, plan de tratamiento, derivaciones.
-          </p>
+          <p className="text-sm text-ink-light">{t("triage.clinicalNotesDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg p-6 space-y-5">
             {/* ICD-10 selector */}
             <div>
               <label className="text-xs text-ink-muted block mb-2">
-                Diagnóstico ICD-10 (selección múltiple)
+                {t("triage.diagnosisIcd10")}
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {icd10Codes.map((icd) => (
@@ -605,9 +601,11 @@ export default function TriagePage() {
 
             {/* Clinical notes */}
             <div>
-              <label className="text-xs text-ink-muted block mb-1">Notas clínicas del médico</label>
+              <label className="text-xs text-ink-muted block mb-1">
+                {t("triage.clinicalNotesDoctor")}
+              </label>
               <textarea
-                placeholder="Hallazgos, observaciones, evolución del cuadro..."
+                placeholder={t("triage.clinicalNotesPlaceholder")}
                 value={clinicalNotes}
                 onChange={(e) => setClinicalNotes(e.target.value)}
                 rows={4}
@@ -617,9 +615,11 @@ export default function TriagePage() {
 
             {/* Treatment plan */}
             <div>
-              <label className="text-xs text-ink-muted block mb-1">Plan de tratamiento</label>
+              <label className="text-xs text-ink-muted block mb-1">
+                {t("triage.treatmentPlan")}
+              </label>
               <textarea
-                placeholder="Medicación, indicaciones, reposo, estudios a solicitar..."
+                placeholder={t("triage.treatmentPlaceholder")}
                 value={treatmentPlan}
                 onChange={(e) => setTreatmentPlan(e.target.value)}
                 rows={3}
@@ -630,14 +630,14 @@ export default function TriagePage() {
             {/* Referrals */}
             <div>
               <label className="text-xs text-ink-muted block mb-1" id="lbl-derivaciones">
-                Derivaciones
+                {t("triage.referrals")}
               </label>
               <div className="flex gap-2">
                 <select
                   aria-labelledby="lbl-derivaciones"
                   className="flex-1 px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
                 >
-                  <option value="">Sin derivación</option>
+                  <option value="">{t("triage.noReferral")}</option>
                   <option>Cardiología</option>
                   <option>Neurología</option>
                   <option>Traumatología</option>
@@ -651,11 +651,11 @@ export default function TriagePage() {
                   onClick={() =>
                     !isDemo
                       ? showToast(t("toast.triage.addReferral"))
-                      : showDemo("Agregar derivación al directorio médico")
+                      : showDemo(t("triage.addReferralDemo"))
                   }
                   className="px-4 py-2.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                 >
-                  Agregar
+                  {t("triage.addReferral")}
                 </button>
               </div>
             </div>
@@ -665,29 +665,25 @@ export default function TriagePage() {
                 onClick={() =>
                   !isDemo
                     ? showToast(
-                        `Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
+                        `${t("triage.saveClinicalNote")}: ICD-10 ${selectedICD.join(", ") || "N/A"} — ${t("triage.treatmentPlan")}: ${treatmentPlan.substring(0, 50) || "N/A"}`,
                       )
                     : showDemo(
-                        `Guardar nota clínica: ICD-10 ${selectedICD.join(", ") || "N/A"} — Plan: ${treatmentPlan.substring(0, 50) || "N/A"}`,
+                        `${t("triage.saveClinicalNote")}: ICD-10 ${selectedICD.join(", ") || "N/A"} — ${t("triage.treatmentPlan")}: ${treatmentPlan.substring(0, 50) || "N/A"}`,
                       )
                 }
                 className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
               >
-                Guardar nota clínica
+                {t("triage.saveClinicalNote")}
               </button>
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast(
-                        "Generar receta digital desde notas clínicas y enviar a Farmacia Online",
-                      )
-                    : showDemo(
-                        "Generar receta digital desde notas clínicas y enviar a Farmacia Online",
-                      )
+                    ? showToast(t("triage.generatePrescriptionToast"))
+                    : showDemo(t("triage.generatePrescriptionToast"))
                 }
                 className="px-5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700 transition"
               >
-                Generar receta
+                {t("triage.generatePrescription")}
               </button>
             </div>
           </div>
@@ -697,14 +693,11 @@ export default function TriagePage() {
       {/* ─── 14.6 Symptom → Specialist Routing ─── */}
       {tab === "routing" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Los síntomas seleccionados se cruzan automáticamente con especialidades médicas para
-            derivar al paciente al directorio correcto.
-          </p>
+          <p className="text-sm text-ink-light">{t("triage.routingDescFull")}</p>
 
           {selectedSymptoms.length === 0 ? (
             <div className="bg-gold-pale border border-gold/30 rounded-lg p-4 text-sm text-ink-light">
-              Seleccioná síntomas en la primera pestaña para ver las especialidades recomendadas.
+              {t("triage.routingSelectSymptoms")}
             </div>
           ) : (
             <div className="space-y-4">
@@ -714,10 +707,10 @@ export default function TriagePage() {
                   <thead>
                     <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
                       <th scope="col" className="text-left font-medium px-5 py-3">
-                        Síntoma
+                        {t("triage.symptomSingular")}
                       </th>
                       <th scope="col" className="text-left font-medium px-5 py-3">
-                        Especialidad sugerida
+                        {t("triage.suggestedSpecialty")}
                       </th>
                       <th scope="col" className="text-right font-medium px-5 py-3"></th>
                     </tr>
@@ -739,15 +732,15 @@ export default function TriagePage() {
                             onClick={() =>
                               !isDemo
                                 ? showToast(
-                                    `Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
+                                    `${t("triage.searchDoctorsIn")} ${symptomToSpecialty[s] || "Clínica médica"} ${t("triage.inDirectory")}`,
                                   )
                                 : showDemo(
-                                    `Buscar médicos de ${symptomToSpecialty[s] || "Clínica médica"} en Directorio`,
+                                    `${t("triage.searchDoctorsIn")} ${symptomToSpecialty[s] || "Clínica médica"} ${t("triage.inDirectory")}`,
                                   )
                             }
                             className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                           >
-                            Ver médicos
+                            {t("triage.viewDoctors")}
                           </button>
                         </td>
                       </tr>
@@ -758,9 +751,11 @@ export default function TriagePage() {
 
               {/* Summary */}
               <div className="bg-celeste-pale border border-celeste-dark/20 rounded-lg p-5">
-                <h4 className="text-sm font-semibold text-ink mb-2">Derivación sugerida</h4>
+                <h4 className="text-sm font-semibold text-ink mb-2">
+                  {t("triage.suggestedReferral")}
+                </h4>
                 <p className="text-xs text-ink-light">
-                  Basado en los síntomas seleccionados, se recomienda consulta con:{" "}
+                  {t("triage.basedOnSymptomsConsult")}{" "}
                   <span className="font-bold text-celeste-dark">
                     {routedSpecialties.length > 0
                       ? routedSpecialties.join(", ")
@@ -771,15 +766,15 @@ export default function TriagePage() {
                   onClick={() =>
                     !isDemo
                       ? showToast(
-                          `Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
+                          `${t("triage.openDirectoryFiltered")} ${routedSpecialties.join(", ") || "Clínica médica"}`,
                         )
                       : showDemo(
-                          `Abrir Directorio Médico filtrado por: ${routedSpecialties.join(", ") || "Clínica médica"}`,
+                          `${t("triage.openDirectoryFiltered")} ${routedSpecialties.join(", ") || "Clínica médica"}`,
                         )
                   }
                   className="mt-3 px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
                 >
-                  Buscar en Directorio
+                  {t("triage.searchInDirectory")}
                 </button>
               </div>
             </div>

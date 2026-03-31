@@ -53,19 +53,19 @@ type StatusFilter = "all" | "draft" | "active" | "sent" | "dispensed" | "expired
 type CoverageFilter = "all" | "osde" | "obra_social" | "prepaga" | "particular";
 
 const STATUS_TABS: { key: StatusFilter; label: string }[] = [
-  { key: "all", label: "Todas" },
-  { key: "draft", label: "Borradores" },
-  { key: "active", label: "Activas" },
-  { key: "sent", label: "Enviadas" },
-  { key: "dispensed", label: "Dispensadas" },
+  { key: "all", label: "prescriptions.statusAll" },
+  { key: "draft", label: "prescriptions.statusDraft" },
+  { key: "active", label: "prescriptions.statusActive" },
+  { key: "sent", label: "prescriptions.statusSent" },
+  { key: "dispensed", label: "prescriptions.statusDispensed" },
 ];
 
 const COVERAGE_FILTERS: { key: CoverageFilter; label: string }[] = [
-  { key: "all", label: "Todas" },
-  { key: "osde", label: "OSDE" },
-  { key: "obra_social", label: "Obra Social" },
-  { key: "prepaga", label: "Prepaga" },
-  { key: "particular", label: "Particular" },
+  { key: "all", label: "prescriptions.coverageAll" },
+  { key: "osde", label: "prescriptions.coverageOsde" },
+  { key: "obra_social", label: "prescriptions.coverageObraSocial" },
+  { key: "prepaga", label: "prescriptions.coveragePrepaga" },
+  { key: "particular", label: "prescriptions.coverageParticular" },
 ];
 
 const PREPAGA_NAMES = [
@@ -206,13 +206,13 @@ export default function RecetasPage() {
       );
 
       const msgMap: Record<string, string> = {
-        issue: "Receta emitida exitosamente",
-        send: "Receta enviada al paciente",
-        cancel: "Receta anulada",
+        issue: t("prescriptions.toastIssued"),
+        send: t("prescriptions.toastSent"),
+        cancel: t("prescriptions.toastCancelled"),
       };
-      showToast(msgMap[action] || "Accion completada");
+      showToast(msgMap[action] || t("prescriptions.toastCompleted"));
     } catch {
-      showToast("Error al procesar la receta. Intente nuevamente.", "error");
+      showToast(t("prescriptions.toastError"), "error");
     }
   }
 
@@ -229,17 +229,15 @@ export default function RecetasPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Recetas Digitales</h1>
-          <p className="text-sm text-ink/60 mt-0.5">
-            Gestion completa del ciclo de vida de prescripciones
-          </p>
+          <h1 className="text-2xl font-display font-bold text-ink">{t("prescriptions.title")}</h1>
+          <p className="text-sm text-ink/60 mt-0.5">{t("prescriptions.subtitle")}</p>
         </div>
         <Link
           href="/dashboard/recetas/nueva"
           className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Nueva Receta
+          {t("prescriptions.newPrescription")}
         </Link>
       </div>
 
@@ -257,36 +255,46 @@ export default function RecetasPage() {
             <div className="bg-white border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 text-ink/50 mb-1">
                 <Calendar className="w-4 h-4" />
-                <span className="text-[10px] font-bold uppercase">Este mes</span>
+                <span className="text-[10px] font-bold uppercase">
+                  {t("prescriptions.thisMonth")}
+                </span>
               </div>
               <p className="text-2xl font-bold text-ink">{thisMonth.length}</p>
-              <p className="text-[10px] text-ink/40">prescripciones emitidas</p>
+              <p className="text-[10px] text-ink/40">{t("prescriptions.prescriptionsIssued")}</p>
             </div>
             <div className="bg-white border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 text-ink/50 mb-1">
                 <Pill className="w-4 h-4" />
-                <span className="text-[10px] font-bold uppercase">Mas prescripto</span>
+                <span className="text-[10px] font-bold uppercase">
+                  {t("prescriptions.mostPrescribed")}
+                </span>
               </div>
               <p className="text-lg font-bold text-ink truncate">{topDrug?.[0] ?? "—"}</p>
               <p className="text-[10px] text-ink/40">
-                {topDrug ? `${topDrug[1]} recetas` : "sin datos"}
+                {topDrug
+                  ? `${topDrug[1]} ${t("prescriptions.prescriptionsCount")}`
+                  : t("prescriptions.noData")}
               </p>
             </div>
             <div className="bg-white border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 text-green-600 mb-1">
                 <Shield className="w-4 h-4" />
-                <span className="text-[10px] font-bold uppercase">RCTA Registradas</span>
+                <span className="text-[10px] font-bold uppercase">
+                  {t("prescriptions.rctaRegistered")}
+                </span>
               </div>
               <p className="text-2xl font-bold text-green-700">{rctaRegistered}</p>
-              <p className="text-[10px] text-ink/40">via QBI2 Innovamed</p>
+              <p className="text-[10px] text-ink/40">{t("prescriptions.viaQbi2")}</p>
             </div>
             <div className="bg-white border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 text-blue-600 mb-1">
                 <TrendingUp className="w-4 h-4" />
-                <span className="text-[10px] font-bold uppercase">OSDE Registradas</span>
+                <span className="text-[10px] font-bold uppercase">
+                  {t("prescriptions.osdeRegistered")}
+                </span>
               </div>
               <p className="text-2xl font-bold text-blue-700">{osdeRegistered}</p>
-              <p className="text-[10px] text-ink/40">via FHIR 4.0</p>
+              <p className="text-[10px] text-ink/40">{t("prescriptions.viaFhir")}</p>
             </div>
           </div>
 
@@ -304,7 +312,7 @@ export default function RecetasPage() {
                       : "text-ink/50 hover:text-ink/70"
                   }`}
                 >
-                  {tab.label}
+                  {t(tab.label)}
                   <span className="ml-1.5 text-[10px] opacity-60">
                     {counts[tab.key as keyof typeof counts] ?? ""}
                   </span>
@@ -322,7 +330,7 @@ export default function RecetasPage() {
               }`}
             >
               <Filter className="w-3.5 h-3.5" />
-              Filtros
+              {t("prescriptions.filters")}
               {coverageFilter !== "all" && (
                 <span className="bg-celeste text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   1
@@ -336,7 +344,7 @@ export default function RecetasPage() {
             <div className="bg-surface/50 border border-border rounded-xl p-4 flex flex-wrap gap-4 items-end">
               <div>
                 <label className="text-[10px] font-bold text-ink/50 uppercase block mb-1.5">
-                  Cobertura
+                  {t("prescriptions.coverageLabel")}
                 </label>
                 <div className="flex items-center gap-1">
                   {COVERAGE_FILTERS.map((cf) => (
@@ -349,7 +357,7 @@ export default function RecetasPage() {
                           : "text-ink/50 hover:text-ink/70 hover:bg-white/50"
                       }`}
                     >
-                      {cf.label}
+                      {t(cf.label)}
                     </button>
                   ))}
                 </div>
@@ -362,7 +370,7 @@ export default function RecetasPage() {
                 }}
                 className="text-xs text-red-500 hover:text-red-700 font-semibold"
               >
-                Limpiar filtros
+                {t("prescriptions.clearFilters")}
               </button>
             </div>
           )}
@@ -372,7 +380,7 @@ export default function RecetasPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/40" />
             <input
               type="text"
-              placeholder="Buscar por paciente, DNI o medicamento..."
+              placeholder={t("prescriptions.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
@@ -382,8 +390,13 @@ export default function RecetasPage() {
           {/* ── Results summary ── */}
           <div className="flex items-center justify-between">
             <p className="text-xs text-ink/50">
-              {filtered.length} receta{filtered.length !== 1 ? "s" : ""}
-              {statusFilter !== "all" || coverageFilter !== "all" ? " (filtradas)" : ""}
+              {filtered.length}{" "}
+              {filtered.length !== 1
+                ? t("prescriptions.resultCountPlural")
+                : t("prescriptions.resultCount")}
+              {statusFilter !== "all" || coverageFilter !== "all"
+                ? ` ${t("prescriptions.filtered")}`
+                : ""}
             </p>
           </div>
 
@@ -391,11 +404,11 @@ export default function RecetasPage() {
           {filtered.length === 0 ? (
             <div className="text-center py-16 bg-surface rounded-2xl">
               <QrCode className="w-12 h-12 text-ink/20 mx-auto mb-3" />
-              <p className="font-semibold text-ink">No hay recetas</p>
+              <p className="font-semibold text-ink">{t("prescriptions.noPrescriptions")}</p>
               <p className="text-sm text-ink/50 mt-1">
                 {statusFilter !== "all" || coverageFilter !== "all"
-                  ? "No hay recetas que coincidan con los filtros seleccionados"
-                  : "Crea tu primera receta digital con codigo QR"}
+                  ? t("prescriptions.noMatchFilter")
+                  : t("prescriptions.createFirst")}
               </p>
             </div>
           ) : (
@@ -454,7 +467,7 @@ export default function RecetasPage() {
                           <button
                             onClick={() => handleAction(rx.id, "issue")}
                             className="p-1.5 hover:bg-green-50 rounded transition text-green-600"
-                            title="Emitir receta"
+                            title={t("prescriptions.issuePrescription")}
                           >
                             <CheckCircle2 className="w-4 h-4" />
                           </button>
@@ -463,7 +476,7 @@ export default function RecetasPage() {
                           <button
                             onClick={() => handleAction(rx.id, "send")}
                             className="p-1.5 hover:bg-blue-50 rounded transition text-blue-600"
-                            title="Enviar al paciente"
+                            title={t("prescriptions.sendToPatient")}
                           >
                             <Send className="w-4 h-4" />
                           </button>
@@ -472,7 +485,7 @@ export default function RecetasPage() {
                           <button
                             onClick={() => copyVerificationUrl(rx.verificationToken)}
                             className="p-1.5 hover:bg-surface rounded transition"
-                            title="Copiar URL QR"
+                            title={t("prescriptions.copyQrUrl")}
                           >
                             <Copy className="w-3.5 h-3.5 text-ink/50" />
                           </button>
@@ -480,7 +493,7 @@ export default function RecetasPage() {
                         <button
                           onClick={() => handleAction(rx.id, "repeat")}
                           className="p-1.5 hover:bg-surface rounded transition"
-                          title="Repetir receta"
+                          title={t("prescriptions.repeatPrescription")}
                         >
                           <RefreshCw className="w-3.5 h-3.5 text-ink/50" />
                         </button>
@@ -499,7 +512,7 @@ export default function RecetasPage() {
                           {/* Medications detail */}
                           <div>
                             <p className="text-[10px] font-bold text-ink/50 uppercase mb-2">
-                              Medicamentos ({rx.medications.length}/3)
+                              {t("prescriptions.medicationsLabel")} ({rx.medications.length}/3)
                             </p>
                             <div className="space-y-1.5">
                               {rx.medications.map((m, idx) => (
@@ -512,7 +525,7 @@ export default function RecetasPage() {
                                   </p>
                                   {m.genericName && (
                                     <p className="text-[10px] text-ink/40">
-                                      Generico: {m.genericName}
+                                      {t("prescriptions.generic")}: {m.genericName}
                                     </p>
                                   )}
                                   <p className="text-[10px] text-ink/50">
@@ -524,7 +537,7 @@ export default function RecetasPage() {
                             {rx.diagnosis && (
                               <div className="mt-3">
                                 <p className="text-[10px] font-bold text-ink/50 uppercase mb-1">
-                                  Diagnostico
+                                  {t("prescriptions.diagnosisLabel")}
                                 </p>
                                 <p className="text-xs text-ink/70">{rx.diagnosis}</p>
                               </div>
@@ -535,7 +548,7 @@ export default function RecetasPage() {
                           <div className="space-y-3">
                             <div>
                               <p className="text-[10px] font-bold text-ink/50 uppercase mb-2">
-                                Acciones
+                                {t("prescriptions.actions")}
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {rx.status === "draft" && (
@@ -544,7 +557,7 @@ export default function RecetasPage() {
                                     className="inline-flex items-center gap-1.5 text-xs font-semibold bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition"
                                   >
                                     <CheckCircle2 className="w-3 h-3" />
-                                    Emitir
+                                    {t("prescriptions.issue")}
                                   </button>
                                 )}
                                 {(rx.status === "active" || rx.status === "sent") && (
@@ -554,7 +567,7 @@ export default function RecetasPage() {
                                       className="inline-flex items-center gap-1.5 text-xs font-semibold bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition"
                                     >
                                       <Send className="w-3 h-3" />
-                                      Enviar WhatsApp
+                                      {t("prescriptions.sendWhatsapp")}
                                     </button>
                                     <a
                                       href={`/rx/${rx.verificationToken}`}
@@ -563,7 +576,7 @@ export default function RecetasPage() {
                                       className="inline-flex items-center gap-1.5 text-xs font-semibold border border-border text-ink/70 px-3 py-1.5 rounded-md hover:bg-surface transition"
                                     >
                                       <ExternalLink className="w-3 h-3" />
-                                      Ver receta
+                                      {t("prescriptions.viewPrescription")}
                                     </a>
                                   </>
                                 )}
@@ -583,7 +596,7 @@ export default function RecetasPage() {
                                   className="inline-flex items-center gap-1.5 text-xs font-semibold border border-border text-ink/70 px-3 py-1.5 rounded-md hover:bg-surface transition"
                                 >
                                   <RefreshCw className="w-3 h-3" />
-                                  Repetir
+                                  {t("prescriptions.repeat")}
                                 </button>
                                 {rx.status !== "cancelled" &&
                                   rx.status !== "expired" &&
@@ -593,7 +606,7 @@ export default function RecetasPage() {
                                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50 transition"
                                     >
                                       <Ban className="w-3 h-3" />
-                                      Anular
+                                      {t("prescriptions.cancel")}
                                     </button>
                                   )}
                               </div>
@@ -609,7 +622,7 @@ export default function RecetasPage() {
                                   </span>
                                 </div>
                                 <p className="text-[11px] text-green-700">
-                                  Registrada en RCTA — ID:{" "}
+                                  {t("prescriptions.rctaRegisteredInfo")}{" "}
                                   <span className="font-mono font-semibold">
                                     {rx.rcta.prescriptionId}
                                   </span>
@@ -622,11 +635,11 @@ export default function RecetasPage() {
                                 <div className="flex items-center gap-1.5 mb-1">
                                   <Clock className="w-3.5 h-3.5 text-amber-600" />
                                   <span className="text-[10px] font-bold text-amber-800 uppercase">
-                                    Credenciales RCTA pendientes
+                                    {t("prescriptions.rctaPendingCredentials")}
                                   </span>
                                 </div>
                                 <p className="text-[11px] text-amber-700">
-                                  PDF generado. Solicitar credenciales Innovamed:{" "}
+                                  {t("prescriptions.rctaPendingMsg")}{" "}
                                   <a
                                     href="https://wa.me/5491121935123"
                                     target="_blank"
@@ -644,11 +657,11 @@ export default function RecetasPage() {
                                 <div className="flex items-center gap-1.5 mb-1">
                                   <XCircle className="w-3.5 h-3.5 text-red-600" />
                                   <span className="text-[10px] font-bold text-red-800 uppercase">
-                                    Error RCTA
+                                    {t("prescriptions.rctaErrorLabel")}
                                   </span>
                                 </div>
                                 <p className="text-[11px] text-red-700">
-                                  No se pudo registrar en RCTA. Se genero PDF de respaldo.
+                                  {t("prescriptions.rctaErrorMsg")}
                                 </p>
                               </div>
                             )}
@@ -663,8 +676,7 @@ export default function RecetasPage() {
                                   </span>
                                 </div>
                                 <p className="text-[11px] text-blue-700">
-                                  Prescripcion registrada en el sistema electronico de OSDE.
-                                  Conforme Res. MSN 1314/2023.
+                                  {t("prescriptions.osdeInfo")}
                                 </p>
                               </div>
                             )}
@@ -672,7 +684,8 @@ export default function RecetasPage() {
                             {/* Coverage */}
                             {rx.coverageName && (
                               <p className="text-[11px] text-ink/50">
-                                Cobertura: <span className="font-semibold">{rx.coverageName}</span>
+                                {t("prescriptions.coverageInline")}{" "}
+                                <span className="font-semibold">{rx.coverageName}</span>
                               </p>
                             )}
                           </div>

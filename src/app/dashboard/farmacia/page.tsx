@@ -38,11 +38,11 @@ export default function FarmaciaPage() {
   const { data: kpis } = useFarmaciaKPIs();
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "catalogo", label: "Catálogo" },
-    { key: "recetas", label: "Recetas" },
-    { key: "delivery", label: "Delivery" },
-    { key: "copago", label: "Copago" },
-    { key: "recurrentes", label: "Recurrentes" },
+    { key: "catalogo", label: t("pharmacy.catalog") },
+    { key: "recetas", label: t("pharmacy.prescriptions") },
+    { key: "delivery", label: t("pharmacy.delivery") },
+    { key: "copago", label: t("pharmacy.copay") },
+    { key: "recurrentes", label: t("pharmacy.recurring") },
   ];
 
   const meds = medications;
@@ -71,48 +71,70 @@ export default function FarmaciaPage() {
 
   const kpiCards = [
     {
-      label: "Pedidos hoy",
+      label: t("pharmacy.ordersToday"),
       value: kpis ? String(kpis.ordersToday) : "",
-      change: kpis ? "Desde servicio" : "",
+      change: kpis ? t("pharmacy.fromService") : "",
       color: "text-celeste-dark",
     },
     {
-      label: "En camino",
+      label: t("pharmacy.inTransit"),
       value: kpis ? String(kpis.inTransit) : "",
       change: kpis ? "Rappi + PedidosYa" : "",
       color: "text-celeste-dark",
     },
     {
-      label: "Recetas pendientes",
+      label: t("pharmacy.pendingRx"),
       value: kpis ? String(kpis.pendingRx) : "",
-      change: kpis ? "Pendientes" : "",
+      change: kpis ? t("pharmacy.pendingStatus") : "",
       color: "text-gold",
     },
     {
-      label: "Recurrentes activos",
+      label: t("pharmacy.activeRecurring"),
       value: kpis ? String(kpis.activeRecurring) : "",
-      change: kpis ? "Activos" : "",
+      change: kpis ? t("pharmacy.activeStatus") : "",
       color: "text-green-600",
     },
   ];
+
+  // ─── Translation lookup maps for data-driven statuses ───
+  const stockLabels: Record<string, string> = {
+    Disponible: t("pharmacy.stockAvailable"),
+    "Sin stock": t("pharmacy.stockOut"),
+  };
+  const rxStatusLabels: Record<string, string> = {
+    Pendiente: t("pharmacy.statusPending"),
+    "En carrito": t("pharmacy.statusInCart"),
+  };
+  const deliveryStatusLabels: Record<string, string> = {
+    "En camino": t("pharmacy.statusInTransit"),
+    Preparando: t("pharmacy.statusPreparing"),
+    Entregado: t("pharmacy.statusDelivered"),
+  };
+  const orderStatusLabels: Record<string, string> = {
+    Activo: t("pharmacy.statusActive"),
+    Pausado: t("pharmacy.statusPaused"),
+  };
+  const financiadorLabels: Record<string, string> = {
+    PAMI: "PAMI",
+    "Obra Social": t("pharmacy.obraSocial"),
+    Prepaga: t("pharmacy.prepaid"),
+  };
 
   return (
     <div id="main-content" className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-ink">Farmacia Online</h1>
-          <p className="text-sm text-ink-light mt-1">
-            Catálogo de medicamentos con delivery y cobertura por financiador
-          </p>
+          <h1 className="text-2xl font-display font-bold text-ink">{t("pharmacy.title")}</h1>
+          <p className="text-sm text-ink-light mt-1">{t("pharmacy.catalogSubtitle")}</p>
         </div>
         <button
           onClick={() =>
-            !isDemo ? showToast(t("toast.farmacia.newRx")) : showDemo("Nueva receta digital")
+            !isDemo ? showToast(t("toast.farmacia.newRx")) : showDemo(t("pharmacy.newDigitalRx"))
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
-          + Nueva receta
+          {t("pharmacy.newPrescription")}
         </button>
       </div>
 
@@ -154,8 +176,8 @@ export default function FarmaciaPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
-              placeholder="Buscar medicamento o laboratorio..."
-              aria-label="Buscar medicamento o laboratorio"
+              placeholder={t("pharmacy.searchPlaceholder")}
+              aria-label={t("pharmacy.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
@@ -163,11 +185,13 @@ export default function FarmaciaPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              aria-label="Filtrar por categoría"
+              aria-label={t("pharmacy.filterByCategory")}
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {categories.map((c) => (
-                <option key={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c === "Todas" ? t("pharmacy.allCategories") : c}
+                </option>
               ))}
             </select>
           </div>
@@ -186,16 +210,16 @@ export default function FarmaciaPage() {
                   <thead>
                     <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
                       <th scope="col" className="text-left font-medium px-5 py-3">
-                        Medicamento
+                        {t("pharmacy.medication")}
                       </th>
                       <th scope="col" className="text-left font-medium px-5 py-3">
-                        Laboratorio
+                        {t("pharmacy.lab")}
                       </th>
                       <th scope="col" className="text-left font-medium px-5 py-3">
-                        Categoría
+                        {t("pharmacy.category")}
                       </th>
                       <th scope="col" className="text-right font-medium px-5 py-3">
-                        Precio
+                        {t("pharmacy.price")}
                       </th>
                       <th scope="col" className="text-center font-medium px-5 py-3">
                         PAMI
@@ -204,10 +228,10 @@ export default function FarmaciaPage() {
                         OS
                       </th>
                       <th scope="col" className="text-center font-medium px-5 py-3">
-                        Prepaga
+                        {t("pharmacy.prepaid")}
                       </th>
                       <th scope="col" className="text-center font-medium px-5 py-3">
-                        Stock
+                        {t("pharmacy.stock")}
                       </th>
                       <th scope="col" className="text-right font-medium px-5 py-3"></th>
                     </tr>
@@ -250,20 +274,24 @@ export default function FarmaciaPage() {
                                   : "bg-gold-pale text-gold"
                             }`}
                           >
-                            {med.stock}
+                            {stockLabels[med.stock] ?? med.stock}
                           </span>
                         </td>
                         <td className="px-5 py-3 text-right">
                           <button
                             onClick={() =>
                               !isDemo
-                                ? showToast(`Agregar ${med.name} al carrito`)
-                                : showDemo(`Agregar ${med.name} al carrito`)
+                                ? showToast(
+                                    t("pharmacy.toast.addToCart").replace("{name}", med.name),
+                                  )
+                                : showDemo(
+                                    t("pharmacy.toast.addToCart").replace("{name}", med.name),
+                                  )
                             }
                             className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                             disabled={med.stock === "Sin stock"}
                           >
-                            {med.stock === "Sin stock" ? "—" : "Agregar"}
+                            {med.stock === "Sin stock" ? "—" : t("pharmacy.add")}
                           </button>
                         </td>
                       </tr>
@@ -285,10 +313,7 @@ export default function FarmaciaPage() {
       {/* ─── 11.2 Receta → Carrito ─── */}
       {tab === "recetas" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Recetas digitales pendientes. Un tap para enviar al paciente por WhatsApp con el carrito
-            pre-cargado.
-          </p>
+          <p className="text-sm text-ink-light">{t("pharmacy.prescriptionsDesc")}</p>
           <div className="space-y-3">
             {prescriptions.map((rx) => (
               <div
@@ -307,7 +332,7 @@ export default function FarmaciaPage() {
                             : "bg-green-50 text-green-700"
                       }`}
                     >
-                      {rx.status}
+                      {rxStatusLabels[rx.status] ?? rx.status}
                     </span>
                   </div>
                   <p className="font-medium text-sm text-ink mt-1">{rx.patientName}</p>
@@ -331,21 +356,25 @@ export default function FarmaciaPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(`Cargar carrito para ${rx.patientName}`)
-                            : showDemo(`Cargar carrito para ${rx.patientName}`)
+                            ? showToast(
+                                t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
+                              )
+                            : showDemo(
+                                t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
+                              )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                       >
-                        Cargar carrito
+                        {t("pharmacy.loadCart")}
                       </button>
                       <button
                         onClick={() =>
                           !isDemo
                             ? showToast(
-                                `Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
+                                t("pharmacy.toast.sendWhatsApp").replace("{name}", rx.patientName),
                               )
                             : showDemo(
-                                `Enviar WhatsApp a ${rx.patientName} con link del carrito pre-cargado`,
+                                t("pharmacy.toast.sendWhatsApp").replace("{name}", rx.patientName),
                               )
                         }
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
@@ -358,12 +387,16 @@ export default function FarmaciaPage() {
                     <button
                       onClick={() =>
                         !isDemo
-                          ? showToast(`Enviar recordatorio WhatsApp a ${rx.patientName}`)
-                          : showDemo(`Enviar recordatorio WhatsApp a ${rx.patientName}`)
+                          ? showToast(
+                              t("pharmacy.toast.remindWhatsApp").replace("{name}", rx.patientName),
+                            )
+                          : showDemo(
+                              t("pharmacy.toast.remindWhatsApp").replace("{name}", rx.patientName),
+                            )
                       }
                       className="px-4 py-2 text-xs font-semibold border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                     >
-                      Recordar
+                      {t("pharmacy.remind")}
                     </button>
                   )}
                 </div>
@@ -376,9 +409,7 @@ export default function FarmaciaPage() {
       {/* ─── 11.3 Delivery Tracking ─── */}
       {tab === "delivery" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Seguimiento en tiempo real de entregas via Rappi Farma y PedidosYa.
-          </p>
+          <p className="text-sm text-ink-light">{t("pharmacy.deliveryDesc")}</p>
           <div className="space-y-3">
             {deliveries.map((del) => (
               <div key={del.id} className="bg-white border border-border rounded-lg p-5">
@@ -395,7 +426,7 @@ export default function FarmaciaPage() {
                               : "bg-green-50 text-green-700"
                         }`}
                       >
-                        {del.status}
+                        {deliveryStatusLabels[del.status] ?? del.status}
                       </span>
                       <span className="text-[10px] text-ink-muted bg-[#F8FAFB] px-2 py-0.5 rounded">
                         {del.courier}
@@ -410,12 +441,12 @@ export default function FarmaciaPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(`Ver tracking completo de ${del.id}`)
-                        : showDemo(`Ver tracking completo de ${del.id}`)
+                        ? showToast(t("pharmacy.toast.viewTracking").replace("{id}", del.id))
+                        : showDemo(t("pharmacy.toast.viewTracking").replace("{id}", del.id))
                     }
                     className="text-xs font-medium text-celeste-dark hover:text-celeste transition"
                   >
-                    Ver tracking
+                    {t("pharmacy.viewTracking")}
                   </button>
                 </div>
                 <div className="mt-3">
@@ -437,9 +468,7 @@ export default function FarmaciaPage() {
       {/* ─── 11.4 Copago Calculator ─── */}
       {tab === "copago" && (
         <div className="space-y-4">
-          <p className="text-sm text-ink-light">
-            Calculá el copago automáticamente según financiador, cobertura PMO y descuentos PAMI.
-          </p>
+          <p className="text-sm text-ink-light">{t("pharmacy.copagoDesc")}</p>
 
           <div className="flex gap-2">
             {["PAMI", "Obra Social", "Prepaga"].map((f) => (
@@ -452,7 +481,7 @@ export default function FarmaciaPage() {
                     : "bg-white border border-border text-ink-light hover:border-celeste-dark hover:text-celeste-dark"
                 }`}
               >
-                {f}
+                {financiadorLabels[f] ?? f}
               </button>
             ))}
           </div>
@@ -462,19 +491,19 @@ export default function FarmaciaPage() {
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Medicamento
+                    {t("pharmacy.medication")}
                   </th>
                   <th scope="col" className="text-right font-medium px-5 py-3">
-                    Precio lista
+                    {t("pharmacy.listPrice")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Cobertura
+                    {t("pharmacy.coverage")}
                   </th>
                   <th scope="col" className="text-right font-medium px-5 py-3">
-                    Descuento
+                    {t("pharmacy.discount")}
                   </th>
                   <th scope="col" className="text-right font-bold px-5 py-3">
-                    Copago
+                    {t("pharmacy.copay")}
                   </th>
                 </tr>
               </thead>
@@ -514,9 +543,8 @@ export default function FarmaciaPage() {
 
           {copagoFinanciador === "PAMI" && (
             <div className="border-l-[3px] border-celeste-dark bg-celeste-pale p-4 text-sm text-ink-light">
-              <strong className="text-ink">Descuentos PAMI aplicados:</strong> Cobertura PMO al 80%
-              para medicamentos del vademécum. Medicamentos crónicos (diabetes, HTA) con cobertura
-              del 100%.
+              <strong className="text-ink">{t("pharmacy.pamiNote")}</strong>{" "}
+              {t("pharmacy.pamiCoverageDesc")}
             </div>
           )}
         </div>
@@ -526,11 +554,9 @@ export default function FarmaciaPage() {
       {tab === "recurrentes" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-ink-light">
-              Pedidos recurrentes para pacientes crónicos. Entrega automática mensual.
-            </p>
+            <p className="text-sm text-ink-light">{t("pharmacy.recurringDesc")}</p>
             <span className="text-[10px] font-bold bg-gold-pale text-gold px-2.5 py-1 rounded">
-              FASE 4
+              {t("pharmacy.phase4")}
             </span>
           </div>
 
@@ -550,13 +576,13 @@ export default function FarmaciaPage() {
                           : "bg-[#F8FAFB] text-ink-muted"
                       }`}
                     >
-                      {order.status}
+                      {orderStatusLabels[order.status] ?? order.status}
                     </span>
                     <span className="text-[10px] text-ink-muted">{order.frequency}</span>
                   </div>
                   <p className="font-medium text-sm text-ink mt-1">{order.patientName}</p>
                   <p className="text-xs text-ink-muted">
-                    {order.financiador} - Próxima entrega: {order.nextDelivery}
+                    {order.financiador} - {t("pharmacy.nextDelivery")} {order.nextDelivery}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {(order.medications || []).map((m: string) => (
@@ -573,30 +599,30 @@ export default function FarmaciaPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(`Editar pedido recurrente ${order.id}`)
-                        : showDemo(`Editar pedido recurrente ${order.id}`)
+                        ? showToast(t("pharmacy.toast.editRecurring").replace("{id}", order.id))
+                        : showDemo(t("pharmacy.toast.editRecurring").replace("{id}", order.id))
                     }
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
-                    Editar
+                    {t("action.edit")}
                   </button>
                   <button
                     onClick={() =>
                       !isDemo
                         ? showToast(
                             order.status === "Activo"
-                              ? `Pausar pedido ${order.id}`
-                              : `Reactivar pedido ${order.id}`,
+                              ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
+                              : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
                           )
                         : showDemo(
                             order.status === "Activo"
-                              ? `Pausar pedido ${order.id}`
-                              : `Reactivar pedido ${order.id}`,
+                              ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
+                              : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
                           )
                     }
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
-                    {order.status === "Activo" ? "Pausar" : "Reactivar"}
+                    {order.status === "Activo" ? t("pharmacy.pause") : t("pharmacy.reactivate")}
                   </button>
                 </div>
               </div>

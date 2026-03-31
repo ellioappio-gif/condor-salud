@@ -109,21 +109,21 @@ export default function PacientesPage() {
       action: async () => {
         const { createManualLead } = await import("@/lib/services/crm");
         return createManualLead("default", {
-          nombre: "Nuevo contacto",
+          nombre: t("patients.newContact"),
           telefono: "",
           fuente: "manual",
         });
       },
-      successMessage: "Lead creado — completá los datos",
-      errorMessage: "Error al crear lead",
-      demoLabel: "Nuevo lead manual",
+      successMessage: t("patients.leadCreated"),
+      errorMessage: t("patients.leadCreateError"),
+      demoLabel: t("patients.newManualLead"),
       mutateKeys: ["leads"],
     });
   };
 
   const handleNuevoPaciente = () => {
     if (isDemo) {
-      showDemo("Nuevo paciente");
+      showDemo(t("patients.newPatientDemo"));
       return;
     }
     showToast(t("toast.pacientes.convertLead"));
@@ -210,13 +210,16 @@ export default function PacientesPage() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Pacientes"
-        description={`${pacientes.length} pacientes · ${leadTotal} consultas nuevas`}
-        breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Pacientes" }]}
+        title={t("patients.title")}
+        description={`${pacientes.length} ${t("patients.patientsCount")} · ${leadTotal} ${t("patients.newConsultationsCount")}`}
+        breadcrumbs={[
+          { label: t("patients.breadcrumbPanel"), href: "/dashboard" },
+          { label: t("patients.title") },
+        ]}
         actions={
           activeTab === "leads" ? (
             <Button onClick={handleNuevoLead} data-tour="btn-nueva-consulta">
-              + Nueva consulta
+              {t("patients.newConsultationBtn")}
             </Button>
           ) : activeTab === "pacientes" ? (
             <div className="flex gap-2">
@@ -234,7 +237,7 @@ export default function PacientesPage() {
               >
                 Excel
               </button>
-              <Button onClick={handleNuevoPaciente}>+ Nuevo paciente</Button>
+              <Button onClick={handleNuevoPaciente}>{t("patients.newPatientBtn")}</Button>
             </div>
           ) : null
         }
@@ -248,21 +251,21 @@ export default function PacientesPage() {
           badge={leadTotal > 0 ? leadTotal : undefined}
           data-tour="tab-leads"
         >
-          Consultas nuevas
+          {t("patients.newConsultations")}
         </TabButton>
         <TabButton
           active={activeTab === "pacientes"}
           onClick={() => setActiveTab("pacientes")}
           data-tour="tab-pacientes"
         >
-          Pacientes
+          {t("patients.title")}
         </TabButton>
         <TabButton
           active={activeTab === "inbox"}
           onClick={() => setActiveTab("inbox")}
           badge={unreadCount > 0 ? unreadCount : undefined}
         >
-          Mensajes
+          {t("patients.messages")}
         </TabButton>
       </div>
 
@@ -375,56 +378,78 @@ function LeadsTab({
   refreshLeads: () => void;
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
 }) {
+  const { t } = useLocale();
+  const pipelineLabels: Record<string, string> = {
+    nuevo: t("patients.new"),
+    contactado: t("patients.contacted"),
+    interesado: t("patients.interested"),
+    turno_agendado: t("patients.appointmentScheduled"),
+    convertido: t("patients.converted"),
+    perdido: t("patients.lost"),
+  };
+  const fuenteOptions = [
+    { value: "", label: t("patients.allSources") },
+    { value: "whatsapp", label: "WhatsApp" },
+    { value: "web", label: "Web" },
+    { value: "referido", label: t("patients.sourceReferral") },
+    { value: "chatbot", label: "Chatbot" },
+    { value: "landing", label: "Landing" },
+    { value: "manual", label: t("patients.sourceManual") },
+  ];
   return (
     <div className="space-y-4">
       {/* KPIs */}
       <div
         className="grid grid-cols-2 lg:grid-cols-4 gap-4"
         role="region"
-        aria-label="Indicadores de leads"
+        aria-label={t("patients.leadIndicators")}
       >
-        <KPICard label="Consultas nuevas" value={stats?.nuevo ?? 0} accent="border-l-blue-400" />
         <KPICard
-          label="En seguimiento"
+          label={t("patients.newConsultations")}
+          value={stats?.nuevo ?? 0}
+          accent="border-l-blue-400"
+        />
+        <KPICard
+          label={t("patients.inFollowup")}
           value={(stats?.contactado ?? 0) + (stats?.interesado ?? 0)}
           accent="border-l-yellow-400"
         />
         <KPICard
-          label="Turnos agendados"
+          label={t("patients.scheduledAppointments")}
           value={stats?.turno_agendado ?? 0}
           accent="border-l-celeste"
         />
         <KPICard
-          label="Tasa conversión"
+          label={t("patients.conversionRate")}
           value={`${stats?.conversionRate ?? 0}%`}
           accent="border-l-green-500"
         />
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3" role="search" aria-label="Filtrar leads">
+      <div className="flex flex-wrap gap-3" role="search" aria-label={t("patients.filterLeads")}>
         <div className="w-72" data-tour="leads-search">
           <Input
-            placeholder="Buscar por nombre, teléfono o email..."
+            placeholder={t("patients.searchLeadPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar lead"
+            aria-label={t("patients.searchLead")}
           />
         </div>
         <Select
-          options={FUENTE_OPTIONS}
+          options={fuenteOptions}
           value={fuenteFilter}
           onChange={(e) => setFuenteFilter(e.target.value)}
-          aria-label="Filtrar por fuente"
+          aria-label={t("patients.filterBySource")}
         />
         <Button variant="secondary" onClick={() => refreshLeads()}>
-          ↻ Actualizar
+          {t("patients.refresh")}
         </Button>
       </div>
 
       {/* Pipeline columns */}
       {isLoading ? (
-        <div className="text-center py-12 text-ink-muted">Cargando consultas...</div>
+        <div className="text-center py-12 text-ink-muted">{t("patients.loadingConsults")}</div>
       ) : (
         <div
           className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4"
@@ -436,7 +461,9 @@ function LeadsTab({
                 <span
                   className={`w-2 h-2 rounded-full bg-current ${col.color.replace("border-l-", "text-")}`}
                 />
-                <span className="text-sm font-semibold text-ink">{col.label}</span>
+                <span className="text-sm font-semibold text-ink">
+                  {pipelineLabels[col.key] || col.label}
+                </span>
                 <span className="text-xs text-ink-muted bg-surface-alt rounded-full px-2">
                   {pipeline[col.key].length}
                 </span>
@@ -496,6 +523,7 @@ function PacientesTabView({
   filtroEstado: string;
   setFiltroEstado: (v: string) => void;
 }) {
+  const { t } = useLocale();
   const [currentPage, setCurrentPage] = useState(1);
 
   const PAGE_SIZE = 25;
@@ -512,11 +540,15 @@ function PacientesTabView({
       <div
         className="grid grid-cols-2 lg:grid-cols-4 gap-4"
         role="region"
-        aria-label="Indicadores de pacientes"
+        aria-label={t("patients.patientIndicators")}
       >
-        <KPICard label="Total pacientes" value={pacientes.length} accent="border-l-celeste" />
         <KPICard
-          label="Activos"
+          label={t("patients.totalPatients")}
+          value={pacientes.length}
+          accent="border-l-celeste"
+        />
+        <KPICard
+          label={t("patients.activePatients")}
           value={pacientes.filter((p) => p.estado === "activo").length}
           accent="border-l-green-400"
         />
@@ -526,69 +558,73 @@ function PacientesTabView({
           accent="border-l-celeste-dark"
         />
         <KPICard
-          label="Con turnos"
+          label={t("patients.withAppointments")}
           value={pacientes.filter((p) => p.turnos > 0).length}
           accent="border-l-celeste"
         />
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3" role="search" aria-label="Buscar y filtrar pacientes">
+      <div
+        className="flex flex-wrap gap-3"
+        role="search"
+        aria-label={t("patients.searchFilterPatients")}
+      >
         <div className="w-72" data-tour="pacientes-search">
           <Input
-            placeholder="Buscar por nombre o DNI..."
+            placeholder={t("patients.searchByNameDni")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar paciente"
+            aria-label={t("patients.searchPatient")}
           />
         </div>
         <Select
-          options={financiadores}
+          options={[{ value: "Todos", label: t("patients.all") }, ...financiadores.slice(1)]}
           value={filtroFinanciador}
           onChange={(e) => setFiltroFinanciador(e.target.value)}
-          aria-label="Filtrar por financiador"
+          aria-label={t("patients.filterByInsurance")}
         />
         <Select
           options={[
-            { value: "Todos", label: "Todos" },
-            { value: "activo", label: "Activo" },
-            { value: "inactivo", label: "Inactivo" },
+            { value: "Todos", label: t("patients.all") },
+            { value: "activo", label: t("patients.statusActive") },
+            { value: "inactivo", label: t("patients.statusInactive") },
           ]}
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value)}
-          aria-label="Filtrar por estado"
+          aria-label={t("patients.filterByStatus")}
         />
       </div>
 
       {/* Table */}
       <Card>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm" aria-label="Lista de pacientes">
+          <table className="w-full text-sm" aria-label={t("patients.patientList")}>
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-3">
-                  Paciente
+                  {t("patients.patientColumn")}
                 </th>
                 <th scope="col" className="text-left px-5 py-3">
-                  DNI
+                  {t("patients.dni")}
                 </th>
                 <th scope="col" className="text-left px-5 py-3">
-                  Financiador
+                  {t("patients.insurerColumn")}
                 </th>
                 <th scope="col" className="text-center px-5 py-3">
-                  Edad
+                  {t("patients.ageColumn")}
                 </th>
                 <th scope="col" className="text-left px-5 py-3">
-                  Última visita
+                  {t("patients.lastVisit")}
                 </th>
                 <th scope="col" className="text-center px-5 py-3">
-                  Turnos
+                  {t("patients.appointmentsColumn")}
                 </th>
                 <th scope="col" className="text-center px-5 py-3">
-                  Estado
+                  {t("patients.statusColumn")}
                 </th>
                 <th scope="col" className="text-center px-5 py-3">
-                  Acción
+                  {t("patients.actionColumn")}
                 </th>
               </tr>
             </thead>
@@ -617,16 +653,20 @@ function PacientesTabView({
                   <td className="px-5 py-3 text-center">
                     <StatusBadge
                       variant={p.estado}
-                      label={p.estado === "activo" ? "Activo" : "Inactivo"}
+                      label={
+                        p.estado === "activo"
+                          ? t("patients.statusActive")
+                          : t("patients.statusInactive")
+                      }
                     />
                   </td>
                   <td className="px-5 py-3 text-center">
                     <Link
                       href={`/dashboard/pacientes/${p.id}`}
                       className="text-[10px] text-celeste-dark font-medium hover:underline"
-                      aria-label={`Ver ficha de ${p.apellido}, ${p.nombre}`}
+                      aria-label={`${t("patients.viewRecord")} - ${p.apellido}, ${p.nombre}`}
                     >
-                      Ver ficha
+                      {t("patients.viewRecord")}
                     </Link>
                   </td>
                 </tr>
@@ -634,7 +674,7 @@ function PacientesTabView({
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-5 py-12 text-center text-sm text-ink-muted">
-                    No se encontraron pacientes con los filtros seleccionados.
+                    {t("patients.noResults")}
                   </td>
                 </tr>
               )}
@@ -663,21 +703,22 @@ function InboxTabView({
   selectedConversation: Conversation | null;
   setSelectedConversation: (c: Conversation | null) => void;
 }) {
+  const { t } = useLocale();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: "60vh" }}>
       {/* Conversation list */}
       <div className="lg:col-span-1 border border-border rounded-lg overflow-hidden">
         <div className="p-3 border-b border-border bg-surface-alt">
-          <div className="text-sm font-semibold text-ink">Conversaciones</div>
+          <div className="text-sm font-semibold text-ink">{t("patients.conversations")}</div>
         </div>
         <div className="overflow-y-auto max-h-[60vh]">
           {isLoading ? (
-            <div className="text-center py-8 text-ink-muted text-sm">Cargando...</div>
+            <div className="text-center py-8 text-ink-muted text-sm">{t("patients.loading")}</div>
           ) : conversations.length === 0 ? (
             <div className="text-center py-8 text-ink-muted text-sm">
-              No hay conversaciones abiertas.
+              {t("patients.noConversations")}
               <br />
-              <span className="text-xs">Los mensajes de WhatsApp aparecerán aquí.</span>
+              <span className="text-xs">{t("patients.whatsAppNote")}</span>
             </div>
           ) : (
             conversations.map((conv) => (
@@ -693,7 +734,7 @@ function InboxTabView({
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="font-medium text-sm text-ink truncate">
-                      {conv.lead?.nombre || conv.paciente?.nombre || "Sin nombre"}
+                      {conv.lead?.nombre || conv.paciente?.nombre || t("patients.noName")}
                     </div>
                     <div className="text-xs text-ink-muted truncate">
                       {conv.lead?.telefono || conv.paciente?.telefono || ""}
@@ -730,7 +771,7 @@ function InboxTabView({
           <ConversationThread conversation={selectedConversation} />
         ) : (
           <div className="flex-1 flex items-center justify-center text-ink-muted text-sm">
-            Seleccioná una conversación para ver los mensajes
+            {t("patients.selectConversation")}
           </div>
         )}
       </div>
@@ -766,7 +807,7 @@ function LeadCard({
   isSelected: boolean;
   onClick: () => void;
 }) {
-  const { locale } = useLocale();
+  const { t, locale } = useLocale();
   return (
     <button
       onClick={onClick}
@@ -801,7 +842,7 @@ function LeadCard({
       </div>
       {lead.last_message_at && (
         <div className="text-[10px] text-ink-muted mt-1.5">
-          Último msg:{" "}
+          {t("patients.lastMsg")}{" "}
           {new Date(lead.last_message_at).toLocaleDateString(locale === "en" ? "en-US" : "es-AR")}
         </div>
       )}
@@ -840,12 +881,20 @@ function LeadDetailPanel({
   showToast: (msg: string, type?: "success" | "error" | "info") => void;
 }) {
   const { t } = useLocale();
+  const pipelineLabels: Record<string, string> = {
+    nuevo: t("patients.new"),
+    contactado: t("patients.contacted"),
+    interesado: t("patients.interested"),
+    turno_agendado: t("patients.appointmentScheduled"),
+    convertido: t("patients.converted"),
+    perdido: t("patients.lost"),
+  };
   const { trigger: updateLead, isMutating } = useUpdateLead(lead.id);
 
   const handleStatusChange = async (newEstado: LeadEstado) => {
     try {
       await updateLead({ estado: newEstado });
-      showToast(`Movido a "${newEstado}"`);
+      showToast(`${t("patients.movedTo")} "${newEstado}"`);
       refreshLeads();
     } catch {
       showToast(t("toast.pacientes.updateError"), "error");
@@ -855,23 +904,33 @@ function LeadDetailPanel({
   return (
     <div className="fixed inset-y-0 right-0 w-96 bg-white border-l border-border shadow-xl z-50 overflow-y-auto">
       <div className="p-4 border-b border-border flex items-center justify-between">
-        <h3 className="font-semibold text-ink">Detalle de consulta</h3>
+        <h3 className="font-semibold text-ink">{t("patients.consultDetail")}</h3>
         <button onClick={onClose} className="text-ink-muted hover:text-ink text-xl">
           ×
         </button>
       </div>
       <div className="p-4 space-y-4">
         <div className="space-y-2">
-          <div className="text-lg font-semibold">{lead.nombre || "Sin nombre"}</div>
+          <div className="text-lg font-semibold">{lead.nombre || t("patients.noName")}</div>
           <div className="text-sm text-ink-muted space-y-1">
-            <div>Tel: {lead.telefono}</div>
-            {lead.email && <div>Email: {lead.email}</div>}
-            {lead.financiador && <div>Financiador: {lead.financiador}</div>}
+            <div>
+              {t("patients.telLabel")} {lead.telefono}
+            </div>
+            {lead.email && (
+              <div>
+                {t("patients.emailLabel")} {lead.email}
+              </div>
+            )}
+            {lead.financiador && (
+              <div>
+                {t("patients.insurerLabel")} {lead.financiador}
+              </div>
+            )}
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-ink-muted">Estado</label>
+          <label className="text-xs font-medium text-ink-muted">{t("patients.statusLabel")}</label>
           <div className="flex flex-wrap gap-1 mt-1">
             {PIPELINE_COLUMNS.map((col) => (
               <button
@@ -884,7 +943,7 @@ function LeadDetailPanel({
                     : "border-border text-ink-muted hover:border-celeste"
                 }`}
               >
-                {col.label}
+                {pipelineLabels[col.key] || col.label}
               </button>
             ))}
           </div>
@@ -893,14 +952,14 @@ function LeadDetailPanel({
         {lead.motivo && (
           <Card>
             <CardContent>
-              <div className="text-xs font-medium text-ink-muted mb-1">Motivo</div>
+              <div className="text-xs font-medium text-ink-muted mb-1">{t("patients.reason")}</div>
               <div className="text-sm">{lead.motivo}</div>
             </CardContent>
           </Card>
         )}
 
         <div>
-          <div className="text-xs font-medium text-ink-muted mb-1">Tags</div>
+          <div className="text-xs font-medium text-ink-muted mb-1">{t("patients.tags")}</div>
           <div className="flex flex-wrap gap-1">
             {lead.tags?.length ? (
               lead.tags.map((tag) => (
@@ -912,14 +971,16 @@ function LeadDetailPanel({
                 </span>
               ))
             ) : (
-              <span className="text-xs text-ink-muted">Sin tags</span>
+              <span className="text-xs text-ink-muted">{t("patients.noTags")}</span>
             )}
           </div>
         </div>
 
         {lead.notas && (
           <div>
-            <div className="text-xs font-medium text-ink-muted mb-1">Notas</div>
+            <div className="text-xs font-medium text-ink-muted mb-1">
+              {t("patients.notesLabel")}
+            </div>
             <div className="text-xs text-ink whitespace-pre-wrap bg-surface-alt rounded p-2">
               {lead.notas}
             </div>
@@ -927,13 +988,22 @@ function LeadDetailPanel({
         )}
 
         <div className="text-xs text-ink-muted space-y-0.5 pt-2 border-t border-border">
-          <div>Fuente: {lead.fuente}</div>
-          <div>Creado: {new Date(lead.created_at).toLocaleString("es-AR")}</div>
+          <div>
+            {t("patients.sourceLabel")} {lead.fuente}
+          </div>
+          <div>
+            {t("patients.createdLabel")} {new Date(lead.created_at).toLocaleString("es-AR")}
+          </div>
           {lead.first_contact_at && (
-            <div>Primer contacto: {new Date(lead.first_contact_at).toLocaleString("es-AR")}</div>
+            <div>
+              {t("patients.firstContactLabel")}{" "}
+              {new Date(lead.first_contact_at).toLocaleString("es-AR")}
+            </div>
           )}
           {lead.converted_at && (
-            <div>Convertido: {new Date(lead.converted_at).toLocaleString("es-AR")}</div>
+            <div>
+              {t("patients.convertedDate")} {new Date(lead.converted_at).toLocaleString("es-AR")}
+            </div>
           )}
         </div>
       </div>
@@ -942,6 +1012,7 @@ function LeadDetailPanel({
 }
 
 function ConversationThread({ conversation }: { conversation: Conversation }) {
+  const { t } = useLocale();
   const { messages, isLoading } = useMessages(conversation.id);
   const { trigger: send, isMutating: sending } = useSendMessage(conversation.id);
   const [draft, setDraft] = useState("");
@@ -970,7 +1041,7 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
         </div>
         <div>
           <div className="text-sm font-semibold">
-            {conversation.lead?.nombre || conversation.paciente?.nombre || "Sin nombre"}
+            {conversation.lead?.nombre || conversation.paciente?.nombre || t("patients.noName")}
           </div>
           <div className="text-xs text-ink-muted">{conversation.channel}</div>
         </div>
@@ -978,9 +1049,9 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f0f2f5]">
         {isLoading ? (
-          <div className="text-center text-ink-muted text-sm">Cargando mensajes...</div>
+          <div className="text-center text-ink-muted text-sm">{t("patients.loadingMessages")}</div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-ink-muted text-sm">Sin mensajes aún</div>
+          <div className="text-center text-ink-muted text-sm">{t("patients.noMessages")}</div>
         ) : (
           messages.map((msg) => (
             <div
@@ -1007,7 +1078,9 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
                   })}
                   {msg.direction === "outbound" && (
                     <span className="ml-1 text-[10px] opacity-70">
-                      {msg.status === "delivered" || msg.status === "read" ? "Leido" : "Enviado"}
+                      {msg.status === "delivered" || msg.status === "read"
+                        ? t("patients.readStatus")
+                        : t("patients.sentStatus")}
                     </span>
                   )}
                 </div>
@@ -1023,7 +1096,7 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-          placeholder="Escribir mensaje..."
+          placeholder={t("patients.writeMessage")}
           className="flex-1 px-3 py-2 border border-border rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-celeste"
           disabled={sending}
         />
@@ -1032,7 +1105,7 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
           disabled={sending || !draft.trim()}
           className="px-4 py-2 bg-celeste text-white rounded-full text-sm font-medium disabled:opacity-50 hover:bg-celeste-dark transition-colors"
         >
-          {sending ? "..." : "Enviar"}
+          {sending ? "..." : t("patients.send")}
         </button>
       </div>
     </>
