@@ -2721,6 +2721,28 @@ export const dashboardTranslations: DashTranslation = {
     en: "Need help? Chat with Cora, your health assistant.",
   },
 
+  // ─── OTC Delivery Card ─────────────────────────────────────
+  "chatbot.otcDeliveryTitle": {
+    es: "Medicamentos — Delivery a domicilio",
+    en: "Medications — Home Delivery",
+  },
+  "chatbot.otcOrderAll": {
+    es: "Pedir todo en",
+    en: "Order all on",
+  },
+  "chatbot.otcCopyList": {
+    es: "Copiar lista",
+    en: "Copy list",
+  },
+  "chatbot.otcCopied": {
+    es: "¡Copiado!",
+    en: "Copied!",
+  },
+  "chatbot.otcDisclaimer": {
+    es: "Solo medicamentos de venta libre. Para medicamentos con receta, consultá a tu médico. Los precios pueden variar según la farmacia.",
+    en: "OTC medications only. For prescription drugs, consult your doctor. Prices may vary by pharmacy.",
+  },
+
   // ─── Ride components ───────────────────────────────────────
   "ride.howToGetThere": { es: "¿Cómo llego al consultorio?", en: "How do I get to the office?" },
   "ride.requestUber": { es: "Pedir un Uber", en: "Request an Uber" },

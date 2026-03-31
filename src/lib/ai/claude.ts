@@ -5,6 +5,8 @@
 // fallback when the AI is unavailable.
 
 import { logger } from "@/lib/logger";
+import type { OTCDeliveryItem, OTCDeliveryToolInput } from "@/lib/cora/otc-delivery";
+import { otcDeliveryTool, OTC_DELIVERY_SYSTEM_PROMPT_ADDITION } from "@/lib/cora/otc-delivery";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -22,6 +24,10 @@ export interface ClaudeResponse {
     directionsUrl?: string;
     mapUrl?: string;
   }[];
+  /** OTC delivery items from suggest_otc_delivery tool-use */
+  otcDeliveryItems?: OTCDeliveryItem[];
+  /** Reason for the OTC delivery suggestion */
+  otcDeliveryReason?: string;
 }
 
 export interface ConversationMessage {
@@ -123,10 +129,10 @@ IMPORTANT: All quickReplies labels and values MUST be in English.
 
 ${SHARED_RULES}`;
 
-/** Get the appropriate system prompt based on language */
+/** Get the appropriate system prompt based on language, with OTC tool instructions appended */
 function getSystemPrompt(lang?: string): string {
-  if (lang && lang.startsWith("en")) return SYSTEM_PROMPT_EN;
-  return SYSTEM_PROMPT_ES;
+  const base = lang && lang.startsWith("en") ? SYSTEM_PROMPT_EN : SYSTEM_PROMPT_ES;
+  return base + OTC_DELIVERY_SYSTEM_PROMPT_ADDITION;
 }
 
 // ─── Client ──────────────────────────────────────────────────
@@ -152,12 +158,38 @@ export function isClaudeConfigured(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
 }
 
+// ─── Anthropic Response Types ────────────────────────────────
+
+/** Content block from Anthropic API response */
+interface AnthropicTextBlock {
+  type: "text";
+  text: string;
+}
+
+interface AnthropicToolUseBlock {
+  type: "tool_use";
+  id: string;
+  name: string;
+  input: Record<string, unknown>;
+}
+
+type AnthropicContentBlock = AnthropicTextBlock | AnthropicToolUseBlock;
+
+interface AnthropicResponse {
+  content: AnthropicContentBlock[];
+  stop_reason: string;
+}
+
 // ─── Main Function ───────────────────────────────────────────
 
 /**
  * Send a message to Claude and get a structured response for the chatbot.
  * Returns null if Claude is unavailable or returns an error — caller should
  * fall back to the rule-based engine.
+ *
+ * Supports tool-use: when Claude calls `suggest_otc_delivery`, the tool
+ * input is extracted and returned as `otcDeliveryItems` alongside the
+ * conversational text response.
  */
 export async function askClaude(
   userMessage: string,
@@ -168,9 +200,7 @@ export async function askClaude(
   // eslint-disable-next-line -- dynamic import client is untyped
   const client = (await getClient()) as {
     messages: {
-      create: (
-        opts: Record<string, unknown>,
-      ) => Promise<{ content: { type: string; text: string }[] }>;
+      create: (opts: Record<string, unknown>) => Promise<AnthropicResponse>;
     };
   } | null;
   if (!client) return null;
@@ -198,13 +228,49 @@ export async function askClaude(
       max_tokens: 1024,
       system: getSystemPrompt(lang),
       messages,
+      tools: [otcDeliveryTool],
     });
 
-    const content = response.content[0];
-    if (!content || content.type !== "text") return null;
+    // ── Parse response: handle both text and tool_use blocks ──
+    let textBlock: AnthropicTextBlock | null = null;
+    let otcToolUse: AnthropicToolUseBlock | null = null;
 
-    // Parse JSON response — Claude sometimes wraps in markdown code blocks
-    let jsonText = content.text.trim();
+    for (const block of response.content) {
+      if (block.type === "text") {
+        textBlock = block;
+      } else if (block.type === "tool_use" && block.name === "suggest_otc_delivery") {
+        otcToolUse = block;
+      }
+    }
+
+    // We need at least a text block to produce a response
+    if (!textBlock) {
+      // If Claude only returned a tool_use (no text), still try to build a response
+      if (otcToolUse) {
+        const toolInput = otcToolUse.input as unknown as OTCDeliveryToolInput;
+        const isEn = lang?.startsWith("en");
+        return {
+          text: isEn
+            ? "Here are some over-the-counter options you can order for delivery:"
+            : "Te muestro opciones de medicamentos de venta libre para pedir por delivery:",
+          otcDeliveryItems: toolInput.items,
+          otcDeliveryReason: toolInput.reason,
+          quickReplies: isEn
+            ? [
+                { label: "Telemedicine", value: "I want a telemedicine consultation" },
+                { label: "Find a doctor", value: "I want to find a doctor" },
+              ]
+            : [
+                { label: "Teleconsulta", value: "Quiero una teleconsulta" },
+                { label: "Buscar médico", value: "Quiero buscar un médico" },
+              ],
+        };
+      }
+      return null;
+    }
+
+    // Parse JSON from the text block — Claude sometimes wraps in markdown code blocks
+    let jsonText = textBlock.text.trim();
     if (jsonText.startsWith("```json")) {
       jsonText = jsonText.slice(7);
     } else if (jsonText.startsWith("```")) {
@@ -221,6 +287,15 @@ export async function askClaude(
     if (!parsed.text || typeof parsed.text !== "string") {
       logger.warn("Claude returned response without text field");
       return null;
+    }
+
+    // ── Merge OTC tool-use data if Claude called the tool ──
+    if (otcToolUse) {
+      const toolInput = otcToolUse.input as unknown as OTCDeliveryToolInput;
+      if (toolInput.items?.length) {
+        parsed.otcDeliveryItems = toolInput.items;
+        parsed.otcDeliveryReason = toolInput.reason;
+      }
     }
 
     return parsed;

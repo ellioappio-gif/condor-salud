@@ -8,6 +8,7 @@ import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
 import { analytics } from "@/lib/analytics";
 import RideQuickLinks from "@/components/RideQuickLinks";
+import OTCDeliveryCard from "@/components/cora/OTCDeliveryCard";
 
 // Web Speech API type shim (webkit-prefixed)
 interface SpeechRecognitionLike extends EventTarget {
@@ -467,6 +468,7 @@ export default function Chatbot() {
         analytics.track("chatbot_response", {
           source: botMsg.source ?? "unknown",
           has_cards: !!(botMsg.cards && botMsg.cards.length > 0),
+          has_otc_delivery: !!(botMsg.otcDeliveryItems && botMsg.otcDeliveryItems.length > 0),
           lang: locale,
         });
         if ("isEmergency" in botMsg) {
@@ -619,6 +621,9 @@ export default function Chatbot() {
                 {msg.cards && <CardList cards={msg.cards} />}
                 {msg.rideOptions && msg.rideOptions.length > 0 && (
                   <RideCards options={msg.rideOptions} />
+                )}
+                {msg.otcDeliveryItems && msg.otcDeliveryItems.length > 0 && (
+                  <OTCDeliveryCard items={msg.otcDeliveryItems} reason={msg.otcDeliveryReason} />
                 )}
                 {/* Show quick replies only for the last bot message */}
                 {msg.role === "bot" &&

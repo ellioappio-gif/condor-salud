@@ -11,6 +11,7 @@
  */
 
 import { whatsappUrl } from "@/lib/utils";
+import type { OTCDeliveryItem } from "@/lib/cora/otc-delivery";
 
 // ─── Types ───────────────────────────────────────────────────
 export interface ChatMessage {
@@ -26,6 +27,10 @@ export interface ChatMessage {
   triageContext?: string;
   /** Ride options for transport intent (Uber, Cabify, InDrive) */
   rideOptions?: RideOptionCard[];
+  /** OTC delivery items suggested by Claude tool-use (Rappi / PedidosYa) */
+  otcDeliveryItems?: OTCDeliveryItem[];
+  /** Reason / explanation for the OTC delivery suggestion */
+  otcDeliveryReason?: string;
 }
 
 /** Ride option returned by Cora for inline transport cards */
