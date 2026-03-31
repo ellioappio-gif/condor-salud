@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useToast } from "@/components/Toast";
 import { RequirePermission } from "@/components/RequirePermission";
 import { useExport } from "@/lib/services/export";
@@ -14,6 +14,7 @@ import {
 } from "@/lib/services/turnos";
 import type { Turno } from "@/lib/services/data";
 import { useTurnos } from "@/hooks/use-data";
+import { useDoctors } from "@/lib/hooks/useModules";
 import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui";
 
@@ -77,10 +78,21 @@ const horas = [
   "17:00",
 ];
 
-// NOTE: No hardcoded profesionales. Real users see their own team
-// from the API. Empty array until team members are added via
-// Configuración → Equipo.
-const profesionales: { id: string; nombre: string; especialidad: string; color: string }[] = [];
+// Color palette for professional filter chips & legend
+const profColors = [
+  "bg-blue-100 text-blue-700",
+  "bg-green-100 text-green-700",
+  "bg-purple-100 text-purple-700",
+  "bg-amber-100 text-amber-700",
+  "bg-pink-100 text-pink-700",
+  "bg-teal-100 text-teal-700",
+  "bg-indigo-100 text-indigo-700",
+  "bg-red-100 text-red-700",
+  "bg-cyan-100 text-cyan-700",
+  "bg-orange-100 text-orange-700",
+];
+
+export type Profesional = { id: string; nombre: string; especialidad: string; color: string };
 
 const estadoColor: Record<string, string> = {
   confirmado: "bg-green-50 text-green-700",
@@ -115,8 +127,21 @@ export default function AgendaPage() {
   const { t, locale } = useLocale();
   const { showToast } = useToast();
   const { data: turnos, isLoading, mutate } = useTurnos();
+  const { data: doctors = [] } = useDoctors();
   const { exportPDF, exportExcel, isExporting } = useExport();
   const { events: gCalEvents } = useGoogleCalendarEvents();
+
+  // Build profesionales list from real doctor data
+  const profesionales: Profesional[] = useMemo(
+    () =>
+      doctors.map((d, i) => ({
+        id: d.id,
+        nombre: d.name,
+        especialidad: d.specialty,
+        color: profColors[i % profColors.length] ?? "bg-blue-100 text-blue-700",
+      })),
+    [doctors],
+  );
 
   const localeDays = locale === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] : diasSemana;
   const [vista, setVista] = useState<"semana" | "lista">("semana");
@@ -525,7 +550,11 @@ export default function AgendaPage() {
 
       {/* New Turno Modal */}
       {showNewModal && (
-        <NewTurnoModal onClose={() => setShowNewModal(false)} onCreate={handleCreate} />
+        <NewTurnoModal
+          onClose={() => setShowNewModal(false)}
+          onCreate={handleCreate}
+          profesionales={profesionales}
+        />
       )}
 
       <ConfirmDialog
@@ -548,28 +577,44 @@ export default function AgendaPage() {
 function NewTurnoModal({
   onClose,
   onCreate,
+  profesionales,
 }: {
   onClose: () => void;
   onCreate: (input: CreateTurnoInput) => Promise<{ success: boolean; error?: string }>;
+  profesionales: Profesional[];
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [profSearch, setProfSearch] = useState("");
   const [form, setForm] = useState<CreateTurnoInput>({
     fecha: new Date().toISOString().slice(0, 10),
     hora: "09:00",
     paciente: "",
     tipo: "Consulta",
     financiador: "PAMI",
-    profesional: profesionales[0]?.nombre ?? "",
-    profesionalId: profesionales[0]?.id,
+    profesional: "",
+    profesionalId: "",
     notas: "",
   });
+
+  // Filter profesionales by search text
+  const filteredProfs = useMemo(() => {
+    if (!profSearch.trim()) return profesionales;
+    const q = profSearch.toLowerCase();
+    return profesionales.filter(
+      (p) => p.nombre.toLowerCase().includes(q) || p.especialidad.toLowerCase().includes(q),
+    );
+  }, [profesionales, profSearch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.paciente.trim()) {
       setError(t("schedule.enterPatientName"));
+      return;
+    }
+    if (!form.profesionalId) {
+      setError(locale === "en" ? "Please select a professional" : "Seleccione un profesional");
       return;
     }
     setLoading(true);
@@ -655,6 +700,16 @@ function NewTurnoModal({
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
                 {t("label.professional")}
               </label>
+              {/* Search filter for long doctor lists */}
+              {profesionales.length > 6 && (
+                <input
+                  type="text"
+                  placeholder={locale === "en" ? "Search doctor..." : "Buscar profesional..."}
+                  value={profSearch}
+                  onChange={(e) => setProfSearch(e.target.value)}
+                  className="w-full px-3 py-1.5 mb-1 border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
+                />
+              )}
               <select
                 value={form.profesionalId}
                 onChange={(e) => {
@@ -667,9 +722,12 @@ function NewTurnoModal({
                 }}
                 className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
               >
-                {profesionales.map((p) => (
+                <option value="">
+                  {locale === "en" ? "— Select professional —" : "— Seleccionar profesional —"}
+                </option>
+                {filteredProfs.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.nombre}
+                    {p.nombre} — {p.especialidad}
                   </option>
                 ))}
               </select>
