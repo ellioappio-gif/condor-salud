@@ -479,6 +479,110 @@ export const dashboardTranslations: DashTranslation = {
   "patients.newManualLead": { es: "Nuevo lead manual", en: "New manual lead" },
   "patients.newPatientDemo": { es: "Nuevo paciente", en: "New patient" },
 
+  // ─── Add Patient Modal ──────────────────────────────────────
+  "patients.addPatientTitle": { es: "Nuevo Paciente", en: "New Patient" },
+  "patients.addPatientDesc": {
+    es: "Completá los datos del paciente para darlo de alta.",
+    en: "Fill in the patient details to register them.",
+  },
+  "patients.fieldNombre": { es: "Nombre completo", en: "Full name" },
+  "patients.fieldNombrePlaceholder": { es: "Ej: María García", en: "E.g.: María García" },
+  "patients.fieldDNI": { es: "DNI", en: "ID Number" },
+  "patients.fieldDNIPlaceholder": { es: "Ej: 28456789", en: "E.g.: 28456789" },
+  "patients.fieldEmail": { es: "Email (opcional)", en: "Email (optional)" },
+  "patients.fieldEmailPlaceholder": { es: "paciente@email.com", en: "patient@email.com" },
+  "patients.fieldTelefono": { es: "Teléfono (opcional)", en: "Phone (optional)" },
+  "patients.fieldTelefonoPlaceholder": { es: "Ej: 11-4567-8901", en: "E.g.: 11-4567-8901" },
+  "patients.fieldFechaNacimiento": {
+    es: "Fecha de nacimiento (opcional)",
+    en: "Date of birth (optional)",
+  },
+  "patients.fieldDireccion": { es: "Dirección (opcional)", en: "Address (optional)" },
+  "patients.fieldDireccionPlaceholder": {
+    es: "Ej: Av. Corrientes 1234, CABA",
+    en: "E.g.: Av. Corrientes 1234, CABA",
+  },
+  "patients.fieldFinanciador": { es: "Obra social / Prepaga", en: "Insurance provider" },
+  "patients.fieldPlan": { es: "Plan (opcional)", en: "Plan (optional)" },
+  "patients.fieldPlanPlaceholder": { es: "Ej: 310, PMO", en: "E.g.: 310, PMO" },
+  "patients.fieldNotas": { es: "Notas (opcional)", en: "Notes (optional)" },
+  "patients.fieldNotasPlaceholder": {
+    es: "Observaciones, alergias, etc.",
+    en: "Observations, allergies, etc.",
+  },
+  "patients.saving": { es: "Guardando...", en: "Saving..." },
+  "patients.savePatient": { es: "Guardar paciente", en: "Save patient" },
+  "patients.cancel": { es: "Cancelar", en: "Cancel" },
+  "patients.patientCreated": {
+    es: "Paciente creado correctamente",
+    en: "Patient created successfully",
+  },
+  "patients.patientCreateError": {
+    es: "Error al crear paciente",
+    en: "Error creating patient",
+  },
+  "patients.selectInsurance": { es: "Seleccioná obra social", en: "Select insurance" },
+  "patients.particular": { es: "Particular", en: "Private" },
+
+  // ─── Edit Patient Modal ─────────────────────────────────────
+  "patients.editPatientTitle": { es: "Editar Paciente", en: "Edit Patient" },
+  "patients.editPatientDesc": {
+    es: "Modificá los datos del paciente.",
+    en: "Update the patient details.",
+  },
+  "patients.updatePatient": { es: "Guardar cambios", en: "Save changes" },
+  "patients.patientUpdated": {
+    es: "Paciente actualizado correctamente",
+    en: "Patient updated successfully",
+  },
+  "patients.patientUpdateError": {
+    es: "Error al actualizar paciente",
+    en: "Error updating patient",
+  },
+  "patients.fieldEstado": { es: "Estado", en: "Status" },
+
+  // ─── Feature Setup Messages ─────────────────────────────────
+  "feature.setupRequired": {
+    es: "Esta función requiere configuración adicional",
+    en: "This feature requires additional setup",
+  },
+  "feature.contactAdmin": {
+    es: "Contactá al administrador para habilitar esta función.",
+    en: "Contact your administrator to enable this feature.",
+  },
+  "feature.goToConfig": {
+    es: "Ir a Configuración",
+    en: "Go to Settings",
+  },
+  "feature.mercadoPagoSetup": {
+    es: "Conectá MercadoPago desde Configuración → Pagos para habilitar esta función.",
+    en: "Connect MercadoPago from Settings → Payments to enable this feature.",
+  },
+  "feature.whatsappSetup": {
+    es: "Configurá WhatsApp Business desde Configuración → WhatsApp para habilitar esta función.",
+    en: "Set up WhatsApp Business from Settings → WhatsApp to enable this feature.",
+  },
+  "feature.videoSetup": {
+    es: "La videollamada requiere configurar un proveedor de video (Daily.co / Jitsi). Contactá al administrador.",
+    en: "Video calls require a video provider setup (Daily.co / Jitsi). Contact your administrator.",
+  },
+  "feature.savedToDevice": {
+    es: "Configuración guardada localmente",
+    en: "Settings saved locally",
+  },
+  "feature.resetToDefaults": {
+    es: "Configuración restablecida a valores por defecto",
+    en: "Settings reset to defaults",
+  },
+  "feature.copiedToClipboard": {
+    es: "Link copiado al portapapeles",
+    en: "Link copied to clipboard",
+  },
+  "feature.noPatientPhone": {
+    es: "El paciente no tiene teléfono registrado",
+    en: "Patient has no phone number on file",
+  },
+
   // ─── Agenda ────────────────────────────────────────────────
   "schedule.title": { es: "Agenda / Turnos", en: "Schedule / Appointments" },
   "schedule.newAppointment": { es: "Nuevo Turno", en: "New Appointment" },

@@ -1,14 +1,16 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/context";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
 import { usePacientes, useTurnos, useFacturas } from "@/hooks/use-data";
 import { EmptyState, TableSkeleton } from "@/components/ui";
 import { Users, Calendar, FileText } from "lucide-react";
+import type { Paciente } from "@/lib/services/data";
 
 // ─── NOTE: No hardcoded patient data. ────────────────────────
 // Real patient details come from usePacientes() via Supabase.
@@ -23,7 +25,11 @@ export default function PacienteDetailPage({ params }: { params: Promise<{ id: s
   const isDemo = useIsDemo();
 
   // ── Data hooks ─────────────────────────────────────────────
-  const { data: allPacientes, isLoading: loadingPacientes } = usePacientes();
+  const {
+    data: allPacientes,
+    isLoading: loadingPacientes,
+    mutate: mutatePacientes,
+  } = usePacientes();
   const { data: allTurnos, isLoading: loadingTurnos } = useTurnos();
   const { data: allFacturas, isLoading: loadingFacturas } = useFacturas();
 
@@ -39,12 +45,14 @@ export default function PacienteDetailPage({ params }: { params: Promise<{ id: s
 
   const isLoading = loadingPacientes || loadingTurnos || loadingFacturas;
 
+  const [showEditModal, setShowEditModal] = useState(false);
+
   const handleEditarPaciente = () => {
     if (isDemo) {
       showDemo("Editar paciente");
       return;
     }
-    showToast(t("toast.pacientes.editorSoon"));
+    setShowEditModal(true);
   };
 
   // ── Loading state ──────────────────────────────────────────
@@ -353,6 +361,325 @@ export default function PacienteDetailPage({ params }: { params: Promise<{ id: s
           </table>
         )}
       </div>
+
+      {/* Edit Patient Modal */}
+      {showEditModal && paciente && (
+        <EditPatientModal
+          paciente={paciente}
+          onClose={() => setShowEditModal(false)}
+          onUpdated={() => {
+            mutatePacientes();
+            setShowEditModal(false);
+            showToast(t("patients.patientUpdated"), "success");
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+// ─── Insurance Options ──────────────────────────────────────
+const INSURANCE_OPTIONS = [
+  "PAMI",
+  "OSDE",
+  "Swiss Medical",
+  "Galeno",
+  "IOMA",
+  "Medifé",
+  "Sancor Salud",
+  "Unión Personal",
+  "Accord Salud",
+  "OSECAC",
+];
+
+// ─── Edit Patient Modal ─────────────────────────────────────
+function EditPatientModal({
+  paciente,
+  onClose,
+  onUpdated,
+}: {
+  paciente: Paciente;
+  onClose: () => void;
+  onUpdated: () => void;
+}) {
+  const { t } = useLocale();
+  const { showToast } = useToast();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Form state — pre-filled with current patient data
+  const [nombre, setNombre] = useState(paciente.nombre ?? "");
+  const [dni, setDni] = useState(paciente.dni ?? "");
+  const [email, setEmail] = useState(paciente.email ?? "");
+  const [telefono, setTelefono] = useState(paciente.telefono ?? "");
+  const [fechaNacimiento, setFechaNacimiento] = useState(paciente.fechaNacimiento ?? "");
+  const [direccion, setDireccion] = useState(paciente.direccion ?? "");
+  const [financiador, setFinanciador] = useState(paciente.financiador ?? "");
+  const [plan, setPlan] = useState(paciente.plan ?? "");
+  const [notas, setNotas] = useState("");
+  const [estado, setEstado] = useState<"activo" | "inactivo">(paciente.estado ?? "activo");
+
+  // Open the dialog on mount
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+    }
+  }, []);
+
+  const handleDialogClick = useCallback(
+    (e: React.MouseEvent<HTMLDialogElement>) => {
+      if (e.target === dialogRef.current) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim() || !dni.trim()) return;
+
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/dashboard/patients/${paciente.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombre.trim(),
+          dni: dni.trim(),
+          email: email.trim() || undefined,
+          telefono: telefono.trim() || undefined,
+          fechaNacimiento: fechaNacimiento || undefined,
+          direccion: direccion.trim() || undefined,
+          financiador: financiador || undefined,
+          plan: plan.trim() || undefined,
+          notas: notas.trim() || undefined,
+          estado,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "Error desconocido" }));
+        showToast(data.error || t("patients.patientUpdateError"), "error");
+        return;
+      }
+
+      onUpdated();
+    } catch {
+      showToast(t("patients.patientUpdateError"), "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <dialog
+      ref={dialogRef}
+      onClick={handleDialogClick}
+      onClose={onClose}
+      className="fixed inset-0 z-50 m-auto w-full max-w-lg rounded-xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+    >
+      <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-ink">{t("patients.editPatientTitle")}</h2>
+            <p className="text-xs text-ink-muted mt-0.5">{t("patients.editPatientDesc")}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-ink-muted hover:text-ink text-xl leading-none p-1"
+            aria-label={t("patients.cancel")}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Nombre — required */}
+          <div className="sm:col-span-2">
+            <label htmlFor="ep-nombre" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldNombre")} *
+            </label>
+            <input
+              id="ep-nombre"
+              type="text"
+              required
+              autoFocus
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder={t("patients.fieldNombrePlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* DNI — required */}
+          <div>
+            <label htmlFor="ep-dni" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldDNI")} *
+            </label>
+            <input
+              id="ep-dni"
+              type="text"
+              required
+              value={dni}
+              onChange={(e) => setDni(e.target.value)}
+              placeholder={t("patients.fieldDNIPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Teléfono */}
+          <div>
+            <label htmlFor="ep-telefono" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldTelefono")}
+            </label>
+            <input
+              id="ep-telefono"
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder={t("patients.fieldTelefonoPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label htmlFor="ep-email" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldEmail")}
+            </label>
+            <input
+              id="ep-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t("patients.fieldEmailPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Fecha de nacimiento */}
+          <div>
+            <label htmlFor="ep-fecha" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldFechaNacimiento")}
+            </label>
+            <input
+              id="ep-fecha"
+              type="date"
+              value={fechaNacimiento}
+              onChange={(e) => setFechaNacimiento(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Estado */}
+          <div>
+            <label htmlFor="ep-estado" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldEstado")}
+            </label>
+            <select
+              id="ep-estado"
+              value={estado}
+              onChange={(e) => setEstado(e.target.value as "activo" | "inactivo")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            >
+              <option value="activo">{t("patients.statusActive")}</option>
+              <option value="inactivo">{t("patients.statusInactive")}</option>
+            </select>
+          </div>
+
+          {/* Financiador */}
+          <div>
+            <label
+              htmlFor="ep-financiador"
+              className="block text-xs font-medium text-ink-muted mb-1"
+            >
+              {t("patients.fieldFinanciador")}
+            </label>
+            <select
+              id="ep-financiador"
+              value={financiador}
+              onChange={(e) => setFinanciador(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            >
+              <option value="">{t("patients.selectInsurance")}</option>
+              <option value="Particular">{t("patients.particular")}</option>
+              {INSURANCE_OPTIONS.map((ins) => (
+                <option key={ins} value={ins}>
+                  {ins}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Plan */}
+          <div>
+            <label htmlFor="ep-plan" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldPlan")}
+            </label>
+            <input
+              id="ep-plan"
+              type="text"
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+              placeholder={t("patients.fieldPlanPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Dirección */}
+          <div className="sm:col-span-2">
+            <label htmlFor="ep-direccion" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldDireccion")}
+            </label>
+            <input
+              id="ep-direccion"
+              type="text"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              placeholder={t("patients.fieldDireccionPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Notas */}
+          <div className="sm:col-span-2">
+            <label htmlFor="ep-notas" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldNotas")}
+            </label>
+            <textarea
+              id="ep-notas"
+              rows={2}
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              placeholder={t("patients.fieldNotasPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-ink-muted hover:text-ink border border-border rounded-lg transition"
+          >
+            {t("patients.cancel")}
+          </button>
+          <button
+            type="submit"
+            disabled={saving || !nombre.trim() || !dni.trim()}
+            className="px-5 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-lg hover:bg-celeste transition disabled:opacity-50"
+          >
+            {saving ? t("patients.saving") : t("patients.updatePatient")}
+          </button>
+        </div>
+      </form>
+    </dialog>
   );
 }

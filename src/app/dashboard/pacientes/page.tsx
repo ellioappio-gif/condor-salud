@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSearchParams } from "next/navigation";
@@ -17,7 +17,7 @@ import {
   useUpdateLead,
 } from "@/lib/hooks/useCRM";
 import { useCrudAction } from "@/hooks/use-crud-action";
-import { useIsDemo } from "@/lib/auth/context";
+import { useIsDemo, useAuth } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
 import { usePacientes } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
@@ -103,6 +103,8 @@ export default function PacientesPage() {
   const { execute, isExecuting } = useCrudAction(isDemo);
   const { exportPDF, exportExcel, isExporting } = useExport();
   const [activeTab, setActiveTab] = useState<PacientesTab>(initialTab);
+  const [showAddPatient, setShowAddPatient] = useState(false);
+  const { hasPermission } = useAuth();
 
   const handleNuevoLead = () => {
     execute({
@@ -126,11 +128,11 @@ export default function PacientesPage() {
       showDemo(t("patients.newPatientDemo"));
       return;
     }
-    showToast(t("toast.pacientes.convertLead"));
+    setShowAddPatient(true);
   };
 
   // Patient data: real from Supabase or demo
-  const { data: realPacientes } = usePacientes();
+  const { data: realPacientes, mutate: mutatePacientes } = usePacientes();
   const pacientes = useMemo((): PacienteDisplay[] => {
     if (!realPacientes || realPacientes.length === 0) return [];
     return realPacientes.map((p) => ({
@@ -242,6 +244,18 @@ export default function PacientesPage() {
           ) : null
         }
       />
+
+      {/* ── Add Patient Modal ───────────────────────────── */}
+      {showAddPatient && (
+        <AddPatientModal
+          onClose={() => setShowAddPatient(false)}
+          onCreated={() => {
+            mutatePacientes();
+            setShowAddPatient(false);
+            showToast(t("patients.patientCreated"), "success");
+          }}
+        />
+      )}
 
       {/* ── Tabs ────────────────────────────────────────── */}
       <div className="flex gap-1 border-b border-border" role="tablist">
@@ -1109,5 +1123,288 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
         </button>
       </div>
     </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADD PATIENT MODAL
+// ═══════════════════════════════════════════════════════════════
+
+const INSURANCE_OPTIONS = [
+  "PAMI",
+  "OSDE",
+  "Swiss Medical",
+  "Galeno",
+  "IOMA",
+  "Medifé",
+  "Sancor Salud",
+  "Unión Personal",
+  "Accord Salud",
+  "OSECAC",
+];
+
+function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const { t } = useLocale();
+  const { showToast } = useToast();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Form state
+  const [nombre, setNombre] = useState("");
+  const [dni, setDni] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [financiador, setFinanciador] = useState("");
+  const [plan, setPlan] = useState("");
+  const [notas, setNotas] = useState("");
+
+  // Open the dialog on mount
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+    }
+  }, []);
+
+  // Close on Escape (native dialog behavior) or backdrop click
+  const handleDialogClick = useCallback(
+    (e: React.MouseEvent<HTMLDialogElement>) => {
+      if (e.target === dialogRef.current) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim() || !dni.trim()) return;
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/dashboard/patients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombre.trim(),
+          dni: dni.trim(),
+          email: email.trim() || undefined,
+          telefono: telefono.trim() || undefined,
+          fechaNacimiento: fechaNacimiento || undefined,
+          direccion: direccion.trim() || undefined,
+          financiador: financiador || undefined,
+          plan: plan.trim() || undefined,
+          notas: notas.trim() || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "Error desconocido" }));
+        showToast(data.error || t("patients.patientCreateError"), "error");
+        return;
+      }
+
+      onCreated();
+    } catch {
+      showToast(t("patients.patientCreateError"), "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <dialog
+      ref={dialogRef}
+      onClick={handleDialogClick}
+      onClose={onClose}
+      className="fixed inset-0 z-50 m-auto w-full max-w-lg rounded-xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+    >
+      <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-ink">{t("patients.addPatientTitle")}</h2>
+            <p className="text-xs text-ink-muted mt-0.5">{t("patients.addPatientDesc")}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-ink-muted hover:text-ink text-xl leading-none p-1"
+            aria-label={t("patients.cancel")}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Nombre — required */}
+          <div className="sm:col-span-2">
+            <label htmlFor="ap-nombre" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldNombre")} *
+            </label>
+            <input
+              id="ap-nombre"
+              type="text"
+              required
+              autoFocus
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder={t("patients.fieldNombrePlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* DNI — required */}
+          <div>
+            <label htmlFor="ap-dni" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldDNI")} *
+            </label>
+            <input
+              id="ap-dni"
+              type="text"
+              required
+              value={dni}
+              onChange={(e) => setDni(e.target.value)}
+              placeholder={t("patients.fieldDNIPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Teléfono */}
+          <div>
+            <label htmlFor="ap-telefono" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldTelefono")}
+            </label>
+            <input
+              id="ap-telefono"
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder={t("patients.fieldTelefonoPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label htmlFor="ap-email" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldEmail")}
+            </label>
+            <input
+              id="ap-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t("patients.fieldEmailPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Fecha de nacimiento */}
+          <div>
+            <label htmlFor="ap-fecha" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldFechaNacimiento")}
+            </label>
+            <input
+              id="ap-fecha"
+              type="date"
+              value={fechaNacimiento}
+              onChange={(e) => setFechaNacimiento(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Financiador */}
+          <div>
+            <label
+              htmlFor="ap-financiador"
+              className="block text-xs font-medium text-ink-muted mb-1"
+            >
+              {t("patients.fieldFinanciador")}
+            </label>
+            <select
+              id="ap-financiador"
+              value={financiador}
+              onChange={(e) => setFinanciador(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            >
+              <option value="">{t("patients.selectInsurance")}</option>
+              <option value="Particular">{t("patients.particular")}</option>
+              {INSURANCE_OPTIONS.map((ins) => (
+                <option key={ins} value={ins}>
+                  {ins}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Plan */}
+          <div>
+            <label htmlFor="ap-plan" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldPlan")}
+            </label>
+            <input
+              id="ap-plan"
+              type="text"
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+              placeholder={t("patients.fieldPlanPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Dirección */}
+          <div className="sm:col-span-2">
+            <label htmlFor="ap-direccion" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldDireccion")}
+            </label>
+            <input
+              id="ap-direccion"
+              type="text"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              placeholder={t("patients.fieldDireccionPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+
+          {/* Notas */}
+          <div className="sm:col-span-2">
+            <label htmlFor="ap-notas" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("patients.fieldNotas")}
+            </label>
+            <textarea
+              id="ap-notas"
+              rows={2}
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              placeholder={t("patients.fieldNotasPlaceholder")}
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+            />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-ink-muted hover:text-ink border border-border rounded-lg transition"
+          >
+            {t("patients.cancel")}
+          </button>
+          <button
+            type="submit"
+            disabled={saving || !nombre.trim() || !dni.trim()}
+            className="px-5 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-lg hover:bg-celeste transition disabled:opacity-50"
+          >
+            {saving ? t("patients.saving") : t("patients.savePatient")}
+          </button>
+        </div>
+      </form>
+    </dialog>
   );
 }

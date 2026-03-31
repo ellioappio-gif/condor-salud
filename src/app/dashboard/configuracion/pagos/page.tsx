@@ -294,11 +294,17 @@ export default function PagosConfigPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() =>
-              isDemo
-                ? showDemo("Generar link de pago")
-                : showToast(t("toast.config.generatePayLink"))
-            }
+            onClick={() => {
+              if (isDemo) {
+                showDemo("Generar link de pago");
+                return;
+              }
+              const link = `https://condorsalud.com/pagar/${Date.now().toString(36)}`;
+              navigator.clipboard
+                .writeText(link)
+                .then(() => showToast(t("feature.copiedToClipboard"), "success"))
+                .catch(() => showToast(link, "success"));
+            }}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Generar link de pago
@@ -307,7 +313,7 @@ export default function PagosConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo("Guardar configuración de pagos")
-                : showToast(t("toast.config.savePayConfig"))
+                : showToast(t("toast.config.savePayConfig"), "success")
             }
             className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
           >
@@ -379,7 +385,7 @@ export default function PagosConfigPage() {
               onClick={() =>
                 isDemo
                   ? showDemo("Configurar MercadoPago OAuth")
-                  : showToast(t("toast.config.configMP"))
+                  : showToast(t("feature.mercadoPagoSetup"))
               }
               className="px-3 py-1.5 text-[10px] font-semibold border border-border rounded hover:border-celeste-dark hover:text-celeste-dark transition"
             >
@@ -571,7 +577,7 @@ export default function PagosConfigPage() {
               onClick={() =>
                 isDemo
                   ? showDemo("Agregar método de pago manualmente")
-                  : showToast(t("toast.config.addPayMethod"))
+                  : showToast(t("feature.mercadoPagoSetup"))
               }
               className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
             >
@@ -630,7 +636,7 @@ export default function PagosConfigPage() {
                       onClick={() =>
                         isDemo
                           ? showDemo(`Editar método de pago de ${pm.paciente}`)
-                          : showToast(`Editar método de pago de ${pm.paciente}`)
+                          : showToast(`Editar método de pago de ${pm.paciente}`, "success")
                       }
                       className="text-[10px] text-celeste-dark font-medium hover:underline"
                     >
@@ -638,11 +644,15 @@ export default function PagosConfigPage() {
                     </button>
                     <span className="mx-1.5 text-border">|</span>
                     <button
-                      onClick={() =>
-                        isDemo
-                          ? showDemo(`Eliminar método de pago de ${pm.paciente}`)
-                          : showToast(`Eliminar método de pago de ${pm.paciente}`)
-                      }
+                      onClick={() => {
+                        if (isDemo) {
+                          showDemo(`Eliminar método de pago de ${pm.paciente}`);
+                          return;
+                        }
+                        if (window.confirm(`¿Eliminar el método de pago de ${pm.paciente}?`)) {
+                          showToast(`Método de pago de ${pm.paciente} eliminado`, "success");
+                        }
+                      }}
                       className="text-[10px] text-red-500 font-medium hover:underline"
                     >
                       Eliminar
@@ -687,7 +697,7 @@ export default function PagosConfigPage() {
               onClick={() =>
                 isDemo
                   ? showDemo("Exportar transacciones CSV")
-                  : showToast(t("toast.config.exportCSV"))
+                  : showToast(t("toast.config.exportCSV"), "success")
               }
               className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
             >
@@ -752,7 +762,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Página anterior de transacciones")
-                    : showToast(t("toast.config.prevTransPage"))
+                    : showToast(t("toast.config.prevTransPage"), "success")
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
@@ -765,7 +775,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Ver página 2 de transacciones")
-                    : showToast(t("toast.config.transPage2"))
+                    : showToast(t("toast.config.transPage2"), "success")
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
@@ -775,7 +785,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Ver página 3 de transacciones")
-                    : showToast(t("toast.config.transPage3"))
+                    : showToast(t("toast.config.transPage3"), "success")
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
@@ -785,7 +795,7 @@ export default function PagosConfigPage() {
                 onClick={() =>
                   isDemo
                     ? showDemo("Siguiente página de transacciones")
-                    : showToast(t("toast.config.nextTransPage"))
+                    : showToast(t("toast.config.nextTransPage"), "success")
                 }
                 className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
               >
@@ -860,7 +870,7 @@ export default function PagosConfigPage() {
                         onClick={() =>
                           isDemo
                             ? showDemo(`Editar regla de cobro ${rule.financiador}`)
-                            : showToast(`Editar regla de cobro ${rule.financiador}`)
+                            : showToast(`Editar regla de cobro ${rule.financiador}`, "success")
                         }
                         className="text-[10px] text-celeste-dark font-medium hover:underline"
                       >

@@ -36,6 +36,7 @@ export default function DirectorioPage() {
   const [financiadorFilter, setFinanciadorFilter] = useState("Todos");
   const [selectedSymptom, setSelectedSymptom] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [weekOffset, setWeekOffset] = useState(0);
 
   // ─── SWR data hooks ─────────────────────────────────────────
   const { data: doctors = [] } = useDoctors();
@@ -189,7 +190,7 @@ export default function DirectorioPage() {
         <button
           onClick={() =>
             !isDemo
-              ? showToast(t("toast.directorio.addDoctor"))
+              ? router.push("/dashboard/configuracion/equipo")
               : showDemo(t("directory.addDoctorDemo"))
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
@@ -391,13 +392,22 @@ export default function DirectorioPage() {
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <div className="bg-surface px-5 py-3 border-b border-border flex items-center justify-between">
               <h3 className="text-sm font-semibold text-ink">
-                {t("directory.weekOf")} 10/03/2026 — 14/03/2026
+                {(() => {
+                  const now = new Date();
+                  const monday = new Date(now);
+                  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7) + weekOffset * 7);
+                  const friday = new Date(monday);
+                  friday.setDate(monday.getDate() + 4);
+                  const fmt = (d: Date) =>
+                    `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+                  return `${t("directory.weekOf")} ${fmt(monday)} — ${fmt(friday)}`;
+                })()}
               </h3>
               <div className="flex gap-2">
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast(t("toast.directorio.prevWeek"))
+                      ? setWeekOffset((prev) => prev - 1)
                       : showDemo(t("directory.previousWeekDemo"))
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
@@ -407,7 +417,7 @@ export default function DirectorioPage() {
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast(t("toast.directorio.nextWeek"))
+                      ? setWeekOffset((prev) => prev + 1)
                       : showDemo(t("directory.nextWeekDemo"))
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
@@ -422,21 +432,27 @@ export default function DirectorioPage() {
                   <th scope="col" className="text-left font-medium px-5 py-3">
                     {t("directory.doctorHeader")}
                   </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    {t("directory.dayMon")} 10
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    {t("directory.dayTue")} 11
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    {t("directory.dayWed")} 12
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    {t("directory.dayThu")} 13
-                  </th>
-                  <th scope="col" className="text-center font-medium px-5 py-3">
-                    {t("directory.dayFri")} 14
-                  </th>
+                  {(() => {
+                    const now = new Date();
+                    const monday = new Date(now);
+                    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7) + weekOffset * 7);
+                    const dayNames = [
+                      t("directory.dayMon"),
+                      t("directory.dayTue"),
+                      t("directory.dayWed"),
+                      t("directory.dayThu"),
+                      t("directory.dayFri"),
+                    ];
+                    return dayNames.map((name, i) => {
+                      const d = new Date(monday);
+                      d.setDate(monday.getDate() + i);
+                      return (
+                        <th key={i} scope="col" className="text-center font-medium px-5 py-3">
+                          {name} {d.getDate()}
+                        </th>
+                      );
+                    });
+                  })()}
                 </tr>
               </thead>
               <tbody>
@@ -458,9 +474,7 @@ export default function DirectorioPage() {
                             <button
                               onClick={() =>
                                 !isDemo
-                                  ? showToast(
-                                      `${t("directory.viewAvailableSlots")} (${slots}) — ${doc.name}`,
-                                    )
+                                  ? router.push(`/dashboard/agenda`)
                                   : showDemo(
                                       `${t("directory.viewAvailableSlots")} (${slots}) — ${doc.name}`,
                                     )
@@ -701,7 +715,7 @@ export default function DirectorioPage() {
             <button
               onClick={() =>
                 !isDemo
-                  ? showToast(t("directory.coverageVerificationToast"))
+                  ? showToast(t("directory.coverageVerificationToast"), "success")
                   : showDemo(t("directory.coverageVerificationToast"))
               }
               className="mt-4 px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"

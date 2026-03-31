@@ -54,7 +54,9 @@ export default function FacturacionConfigPage() {
         <div className="flex gap-2 mt-4 pt-4 border-t border-border">
           <button
             onClick={() =>
-              isDemo ? showDemo(t("toast.config.upgrade")) : showToast(t("toast.config.upgrade"))
+              isDemo
+                ? showDemo(t("toast.config.upgrade"))
+                : showToast(t("toast.config.upgrade"), "success")
             }
             className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-gold-dark transition"
           >
@@ -64,18 +66,26 @@ export default function FacturacionConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo(t("toast.config.changePlan"))
-                : showToast(t("toast.config.changePlan"))
+                : showToast(t("toast.config.changePlan"), "success")
             }
             className="px-4 py-2 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Cambiar plan
           </button>
           <button
-            onClick={() =>
-              isDemo
-                ? showDemo(t("toast.config.cancelSubscription"))
-                : showToast(t("toast.config.cancelSubscription"))
-            }
+            onClick={() => {
+              if (isDemo) {
+                showDemo(t("toast.config.cancelSubscription"));
+                return;
+              }
+              if (
+                window.confirm(
+                  "¿Estás seguro de que querés cancelar tu suscripción? Esta acción se puede revertir contactando a soporte.",
+                )
+              ) {
+                showToast(t("toast.config.cancelSubscription"), "success");
+              }
+            }}
             className="px-4 py-2 text-sm font-medium text-red-600 hover:underline"
           >
             Cancelar suscripción
@@ -251,7 +261,7 @@ export default function FacturacionConfigPage() {
                     onClick={() =>
                       isDemo
                         ? showDemo("Descargar comprobante")
-                        : showToast(t("toast.config.downloadReceipt"))
+                        : showToast(t("toast.config.downloadReceipt"), "success")
                     }
                     className="text-xs text-celeste-dark font-medium hover:underline"
                   >
@@ -283,7 +293,7 @@ export default function FacturacionConfigPage() {
             onClick={() =>
               isDemo
                 ? showDemo(t("toast.config.changeCard"))
-                : showToast(t("toast.config.changeCard"))
+                : showToast(t("feature.mercadoPagoSetup"))
             }
             className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
@@ -319,7 +329,7 @@ export default function FacturacionConfigPage() {
           onClick={() =>
             isDemo
               ? showDemo(t("toast.config.editBilling"))
-              : showToast(t("toast.config.editBilling"))
+              : showToast(t("toast.config.editBilling"), "success")
           }
           className="mt-3 text-xs text-celeste-dark font-medium hover:underline"
         >

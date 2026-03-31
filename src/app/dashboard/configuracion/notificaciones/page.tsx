@@ -1,31 +1,45 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
+
+const DEFAULT_PREFS = {
+  emailPagos: true,
+  emailRechazos: true,
+  emailAranceles: true,
+  emailInventario: false,
+  emailSistema: false,
+  pushPagos: true,
+  pushRechazos: true,
+  pushAranceles: false,
+  pushInventario: true,
+  pushSistema: false,
+  reporteSemanal: true,
+  reporteMensual: true,
+  reporteDiario: false,
+};
+
+const PREFS_KEY = "condor-notif-prefs";
 
 export default function NotificacionesConfigPage() {
   const { showToast } = useToast();
   const { t } = useLocale();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
-  const [prefs, setPrefs] = useState({
-    emailPagos: true,
-    emailRechazos: true,
-    emailAranceles: true,
-    emailInventario: false,
-    emailSistema: false,
-    pushPagos: true,
-    pushRechazos: true,
-    pushAranceles: false,
-    pushInventario: true,
-    pushSistema: false,
-    reporteSemanal: true,
-    reporteMensual: true,
-    reporteDiario: false,
-  });
+  const [prefs, setPrefs] = useState(DEFAULT_PREFS);
+
+  // Load saved prefs on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PREFS_KEY);
+      if (saved) setPrefs(JSON.parse(saved));
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const toggle = (key: string) => setPrefs((p) => ({ ...p, [key]: !p[key as keyof typeof p] }));
 
@@ -180,21 +194,36 @@ export default function NotificacionesConfigPage() {
 
       <div className="flex gap-3">
         <button
-          onClick={() =>
-            isDemo
-              ? showDemo("Guardar preferencias de notificaciones")
-              : showToast(t("toast.config.saveNotifPrefs"))
-          }
+          onClick={() => {
+            if (isDemo) {
+              showDemo("Guardar preferencias de notificaciones");
+              return;
+            }
+            try {
+              localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+            } catch {
+              /* ignore */
+            }
+            showToast(t("feature.savedToDevice"), "success");
+          }}
           className="px-5 py-2.5 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
           Guardar cambios
         </button>
         <button
-          onClick={() =>
-            isDemo
-              ? showDemo("Restablecer configuración")
-              : showToast(t("toast.config.resetConfig"))
-          }
+          onClick={() => {
+            if (isDemo) {
+              showDemo("Restablecer configuración");
+              return;
+            }
+            setPrefs(DEFAULT_PREFS);
+            try {
+              localStorage.removeItem(PREFS_KEY);
+            } catch {
+              /* ignore */
+            }
+            showToast(t("feature.resetToDefaults"), "success");
+          }}
           className="px-5 py-2.5 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-ink transition"
         >
           Restablecer

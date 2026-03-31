@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Pagination } from "@/components/ui/Pagination";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -24,6 +25,7 @@ export default function TriagePage() {
   const { showToast } = useToast();
   const { t } = useLocale();
   const isDemo = useIsDemo();
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("sintomas");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [severity, setSeverity] = useState(5);
@@ -129,9 +131,23 @@ export default function TriagePage() {
           <p className="text-sm text-ink-light mt-1">{t("triage.triageSubtitle")}</p>
         </div>
         <button
-          onClick={() =>
-            !isDemo ? showToast(t("toast.triage.newTriage")) : showDemo(t("triage.newTriageDemo"))
-          }
+          onClick={() => {
+            if (isDemo) {
+              showDemo(t("triage.newTriageDemo"));
+              return;
+            }
+            setSelectedSymptoms([]);
+            setSeverity(5);
+            setFrequency("Primera vez");
+            setDuration("");
+            setTriggers("");
+            setFreeNotes("");
+            setClinicalNotes("");
+            setSelectedICD([]);
+            setTreatmentPlan("");
+            setTab("sintomas");
+            showToast(t("toast.triage.newTriage"), "success");
+          }}
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
           {t("triage.newTriage")}
@@ -340,6 +356,7 @@ export default function TriagePage() {
                   !isDemo
                     ? showToast(
                         `${t("triage.saveDetail")}: ${selectedSymptoms.join(", ")} — ${t("triage.severity")} ${severity}/10, ${frequency}, ${t("triage.durationLabel")}: ${duration || "N/A"}`,
+                        "success",
                       )
                     : showDemo(
                         `${t("triage.saveDetail")}: ${selectedSymptoms.join(", ")} — ${t("triage.severity")} ${severity}/10, ${frequency}, ${t("triage.durationLabel")}: ${duration || "N/A"}`,
@@ -383,11 +400,21 @@ export default function TriagePage() {
                   {t("triage.photoFormat")}. {t("triage.photoExamples")}
                 </p>
                 <button
-                  onClick={() =>
-                    !isDemo
-                      ? showToast(t("toast.triage.attachPhotos"))
-                      : showDemo(t("triage.attachPhotosDemo"))
-                  }
+                  onClick={() => {
+                    if (isDemo) {
+                      showDemo(t("triage.attachPhotosDemo"));
+                      return;
+                    }
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = "image/*";
+                    input.multiple = true;
+                    input.onchange = () => {
+                      const count = input.files?.length ?? 0;
+                      if (count > 0) showToast(`${count} archivo(s) seleccionado(s)`, "success");
+                    };
+                    input.click();
+                  }}
                   className="mt-3 px-4 py-2 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                 >
                   {t("triage.selectFiles")}
@@ -400,6 +427,7 @@ export default function TriagePage() {
                 !isDemo
                   ? showToast(
                       `${t("triage.saveNotes")}: ${freeNotes.substring(0, 50) || t("triage.noNotes")}...`,
+                      "success",
                     )
                   : showDemo(
                       `${t("triage.saveNotes")}: ${freeNotes.substring(0, 50) || t("triage.noNotes")}...`,
@@ -652,7 +680,7 @@ export default function TriagePage() {
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast(t("toast.triage.addReferral"))
+                      ? showToast(t("toast.triage.addReferral"), "success")
                       : showDemo(t("triage.addReferralDemo"))
                   }
                   className="px-4 py-2.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
@@ -668,6 +696,7 @@ export default function TriagePage() {
                   !isDemo
                     ? showToast(
                         `${t("triage.saveClinicalNote")}: ICD-10 ${selectedICD.join(", ") || "N/A"} — ${t("triage.treatmentPlan")}: ${treatmentPlan.substring(0, 50) || "N/A"}`,
+                        "success",
                       )
                     : showDemo(
                         `${t("triage.saveClinicalNote")}: ICD-10 ${selectedICD.join(", ") || "N/A"} — ${t("triage.treatmentPlan")}: ${treatmentPlan.substring(0, 50) || "N/A"}`,
@@ -680,7 +709,7 @@ export default function TriagePage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast(t("triage.generatePrescriptionToast"))
+                    ? router.push("/dashboard/recetas/nueva")
                     : showDemo(t("triage.generatePrescriptionToast"))
                 }
                 className="px-5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700 transition"
@@ -733,9 +762,7 @@ export default function TriagePage() {
                           <button
                             onClick={() =>
                               !isDemo
-                                ? showToast(
-                                    `${t("triage.searchDoctorsIn")} ${symptomToSpecialty[s] || "Clínica médica"} ${t("triage.inDirectory")}`,
-                                  )
+                                ? router.push("/dashboard/directorio")
                                 : showDemo(
                                     `${t("triage.searchDoctorsIn")} ${symptomToSpecialty[s] || "Clínica médica"} ${t("triage.inDirectory")}`,
                                   )
@@ -767,9 +794,7 @@ export default function TriagePage() {
                 <button
                   onClick={() =>
                     !isDemo
-                      ? showToast(
-                          `${t("triage.openDirectoryFiltered")} ${routedSpecialties.join(", ") || "Clínica médica"}`,
-                        )
+                      ? router.push("/dashboard/directorio")
                       : showDemo(
                           `${t("triage.openDirectoryFiltered")} ${routedSpecialties.join(", ") || "Clínica médica"}`,
                         )

@@ -144,7 +144,7 @@ export default function IntegracionesPage() {
           onClick={() =>
             isDemo
               ? showDemo(t("toast.config.newIntegration"))
-              : showToast(t("toast.config.newIntegration"))
+              : showToast(t("toast.config.newIntegration"), "success")
           }
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
@@ -252,7 +252,7 @@ export default function IntegracionesPage() {
                         "{name}",
                         int.nombre,
                       );
-                      isDemo ? showDemo(msg) : showToast(msg);
+                      isDemo ? showDemo(msg) : showToast(msg, "success");
                     }}
                     className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
@@ -266,7 +266,7 @@ export default function IntegracionesPage() {
                         "{name}",
                         int.nombre,
                       );
-                      isDemo ? showDemo(msg) : showToast(msg);
+                      isDemo ? showDemo(msg) : showToast(msg, "success");
                     }}
                     className="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-[4px] hover:bg-red-700 transition"
                   >
@@ -280,7 +280,7 @@ export default function IntegracionesPage() {
                         "{name}",
                         int.nombre,
                       );
-                      isDemo ? showDemo(msg) : showToast(msg);
+                      isDemo ? showDemo(msg) : showToast(msg, "success");
                     }}
                     className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
                   >
@@ -293,7 +293,7 @@ export default function IntegracionesPage() {
                       "{name}",
                       int.nombre,
                     );
-                    isDemo ? showDemo(msg) : showToast(msg);
+                    isDemo ? showDemo(msg) : showToast(msg, "success");
                   }}
                   className="px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink transition"
                 >

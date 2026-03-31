@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Pagination } from "@/components/ui/Pagination";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -24,6 +25,7 @@ export default function FarmaciaPage() {
   const { showToast } = useToast();
   const { t } = useLocale();
   const isDemo = useIsDemo();
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("catalogo");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("Todas");
@@ -130,7 +132,7 @@ export default function FarmaciaPage() {
         </div>
         <button
           onClick={() =>
-            !isDemo ? showToast(t("toast.farmacia.newRx")) : showDemo(t("pharmacy.newDigitalRx"))
+            !isDemo ? router.push("/dashboard/recetas/nueva") : showDemo(t("pharmacy.newDigitalRx"))
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
@@ -285,6 +287,7 @@ export default function FarmaciaPage() {
                               !isDemo
                                 ? showToast(
                                     t("pharmacy.toast.addToCart").replace("{name}", med.name),
+                                    "success",
                                   )
                                 : showDemo(
                                     t("pharmacy.toast.addToCart").replace("{name}", med.name),
@@ -360,6 +363,7 @@ export default function FarmaciaPage() {
                           !isDemo
                             ? showToast(
                                 t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
+                                "success",
                               )
                             : showDemo(
                                 t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
@@ -370,15 +374,18 @@ export default function FarmaciaPage() {
                         {t("pharmacy.loadCart")}
                       </button>
                       <button
-                        onClick={() =>
-                          !isDemo
-                            ? showToast(
-                                t("pharmacy.toast.sendWhatsApp").replace("{name}", rx.patientName),
-                              )
-                            : showDemo(
-                                t("pharmacy.toast.sendWhatsApp").replace("{name}", rx.patientName),
-                              )
-                        }
+                        onClick={() => {
+                          if (isDemo) {
+                            showDemo(
+                              t("pharmacy.toast.sendWhatsApp").replace("{name}", rx.patientName),
+                            );
+                            return;
+                          }
+                          const msg = encodeURIComponent(
+                            `Hola ${rx.patientName}, tu receta ${rx.id} está lista.`,
+                          );
+                          window.open(`https://wa.me/?text=${msg}`, "_blank");
+                        }}
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
                         WhatsApp
@@ -443,7 +450,10 @@ export default function FarmaciaPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(t("pharmacy.toast.viewTracking").replace("{id}", del.id))
+                        ? showToast(
+                            t("pharmacy.toast.viewTracking").replace("{id}", del.id),
+                            "success",
+                          )
                         : showDemo(t("pharmacy.toast.viewTracking").replace("{id}", del.id))
                     }
                     className="text-xs font-medium text-celeste-dark hover:text-celeste transition"
@@ -601,7 +611,10 @@ export default function FarmaciaPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(t("pharmacy.toast.editRecurring").replace("{id}", order.id))
+                        ? showToast(
+                            t("pharmacy.toast.editRecurring").replace("{id}", order.id),
+                            "success",
+                          )
                         : showDemo(t("pharmacy.toast.editRecurring").replace("{id}", order.id))
                     }
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
@@ -615,6 +628,7 @@ export default function FarmaciaPage() {
                             order.status === "Activo"
                               ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
                               : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
+                            "success",
                           )
                         : showDemo(
                             order.status === "Activo"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Pagination } from "@/components/ui/Pagination";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -22,6 +23,7 @@ export default function TelemedicinPage() {
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
   const isDemo = useIsDemo();
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("sala");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -89,7 +91,7 @@ export default function TelemedicinPage() {
         <button
           onClick={() =>
             !isDemo
-              ? showToast(t("toast.telemed.newCall"))
+              ? router.push("/dashboard/agenda")
               : showDemo(t("telemedicine.startNewConsultationDemo"))
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
@@ -187,6 +189,7 @@ export default function TelemedicinPage() {
                         !isDemo
                           ? showToast(
                               t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
+                              "success",
                             )
                           : showDemo(
                               t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
@@ -200,9 +203,7 @@ export default function TelemedicinPage() {
                   <button
                     onClick={() =>
                       !isDemo
-                        ? showToast(
-                            t("telemedicine.startVideoDemo").replace("{name}", p.patientName),
-                          )
+                        ? showToast(t("feature.videoSetup"))
                         : showDemo(
                             t("telemedicine.startVideoDemo").replace("{name}", p.patientName),
                           )
@@ -259,21 +260,21 @@ export default function TelemedicinPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <button
-                        onClick={() =>
-                          !isDemo
-                            ? showToast(
-                                t("telemedicine.copyLinkDemo").replace(
-                                  "{url}",
-                                  c.videoRoomUrl ?? c.code,
-                                ),
-                              )
-                            : showDemo(
-                                t("telemedicine.copyLinkDemo").replace(
-                                  "{url}",
-                                  c.videoRoomUrl ?? c.code,
-                                ),
-                              )
-                        }
+                        onClick={() => {
+                          if (isDemo) {
+                            showDemo(
+                              t("telemedicine.copyLinkDemo").replace(
+                                "{url}",
+                                c.videoRoomUrl ?? c.code,
+                              ),
+                            );
+                            return;
+                          }
+                          const url = c.videoRoomUrl ?? c.code;
+                          navigator.clipboard.writeText(url).then(() => {
+                            showToast(t("feature.copiedToClipboard"), "success");
+                          });
+                        }}
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                       >
                         {t("telemedicine.copyLink")}
@@ -308,7 +309,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast(t("toast.telemed.shareScreen"))
+                    ? showToast(t("feature.videoSetup"))
                     : showDemo(t("telemedicine.openActiveVideoDemo"))
                 }
                 className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
@@ -318,7 +319,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast(t("toast.telemed.startRecording"))
+                    ? showToast(t("feature.videoSetup"))
                     : showDemo(t("telemedicine.startRecordingDemo"))
                 }
                 className="px-4 py-2 text-xs font-semibold border border-celeste-dark text-celeste-dark rounded hover:bg-celeste-pale transition"
@@ -328,7 +329,7 @@ export default function TelemedicinPage() {
               <button
                 onClick={() =>
                   !isDemo
-                    ? showToast(t("toast.telemed.endCall"))
+                    ? showToast(t("toast.telemed.endCall"), "success")
                     : showDemo(t("telemedicine.endActiveVideoDemo"))
                 }
                 className="px-4 py-2 text-xs font-semibold border border-red-300 text-red-600 rounded hover:bg-red-50 transition"
@@ -398,6 +399,7 @@ export default function TelemedicinPage() {
                           !isDemo
                             ? showToast(
                                 t("telemedicine.viewConsultationDetailDemo").replace("{id}", c.id),
+                                "success",
                               )
                             : showDemo(
                                 t("telemedicine.viewConsultationDetailDemo").replace("{id}", c.id),
@@ -481,11 +483,7 @@ export default function TelemedicinPage() {
                           <button
                             onClick={() =>
                               !isDemo
-                                ? showToast(
-                                    t("telemedicine.billConsultationDemo")
-                                      .replace("{id}", c.id)
-                                      .replace("{code}", c.billCode ?? ""),
-                                  )
+                                ? router.push("/dashboard/facturacion")
                                 : showDemo(
                                     t("telemedicine.billConsultationDemo")
                                       .replace("{id}", c.id)
@@ -549,12 +547,7 @@ export default function TelemedicinPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(
-                                t("telemedicine.generatePrescriptionDemo").replace(
-                                  "{name}",
-                                  c.patientName,
-                                ),
-                              )
+                            ? router.push("/dashboard/recetas/nueva")
                             : showDemo(
                                 t("telemedicine.generatePrescriptionDemo").replace(
                                   "{name}",
@@ -571,12 +564,7 @@ export default function TelemedicinPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(
-                                t("telemedicine.sendToPharmacyDemo").replace(
-                                  "{name}",
-                                  c.patientName,
-                                ),
-                              )
+                            ? router.push("/dashboard/farmacia")
                             : showDemo(
                                 t("telemedicine.sendToPharmacyDemo").replace(
                                   "{name}",
@@ -670,21 +658,21 @@ export default function TelemedicinPage() {
                   <div className="flex gap-2 shrink-0">
                     {!c.summarySent && (
                       <button
-                        onClick={() =>
-                          !isDemo
-                            ? showToast(
-                                t("telemedicine.generateWhatsAppDemo").replace(
-                                  "{name}",
-                                  c.patientName,
-                                ),
-                              )
-                            : showDemo(
-                                t("telemedicine.generateWhatsAppDemo").replace(
-                                  "{name}",
-                                  c.patientName,
-                                ),
-                              )
-                        }
+                        onClick={() => {
+                          if (isDemo) {
+                            showDemo(
+                              t("telemedicine.generateWhatsAppDemo").replace(
+                                "{name}",
+                                c.patientName,
+                              ),
+                            );
+                            return;
+                          }
+                          const msg = encodeURIComponent(
+                            `Resumen de teleconsulta - ${c.patientName} - ${c.doctorName} (${c.date})`,
+                          );
+                          window.open(`https://wa.me/?text=${msg}`, "_blank");
+                        }}
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
                         {t("telemedicine.sendViaWhatsApp")}
@@ -693,7 +681,10 @@ export default function TelemedicinPage() {
                     <button
                       onClick={() =>
                         !isDemo
-                          ? showToast(t("telemedicine.viewFullSummaryDemo").replace("{id}", c.id))
+                          ? showToast(
+                              t("telemedicine.viewFullSummaryDemo").replace("{id}", c.id),
+                              "success",
+                            )
                           : showDemo(t("telemedicine.viewFullSummaryDemo").replace("{id}", c.id))
                       }
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"

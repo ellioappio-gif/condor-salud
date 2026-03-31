@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { Pagination } from "@/components/ui/Pagination";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -79,6 +80,7 @@ export default function NubixPage() {
   const { showToast } = useToast();
   const isDemo = useIsDemo();
   const { t, locale } = useLocale();
+  const router = useRouter();
 
   // ─── Search sidebar state ───────────────────────────────────
   const [patientName, setPatientName] = useState("");
@@ -311,20 +313,28 @@ export default function NubixPage() {
           <div className="flex gap-2">
             <button
               onClick={() =>
-                !isDemo
-                  ? showToast(t("nubix.newAppointment"), "info")
-                  : showDemo(t("nubix.newAppointment"))
+                !isDemo ? router.push("/dashboard/agenda") : showDemo(t("nubix.newAppointment"))
               }
               className="px-4 py-2 border border-border text-sm font-medium rounded hover:bg-surface transition"
             >
               {t("nubix.newAppointment")}
             </button>
             <button
-              onClick={() =>
-                !isDemo
-                  ? showToast(t("nubix.uploadStudy"), "info")
-                  : showDemo(t("nubix.uploadStudy"))
-              }
+              onClick={() => {
+                if (isDemo) {
+                  showDemo(t("nubix.uploadStudy"));
+                  return;
+                }
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = ".dcm,.dicom,image/*";
+                input.multiple = true;
+                input.onchange = () => {
+                  const count = input.files?.length ?? 0;
+                  if (count > 0) showToast(`${count} archivo(s) seleccionado(s)`, "success");
+                };
+                input.click();
+              }}
               className="px-4 py-2 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >
               {t("nubix.uploadStudy")}
@@ -590,7 +600,7 @@ export default function NubixPage() {
                       <button
                         onClick={() =>
                           !isDemo
-                            ? showToast(t("nubix.openInViewer"), "info")
+                            ? showToast(t("nubix.openInViewer"), "success")
                             : showDemo(t("nubix.openInViewer"))
                         }
                         className="text-[11px] text-celeste-dark font-medium hover:underline"

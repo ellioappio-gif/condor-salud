@@ -287,7 +287,7 @@ export default function WhatsAppConfigPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showToast(t("toast.config.testMessage"))}
+            onClick={() => showToast(t("toast.config.testMessage"), "success")}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Enviar prueba
