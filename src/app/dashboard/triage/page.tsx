@@ -131,7 +131,7 @@ export default function TriagePage() {
           <p className="text-sm text-ink-light mt-1">{t("triage.triageSubtitle")}</p>
         </div>
         <button
-          onClick={() => {
+          onClick={async () => {
             if (isDemo) {
               showDemo(t("triage.newTriageDemo"));
               return;
@@ -352,16 +352,39 @@ export default function TriagePage() {
               </div>
 
               <button
-                onClick={() =>
-                  !isDemo
-                    ? showToast(
-                        `${t("triage.saveDetail")}: ${selectedSymptoms.join(", ")} — ${t("triage.severity")} ${severity}/10, ${frequency}, ${t("triage.durationLabel")}: ${duration || "N/A"}`,
-                        "success",
-                      )
-                    : showDemo(
-                        `${t("triage.saveDetail")}: ${selectedSymptoms.join(", ")} — ${t("triage.severity")} ${severity}/10, ${frequency}, ${t("triage.durationLabel")}: ${duration || "N/A"}`,
-                      )
-                }
+                onClick={async () => {
+                  if (isDemo) {
+                    showDemo(
+                      `${t("triage.saveDetail")}: ${selectedSymptoms.join(", ")} — ${t("triage.severity")} ${severity}/10, ${frequency}, ${t("triage.durationLabel")}: ${duration || "N/A"}`,
+                    );
+                    return;
+                  }
+                  try {
+                    const res = await fetch("/api/triage", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        action: "create-triage",
+                        data: {
+                          patientName: "Paciente",
+                          symptoms: selectedSymptoms,
+                          severity,
+                          frequency,
+                          duration: duration || "",
+                          triggers: triggers || "",
+                          freeNotes: freeNotes || "",
+                        },
+                      }),
+                    });
+                    if (res.ok) {
+                      showToast(t("triage.saveDetail"), "success");
+                    } else {
+                      showToast("Error al guardar", "error");
+                    }
+                  } catch {
+                    showToast("Error de conexión", "error");
+                  }
+                }}
                 className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
               >
                 {t("triage.saveDetail")}
@@ -423,16 +446,38 @@ export default function TriagePage() {
             </div>
 
             <button
-              onClick={() =>
-                !isDemo
-                  ? showToast(
-                      `${t("triage.saveNotes")}: ${freeNotes.substring(0, 50) || t("triage.noNotes")}...`,
-                      "success",
-                    )
-                  : showDemo(
-                      `${t("triage.saveNotes")}: ${freeNotes.substring(0, 50) || t("triage.noNotes")}...`,
-                    )
-              }
+              onClick={async () => {
+                if (isDemo) {
+                  showDemo(
+                    `${t("triage.saveNotes")}: ${freeNotes.substring(0, 50) || t("triage.noNotes")}...`,
+                  );
+                  return;
+                }
+                try {
+                  const res = await fetch("/api/triage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      action: "save-clinical-note",
+                      data: {
+                        doctorName: "",
+                        patientName: "Paciente",
+                        icd10Codes: [],
+                        notes: freeNotes,
+                        treatmentPlan: "",
+                        referrals: [],
+                      },
+                    }),
+                  });
+                  if (res.ok) {
+                    showToast(t("triage.saveNotes"), "success");
+                  } else {
+                    showToast("Error al guardar notas", "error");
+                  }
+                } catch {
+                  showToast("Error de conexión", "error");
+                }
+              }}
               className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >
               {t("triage.saveNotes")}

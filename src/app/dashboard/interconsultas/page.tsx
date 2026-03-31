@@ -432,16 +432,17 @@ export default function InterconsultasPage() {
             setShowNewIc(false);
             setSelectedDoctor(null);
           }}
-          onSubmit={() => {
+          onSubmit={(formData) => {
             execute({
               action: async () => {
                 const { createInterconsulta } = await import("@/lib/services/interconsultas");
                 return createInterconsulta({
-                  paciente: "Paciente seleccionado",
-                  doctorDestinoId: selectedDoctor?.id ?? "",
-                  especialidad: selectedDoctor?.especialidad ?? "",
-                  motivo: "Interconsulta solicitada",
-                  prioridad: "normal",
+                  paciente: formData.paciente,
+                  doctorDestinoId: formData.doctorId,
+                  especialidad: formData.especialidad,
+                  motivo: formData.motivo,
+                  prioridad: formData.prioridad,
+                  notas: formData.notas || undefined,
                 });
               },
               successMessage: t("referrals.referralCreated"),
@@ -460,17 +461,18 @@ export default function InterconsultasPage() {
         <NewEstudioModal
           doctors={doctors}
           onClose={() => setShowNewEstudio(false)}
-          onSubmit={() => {
+          onSubmit={(formData) => {
             execute({
               action: async () => {
                 const { createSolicitudEstudio } = await import("@/lib/services/interconsultas");
                 return createSolicitudEstudio({
-                  paciente: "Paciente seleccionado",
-                  centroDestino: "Centro de diagnóstico",
-                  tipo: "laboratorio",
-                  estudio: "Estudio solicitado",
-                  indicacion: "Según indicación médica",
-                  prioridad: "normal",
+                  paciente: formData.paciente,
+                  centroDestino: formData.centroNombre,
+                  centroDestinoId: formData.centroId || undefined,
+                  tipo: formData.tipo,
+                  estudio: formData.estudio,
+                  indicacion: formData.indicacion,
+                  prioridad: formData.prioridad,
                 });
               },
               successMessage: t("referrals.studyCreated"),
@@ -718,7 +720,14 @@ function NewInterconsultaModal({
   specialties: string[];
   preselected: NetworkDoctor | null;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (data: {
+    paciente: string;
+    doctorId: string;
+    especialidad: string;
+    motivo: string;
+    prioridad: InterconsultaPrioridad;
+    notas: string;
+  }) => void;
 }) {
   const { t } = useLocale();
   const [esp, setEsp] = useState(preselected?.especialidad ?? "");
@@ -869,7 +878,9 @@ function NewInterconsultaModal({
             {t("common.cancel")}
           </button>
           <button
-            onClick={onSubmit}
+            onClick={() =>
+              onSubmit({ paciente, doctorId, especialidad: esp, motivo, prioridad, notas })
+            }
             disabled={!canSubmit}
             className="px-6 py-2 bg-celeste text-white text-sm font-medium rounded-lg
                        hover:bg-celeste/90 transition disabled:opacity-40 disabled:cursor-not-allowed
@@ -893,7 +904,15 @@ function NewEstudioModal({
 }: {
   doctors: NetworkDoctor[];
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (data: {
+    paciente: string;
+    tipo: EstudioTipo;
+    estudio: string;
+    indicacion: string;
+    centroId: string;
+    centroNombre: string;
+    prioridad: InterconsultaPrioridad;
+  }) => void;
 }) {
   const { t } = useLocale();
   const tipoLabels: Record<string, string> = {
@@ -1045,7 +1064,18 @@ function NewEstudioModal({
             {t("common.cancel")}
           </button>
           <button
-            onClick={onSubmit}
+            onClick={() => {
+              const centro = centros.find((c) => c.id === centroId);
+              onSubmit({
+                paciente,
+                tipo,
+                estudio,
+                indicacion,
+                centroId,
+                centroNombre: centro?.nombre ?? "",
+                prioridad,
+              });
+            }}
             disabled={!canSubmit}
             className="px-6 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg
                        hover:bg-purple-700 transition disabled:opacity-40 disabled:cursor-not-allowed

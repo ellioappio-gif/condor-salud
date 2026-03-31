@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/context";
+import { useAuth } from "@/lib/auth/context";
 import {
   Building,
   Users,
@@ -29,6 +30,7 @@ const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> 
 
 export default function ConfiguracionPage() {
   const { t } = useLocale();
+  const { user } = useAuth();
 
   const sections = [
     {
@@ -146,25 +148,25 @@ export default function ConfiguracionPage() {
             <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
               {t("settings.clinic")}
             </p>
-            <p className="font-semibold text-ink mt-0.5">Centro Médico San Martín</p>
+            <p className="font-semibold text-ink mt-0.5">{user?.clinicName || "—"}</p>
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
               {t("settings.cuit")}
             </p>
-            <p className="font-mono text-ink mt-0.5">30-71234567-8</p>
+            <p className="font-mono text-ink mt-0.5">{"—"}</p>
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
               {t("label.plan")}
             </p>
-            <p className="font-semibold text-celeste-dark mt-0.5">Pro — $75.000/mes</p>
+            <p className="font-semibold text-celeste-dark mt-0.5">Plus</p>
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
               {t("settings.nextBilling")}
             </p>
-            <p className="font-semibold text-ink mt-0.5">01/04/2026</p>
+            <p className="font-semibold text-ink mt-0.5">{"—"}</p>
           </div>
         </div>
       </div>

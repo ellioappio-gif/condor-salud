@@ -194,29 +194,61 @@ export default function NotificacionesConfigPage() {
 
       <div className="flex gap-3">
         <button
-          onClick={() => {
+          onClick={async () => {
             if (isDemo) {
               showDemo("Guardar preferencias de notificaciones");
               return;
             }
+            // Persist to API
             try {
-              localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+              const res = await fetch("/api/clinic/preferences", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: "notifications", data: prefs }),
+              });
+              if (res.ok) {
+                showToast(t("feature.savedToDevice"), "success");
+              } else {
+                // Fallback to localStorage if API not available
+                try {
+                  localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+                } catch {
+                  /* ignore */
+                }
+                showToast(t("feature.savedToDevice"), "success");
+              }
             } catch {
-              /* ignore */
+              // Fallback to localStorage on network error
+              try {
+                localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+              } catch {
+                /* ignore */
+              }
+              showToast(t("feature.savedToDevice"), "success");
             }
-            showToast(t("feature.savedToDevice"), "success");
           }}
           className="px-5 py-2.5 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
           Guardar cambios
         </button>
         <button
-          onClick={() => {
+          onClick={async () => {
             if (isDemo) {
               showDemo("Restablecer configuración");
               return;
             }
             setPrefs(DEFAULT_PREFS);
+            // Clear from API
+            try {
+              await fetch("/api/clinic/preferences", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: "notifications", data: DEFAULT_PREFS }),
+              });
+            } catch {
+              /* ignore */
+            }
+            // Also clear localStorage fallback
             try {
               localStorage.removeItem(PREFS_KEY);
             } catch {

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
+import { useAuth } from "@/lib/auth/context";
 import type { VademecumDrug, DrugInteraction } from "@/lib/types";
 import DrugSearch from "@/components/prescriptions/DrugSearch";
 import InteractionWarning from "@/components/prescriptions/InteractionWarning";
@@ -89,6 +90,7 @@ function useInteractionCheck() {
 export default function NuevaRecetaPage() {
   const { showToast } = useToast();
   const { t } = useLocale();
+  const { user } = useAuth();
   const interactionCheck = useInteractionCheck();
 
   const [creating, setCreating] = useState(false);
@@ -244,9 +246,9 @@ export default function NuevaRecetaPage() {
           patientId: patientDNI.trim() || "clinic-patient-" + Date.now(),
           patientName: patientName.trim(),
           patientDni: patientDNI.trim() || undefined,
-          doctorName: "Dra. Maria Rodriguez",
-          doctorMatricula: "MN-12345",
-          doctorCuit: "27-27345678-0",
+          doctorName: user?.name || "Doctor",
+          doctorMatricula: "",
+          doctorCuit: "",
           diagnosis: diagnosis.trim() || undefined,
           diagnosisCode: diagnosisCode || undefined,
           notes: notes.trim() || undefined,
