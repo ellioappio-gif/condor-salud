@@ -182,13 +182,13 @@ export default function FarmaciaPage() {
               aria-label={t("pharmacy.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
+              className="flex-1 px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               aria-label={t("pharmacy.filterByCategory")}
-              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             >
               {categories.map((c) => (
                 <option key={c} value={c}>
@@ -208,9 +208,9 @@ export default function FarmaciaPage() {
           ) : (
             <>
               <div className="bg-white border border-border rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" aria-label="Farmacia">
                   <thead>
-                    <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                    <tr className="bg-surface text-xs text-ink-muted">
                       <th scope="col" className="text-left font-medium px-5 py-3">
                         {t("pharmacy.medication")}
                       </th>
@@ -345,7 +345,7 @@ export default function FarmaciaPage() {
                     {(rx.items || []).map((item: string) => (
                       <span
                         key={item}
-                        className="text-[11px] bg-[#F8FAFB] border border-border-light px-2 py-0.5 rounded text-ink-light"
+                        className="text-[11px] bg-surface border border-border-light px-2 py-0.5 rounded text-ink-light"
                       >
                         {item}
                       </span>
@@ -430,7 +430,7 @@ export default function FarmaciaPage() {
                       >
                         {deliveryStatusLabels[del.status] ?? del.status}
                       </span>
-                      <span className="text-[10px] text-ink-muted bg-[#F8FAFB] px-2 py-0.5 rounded">
+                      <span className="text-[10px] text-ink-muted bg-surface px-2 py-0.5 rounded">
                         {del.courier}
                       </span>
                     </div>
@@ -489,9 +489,9 @@ export default function FarmaciaPage() {
           </div>
 
           <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Cobertura de medicamentos">
               <thead>
-                <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                <tr className="bg-surface text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
                     {t("pharmacy.medication")}
                   </th>
@@ -575,7 +575,7 @@ export default function FarmaciaPage() {
                       className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                         order.status === "Activo"
                           ? "bg-green-50 text-green-700"
-                          : "bg-[#F8FAFB] text-ink-muted"
+                          : "bg-surface text-ink-muted"
                       }`}
                     >
                       {orderStatusLabels[order.status] ?? order.status}

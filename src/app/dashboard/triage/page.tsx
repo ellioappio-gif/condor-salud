@@ -272,7 +272,7 @@ export default function TriagePage() {
                   placeholder={t("triage.durationPlaceholder")}
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
+                  className="w-full px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 />
               </div>
 
@@ -312,7 +312,7 @@ export default function TriagePage() {
                       className={`px-3 py-1.5 text-xs rounded transition ${
                         frequency === f
                           ? "bg-celeste-dark text-white"
-                          : "bg-[#F8FAFB] border border-border text-ink-light hover:border-celeste-dark hover:text-celeste-dark"
+                          : "bg-surface border border-border text-ink-light hover:border-celeste-dark hover:text-celeste-dark"
                       }`}
                     >
                       {f}
@@ -331,7 +331,7 @@ export default function TriagePage() {
                   placeholder={t("triage.triggersPlaceholder")}
                   value={triggers}
                   onChange={(e) => setTriggers(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
+                  className="w-full px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 />
               </div>
 
@@ -369,7 +369,7 @@ export default function TriagePage() {
                 value={freeNotes}
                 onChange={(e) => setFreeNotes(e.target.value)}
                 rows={6}
-                className="w-full px-4 py-3 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark resize-y"
+                className="w-full px-4 py-3 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 resize-y"
               />
             </div>
 
@@ -472,7 +472,7 @@ export default function TriagePage() {
               {freeNotes && (
                 <div>
                   <p className="text-[10px] text-ink-muted mb-1">{t("triage.patientNotesTitle")}</p>
-                  <div className="bg-[#F8FAFB] rounded p-3 text-xs text-ink-light">{freeNotes}</div>
+                  <div className="bg-surface rounded p-3 text-xs text-ink-light">{freeNotes}</div>
                 </div>
               )}
             </div>
@@ -489,9 +489,9 @@ export default function TriagePage() {
           )}
 
           <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Triaje de pacientes">
               <thead>
-                <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                <tr className="bg-surface text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
                     ID
                   </th>
@@ -525,7 +525,7 @@ export default function TriagePage() {
                         {(h.symptoms || []).map((s: string) => (
                           <span
                             key={s}
-                            className="text-[10px] bg-[#F8FAFB] px-1.5 py-0.5 rounded text-ink-light"
+                            className="text-[10px] bg-surface px-1.5 py-0.5 rounded text-ink-light"
                           >
                             {s}
                           </span>
@@ -611,7 +611,7 @@ export default function TriagePage() {
                 value={clinicalNotes}
                 onChange={(e) => setClinicalNotes(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark resize-y"
+                className="w-full px-4 py-3 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 resize-y"
               />
             </div>
 
@@ -625,7 +625,7 @@ export default function TriagePage() {
                 value={treatmentPlan}
                 onChange={(e) => setTreatmentPlan(e.target.value)}
                 rows={3}
-                className="w-full px-4 py-3 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark resize-y"
+                className="w-full px-4 py-3 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 resize-y"
               />
             </div>
 
@@ -637,7 +637,7 @@ export default function TriagePage() {
               <div className="flex gap-2">
                 <select
                   aria-labelledby="lbl-derivaciones"
-                  className="flex-1 px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+                  className="flex-1 px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 >
                   <option value="">{t("triage.noReferral")}</option>
                   <option>Cardiología</option>
@@ -705,9 +705,9 @@ export default function TriagePage() {
             <div className="space-y-4">
               {/* Mapping */}
               <div className="bg-white border border-border rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" aria-label="Ruteo por síntomas">
                   <thead>
-                    <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                    <tr className="bg-surface text-xs text-ink-muted">
                       <th scope="col" className="text-left font-medium px-5 py-3">
                         {t("triage.symptomSingular")}
                       </th>

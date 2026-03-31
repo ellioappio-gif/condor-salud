@@ -11,7 +11,15 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { logger } from "@/lib/logger";
 
-const JWT_SECRET = () => process.env.JWT_SECRET || process.env.SESSION_ENCRYPTION_KEY || "";
+const JWT_SECRET = (): string => {
+  const secret = process.env.JWT_SECRET || process.env.SESSION_ENCRYPTION_KEY;
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET environment variable is required in production");
+  }
+  // In development only, use a consistent dev secret
+  return "dev-only-jwt-secret-do-not-use-in-production";
+};
 
 // ─── Types ───────────────────────────────────────────────────
 

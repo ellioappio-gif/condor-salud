@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { GooglePlacesService } from "@/lib/services/google-places";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest, { params }: { params: { photoRef
       },
     });
   } catch (err: unknown) {
-    console.error("[photos/proxy]", err);
+    logger.error({ err }, "[photos/proxy]");
     return NextResponse.json({ error: "Photo proxy error" }, { status: 500 });
   }
 }

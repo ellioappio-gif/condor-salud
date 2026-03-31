@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, PreApproval } from "mercadopago";
 import { getSeatPlan, upgradeToPlan, type SeatPlanId } from "@/lib/services/seat-billing";
 import { isMercadoPagoConfigured } from "@/lib/services/mercadopago";
+import { requireAuth } from "@/lib/security/require-auth";
 import { logger } from "@/lib/logger";
 
 // ─── Plan ID mapping from env ────────────────────────────────
@@ -28,6 +29,10 @@ const FRONTEND_URL =
  * Returns the init_point URL for the doctor to complete payment on MercadoPago.
  */
 export async function POST(req: NextRequest) {
+  // Auth: verify caller is authenticated
+  const auth = await requireAuth(req);
+  if (auth.error) return auth.error;
+
   try {
     const body = (await req.json()) as {
       doctorId?: string;
@@ -40,6 +45,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "doctorId, plan, billingCycle, and payerEmail are required" },
         { status: 400 },
+      );
+    }
+
+    // Verify the authenticated user matches the doctorId
+    if (auth.user.id !== body.doctorId && auth.user.role !== "admin") {
+      return NextResponse.json(
+        { error: "No podés crear una suscripción para otro doctor" },
+        { status: 403 },
       );
     }
 

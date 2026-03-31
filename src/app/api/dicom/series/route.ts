@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createDCM4CHEEClient } from "@/lib/dcm4chee/client";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
       series: response.data,
     });
   } catch (error) {
-    console.error("Error fetching DICOM series:", error);
+    logger.error({ err: error }, "Error fetching DICOM series");
     return NextResponse.json({ error: "Failed to fetch series" }, { status: 500 });
   }
 }

@@ -211,9 +211,9 @@ export default function InflacionPage() {
                 <Download className="w-3 h-3" /> Excel
               </button>
             </div>
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Índice de inflación">
               <thead>
-                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
                     {t("inflation.month")}
                   </th>
@@ -280,7 +280,7 @@ export default function InflacionPage() {
                   value={finFilter}
                   onChange={(e) => setFinFilter(e.target.value)}
                   aria-label={t("inflation.filterByInsurer")}
-                  className="text-xs border border-border rounded-[4px] px-2 py-1 outline-none focus:border-celeste-dark bg-white text-ink"
+                  className="text-xs border border-border rounded-[4px] px-2 py-1 outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 bg-white text-ink"
                 >
                   <option>Todos</option>
                   {financiadoresInflacion.map((f) => (
@@ -289,9 +289,9 @@ export default function InflacionPage() {
                 </select>
               </div>
             </div>
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Impacto inflacionario por financiador">
               <thead>
-                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
                     {t("inflation.insurer")}
                   </th>

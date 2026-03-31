@@ -277,7 +277,7 @@ export default function InterconsultasPage() {
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition flex-1 justify-center
-              ${tab === t.id ? "bg-white text-celeste shadow-sm" : "text-gray-500 hover:text-ink"}`}
+              ${tab === t.id ? "bg-white text-celeste-dark shadow-sm" : "text-gray-500 hover:text-ink"}`}
           >
             <t.icon className="w-4 h-4" />
             {t.label}
@@ -617,7 +617,7 @@ function InterconsultaCard({ ic }: { ic: Interconsulta }) {
           <div className="flex items-center gap-2 text-sm">
             <span className="font-medium text-ink">{ic.paciente}</span>
             <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-celeste font-medium">{ic.doctorDestino}</span>
+            <span className="text-celeste-dark font-medium">{ic.doctorDestino}</span>
             <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">
               {ic.especialidad}
             </span>
@@ -1097,7 +1097,7 @@ function DoctorProfileModal({
               </div>
               <div>
                 <h2 className="text-lg font-bold text-ink">{doctor.nombre}</h2>
-                <p className="text-sm text-celeste font-medium">{doctor.especialidad}</p>
+                <p className="text-sm text-celeste-dark font-medium">{doctor.especialidad}</p>
               </div>
             </div>
             <button onClick={onClose} className="text-gray-400 hover:text-ink transition">

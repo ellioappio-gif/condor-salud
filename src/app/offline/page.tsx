@@ -5,7 +5,7 @@ import { useLocale } from "@/lib/i18n/context";
 export default function OfflinePage() {
   const { t } = useLocale();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFB] px-6">
+    <div className="min-h-screen flex items-center justify-center bg-surface px-6">
       <div className="text-center max-w-md">
         <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#75AADB]/10 flex items-center justify-center">
           <svg

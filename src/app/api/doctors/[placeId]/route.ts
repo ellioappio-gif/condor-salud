@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GooglePlacesService } from "@/lib/services/google-places";
 import { DoctorEnrichmentService } from "@/lib/services/doctor-enrichment";
 import type { SearchDoctor } from "@/lib/doctor-search";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest, { params }: { params: { placeId:
 
     return NextResponse.json(doctor);
   } catch (err: unknown) {
-    console.error("[doctors/detail]", err);
+    logger.error({ err }, "[doctors/detail]");
     const msg = err instanceof Error ? err.message : "Error interno";
     return NextResponse.json({ error: msg }, { status: 500 });
   }

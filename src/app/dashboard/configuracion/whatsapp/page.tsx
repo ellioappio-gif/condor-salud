@@ -463,7 +463,7 @@ export default function WhatsAppConfigPage() {
               />
 
               {reminderSettings.includeGoogleMaps && (
-                <div className="bg-[#F8FAFB] rounded-lg p-3">
+                <div className="bg-surface rounded-lg p-3">
                   <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1.5">
                     Direccion configurada
                   </p>

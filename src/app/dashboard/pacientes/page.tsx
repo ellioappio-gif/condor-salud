@@ -601,7 +601,7 @@ function PacientesTabView({
         <div className="overflow-x-auto">
           <table className="w-full text-sm" aria-label={t("patients.patientList")}>
             <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-3">
                   {t("patients.patientColumn")}
                 </th>

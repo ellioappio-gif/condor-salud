@@ -2,11 +2,29 @@
 // PUT  /api/patients/me  — update current patient profile
 
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { requirePatientAuth } from "@/lib/security/jwt-auth";
 import * as patientAuth from "@/lib/services/patient-auth";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
+
+// Allowlist for updatable patient fields — prevents mass assignment
+const UpdateProfileSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  phone: z.string().max(30).optional(),
+  address: z.string().max(500).optional(),
+  city: z.string().max(200).optional(),
+  province: z.string().max(200).optional(),
+  dateOfBirth: z.string().max(20).optional(),
+  bloodType: z.string().max(10).optional(),
+  emergencyContact: z.string().max(200).optional(),
+  emergencyPhone: z.string().max(30).optional(),
+  allergies: z.array(z.string().max(200)).max(50).optional(),
+  medications: z.array(z.string().max(200)).max(50).optional(),
+  conditions: z.array(z.string().max(200)).max(50).optional(),
+  notes: z.string().max(2000).optional(),
+});
 
 export async function GET(request: NextRequest) {
   const auth = await requirePatientAuth(request);
@@ -29,8 +47,15 @@ export async function PUT(request: NextRequest) {
   if (auth.error) return auth.error;
 
   try {
-    const body = await request.json();
-    const patient = await patientAuth.updateProfile(auth.user.id, body);
+    const raw = await request.json();
+    const parsed = UpdateProfileSchema.safeParse(raw);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+    const patient = await patientAuth.updateProfile(auth.user.id, parsed.data);
     if (!patient) {
       return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
     }

@@ -237,7 +237,7 @@ export default function TurnosOnlinePage() {
             setPage(1);
           }}
           aria-label={t("onlineBooking.allStatuses")}
-          className="text-sm border border-border rounded-md px-3 py-1.5 bg-white focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none"
+          className="text-sm border border-border rounded-md px-3 py-1.5 bg-white focus:ring-2 focus:ring-celeste/50 focus:border-celeste focus:outline-none"
         >
           <option value="all">{t("onlineBooking.allStatuses")}</option>
           <option value="pending">{t(STATUS_CONFIG.pending.key)}</option>
@@ -255,12 +255,12 @@ export default function TurnosOnlinePage() {
             setPage(1);
           }}
           aria-label={t("onlineBooking.filterByDate")}
-          className="text-sm border border-border rounded-md px-3 py-1.5 bg-white focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none"
+          className="text-sm border border-border rounded-md px-3 py-1.5 bg-white focus:ring-2 focus:ring-celeste/50 focus:border-celeste focus:outline-none"
         />
 
         <button
           onClick={() => fetchBookings()}
-          className="ml-auto flex items-center gap-1.5 text-sm text-celeste hover:text-celeste/80 transition"
+          className="ml-auto flex items-center gap-1.5 text-sm text-celeste-dark hover:text-celeste/80 transition"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           {t("action.refresh")}
@@ -297,7 +297,7 @@ export default function TurnosOnlinePage() {
           <>
             {/* Desktop table */}
             <div className="hidden lg:block overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm" aria-label="Turnos online">
                 <thead className="bg-muted/50 border-b border-border">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">
@@ -423,7 +423,7 @@ export default function TurnosOnlinePage() {
                     {b.patient_phone && (
                       <a
                         href={`tel:${b.patient_phone}`}
-                        className="flex items-center gap-1 text-celeste"
+                        className="flex items-center gap-1 text-celeste-dark"
                       >
                         <Phone className="h-3 w-3" />
                         {b.patient_phone}

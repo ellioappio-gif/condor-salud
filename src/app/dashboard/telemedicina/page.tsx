@@ -159,7 +159,7 @@ export default function TelemedicinPage() {
                     <span className="text-[10px] text-ink-muted">
                       {p.age} {t("telemedicine.yearsOld")}
                     </span>
-                    <span className="text-[10px] bg-[#F8FAFB] px-2 py-0.5 rounded text-ink-muted">
+                    <span className="text-[10px] bg-surface px-2 py-0.5 rounded text-ink-muted">
                       {p.financiador}
                     </span>
                   </div>
@@ -221,9 +221,9 @@ export default function TelemedicinPage() {
             {t("telemedicine.upcomingScheduled")}
           </h3>
           <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Teleconsultas programadas">
               <thead>
-                <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                <tr className="bg-surface text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
                     {t("label.patient")}
                   </th>
@@ -253,7 +253,7 @@ export default function TelemedicinPage() {
                     <td className="px-5 py-3 text-ink-light">{c.specialty}</td>
                     <td className="px-5 py-3 text-center text-ink">{c.time}</td>
                     <td className="px-5 py-3 text-center">
-                      <span className="text-[10px] bg-[#F8FAFB] px-2 py-0.5 rounded text-ink-muted">
+                      <span className="text-[10px] bg-surface px-2 py-0.5 rounded text-ink-muted">
                         {c.financiador}
                       </span>
                     </td>
@@ -340,9 +340,9 @@ export default function TelemedicinPage() {
 
           {/* History */}
           <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Historial de teleconsultas">
               <thead>
-                <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                <tr className="bg-surface text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
                     ID
                   </th>
@@ -428,9 +428,9 @@ export default function TelemedicinPage() {
           <p className="text-sm text-ink-light">{t("telemedicine.autoBillingDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Facturación de teleconsultas">
               <thead>
-                <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                <tr className="bg-surface text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
                     {t("telemedicine.consultationHeader")}
                   </th>

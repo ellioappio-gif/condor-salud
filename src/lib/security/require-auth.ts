@@ -138,17 +138,29 @@ export async function requireAuth(req: NextRequest): Promise<AuthResult> {
   // ── 4. Demo mode fallback ──────────────────────────────────
   // When no real auth is found, return the demo user so that all
   // API routes work in demo / investor-preview mode.
-  // Gate: once real clinics onboard, re-enable the 401 response above.
-  logger.debug({ route: req.nextUrl.pathname }, "No auth found — falling back to demo user");
+  // Security: Only allow demo fallback in development or when DEMO_MODE is explicitly enabled.
+  const isDemoMode = process.env.NODE_ENV === "development" || process.env.DEMO_MODE === "true";
 
+  if (isDemoMode) {
+    logger.debug({ route: req.nextUrl.pathname }, "No auth found — falling back to demo user");
+    return {
+      user: {
+        id: "demo-doctor-001",
+        email: "demo@condorsalud.com",
+        name: "Dr. Rodriguez",
+        role: "admin",
+        clinicId: "demo-clinic-001",
+        clinicName: "Clinica San Martin",
+      },
+    };
+  }
+
+  // Production: no auth found — return 401
+  logger.warn({ route: req.nextUrl.pathname }, "No auth found — returning 401");
   return {
-    user: {
-      id: "demo-doctor-001",
-      email: "demo@condorsalud.com",
-      name: "Dr. Rodriguez",
-      role: "admin",
-      clinicId: "demo-clinic-001",
-      clinicName: "Clinica San Martin",
-    },
+    error: NextResponse.json(
+      { error: "No autorizado. Iniciá sesión para continuar." },
+      { status: 401 },
+    ),
   };
 }

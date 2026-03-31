@@ -114,7 +114,7 @@ export default function ReportesPage() {
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
                 aria-label={t("reports.selectPeriod")}
-                className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
+                className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition bg-white text-ink"
               >
                 {(() => {
                   const y = new Date().getFullYear();

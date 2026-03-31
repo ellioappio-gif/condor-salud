@@ -85,7 +85,7 @@ export default function StatusPage() {
   const OverallIcon = overallConfig.icon;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFB]">
+    <div className="min-h-screen bg-surface">
       {/* Header */}
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-3xl px-6 py-6 flex items-center justify-between">

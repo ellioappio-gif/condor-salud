@@ -309,7 +309,7 @@ export default function MiPerfilPublicoPage() {
               href={`/medicos/${slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sm text-celeste hover:underline"
+              className="flex items-center gap-1 text-sm text-celeste-dark hover:underline"
             >
               <Eye className="w-4 h-4" />
               {t("profile.preview")}
@@ -408,7 +408,7 @@ export default function MiPerfilPublicoPage() {
                         form.subSpecialties.filter((_, j) => j !== i),
                       )
                     }
-                    className="text-celeste hover:text-red-500"
+                    className="text-celeste-dark hover:text-red-500"
                   >
                     ×
                   </button>
@@ -437,7 +437,7 @@ export default function MiPerfilPublicoPage() {
                     setNewSubSpec("");
                   }
                 }}
-                className="text-celeste p-1.5"
+                className="text-celeste-dark p-1.5"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -754,7 +754,7 @@ export default function MiPerfilPublicoPage() {
 
           <button
             onClick={addEducation}
-            className="flex items-center gap-2 text-celeste font-medium text-sm hover:underline"
+            className="flex items-center gap-2 text-celeste-dark font-medium text-sm hover:underline"
           >
             <Plus className="w-4 h-4" />
             {t("profile.addEducation")}
@@ -847,7 +847,7 @@ export default function MiPerfilPublicoPage() {
                 {t("profile.verificationHint")}{" "}
                 <a
                   href="/dashboard/verificar-cuenta"
-                  className="text-celeste hover:underline font-medium inline-flex items-center gap-0.5"
+                  className="text-celeste-dark hover:underline font-medium inline-flex items-center gap-0.5"
                 >
                   {t("profile.verifyAccount")} <ExternalLink className="w-3 h-3" />
                 </a>

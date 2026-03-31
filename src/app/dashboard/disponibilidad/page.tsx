@@ -347,7 +347,7 @@ export default function DisponibilidadPage() {
           className="overflow-x-auto rounded-[4px] border border-ink/10 bg-white"
           data-tour="disponibilidad-grid"
         >
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-sm" aria-label="Disponibilidad horaria">
             <thead>
               <tr className="bg-ink/5">
                 <th className="border-b border-ink/10 p-2 text-left font-medium text-ink/60 w-20">

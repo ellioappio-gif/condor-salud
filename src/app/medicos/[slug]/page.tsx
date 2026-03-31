@@ -281,7 +281,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-xl bg-celeste/10 flex items-center justify-center">
-                    <span className="text-3xl font-bold text-celeste">
+                    <span className="text-3xl font-bold text-celeste-dark">
                       {profile.displayName.charAt(0)}
                     </span>
                   </div>
@@ -484,7 +484,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
               {profile.phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <a href={`tel:${profile.phone}`} className="text-celeste hover:underline">
+                  <a href={`tel:${profile.phone}`} className="text-celeste-dark hover:underline">
                     {profile.phone}
                   </a>
                 </div>
@@ -492,7 +492,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
               {profile.email && (
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <a href={`mailto:${profile.email}`} className="text-celeste hover:underline">
+                  <a href={`mailto:${profile.email}`} className="text-celeste-dark hover:underline">
                     {profile.email}
                   </a>
                 </div>
@@ -591,7 +591,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
             </p>
             <Link
               href="/auth/register"
-              className="inline-flex items-center gap-1 mt-3 text-celeste font-bold text-sm hover:underline"
+              className="inline-flex items-center gap-1 mt-3 text-celeste-dark font-bold text-sm hover:underline"
             >
               Registrate gratis
               <ExternalLink className="w-3.5 h-3.5" />

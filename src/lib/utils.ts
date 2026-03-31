@@ -60,7 +60,7 @@ export function formatTime(date: string | Date): string {
   }).format(new Date(date));
 }
 
-export function formatRelative(date: string | Date): string {
+export function formatRelative(date: string | Date, locale: "es" | "en" = "es"): string {
   const now = new Date();
   const d = new Date(date);
   const diffMs = now.getTime() - d.getTime();
@@ -68,10 +68,25 @@ export function formatRelative(date: string | Date): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMins < 1) return "Ahora";
-  if (diffMins < 60) return `Hace ${diffMins}m`;
-  if (diffHours < 24) return `Hace ${diffHours}h`;
-  if (diffDays < 7) return `Hace ${diffDays}d`;
+  const labels =
+    locale === "en"
+      ? {
+          now: "Now",
+          m: (n: number) => `${n}m ago`,
+          h: (n: number) => `${n}h ago`,
+          d: (n: number) => `${n}d ago`,
+        }
+      : {
+          now: "Ahora",
+          m: (n: number) => `Hace ${n}m`,
+          h: (n: number) => `Hace ${n}h`,
+          d: (n: number) => `Hace ${n}d`,
+        };
+
+  if (diffMins < 1) return labels.now;
+  if (diffMins < 60) return labels.m(diffMins);
+  if (diffHours < 24) return labels.h(diffHours);
+  if (diffDays < 7) return labels.d(diffDays);
   return formatDate(date);
 }
 
@@ -100,10 +115,55 @@ export function formatCUIT(cuit: string): string {
   return `${clean.slice(0, 2)}-${clean.slice(2, 10)}-${clean.slice(10)}`;
 }
 
+/**
+ * Validate an Argentine CUIT/CUIL using the módulo-11 algorithm.
+ * @param cuit — raw or formatted CUIT (e.g. "20-12345678-9" or "20123456789")
+ * @returns true if the CUIT passes the check-digit validation
+ */
+export function validateCUIT(cuit: string): boolean {
+  const clean = cuit.replace(/\D/g, "");
+  if (clean.length !== 11) return false;
+  // Valid type prefixes
+  const tipo = parseInt(clean.slice(0, 2), 10);
+  if (![20, 23, 24, 25, 27, 30, 33, 34].includes(tipo)) return false;
+  // Módulo 11
+  const weights = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+  let sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(clean.charAt(i), 10) * weights[i]!;
+  }
+  const remainder = sum % 11;
+  const checkDigit = remainder === 0 ? 0 : remainder === 1 ? 9 : 11 - remainder;
+  return parseInt(clean.charAt(10), 10) === checkDigit;
+}
+
 // ─── DNI formatter ───────────────────────────────────────────
 export function formatDNI(dni: string): string {
   const clean = dni.replace(/\D/g, "");
   return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/**
+ * Validate an Argentine DNI (7 or 8 digits, reasonable range).
+ */
+export function validateDNI(dni: string): boolean {
+  const clean = dni.replace(/\D/g, "");
+  if (clean.length < 7 || clean.length > 8) return false;
+  const num = parseInt(clean, 10);
+  return num >= 1_000_000 && num <= 99_999_999;
+}
+
+/**
+ * Validate an Argentine phone number (10 digits without country code, or 13 with +54).
+ * Accepts formats: 1155140371, +5491155140371, 011-5514-0371, etc.
+ */
+export function validatePhone(phone: string): boolean {
+  const clean = phone.replace(/[\s\-()]/g, "");
+  // With country code
+  if (/^\+?549?\d{10}$/.test(clean)) return true;
+  // Without country code (10 digits)
+  if (/^\d{10}$/.test(clean)) return true;
+  return false;
 }
 
 // ─── Delay (for demo simulations) ───────────────────────────

@@ -208,13 +208,13 @@ export default function InventarioPage() {
               aria-label={t("inventory.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-64 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition"
+              className="w-64 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition"
             />
             <select
               value={catFilter}
               onChange={(e) => setCatFilter(e.target.value)}
               aria-label={t("inventory.filterByCategory")}
-              className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
+              className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition bg-white text-ink"
             >
               {categorias.map((c) => (
                 <option key={c} value={c}>
@@ -226,7 +226,7 @@ export default function InventarioPage() {
               value={estadoFilter}
               onChange={(e) => setEstadoFilter(e.target.value)}
               aria-label={t("inventory.filterByStatus")}
-              className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
+              className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition bg-white text-ink"
             >
               <option value="Todos">{t("inventory.allStatuses")}</option>
               <option value="OK">OK</option>
@@ -237,9 +237,9 @@ export default function InventarioPage() {
 
           {/* Stock table */}
           <div className="bg-white border border-border rounded-lg overflow-x-auto">
-            <table className="w-full text-sm min-w-[900px]">
+            <table className="w-full text-sm min-w-[900px]" aria-label="Inventario de insumos">
               <thead>
-                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
                     {t("label.code")}
                   </th>
@@ -353,7 +353,7 @@ export default function InventarioPage() {
                   value={ingNombre}
                   onChange={(e) => setIngNombre(e.target.value)}
                   placeholder="Ej: Enalapril 10mg"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 />
               </div>
               <div>
@@ -363,7 +363,7 @@ export default function InventarioPage() {
                 <select
                   value={ingCategoria}
                   onChange={(e) => setIngCategoria(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark bg-white"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 bg-white"
                 >
                   {categorias
                     .filter((c) => c !== "Todos")
@@ -384,7 +384,7 @@ export default function InventarioPage() {
                     value={ingStock}
                     onChange={(e) => setIngStock(e.target.value)}
                     placeholder="50"
-                    className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                   />
                 </div>
                 <div>
@@ -396,7 +396,7 @@ export default function InventarioPage() {
                     value={ingStockMin}
                     onChange={(e) => setIngStockMin(e.target.value)}
                     placeholder="10"
-                    className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                   />
                 </div>
               </div>
@@ -409,7 +409,7 @@ export default function InventarioPage() {
                   value={ingPrecio}
                   onChange={(e) => setIngPrecio(e.target.value)}
                   placeholder="3200"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 />
               </div>
               <div>
@@ -420,7 +420,7 @@ export default function InventarioPage() {
                   value={ingProveedor}
                   onChange={(e) => setIngProveedor(e.target.value)}
                   placeholder="Droguería del Sud"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 />
               </div>
             </div>

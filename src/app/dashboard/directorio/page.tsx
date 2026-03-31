@@ -251,13 +251,13 @@ export default function DirectorioPage() {
               aria-label={t("directory.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
+              className="px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             />
             <select
               value={specialtyFilter}
               onChange={(e) => setSpecialtyFilter(e.target.value)}
               aria-label={t("directory.filterBySpecialty")}
-              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             >
               {specialties.map((s) => (
                 <option key={s}>{s}</option>
@@ -267,7 +267,7 @@ export default function DirectorioPage() {
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
               aria-label={t("directory.filterByLocation")}
-              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             >
               {locations.map((l) => (
                 <option key={l}>{l}</option>
@@ -277,7 +277,7 @@ export default function DirectorioPage() {
               value={financiadorFilter}
               onChange={(e) => setFinanciadorFilter(e.target.value)}
               aria-label={t("directory.filterByInsurer")}
-              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+              className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             >
               {financiadores.map((f) => (
                 <option key={f}>{f}</option>
@@ -333,7 +333,7 @@ export default function DirectorioPage() {
                     {(doc.financiadores || []).map((f: string) => (
                       <span
                         key={f}
-                        className="text-[10px] bg-[#F8FAFB] border border-border-light px-2 py-0.5 rounded text-ink-light"
+                        className="text-[10px] bg-surface border border-border-light px-2 py-0.5 rounded text-ink-light"
                       >
                         {f}
                       </span>
@@ -389,7 +389,7 @@ export default function DirectorioPage() {
           <p className="text-sm text-ink-light">{t("directory.realTimeDesc")}</p>
 
           <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <div className="bg-[#F8FAFB] px-5 py-3 border-b border-border flex items-center justify-between">
+            <div className="bg-surface px-5 py-3 border-b border-border flex items-center justify-between">
               <h3 className="text-sm font-semibold text-ink">
                 {t("directory.weekOf")} 10/03/2026 — 14/03/2026
               </h3>
@@ -416,7 +416,7 @@ export default function DirectorioPage() {
                 </button>
               </div>
             </div>
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Disponibilidad semanal">
               <thead>
                 <tr className="text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
@@ -676,7 +676,7 @@ export default function DirectorioPage() {
                 </label>
                 <select
                   aria-labelledby="lbl-paciente-sim"
-                  className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+                  className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 >
                   <option>Carlos Méndez — PAMI</option>
                   <option>Ana Rodríguez — OSDE</option>
@@ -689,7 +689,7 @@ export default function DirectorioPage() {
                 </label>
                 <select
                   aria-labelledby="lbl-medico-sim"
-                  className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+                  className="w-full px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 >
                   <option>Dra. Fernández — Cardiología</option>
                   <option>Dr. García — Dermatología</option>
@@ -717,9 +717,9 @@ export default function DirectorioPage() {
 
           {/* Verification history */}
           <div className="bg-white border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Verificación de cobertura">
               <thead>
-                <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
+                <tr className="bg-surface text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
                     {t("directory.patientLabel")}
                   </th>
@@ -775,7 +775,7 @@ export default function DirectorioPage() {
                     <td className="px-5 py-3 font-medium text-ink">{v.patient}</td>
                     <td className="px-5 py-3 text-ink-light">{v.doctor}</td>
                     <td className="px-5 py-3 text-center">
-                      <span className="text-[10px] bg-[#F8FAFB] px-2 py-0.5 rounded text-ink-muted">
+                      <span className="text-[10px] bg-surface px-2 py-0.5 rounded text-ink-muted">
                         {v.fin}
                       </span>
                     </td>
@@ -814,7 +814,7 @@ export default function DirectorioPage() {
               value={selectedSymptom}
               onChange={(e) => setSelectedSymptom(e.target.value)}
               aria-label={t("directory.selectSymptomAria")}
-              className="w-full sm:w-auto px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
+              className="w-full sm:w-auto px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             >
               <option value="">{t("directory.selectSymptom")}</option>
               {Object.keys(symptomToSpecialty).map((s) => (

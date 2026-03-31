@@ -254,7 +254,7 @@ export default function PerfilPage() {
                           return prev;
                         });
                       }}
-                      className="w-full text-sm text-ink border-b border-celeste-200 focus:border-celeste-dark outline-none pb-0.5 mt-0.5 bg-transparent"
+                      className="w-full text-sm text-ink border-b border-celeste-200 focus:border-celeste-dark outline-none focus:ring-2 focus:ring-celeste-dark/30 pb-0.5 mt-0.5 bg-transparent"
                     />
                   ) : (
                     <p className="text-sm text-ink font-medium">{item.value}</p>

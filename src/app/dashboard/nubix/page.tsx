@@ -199,7 +199,7 @@ export default function NubixPage() {
               value={patientName}
               onChange={(e) => setPatientName(e.target.value)}
               placeholder="García, Juan..."
-              className="w-full px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
+              className="w-full px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             />
           </div>
 
@@ -213,7 +213,7 @@ export default function NubixPage() {
               value={patientId}
               onChange={(e) => setPatientId(e.target.value)}
               placeholder="20-31456789-0"
-              className="w-full px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
+              className="w-full px-3 py-2 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
             />
           </div>
 
@@ -227,7 +227,7 @@ export default function NubixPage() {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full px-2 py-2 border border-border rounded text-xs focus:outline-none focus:border-celeste-dark"
+                className="w-full px-2 py-2 border border-border rounded text-xs focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
               />
             </div>
             <div>
@@ -238,7 +238,7 @@ export default function NubixPage() {
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-full px-2 py-2 border border-border rounded text-xs focus:outline-none focus:border-celeste-dark"
+                className="w-full px-2 py-2 border border-border rounded text-xs focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
               />
             </div>
           </div>
@@ -381,7 +381,7 @@ export default function NubixPage() {
           <>
             <div className="bg-white border border-border rounded-[4px] overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" aria-label="Estudios de imágenes">
                   <thead>
                     <tr className="bg-celeste-pale border-b border-border">
                       <th

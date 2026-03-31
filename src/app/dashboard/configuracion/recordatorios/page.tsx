@@ -181,7 +181,7 @@ export default function RecordatoriosConfigPage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-ink-light">Horario de envío:</span>
-            <span className="px-3 py-1 text-xs font-mono font-semibold bg-[#F8FAFB] border border-border rounded">
+            <span className="px-3 py-1 text-xs font-mono font-semibold bg-surface border border-border rounded">
               08:00
             </span>
           </div>
@@ -224,7 +224,7 @@ export default function RecordatoriosConfigPage() {
                     </span>
                     <span className="text-[10px] text-ink-muted">{t.timing}</span>
                   </div>
-                  <div className="bg-[#F8FAFB] rounded p-3 text-xs text-ink-light leading-relaxed font-mono">
+                  <div className="bg-surface rounded p-3 text-xs text-ink-light leading-relaxed font-mono">
                     {t.mensaje}
                   </div>
                 </div>

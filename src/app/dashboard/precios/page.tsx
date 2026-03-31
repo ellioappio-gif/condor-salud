@@ -503,7 +503,7 @@ export default function PreciosPage() {
       ) : (
         <div className="bg-white border border-border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Lista de precios">
               <thead>
                 <tr className="border-b border-border bg-surface/50">
                   <th className="text-left px-4 py-3 font-medium text-ink/60">

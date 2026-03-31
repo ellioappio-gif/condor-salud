@@ -228,7 +228,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // While user is loading, only show the home link (avoid flash of full sidebar)
     if (isLoading || !user?.role) return false;
     // Role-based access check
-    if (!canAccessRoute(user.role as any, href)) return false;
+    if (!canAccessRoute(user.role, href)) return false;
     // Recetas: only admin + medico can prescribe
     if (href.startsWith("/dashboard/recetas") && user.role !== "admin" && user.role !== "medico")
       return false;

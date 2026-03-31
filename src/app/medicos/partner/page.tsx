@@ -629,7 +629,7 @@ export default function DoctorPartnerPage() {
             </p>
 
             <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
-              <table className="w-full">
+              <table className="w-full" aria-label="Comparativa de plataformas">
                 <thead>
                   <tr className="bg-celeste-pale">
                     <th className="px-4 py-3 text-left text-xs font-bold text-ink uppercase tracking-wider">

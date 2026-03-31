@@ -261,7 +261,7 @@ export default function FacturacionPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm" aria-label="Facturas">
             <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-3">
                   {t("label.number")}
                 </th>

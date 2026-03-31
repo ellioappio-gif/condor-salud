@@ -4,9 +4,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { listPendingVerifications, reviewVerification } from "@/lib/services/doctor-verification";
+import { requireAdminAuth } from "@/lib/security/jwt-auth";
 import { logger } from "@/lib/logger";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAdminAuth(req);
+  if (auth.error) return auth.error;
+
   try {
     const verifications = await listPendingVerifications();
     return NextResponse.json({ verifications });
@@ -17,6 +21,9 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
+  const auth = await requireAdminAuth(req);
+  if (auth.error) return auth.error;
+
   try {
     const body = await req.json();
     const { verificationId, action, reviewedBy, rejectionReason } = body as {

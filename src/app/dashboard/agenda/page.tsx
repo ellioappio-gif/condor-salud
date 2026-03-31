@@ -356,9 +356,9 @@ export default function AgendaPage() {
           className="bg-white border border-border rounded-lg overflow-hidden"
           data-tour="agenda-table"
         >
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Agenda de turnos">
             <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-2.5">
                   {t("label.time")}
                 </th>
@@ -456,19 +456,19 @@ export default function AgendaPage() {
       {/* Week view */}
       {!isLoading && vista === "semana" && (
         <div className="bg-white border border-border rounded-lg overflow-x-auto">
-          <table className="w-full min-w-[800px] text-sm">
+          <table className="w-full min-w-[800px] text-sm" aria-label="Agenda semanal">
             <thead>
               <tr className="border-b border-border">
                 <th
                   scope="col"
-                  className="w-16 px-3 py-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase bg-[#F8FAFB]"
+                  className="w-16 px-3 py-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase bg-surface"
                 >
                   {t("label.time")}
                 </th>
                 {localeDays.map((d, i) => (
                   <th
                     key={d}
-                    className={`px-2 py-2 text-[10px] font-bold tracking-wider uppercase ${i === (hoy.getDay() + 6) % 7 ? "text-celeste-dark bg-celeste-pale/40" : "text-ink-muted bg-[#F8FAFB]"}`}
+                    className={`px-2 py-2 text-[10px] font-bold tracking-wider uppercase ${i === (hoy.getDay() + 6) % 7 ? "text-celeste-dark bg-celeste-pale/40" : "text-ink-muted bg-surface"}`}
                   >
                     {d} {fechasDias[i]}
                   </th>

@@ -188,7 +188,7 @@ function CoraConversationDemo({ et, isEn }: { et: (k: string) => string; isEn: b
         ))}
       </div>
       {/* Messages */}
-      <div className="p-4 space-y-3 max-h-[380px] overflow-y-auto bg-[#f8fafb]">
+      <div className="p-4 space-y-3 max-h-[380px] overflow-y-auto bg-surface">
         {msgs.map((m, i) => (
           <div key={`${active}-${i}`}>
             <div className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>

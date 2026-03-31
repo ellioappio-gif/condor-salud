@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
+import { checkRateLimit } from "@/lib/security/api-guard";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -24,6 +25,10 @@ interface BookingBody {
 }
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
+  // Rate limit: 5 bookings per IP per 60s
+  const limited = checkRateLimit(req, "booking", { limit: 5, windowSec: 60 });
+  if (limited) return limited;
+
   try {
     const body = (await req.json()) as BookingBody;
     const { slug } = params;

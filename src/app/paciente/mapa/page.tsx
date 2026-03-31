@@ -238,7 +238,7 @@ export default function MapaPage() {
           <select
             value={specialty}
             onChange={(e) => setSpecialty(e.target.value)}
-            className="flex-1 bg-transparent py-2 text-sm outline-none"
+            className="flex-1 bg-transparent py-2 text-sm outline-none focus:ring-2 focus:ring-celeste-dark/30"
             aria-label={t("mapa.specialty")}
           >
             {SPECIALTIES.map((s) => (

@@ -549,7 +549,7 @@ export default function InvestorPage() {
 
         {/* TAM / SAM / SOM */}
         <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full text-left">
+          <table className="w-full text-left" aria-label="TAM / SAM / SOM">
             <thead>
               <TR header cells={["Segment", "TAM (LATAM)", "SAM (Argentina)", "SOM (Year 1)"]} />
             </thead>
@@ -614,7 +614,7 @@ export default function InvestorPage() {
             1. SaaS Subscriptions (B2B) — Per-Doctor Seats
           </h3>
           <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full text-left">
+            <table className="w-full text-left" aria-label="Planes SaaS">
               <thead>
                 <TR header cells={["Plan", "USD/mo", "Features"]} />
               </thead>
@@ -648,7 +648,7 @@ export default function InvestorPage() {
             2. Club Salud Memberships (B2C)
           </h3>
           <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full text-left">
+            <table className="w-full text-left" aria-label="Club Salud membresías">
               <thead>
                 <TR header cells={["Plan", "ARS/mo", "Benefits"]} />
               </thead>
@@ -734,7 +734,7 @@ export default function InvestorPage() {
         </SectionSub>
 
         <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full text-left">
+          <table className="w-full text-left" aria-label="Competencia">
             <thead>
               <TR header cells={["Competitor", "What They Do", "Cóndor Advantage"]} />
             </thead>
@@ -840,7 +840,7 @@ export default function InvestorPage() {
           What&apos;s Needed for First Paying Customer
         </h3>
         <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full text-left">
+          <table className="w-full text-left" aria-label="Requisitos para primer cliente">
             <thead>
               <TR header cells={["Item", "Effort", "Status"]} />
             </thead>
@@ -944,7 +944,7 @@ export default function InvestorPage() {
         {/* Revenue targets */}
         <h3 className="font-display text-lg font-bold text-ink mb-4">Revenue Targets</h3>
         <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full text-left">
+          <table className="w-full text-left" aria-label="Proyecciones de ingresos">
             <thead>
               <TR header cells={["Metric", "Month 3", "Month 12"]} />
             </thead>
@@ -1044,7 +1044,7 @@ export default function InvestorPage() {
           Available Veteran Financing Programs
         </h3>
         <div className="overflow-x-auto rounded-xl border border-border mb-10">
-          <table className="w-full text-left">
+          <table className="w-full text-left" aria-label="Programas de financiamiento veterano">
             <thead>
               <TR header cells={["Program", "Amount", "Rate", "Notes"]} />
             </thead>
@@ -1177,7 +1177,7 @@ export default function InvestorPage() {
           Why This Beats Traditional Fundraising
         </h3>
         <div className="overflow-x-auto rounded-xl border border-border mb-10">
-          <table className="w-full text-left">
+          <table className="w-full text-left" aria-label="Comparativa de estructuras de inversión">
             <thead>
               <TR
                 header

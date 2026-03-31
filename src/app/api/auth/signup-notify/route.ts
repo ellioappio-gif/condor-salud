@@ -3,14 +3,34 @@
 // Sends an email via Resend and logs the event.
 
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { checkRateLimit } from "@/lib/security/api-guard";
 import { logger } from "@/lib/logger";
 
 const ADMIN_EMAIL = "admin@condorsalud.com.ar";
 const ADMIN_WA = "5491155140371";
 
+const SignupNotifySchema = z.object({
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(320),
+  clinicName: z.string().max(200).optional(),
+  cuit: z.string().max(20).optional(),
+  provincia: z.string().max(100).optional(),
+  especialidad: z.string().max(200).optional(),
+});
+
 export async function POST(req: NextRequest) {
+  // Rate limit: 3 per IP per 60s
+  const limited = checkRateLimit(req, "signup-notify", { limit: 3, windowSec: 60 });
+  if (limited) return limited;
+
   try {
-    const { name, email, clinicName, cuit, provincia, especialidad } = await req.json();
+    const raw = await req.json();
+    const parsed = SignupNotifySchema.safeParse(raw);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    }
+    const { name, email, clinicName, cuit, provincia, especialidad } = parsed.data;
 
     const timestamp = new Date().toLocaleString("es-AR", {
       timeZone: "America/Argentina/Buenos_Aires",

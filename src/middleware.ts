@@ -40,16 +40,15 @@ const PUBLIC_API_PREFIXES = [
   "/api/rides", // Ride deep links (public — no auth needed)
   "/api/chat", // AI chatbot (public — no auth needed)
   "/api/demo", // Demo admin panel (auth via JWT)
-  "/api/billing", // Billing endpoints (auth via plan context)
+  "/api/billing/webhook", // Billing webhook (auth via HMAC)
   "/api/team/accept", // Team invitation accept (has own token auth)
-  "/api/club", // Club membership (patient auth via JWT)
-  "/api/prescriptions", // Digital prescriptions (mixed auth)
+  "/api/club/webhook", // Club webhook (auth via HMAC)
   "/api/doctors/public", // Public doctor directory
   "/api/doctors/profile", // Doctor profile management (session auth)
   "/api/doctors/verification", // Doctor verification (session auth)
-  "/api/admin/verifications", // Admin verification review (session auth)
-  "/api/health-tracker", // Patient health tracker (patient auth)
   "/api/cron", // Cron jobs (auth via CRON_SECRET)
+  "/api/clinics", // Public clinic booking
+  "/api/triage", // Public triage assessment
 ];
 
 /** SM-01: Validate redirect param — only allow relative paths to prevent open redirects */

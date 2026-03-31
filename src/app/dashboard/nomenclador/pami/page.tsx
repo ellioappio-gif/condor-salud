@@ -158,7 +158,7 @@ export default function PAMINomencladorPage() {
             aria-label={t("pami.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-80 pl-9 pr-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition"
+            className="w-80 pl-9 pr-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition"
           />
         </div>
         <div className="relative">
@@ -167,7 +167,7 @@ export default function PAMINomencladorPage() {
             value={capFilter}
             onChange={(e) => setCapFilter(e.target.value)}
             aria-label={t("pami.filterByChapter")}
-            className="pl-8 pr-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
+            className="pl-8 pr-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition bg-white text-ink"
           >
             <option value="Todos">{t("nomenclator.allChapters")}</option>
             {PAMI_CAPITULOS.map((c) => (
@@ -207,9 +207,9 @@ export default function PAMINomencladorPage() {
 
       {/* Table */}
       <div className="bg-white border border-border rounded-lg overflow-x-auto">
-        <table className="w-full text-sm min-w-[900px]">
+        <table className="w-full text-sm min-w-[900px]" aria-label="Nomenclador PAMI">
           <thead>
-            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+            <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
               <th scope="col" className="text-left px-4 py-2.5 w-10"></th>
               <th scope="col" className="text-left px-4 py-2.5">
                 {t("label.code")}

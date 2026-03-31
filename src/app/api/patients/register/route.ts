@@ -2,11 +2,16 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import * as patientAuth from "@/lib/services/patient-auth";
+import { checkRateLimit } from "@/lib/security/api-guard";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 3 attempts per IP per 60s
+  const limited = checkRateLimit(request, "patients-register", { limit: 3, windowSec: 60 });
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const { email, password, name, phone } = body;

@@ -20,7 +20,7 @@ const integracionesData: IntegracionData[] = [
     id: "INT-01",
     nombre: "PAMI · Webservice",
     tipoKey: "typeSocialInsurance",
-    estado: "connected",
+    estado: "pending",
     ultimaSync: "07/03/2026 16:00",
     descKey: "descPami",
     icon: "pami",
@@ -29,7 +29,7 @@ const integracionesData: IntegracionData[] = [
     id: "INT-02",
     nombre: "AFIP · Factura Electrónica",
     tipoKey: "typeFiscal",
-    estado: "connected",
+    estado: "pending",
     ultimaSync: "07/03/2026 14:30",
     descKey: "descAfip",
     icon: "afip",
@@ -38,7 +38,7 @@ const integracionesData: IntegracionData[] = [
     id: "INT-03",
     nombre: "Swiss Medical · API",
     tipoKey: "typeSocialInsurance",
-    estado: "connected",
+    estado: "pending",
     ultimaSync: "06/03/2026 22:00",
     descKey: "descSwiss",
     icon: "swiss",
@@ -235,7 +235,7 @@ export default function IntegracionesPage() {
                   >
                     {int.estadoLabel}
                   </span>
-                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider rounded bg-[#F8FAFB] text-ink-muted">
+                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider rounded bg-surface text-ink-muted">
                     {int.tipo}
                   </span>
                 </div>

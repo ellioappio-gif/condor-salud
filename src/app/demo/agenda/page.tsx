@@ -75,7 +75,7 @@ export default function DemoAgendaPage() {
                 className="flex items-center gap-4 px-5 py-3.5 hover:bg-celeste-pale/30 transition"
               >
                 <div className="w-14 text-center">
-                  <span className="text-lg font-bold text-celeste">{t.hora}</span>
+                  <span className="text-lg font-bold text-celeste-dark">{t.hora}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-ink truncate">{t.paciente}</div>

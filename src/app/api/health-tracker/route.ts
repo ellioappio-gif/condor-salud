@@ -11,15 +11,20 @@ import {
   getCategoryStats,
   deleteMeasurement,
 } from "@/lib/services/health-tracker";
+import { requirePatientAuth } from "@/lib/security/jwt-auth";
 import { logger } from "@/lib/logger";
 
-function getPatientId(req: NextRequest): string {
-  return req.headers.get("x-patient-id") || "demo-patient";
+async function getPatientId(req: NextRequest): Promise<string | NextResponse> {
+  const auth = await requirePatientAuth(req);
+  if (auth.error) return auth.error;
+  return auth.user.id;
 }
 
 export async function GET(req: NextRequest) {
   try {
-    const patientId = getPatientId(req);
+    const result = await getPatientId(req);
+    if (result instanceof NextResponse) return result;
+    const patientId = result;
     const url = new URL(req.url);
     const action = url.searchParams.get("action");
 
@@ -55,7 +60,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const patientId = getPatientId(req);
+    const result = await getPatientId(req);
+    if (result instanceof NextResponse) return result;
+    const patientId = result;
     const body = await req.json();
 
     if (!body.categoryId || body.value === undefined) {
@@ -80,7 +87,9 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const patientId = getPatientId(req);
+    const result = await getPatientId(req);
+    if (result instanceof NextResponse) return result;
+    const patientId = result;
     const url = new URL(req.url);
     const itemId = url.searchParams.get("id");
 

@@ -119,7 +119,7 @@ export default function FinanciadoresPage() {
                 aria-label={t("insurers.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 pr-3 py-1.5 text-xs border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink w-52"
+                className="pl-9 pr-3 py-1.5 text-xs border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition bg-white text-ink w-52"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -128,7 +128,7 @@ export default function FinanciadoresPage() {
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
                 aria-label={t("insurers.filterByType")}
-                className="text-xs border border-border rounded-[4px] px-2 py-1.5 outline-none focus:border-celeste-dark bg-white text-ink"
+                className="text-xs border border-border rounded-[4px] px-2 py-1.5 outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 bg-white text-ink"
               >
                 <option value="Todos">{t("label.allTypes")}</option>
                 <option value="pami">PAMI</option>
@@ -282,9 +282,9 @@ export default function FinanciadoresPage() {
                 <Download className="w-3 h-3" /> Excel
               </button>
             </div>
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Obras sociales y prepagas">
               <thead>
-                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
                     {t("billing.insurer")}
                   </th>

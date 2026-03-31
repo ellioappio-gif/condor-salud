@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createDCM4CHEEClient } from "@/lib/dcm4chee/client";
 import type { StudySearchParams } from "@/lib/dcm4chee/types";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
       limit: response.limit,
     });
   } catch (error) {
-    console.error("Error searching DICOM studies:", error);
+    logger.error({ err: error }, "Error searching DICOM studies");
     return NextResponse.json({ error: "Failed to search studies" }, { status: 500 });
   }
 }

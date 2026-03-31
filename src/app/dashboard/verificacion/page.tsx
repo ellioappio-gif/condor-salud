@@ -178,9 +178,9 @@ export default function VerificacionPage() {
           <div className="px-5 py-4 border-b border-border">
             <div className="text-xs text-ink-muted">{t("verification.recentChecks")}</div>
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Verificaciones recientes">
             <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-5 py-2.5">
                   {t("verification.patient")}
                 </th>

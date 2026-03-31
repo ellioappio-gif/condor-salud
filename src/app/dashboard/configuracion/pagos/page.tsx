@@ -578,9 +578,9 @@ export default function PagosConfigPage() {
               + Agregar método
             </button>
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Métodos de pago">
             <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-4 py-2">
                   Paciente
                 </th>
@@ -652,7 +652,7 @@ export default function PagosConfigPage() {
               ))}
             </tbody>
           </table>
-          <div className="px-5 py-3 bg-[#F8FAFB] border-t border-border flex items-center gap-2">
+          <div className="px-5 py-3 bg-surface border-t border-border flex items-center gap-2">
             <svg
               className="w-3.5 h-3.5 text-celeste-dark"
               fill="none"
@@ -694,9 +694,9 @@ export default function PagosConfigPage() {
               Exportar CSV
             </button>
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Historial de pagos">
             <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                 <th scope="col" className="text-left px-4 py-2">
                   ID
                 </th>
@@ -745,7 +745,7 @@ export default function PagosConfigPage() {
               ))}
             </tbody>
           </table>
-          <div className="px-5 py-3 bg-[#F8FAFB] border-t border-border flex items-center justify-between">
+          <div className="px-5 py-3 bg-surface border-t border-border flex items-center justify-between">
             <p className="text-[10px] text-ink-muted">Mostrando 10 de 47 transacciones</p>
             <div className="flex gap-1">
               <button
@@ -805,9 +805,9 @@ export default function PagosConfigPage() {
                 Configurá copagos automáticos según cada obra social o prepaga
               </p>
             </div>
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Reglas de cobro por financiador">
               <thead>
-                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-4 py-2">
                     Financiador
                   </th>

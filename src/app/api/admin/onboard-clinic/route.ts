@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
 
 // ─── Validation Schema ──────────────────────────────────────
 
@@ -203,7 +204,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (clinicErr) {
-      console.error("Clinic insert error:", clinicErr);
+      logger.error({ err: clinicErr }, "Clinic insert error");
       return NextResponse.json(
         { error: `Error creando clínica: ${clinicErr.message}` },
         { status: 500 },
@@ -241,7 +242,7 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (docErr) {
-        console.error(`Doctor insert error (${doc.name}):`, docErr);
+        logger.error({ err: docErr }, "Doctor insert error");
         continue;
       }
       doctorIds.push(newDoc.id);
@@ -341,7 +342,7 @@ export async function POST(req: NextRequest) {
       message: `Clínica "${input.name}" dada de alta exitosamente`,
     });
   } catch (err) {
-    console.error("Admin onboard-clinic error:", err);
+    logger.error({ err }, "Admin onboard-clinic error");
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }

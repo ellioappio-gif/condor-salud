@@ -260,9 +260,9 @@ export default function EquipoPage() {
 
       {/* Team table */}
       <div className="bg-white border border-border rounded-lg overflow-x-auto">
-        <table className="w-full text-sm min-w-[700px]">
+        <table className="w-full text-sm min-w-[700px]" aria-label="Equipo de trabajo">
           <thead>
-            <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+            <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
               <th scope="col" className="text-left px-5 py-2.5">
                 Miembro
               </th>
