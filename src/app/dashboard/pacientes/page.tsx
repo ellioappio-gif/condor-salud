@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/components/Toast";
-import { useDemoAction } from "@/components/DemoModal";
 import { useExport } from "@/lib/services/export";
 import { Card, CardContent, StatusBadge, PageHeader, Input, Select, Button } from "@/components/ui";
 import {
@@ -97,7 +96,6 @@ export default function PacientesPage() {
   const initialTab = (searchParams.get("tab") as PacientesTab) || "pacientes";
 
   const { showToast } = useToast();
-  const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
   const { t } = useLocale();
   const { execute, isExecuting } = useCrudAction(isDemo);
@@ -124,10 +122,6 @@ export default function PacientesPage() {
   };
 
   const handleNuevoPaciente = () => {
-    if (isDemo) {
-      showDemo(t("patients.newPatientDemo"));
-      return;
-    }
     setShowAddPatient(true);
   };
 
