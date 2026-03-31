@@ -130,6 +130,7 @@ button {
    -webkit-scrollbar fallback below covers Safari & older Chrome */
 .scrollbar-thin {
   scrollbar-width: thin; /* stylelint-disable-line -- webkit-scrollbar fallback provides compatibility */
+  scrollbar-color: #d4e4f0 transparent; /* stylelint-disable-line compat-api/css -- webkit-scrollbar fallback provides compatibility */
   /* @supports not used - webkit fallback provides compatibility */
 }
 @supports (scrollbar-color: auto) {
