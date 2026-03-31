@@ -301,10 +301,15 @@ export default function RecetasPage() {
           {/* ── Filters Row ── */}
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Status Tabs */}
-            <div className="flex items-center gap-1 bg-surface p-1 rounded-lg overflow-x-auto flex-1">
+            <div
+              className="flex items-center gap-1 bg-surface p-1 rounded-lg overflow-x-auto flex-1"
+              role="tablist"
+            >
               {STATUS_TABS.map((tab) => (
                 <button
                   key={tab.key}
+                  role="tab"
+                  aria-selected={statusFilter === tab.key}
                   onClick={() => setStatusFilter(tab.key)}
                   className={`px-4 py-2 text-xs font-semibold rounded-md transition whitespace-nowrap ${
                     statusFilter === tab.key
@@ -381,6 +386,7 @@ export default function RecetasPage() {
             <input
               type="text"
               placeholder={t("prescriptions.searchPlaceholder")}
+              aria-label={t("prescriptions.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"

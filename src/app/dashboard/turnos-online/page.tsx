@@ -236,6 +236,7 @@ export default function TurnosOnlinePage() {
             setStatusFilter(e.target.value as StatusFilter);
             setPage(1);
           }}
+          aria-label={t("onlineBooking.allStatuses")}
           className="text-sm border border-border rounded-md px-3 py-1.5 bg-white focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none"
         >
           <option value="all">{t("onlineBooking.allStatuses")}</option>
@@ -253,6 +254,7 @@ export default function TurnosOnlinePage() {
             setDateFilter(e.target.value);
             setPage(1);
           }}
+          aria-label={t("onlineBooking.filterByDate")}
           className="text-sm border border-border rounded-md px-3 py-1.5 bg-white focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none"
         />
 

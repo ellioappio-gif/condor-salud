@@ -114,10 +114,12 @@ export default function TelemedicinPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-border">
+      <div className="flex gap-1 border-b border-border" role="tablist">
         {tabs.map((tabItem) => (
           <button
             key={tabItem.key}
+            role="tab"
+            aria-selected={tab === tabItem.key}
             onClick={() => setTab(tabItem.key)}
             className={`px-4 py-2.5 text-sm font-medium transition border-b-2 -mb-px ${
               tab === tabItem.key

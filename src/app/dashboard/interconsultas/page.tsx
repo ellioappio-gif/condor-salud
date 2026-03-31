@@ -269,10 +269,12 @@ export default function InterconsultasPage() {
       )}
 
       {/* Tab bar */}
-      <div className="flex gap-1 bg-surface border border-border rounded-xl p-1">
+      <div className="flex gap-1 bg-surface border border-border rounded-xl p-1" role="tablist">
         {tabs.map((t) => (
           <button
             key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition flex-1 justify-center
               ${tab === t.id ? "bg-white text-celeste shadow-sm" : "text-gray-500 hover:text-ink"}`}
@@ -304,6 +306,7 @@ export default function InterconsultasPage() {
               <select
                 value={espFilter}
                 onChange={(e) => setEspFilter(e.target.value)}
+                aria-label={t("referrals.filterBySpecialty")}
                 className="pl-10 pr-8 py-2.5 border border-border rounded-xl text-sm appearance-none
                            bg-white focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
               >

@@ -146,10 +146,12 @@ export default function ReportesPage() {
           </div>
 
           {/* Category tabs */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" role="tablist">
             {categorias.map((c) => (
               <button
                 key={c}
+                role="tab"
+                aria-selected={catFilter === c}
                 onClick={() => setCatFilter(c)}
                 className={`px-4 py-2 text-xs rounded-[4px] font-medium transition ${catFilter === c ? "bg-ink text-white" : "border border-border text-ink-light hover:border-ink"}`}
               >
