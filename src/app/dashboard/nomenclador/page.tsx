@@ -8,6 +8,7 @@ import { useLocale } from "@/lib/i18n/context";
 import { formatCurrency } from "@/lib/utils";
 import { EmptyState } from "@/components/ui";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function NomencladorPage() {
   const { showToast } = useToast();
@@ -46,6 +47,12 @@ export default function NomencladorPage() {
               </p>
             </div>
             <div className="flex gap-2">
+              <Link
+                href="/dashboard/nomenclador/pami"
+                className="px-4 py-2 text-sm font-medium bg-celeste-dark text-white rounded-[4px] hover:bg-celeste-dark/90 transition"
+              >
+                {t("pami.viewNomenclador")}
+              </Link>
               <button
                 onClick={() => setComparar(!comparar)}
                 className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${comparar ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}

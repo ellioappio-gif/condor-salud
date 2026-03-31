@@ -881,6 +881,81 @@ export const dashboardTranslations: DashTranslation = {
     en: "PAMI vs SSS differences typically range between -12% and -18%",
   },
 
+  // ─── PAMI Nomenclador ──────────────────────────────────────
+  "pami.title": { es: "Nomenclador PAMI", en: "PAMI Nomenclator" },
+  "pami.subtitle": {
+    es: "Búsqueda de códigos PAMI — Febrero 2026",
+    en: "PAMI code lookup — February 2026",
+  },
+  "pami.backToNomenclador": { es: "← Nomenclador general", en: "← General nomenclator" },
+  "pami.downloadPDF": { es: "Descargar PDF oficial", en: "Download official PDF" },
+  "pami.totalCodes": { es: "Total códigos", en: "Total codes" },
+  "pami.chapters": { es: "Capítulos", en: "Chapters" },
+  "pami.noAuthRequired": { es: "Sin autorización", en: "No auth required" },
+  "pami.authRequired": { es: "Con autorización", en: "Auth required" },
+  "pami.searchPlaceholder": {
+    es: "Buscar por código, descripción, capítulo...",
+    en: "Search by code, description, chapter...",
+  },
+  "pami.filterByChapter": { es: "Filtrar por capítulo", en: "Filter by chapter" },
+  "pami.commonCodes": { es: "Más usados", en: "Most used" },
+  "pami.needsAuth": { es: "Requiere autorización", en: "Requires auth" },
+  "pami.description": { es: "Descripción", en: "Description" },
+  "pami.valuePAMI": { es: "Valor PAMI", en: "PAMI Value" },
+  "pami.authorization": { es: "Autorización", en: "Authorization" },
+  "pami.yes": { es: "Sí", en: "Yes" },
+  "pami.no": { es: "No", en: "No" },
+  "pami.copyCode": { es: "Copiar código", en: "Copy code" },
+  "pami.copyAll": { es: "Copiar todo", en: "Copy all" },
+  "pami.copyRow": { es: "Copiar fila completa", en: "Copy full row" },
+  "pami.codeCopied": { es: "Código copiado al portapapeles", en: "Code copied to clipboard" },
+  "pami.rowCopied": { es: "Información copiada al portapapeles", en: "Info copied to clipboard" },
+  "pami.clickToCopy": { es: "Click para copiar código", en: "Click to copy code" },
+  "pami.noResultsDesc": {
+    es: "Probá con otro término o cambiá los filtros",
+    en: "Try another term or change the filters",
+  },
+  "pami.fullCoverage": { es: "Cobertura total", en: "Full coverage" },
+  "pami.quickGuide": { es: "Guía rápida", en: "Quick guide" },
+  "pami.guide1": {
+    es: "Las prácticas sin autorización (🟢) se facturan directamente",
+    en: "Practices without authorization (🟢) are billed directly",
+  },
+  "pami.guide2": {
+    es: "Las que requieren autorización (🟠) necesitan auditoría médica previa",
+    en: "Those requiring authorization (🟠) need prior medical audit",
+  },
+  "pami.guide3": {
+    es: "Los códigos destacados (★) son los más solicitados en consultorio",
+    en: "Highlighted codes (★) are the most requested in practice",
+  },
+  "pami.guide4": {
+    es: "Hacé click en cualquier código para copiarlo al portapapeles",
+    en: "Click any code to copy it to clipboard",
+  },
+  "pami.prescriptionNotes": { es: "Notas de prescripción", en: "Prescription notes" },
+  "pami.rxNote1": {
+    es: "Receta digital obligatoria desde 01/2026 para prácticas ambulatorias",
+    en: "Digital prescription mandatory since 01/2026 for outpatient practices",
+  },
+  "pami.rxNote2": {
+    es: "Estudios de laboratorio: hasta 10 determinaciones por orden",
+    en: "Lab studies: up to 10 determinations per order",
+  },
+  "pami.rxNote3": {
+    es: "Imágenes: indicar diagnóstico presuntivo y lateralidad en la orden",
+    en: "Imaging: indicate presumptive diagnosis and laterality in the order",
+  },
+  "pami.rxNote4": {
+    es: "Kinesiología: se autorizan 10 sesiones sin auditoría previa",
+    en: "Physiotherapy: 10 sessions authorized without prior audit",
+  },
+  "pami.rxNote5": {
+    es: "Valores actualizados febrero 2026 — sujetos a resolución PAMI",
+    en: "Values updated February 2026 — subject to PAMI resolution",
+  },
+  "pami.viewNomenclador": { es: "Nomenclador PAMI", en: "PAMI Nomenclator" },
+
   // ─── Interconsultas ────────────────────────────────────────
   "referrals.title": { es: "Red de Interconsultas", en: "Referral Network" },
   "referrals.subtitle": {
