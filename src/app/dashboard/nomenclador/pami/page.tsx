@@ -338,7 +338,7 @@ export default function PAMINomencladorPage() {
               </div>
               {selectedEntry.notas && (
                 <p className="mt-3 text-xs text-ink-muted bg-white/60 rounded p-3 border border-border-light">
-                  📋 {selectedEntry.notas}
+                  {selectedEntry.notas}
                 </p>
               )}
             </div>

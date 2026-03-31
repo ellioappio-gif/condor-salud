@@ -918,16 +918,16 @@ export const dashboardTranslations: DashTranslation = {
   "pami.fullCoverage": { es: "Cobertura total", en: "Full coverage" },
   "pami.quickGuide": { es: "Guía rápida", en: "Quick guide" },
   "pami.guide1": {
-    es: "Las prácticas sin autorización (🟢) se facturan directamente",
-    en: "Practices without authorization (🟢) are billed directly",
+    es: "Las prácticas sin autorización se facturan directamente",
+    en: "Practices without authorization are billed directly",
   },
   "pami.guide2": {
-    es: "Las que requieren autorización (🟠) necesitan auditoría médica previa",
-    en: "Those requiring authorization (🟠) need prior medical audit",
+    es: "Las que requieren autorización necesitan auditoría médica previa",
+    en: "Those requiring authorization need prior medical audit",
   },
   "pami.guide3": {
-    es: "Los códigos destacados (★) son los más solicitados en consultorio",
-    en: "Highlighted codes (★) are the most requested in practice",
+    es: "Los códigos destacados son los más solicitados en consultorio",
+    en: "Highlighted codes are the most requested in practice",
   },
   "pami.guide4": {
     es: "Hacé click en cualquier código para copiarlo al portapapeles",
