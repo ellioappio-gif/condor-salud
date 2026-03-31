@@ -15,6 +15,7 @@ import {
 import type { Turno } from "@/lib/services/data";
 import { useTurnos } from "@/hooks/use-data";
 import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui";
 
 // ─── Google Calendar hook ────────────────────────────────────
 
@@ -196,9 +197,10 @@ export default function AgendaPage() {
     [mutate, showToast, t],
   );
 
-  const handleCancel = useCallback(
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
+
+  const doCancel = useCallback(
     async (id: string) => {
-      if (!confirm(t("schedule.cancelConfirm"))) return;
       setActionLoading(id);
       const result = await cancelTurno(id);
       setActionLoading(null);
@@ -211,6 +213,8 @@ export default function AgendaPage() {
     },
     [mutate, showToast, t],
   );
+
+  const handleCancel = useCallback((id: string) => setCancelTarget(id), []);
 
   const handleCreate = useCallback(
     async (input: CreateTurnoInput) => {
@@ -523,6 +527,18 @@ export default function AgendaPage() {
       {showNewModal && (
         <NewTurnoModal onClose={() => setShowNewModal(false)} onCreate={handleCreate} />
       )}
+
+      <ConfirmDialog
+        open={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onConfirm={() => {
+          if (cancelTarget) doCancel(cancelTarget);
+          setCancelTarget(null);
+        }}
+        title={t("schedule.cancelAppointment")}
+        message={t("schedule.cancelConfirm")}
+        variant="danger"
+      />
     </div>
   );
 }

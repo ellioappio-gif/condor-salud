@@ -76,7 +76,11 @@ export default function ReportesPage() {
   const { isExporting, exportError, exportPDF, exportExcel } = useExport();
   const { data: reportes = [], isLoading } = useReportesList();
   const [catFilter, setCatFilter] = useState("Todos");
-  const [dateRange, setDateRange] = useState("Marzo 2026");
+  const [dateRange, setDateRange] = useState(() => {
+    const d = new Date();
+    const m = d.toLocaleDateString("es-AR", { month: "long" });
+    return `${m.charAt(0).toUpperCase() + m.slice(1)} ${d.getFullYear()}`;
+  });
 
   const categorias = ["Todos", ...Array.from(new Set(reportes.map((r) => r.categoria)))];
 
@@ -109,14 +113,22 @@ export default function ReportesPage() {
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                aria-label="Seleccionar período"
+                aria-label={t("reports.selectPeriod")}
                 className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
               >
-                <option>Marzo {new Date().getFullYear()}</option>
-                <option>Febrero {new Date().getFullYear()}</option>
-                <option>Enero {new Date().getFullYear()}</option>
+                {(() => {
+                  const y = new Date().getFullYear();
+                  const months = ["Marzo", "Febrero", "Enero"];
+                  return months.map((m) => (
+                    <option key={m}>
+                      {m} {y}
+                    </option>
+                  ));
+                })()}
                 <option>Q1 {new Date().getFullYear()}</option>
-                <option>{new Date().getFullYear() - 1} Anual</option>
+                <option>
+                  {new Date().getFullYear() - 1} {t("reports.annual")}
+                </option>
               </select>
               <button
                 onClick={() => exportPDF("kpi", { periodo: dateRange })}

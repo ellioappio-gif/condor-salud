@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
+import { ConfirmDialog } from "@/components/ui";
 
 /* ── Types ──────────────────────────────────────────────── */
 interface ClinicService {
@@ -159,15 +160,16 @@ export default function PreciosPage() {
   }
 
   // ── Delete ─────────────────────────────────────────────
-  async function handleDelete(id: string) {
-    if (!confirm("¿Eliminar este servicio?")) return;
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  async function doDelete(id: string) {
     try {
       const res = await fetch(`/api/services?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Error");
-      showToast("Servicio eliminado");
+      showToast(locale === "en" ? "Service deleted" : "Servicio eliminado");
       fetchServices();
     } catch {
-      showToast("Error al eliminar", "error");
+      showToast(locale === "en" ? "Error deleting" : "Error al eliminar", "error");
     }
   }
 
@@ -586,7 +588,7 @@ export default function PreciosPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(svc.id)}
+                            onClick={() => setDeleteTarget(svc.id)}
                             className="p-1.5 hover:bg-red-50 rounded transition text-red-500"
                             title={locale === "en" ? "Delete" : "Eliminar"}
                           >
@@ -609,6 +611,22 @@ export default function PreciosPage() {
           ? "Prices in ARS. Monthly IPC adjustment."
           : "Precios en pesos argentinos. Ajuste mensual IPC."}
       </p>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) doDelete(deleteTarget);
+          setDeleteTarget(null);
+        }}
+        title={locale === "en" ? "Delete service" : "Eliminar servicio"}
+        message={
+          locale === "en"
+            ? "Delete this service? This action cannot be undone."
+            : "\u00bfEliminar este servicio? Esta acci\u00f3n no se puede deshacer."
+        }
+        variant="danger"
+      />
     </div>
   );
 }

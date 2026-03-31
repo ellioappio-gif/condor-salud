@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
+import { ConfirmDialog } from "@/components/ui";
 import PrescriptionStatusBadge from "@/components/prescriptions/PrescriptionStatusBadge";
 
 /* ── Types ──────────────────────────────────────────────── */
@@ -76,6 +77,7 @@ export default function RecetaDetailPage({ params }: { params: Promise<{ id: str
   const [rx, setRx] = useState<PrescriptionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [rxId, setRxId] = useState<string>("");
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   useEffect(() => {
     params.then(({ id }) => {
@@ -177,24 +179,11 @@ export default function RecetaDetailPage({ params }: { params: Promise<{ id: str
           </Link>
           {rx.status !== "cancelled" && rx.status !== "expired" && rx.status !== "dispensed" && (
             <button
-              onClick={async () => {
-                if (!confirm("¿Anular esta receta? Esta acción no se puede deshacer.")) return;
-                try {
-                  const res = await fetch(`/api/prescriptions/${rx.id}/cancel`, { method: "POST" });
-                  if (res.ok) {
-                    setRx((prev) => (prev ? { ...prev, status: "cancelled" } : prev));
-                    showToast("Receta anulada exitosamente");
-                  } else {
-                    showToast("Error al anular la receta", "error");
-                  }
-                } catch {
-                  showToast("Error al anular la receta", "error");
-                }
-              }}
+              onClick={() => setCancelOpen(true)}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition"
             >
               <Ban className="w-3.5 h-3.5" />
-              Anular
+              {locale === "en" ? "Cancel" : "Anular"}
             </button>
           )}
           {rx.rcta?.pdfUrl && (
@@ -567,6 +556,38 @@ export default function RecetaDetailPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        onConfirm={async () => {
+          setCancelOpen(false);
+          try {
+            const res = await fetch(`/api/prescriptions/${rx.id}/cancel`, { method: "POST" });
+            if (res.ok) {
+              setRx((prev) => (prev ? { ...prev, status: "cancelled" } : prev));
+              showToast(locale === "en" ? "Prescription cancelled" : "Receta anulada exitosamente");
+            } else {
+              showToast(
+                locale === "en" ? "Error cancelling prescription" : "Error al anular la receta",
+                "error",
+              );
+            }
+          } catch {
+            showToast(
+              locale === "en" ? "Error cancelling prescription" : "Error al anular la receta",
+              "error",
+            );
+          }
+        }}
+        title={locale === "en" ? "Cancel prescription" : "Anular receta"}
+        message={
+          locale === "en"
+            ? "Cancel this prescription? This action cannot be undone."
+            : "¿Anular esta receta? Esta acción no se puede deshacer."
+        }
+        variant="danger"
+      />
     </div>
   );
 }

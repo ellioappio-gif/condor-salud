@@ -10,7 +10,6 @@ import {
   Eye,
   User,
   Loader2,
-  AlertTriangle,
   ChevronDown,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";

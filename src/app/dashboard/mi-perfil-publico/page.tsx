@@ -14,6 +14,7 @@ import {
   ImagePlus,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { useLocale } from "@/lib/i18n/context";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -178,6 +179,7 @@ export default function MiPerfilPublicoPage() {
   const [saved, setSaved] = useState(false);
   const [newSubSpec, setNewSubSpec] = useState("");
   const [newInsurance, setNewInsurance] = useState("");
+  const { t } = useLocale();
 
   // Load existing profile
   const loadProfile = useCallback(async () => {
@@ -244,7 +246,7 @@ export default function MiPerfilPublicoPage() {
         setTimeout(() => setSaved(false), 3000);
       }
     } catch {
-      showToast("Error al guardar", "error");
+      showToast(t("profile.saveError"), "error");
     } finally {
       setSaving(false);
     }
@@ -297,11 +299,9 @@ export default function MiPerfilPublicoPage() {
         <div>
           <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
             <Globe className="w-6 h-6 text-celeste" />
-            Mi Perfil Público
+            {t("profile.title")}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Configurá tu perfil visible para pacientes en condorsalud.com/medicos
-          </p>
+          <p className="text-sm text-gray-500 mt-1">{t("profile.subtitle")}</p>
         </div>
         <div className="flex items-center gap-3">
           {slug && (
@@ -312,7 +312,7 @@ export default function MiPerfilPublicoPage() {
               className="flex items-center gap-1 text-sm text-celeste hover:underline"
             >
               <Eye className="w-4 h-4" />
-              Vista previa
+              {t("profile.preview")}
             </a>
           )}
           <button
@@ -321,7 +321,7 @@ export default function MiPerfilPublicoPage() {
             className="flex items-center gap-2 bg-celeste text-white font-bold px-5 py-2.5 rounded-lg hover:bg-celeste-dark transition disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saved ? "¡Guardado!" : "Guardar"}
+            {saved ? t("profile.savedSuccess") : t("profile.save")}
           </button>
         </div>
       </div>
@@ -331,11 +331,9 @@ export default function MiPerfilPublicoPage() {
         <div className="bg-white rounded-xl p-5 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-ink">Estado del Perfil</h3>
+              <h3 className="font-bold text-ink">{t("profile.profileStatus")}</h3>
               <p className="text-sm text-gray-500">
-                {form.published
-                  ? "Tu perfil es visible públicamente"
-                  : "Tu perfil está en borrador (no visible)"}
+                {form.published ? t("profile.visiblePublicly") : t("profile.draftNotVisible")}
               </p>
             </div>
             <button
@@ -357,13 +355,13 @@ export default function MiPerfilPublicoPage() {
         <fieldset className="bg-white rounded-xl p-6 border border-gray-100 space-y-4">
           <legend className="text-lg font-bold text-ink flex items-center gap-2 -ml-1">
             <User className="w-5 h-5 text-celeste" />
-            Información Básica
+            {t("profile.basicInfo")}
           </legend>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre completo *
+                {t("profile.fullName")} *
               </label>
               <input
                 type="text"
@@ -374,7 +372,9 @@ export default function MiPerfilPublicoPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Especialidad *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.specialty")} *
+              </label>
               <select
                 value={form.specialty}
                 onChange={(e) => updateField("specialty", e.target.value)}
@@ -392,7 +392,7 @@ export default function MiPerfilPublicoPage() {
           {/* Sub-specialties */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sub-especialidades
+              {t("profile.subSpecialties")}
             </label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {form.subSpecialties.map((sub, i) => (
@@ -420,7 +420,7 @@ export default function MiPerfilPublicoPage() {
                 type="text"
                 value={newSubSpec}
                 onChange={(e) => setNewSubSpec(e.target.value)}
-                placeholder="Agregar sub-especialidad"
+                placeholder={t("profile.addSubSpecialty")}
                 className="flex-1 px-3 py-1.5 border rounded-lg text-sm"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && newSubSpec.trim()) {
@@ -447,7 +447,7 @@ export default function MiPerfilPublicoPage() {
           {/* Photo URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              URL de Foto de Perfil
+              {t("profile.photoUrl")}
             </label>
             <div className="flex gap-2">
               <ImagePlus className="w-5 h-5 text-gray-400 mt-2" />
@@ -464,13 +464,13 @@ export default function MiPerfilPublicoPage() {
           {/* Bio ES */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Biografía (Español) *
+              {t("profile.bioEs")} *
             </label>
             <textarea
               value={form.bioEs}
               onChange={(e) => updateField("bioEs", e.target.value)}
               rows={4}
-              placeholder="Contá sobre tu experiencia profesional, áreas de interés..."
+              placeholder={t("profile.bioEsPlaceholder")}
               className="w-full px-3 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-celeste/50"
             />
           </div>
@@ -478,13 +478,13 @@ export default function MiPerfilPublicoPage() {
           {/* Bio EN */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Biography (English)
+              {t("profile.bioEn")}
             </label>
             <textarea
               value={form.bioEn}
               onChange={(e) => updateField("bioEn", e.target.value)}
               rows={3}
-              placeholder="Tell us about your professional experience..."
+              placeholder={t("profile.bioEnPlaceholder")}
               className="w-full px-3 py-2 border rounded-lg resize-none"
             />
           </div>
@@ -493,7 +493,7 @@ export default function MiPerfilPublicoPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Años de experiencia
+                {t("profile.experienceYears")}
               </label>
               <input
                 type="number"
@@ -514,7 +514,7 @@ export default function MiPerfilPublicoPage() {
                 className="w-4 h-4 text-celeste rounded"
               />
               <label htmlFor="teleconsulta" className="text-sm font-medium text-gray-700">
-                Ofrezco teleconsulta
+                {t("profile.teleconsulta")}
               </label>
             </div>
           </div>
@@ -522,11 +522,15 @@ export default function MiPerfilPublicoPage() {
 
         {/* Contact & Location */}
         <fieldset className="bg-white rounded-xl p-6 border border-gray-100 space-y-4">
-          <legend className="text-lg font-bold text-ink -ml-1">Contacto y Ubicación</legend>
+          <legend className="text-lg font-bold text-ink -ml-1">
+            {t("profile.contactLocation")}
+          </legend>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.phone")}
+              </label>
               <input
                 type="tel"
                 value={form.phone}
@@ -536,7 +540,9 @@ export default function MiPerfilPublicoPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.whatsapp")}
+              </label>
               <input
                 type="tel"
                 value={form.whatsapp}
@@ -549,7 +555,9 @@ export default function MiPerfilPublicoPage() {
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.email")}
+              </label>
               <input
                 type="email"
                 value={form.email}
@@ -558,7 +566,9 @@ export default function MiPerfilPublicoPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">URL de Turnos</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.bookingUrl")}
+              </label>
               <input
                 type="url"
                 value={form.bookingUrl}
@@ -570,7 +580,9 @@ export default function MiPerfilPublicoPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("profile.address")}
+            </label>
             <input
               type="text"
               value={form.address}
@@ -582,7 +594,9 @@ export default function MiPerfilPublicoPage() {
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.city")}
+              </label>
               <input
                 type="text"
                 value={form.city}
@@ -592,13 +606,15 @@ export default function MiPerfilPublicoPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Provincia</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.province")}
+              </label>
               <select
                 value={form.province}
                 onChange={(e) => updateField("province", e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg bg-white"
               >
-                <option value="">Seleccionar...</option>
+                <option value="">{t("profile.select")}</option>
                 {PROVINCES.map((p) => (
                   <option key={p} value={p}>
                     {p}
@@ -611,7 +627,7 @@ export default function MiPerfilPublicoPage() {
 
         {/* Insurance */}
         <fieldset className="bg-white rounded-xl p-6 border border-gray-100 space-y-4">
-          <legend className="text-lg font-bold text-ink -ml-1">Obras Sociales</legend>
+          <legend className="text-lg font-bold text-ink -ml-1">{t("profile.insurance")}</legend>
 
           <div className="flex flex-wrap gap-2">
             {INSURANCE_OPTIONS.map((ins) => (
@@ -644,7 +660,7 @@ export default function MiPerfilPublicoPage() {
               type="text"
               value={newInsurance}
               onChange={(e) => setNewInsurance(e.target.value)}
-              placeholder="Otra obra social..."
+              placeholder={t("profile.otherInsurance")}
               className="flex-1 px-3 py-1.5 border rounded-lg text-sm"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && newInsurance.trim()) {
@@ -662,7 +678,7 @@ export default function MiPerfilPublicoPage() {
 
         {/* Languages */}
         <fieldset className="bg-white rounded-xl p-6 border border-gray-100 space-y-4">
-          <legend className="text-lg font-bold text-ink -ml-1">Idiomas</legend>
+          <legend className="text-lg font-bold text-ink -ml-1">{t("profile.languages")}</legend>
           <div className="flex flex-wrap gap-2">
             {LANGUAGE_OPTIONS.map((lang) => (
               <button
@@ -692,7 +708,7 @@ export default function MiPerfilPublicoPage() {
 
         {/* Education */}
         <fieldset className="bg-white rounded-xl p-6 border border-gray-100 space-y-4">
-          <legend className="text-lg font-bold text-ink -ml-1">Formación Académica</legend>
+          <legend className="text-lg font-bold text-ink -ml-1">{t("profile.education")}</legend>
 
           {form.education.map((edu, i) => (
             <div key={i} className="border rounded-lg p-4 space-y-3 relative">
@@ -704,7 +720,9 @@ export default function MiPerfilPublicoPage() {
               </button>
               <div className="grid md:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Institución</label>
+                  <label className="text-xs font-medium text-gray-500">
+                    {t("profile.institution")}
+                  </label>
                   <input
                     type="text"
                     value={edu.institution}
@@ -713,7 +731,7 @@ export default function MiPerfilPublicoPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Título / Grado</label>
+                  <label className="text-xs font-medium text-gray-500">{t("profile.degree")}</label>
                   <input
                     type="text"
                     value={edu.degree}
@@ -723,7 +741,7 @@ export default function MiPerfilPublicoPage() {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500">Año</label>
+                <label className="text-xs font-medium text-gray-500">{t("profile.year")}</label>
                 <input
                   type="number"
                   value={edu.year}
@@ -739,16 +757,18 @@ export default function MiPerfilPublicoPage() {
             className="flex items-center gap-2 text-celeste font-medium text-sm hover:underline"
           >
             <Plus className="w-4 h-4" />
-            Agregar formación
+            {t("profile.addEducation")}
           </button>
         </fieldset>
 
         {/* Fees */}
         <fieldset className="bg-white rounded-xl p-6 border border-gray-100 space-y-4">
-          <legend className="text-lg font-bold text-ink -ml-1">Honorarios</legend>
+          <legend className="text-lg font-bold text-ink -ml-1">{t("profile.fees")}</legend>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Consulta (ARS)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.feeArs")}
+              </label>
               <input
                 type="number"
                 value={form.consultationFeeArs}
@@ -760,7 +780,9 @@ export default function MiPerfilPublicoPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Consulta (USD)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("profile.feeUsd")}
+              </label>
               <input
                 type="number"
                 value={form.consultationFeeUsd}
@@ -778,13 +800,13 @@ export default function MiPerfilPublicoPage() {
         <fieldset className="bg-white rounded-xl p-6 border border-gray-100 space-y-4">
           <legend className="text-lg font-bold text-ink -ml-1 flex items-center gap-2">
             <Globe className="w-5 h-5 text-celeste" />
-            SEO (Opcional)
+            {t("profile.seo")}
           </legend>
-          <p className="text-xs text-gray-500">
-            Se auto-genera si lo dejás en blanco. Personalizar mejora tu posicionamiento.
-          </p>
+          <p className="text-xs text-gray-500">{t("profile.seoHint")}</p>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Título SEO</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("profile.seoTitle")}
+            </label>
             <input
               type="text"
               value={form.seoTitle}
@@ -793,20 +815,24 @@ export default function MiPerfilPublicoPage() {
               className="w-full px-3 py-2 border rounded-lg text-sm"
               maxLength={70}
             />
-            <p className="text-xs text-gray-400 mt-1">{form.seoTitle.length}/70 caracteres</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {form.seoTitle.length}/70 {t("profile.characters")}
+            </p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción SEO</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("profile.seoDescription")}
+            </label>
             <textarea
               value={form.seoDescription}
               onChange={(e) => updateField("seoDescription", e.target.value)}
               rows={2}
-              placeholder="Descripción para resultados de búsqueda..."
+              placeholder={t("profile.seoDescPlaceholder")}
               className="w-full px-3 py-2 border rounded-lg resize-none text-sm"
               maxLength={160}
             />
             <p className="text-xs text-gray-400 mt-1">
-              {form.seoDescription.length}/160 caracteres
+              {form.seoDescription.length}/160 {t("profile.characters")}
             </p>
           </div>
         </fieldset>
@@ -816,14 +842,14 @@ export default function MiPerfilPublicoPage() {
           <div className="flex items-start gap-3">
             <BadgeCheck className="w-6 h-6 text-celeste flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-ink text-sm">Perfil Verificado</p>
+              <p className="font-bold text-ink text-sm">{t("profile.verifiedProfile")}</p>
               <p className="text-xs text-gray-600 mt-1">
-                Para obtener el badge de verificación, completá el proceso en{" "}
+                {t("profile.verificationHint")}{" "}
                 <a
                   href="/dashboard/verificar-cuenta"
                   className="text-celeste hover:underline font-medium inline-flex items-center gap-0.5"
                 >
-                  Verificar Cuenta <ExternalLink className="w-3 h-3" />
+                  {t("profile.verifyAccount")} <ExternalLink className="w-3 h-3" />
                 </a>
               </p>
             </div>
@@ -840,7 +866,7 @@ export default function MiPerfilPublicoPage() {
               className="flex items-center gap-2 text-gray-600 hover:text-celeste transition px-4 py-2.5"
             >
               <Eye className="w-4 h-4" />
-              Ver perfil
+              {t("profile.viewProfile")}
             </a>
           )}
           <button
@@ -849,7 +875,7 @@ export default function MiPerfilPublicoPage() {
             className="flex items-center gap-2 bg-celeste text-white font-bold px-6 py-2.5 rounded-lg hover:bg-celeste-dark transition disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saved ? "¡Guardado!" : "Guardar Perfil"}
+            {saved ? t("profile.savedSuccess") : t("profile.saveProfile")}
           </button>
         </div>
       </div>

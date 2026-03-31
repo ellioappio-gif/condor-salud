@@ -26,6 +26,7 @@ import {
 import { useDemoAction } from "@/components/DemoModal";
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useIsDemo } from "@/lib/auth/context";
+import { useLocale } from "@/lib/i18n/context";
 import type {
   NetworkDoctor,
   Interconsulta,
@@ -95,6 +96,7 @@ export default function InterconsultasPage() {
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
   const { execute } = useCrudAction(isDemo);
+  const { t } = useLocale();
 
   const [tab, setTab] = useState<Tab>("red");
   const [search, setSearch] = useState("");
@@ -173,9 +175,9 @@ export default function InterconsultasPage() {
   // ─── Tabs ───────────────────────────────────────────────────
 
   const tabs: { id: Tab; label: string; icon: typeof Network }[] = [
-    { id: "red", label: "Red de Profesionales", icon: Network },
-    { id: "interconsultas", label: "Interconsultas", icon: Send },
-    { id: "estudios", label: "Estudios", icon: FlaskConical },
+    { id: "red", label: t("referrals.network"), icon: Network },
+    { id: "interconsultas", label: t("referrals.interconsultas"), icon: Send },
+    { id: "estudios", label: t("referrals.studies"), icon: FlaskConical },
   ];
 
   if (loading) {
@@ -193,11 +195,9 @@ export default function InterconsultasPage() {
         <div>
           <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
             <Network className="w-7 h-7 text-celeste" />
-            Red de Interconsultas
+            {t("referrals.title")}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Derivaciones, red de profesionales y solicitudes de estudio
-          </p>
+          <p className="text-sm text-gray-500 mt-1">{t("referrals.derivationsSubtitle")}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -206,7 +206,7 @@ export default function InterconsultasPage() {
                        hover:bg-celeste/90 transition text-sm font-medium"
           >
             <Send className="w-4 h-4" />
-            Nueva Interconsulta
+            {t("referrals.newReferral")}
           </button>
           <button
             onClick={() => setShowNewEstudio(true)}
@@ -214,7 +214,7 @@ export default function InterconsultasPage() {
                        hover:bg-celeste/5 transition text-sm font-medium"
           >
             <FlaskConical className="w-4 h-4" />
-            Solicitar Estudio
+            {t("referrals.requestStudy")}
           </button>
         </div>
       </div>
@@ -224,31 +224,31 @@ export default function InterconsultasPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             {
-              label: "Profesionales",
+              label: t("referrals.professionals"),
               value: stats.totalDoctors,
               icon: Users,
               color: "text-celeste",
             },
             {
-              label: "Especialidades",
+              label: t("referrals.specialties"),
               value: stats.specialties,
               icon: Activity,
               color: "text-purple-600",
             },
             {
-              label: "IC Pendientes",
+              label: t("referrals.pendingIC"),
               value: stats.pendientes,
               icon: Clock,
               color: "text-yellow-600",
             },
             {
-              label: "IC Completadas",
+              label: t("referrals.completedIC"),
               value: stats.completadas,
               icon: CheckCircle2,
               color: "text-green-600",
             },
             {
-              label: "Estudios Activos",
+              label: t("referrals.activeStudies"),
               value: stats.estudiosEnCurso,
               icon: FlaskConical,
               color: "text-blue-600",
@@ -293,8 +293,8 @@ export default function InterconsultasPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por nombre, especialidad o institución..."
-                aria-label="Buscar por nombre, especialidad o institución"
+                placeholder={t("referrals.searchPlaceholder")}
+                aria-label={t("referrals.searchPlaceholder")}
                 className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl text-sm
                            focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
               />
@@ -321,7 +321,7 @@ export default function InterconsultasPage() {
           {groupedDoctors.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No se encontraron profesionales</p>
+              <p>{t("referrals.noProfessionals")}</p>
             </div>
           ) : (
             groupedDoctors.map(([esp, docs]) => (
@@ -369,7 +369,18 @@ export default function InterconsultasPage() {
                     : "bg-white text-gray-600 border-border hover:border-celeste/40"
                 }`}
               >
-                {f === "todos" ? "Todos" : ESTADO_CONFIG[f].label}
+                {f === "todos"
+                  ? t("referrals.allFilter")
+                  : (
+                      {
+                        pendiente: t("referrals.pending"),
+                        aceptada: t("referrals.accepted"),
+                        en_curso: t("referrals.inProgress"),
+                        completada: t("referrals.completed"),
+                        rechazada: t("referrals.rejected"),
+                        cancelada: t("referrals.cancelled"),
+                      } as Record<string, string>
+                    )[f]}
               </button>
             ))}
           </div>
@@ -378,7 +389,7 @@ export default function InterconsultasPage() {
           {filteredIc.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Send className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No hay interconsultas en esta categoría</p>
+              <p>{t("referrals.noReferrals")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -396,7 +407,7 @@ export default function InterconsultasPage() {
           {estudios.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <FlaskConical className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No hay solicitudes de estudio</p>
+              <p>{t("referrals.noStudies")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -430,10 +441,9 @@ export default function InterconsultasPage() {
                   prioridad: "normal",
                 });
               },
-              successMessage:
-                "Interconsulta creada — el profesional destino recibirá la notificación",
-              errorMessage: "Error al crear interconsulta",
-              demoLabel: "Interconsulta creada — el profesional destino recibirá la notificación.",
+              successMessage: t("referrals.referralCreated"),
+              errorMessage: t("referrals.referralError"),
+              demoLabel: t("referrals.referralCreated"),
               mutateKeys: [],
             });
             setShowNewIc(false);
@@ -460,9 +470,9 @@ export default function InterconsultasPage() {
                   prioridad: "normal",
                 });
               },
-              successMessage: "Solicitud de estudio enviada al centro de diagnóstico",
-              errorMessage: "Error al solicitar estudio",
-              demoLabel: "Solicitud de estudio enviada al centro de diagnóstico.",
+              successMessage: t("referrals.studyCreated"),
+              errorMessage: t("referrals.studyError"),
+              demoLabel: t("referrals.studyCreated"),
               mutateKeys: [],
             });
             setShowNewEstudio(false);
@@ -495,9 +505,15 @@ function DoctorCard({
   onRefer: () => void;
   onViewProfile: () => void;
 }) {
+  const { t } = useLocale();
   const badge = DISPONIBILIDAD_BADGE[doctor.disponibilidad] ?? {
     label: "—",
     class: "bg-gray-100 text-gray-500",
+  };
+  const badgeLabel: Record<string, string> = {
+    disponible: t("referrals.available"),
+    limitada: t("referrals.limitedAvailability"),
+    no_disponible: t("referrals.unavailable"),
   };
   return (
     <div className="bg-white border border-border rounded-xl p-4 hover:shadow-md transition group">
@@ -516,7 +532,7 @@ function DoctorCard({
           </div>
         </div>
         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${badge.class}`}>
-          {badge.label}
+          {badgeLabel[doctor.disponibilidad] ?? "—"}
         </span>
       </div>
 
@@ -532,7 +548,8 @@ function DoctorCard({
         {doctor.turnaroundDays && (
           <p className="text-xs text-gray-500 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-gray-400" />
-            Respuesta ~{doctor.turnaroundDays} día{doctor.turnaroundDays > 1 ? "s" : ""}
+            {t("referrals.estimatedResponse")} ~{doctor.turnaroundDays}{" "}
+            {doctor.turnaroundDays > 1 ? t("common.days") : t("common.day")}
           </p>
         )}
       </div>
@@ -543,7 +560,7 @@ function DoctorCard({
           className="flex-1 text-xs border border-border rounded-lg py-1.5 text-gray-600
                      hover:border-celeste hover:text-celeste transition"
         >
-          Ver Perfil
+          {t("referrals.viewProfile")}
         </button>
         <button
           onClick={onRefer}
@@ -553,7 +570,7 @@ function DoctorCard({
                      flex items-center justify-center gap-1"
         >
           <Send className="w-3 h-3" />
-          Derivar
+          {t("referrals.refer")}
         </button>
       </div>
     </div>
@@ -563,8 +580,17 @@ function DoctorCard({
 // ─── Interconsulta Card ──────────────────────────────────────
 
 function InterconsultaCard({ ic }: { ic: Interconsulta }) {
+  const { t } = useLocale();
   const est = ESTADO_CONFIG[ic.estado];
   const EstIcon = est.icon;
+  const statusLabels: Record<string, string> = {
+    pendiente: t("referrals.pending"),
+    aceptada: t("referrals.accepted"),
+    en_curso: t("referrals.inProgress"),
+    completada: t("referrals.completed"),
+    rechazada: t("referrals.rejected"),
+    cancelada: t("referrals.cancelled"),
+  };
 
   return (
     <div className="bg-white border border-border rounded-xl p-4 hover:shadow-sm transition">
@@ -575,7 +601,7 @@ function InterconsultaCard({ ic }: { ic: Interconsulta }) {
               className={`text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${est.color}`}
             >
               <EstIcon className="w-3 h-3" />
-              {est.label}
+              {statusLabels[ic.estado]}
             </span>
             <span
               className={`text-xs px-2 py-0.5 rounded-full border font-medium ${PRIORIDAD_COLORS[ic.prioridad]}`}
@@ -599,14 +625,16 @@ function InterconsultaCard({ ic }: { ic: Interconsulta }) {
           {ic.respuesta && (
             <div className="bg-green-50 border border-green-100 rounded-lg p-2 mt-1">
               <p className="text-xs text-green-700">
-                <span className="font-medium">Respuesta:</span> {ic.respuesta}
+                <span className="font-medium">{t("referrals.response")}</span> {ic.respuesta}
               </p>
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-2 text-xs text-gray-400">
-          <span>De: {ic.doctorOrigen}</span>
+          <span>
+            {t("referrals.from")} {ic.doctorOrigen}
+          </span>
         </div>
       </div>
     </div>
@@ -616,7 +644,22 @@ function InterconsultaCard({ ic }: { ic: Interconsulta }) {
 // ─── Estudio Card ────────────────────────────────────────────
 
 function EstudioCard({ estudio }: { estudio: SolicitudEstudio }) {
+  const { t } = useLocale();
   const est = ESTUDIO_ESTADO[estudio.estado];
+  const estLabels: Record<string, string> = {
+    solicitado: t("referrals.requested"),
+    en_proceso: t("referrals.inProcess"),
+    completado: t("referrals.completed"),
+    cancelado: t("referrals.cancelled"),
+  };
+  const tipoLabels: Record<string, string> = {
+    laboratorio: t("referrals.labStudy"),
+    imagen: t("referrals.imaging"),
+    ecografia: t("referrals.ecografia"),
+    electrocardiograma: t("referrals.electrocardiograma"),
+    endoscopia: t("referrals.endoscopia"),
+    otro: t("referrals.other"),
+  };
 
   return (
     <div className="bg-white border border-border rounded-xl p-4 hover:shadow-sm transition">
@@ -624,7 +667,7 @@ function EstudioCard({ estudio }: { estudio: SolicitudEstudio }) {
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${est.color}`}>
-              {est.label}
+              {estLabels[estudio.estado]}
             </span>
             <span
               className={`text-xs px-2 py-0.5 rounded-full border font-medium ${PRIORIDAD_COLORS[estudio.prioridad]}`}
@@ -632,7 +675,7 @@ function EstudioCard({ estudio }: { estudio: SolicitudEstudio }) {
               {estudio.prioridad.charAt(0).toUpperCase() + estudio.prioridad.slice(1)}
             </span>
             <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">
-              {TIPO_ESTUDIO_LABELS[estudio.tipo]}
+              {tipoLabels[estudio.tipo]}
             </span>
             <span className="text-xs text-gray-400">{estudio.fecha}</span>
           </div>
@@ -641,17 +684,19 @@ function EstudioCard({ estudio }: { estudio: SolicitudEstudio }) {
 
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <span>
-              Paciente: <b className="text-ink">{estudio.paciente}</b>
+              {t("referrals.patientLabel")} <b className="text-ink">{estudio.paciente}</b>
             </span>
             <span>
-              Centro: <b className="text-ink">{estudio.centroDestino}</b>
+              {t("referrals.centerLabel")} <b className="text-ink">{estudio.centroDestino}</b>
             </span>
           </div>
 
           <p className="text-xs text-gray-600">{estudio.indicacion}</p>
         </div>
 
-        <div className="text-xs text-gray-400">Solicita: {estudio.doctorSolicitante}</div>
+        <div className="text-xs text-gray-400">
+          {t("referrals.requestedBy")} {estudio.doctorSolicitante}
+        </div>
       </div>
     </div>
   );
@@ -672,6 +717,7 @@ function NewInterconsultaModal({
   onClose: () => void;
   onSubmit: () => void;
 }) {
+  const { t } = useLocale();
   const [esp, setEsp] = useState(preselected?.especialidad ?? "");
   const [doctorId, setDoctorId] = useState(preselected?.id ?? "");
   const [paciente, setPaciente] = useState("");
@@ -693,7 +739,7 @@ function NewInterconsultaModal({
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-ink flex items-center gap-2">
               <Send className="w-5 h-5 text-celeste" />
-              Solicitud de Interconsulta
+              {t("referrals.referralRequest")}
             </h2>
             <button onClick={onClose} className="text-gray-400 hover:text-ink transition">
               <XCircle className="w-5 h-5" />
@@ -704,11 +750,13 @@ function NewInterconsultaModal({
         <div className="p-6 space-y-4">
           {/* Paciente */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Paciente *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              {t("referrals.patientRequired")}
+            </label>
             <input
               value={paciente}
               onChange={(e) => setPaciente(e.target.value)}
-              placeholder="Nombre del paciente"
+              placeholder={t("referrals.patientName")}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm
                          focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             />
@@ -716,7 +764,9 @@ function NewInterconsultaModal({
 
           {/* Especialidad */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Especialidad *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              {t("referrals.specialtyRequired")}
+            </label>
             <select
               value={esp}
               onChange={(e) => {
@@ -726,7 +776,7 @@ function NewInterconsultaModal({
               className="w-full border border-border rounded-lg px-3 py-2 text-sm appearance-none
                          bg-white focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             >
-              <option value="">Seleccionar especialidad...</option>
+              <option value="">{t("referrals.selectSpecialty")}</option>
               {specialties.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -738,7 +788,7 @@ function NewInterconsultaModal({
           {/* Doctor destino */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Profesional destino *
+              {t("referrals.destinationProfessional")}
             </label>
             <select
               value={doctorId}
@@ -746,7 +796,7 @@ function NewInterconsultaModal({
               className="w-full border border-border rounded-lg px-3 py-2 text-sm appearance-none
                          bg-white focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             >
-              <option value="">Seleccionar profesional...</option>
+              <option value="">{t("referrals.selectProfessional")}</option>
               {filteredDocs.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.nombre} — {d.institucion}
@@ -757,7 +807,9 @@ function NewInterconsultaModal({
 
           {/* Prioridad */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Prioridad</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              {t("referrals.priority")}
+            </label>
             <div className="flex gap-2">
               {(["baja", "normal", "alta", "urgente"] as const).map((p) => (
                 <button
@@ -778,13 +830,13 @@ function NewInterconsultaModal({
           {/* Motivo */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Motivo de la interconsulta *
+              {t("referrals.referralReason")}
             </label>
             <textarea
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
               rows={3}
-              placeholder="Describa el motivo clínico de la derivación..."
+              placeholder={t("referrals.describeReason")}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none
                          focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             />
@@ -793,13 +845,13 @@ function NewInterconsultaModal({
           {/* Notas */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Notas adicionales
+              {t("referrals.additionalNotes")}
             </label>
             <textarea
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
               rows={2}
-              placeholder="Medicación actual, alergias, antecedentes relevantes..."
+              placeholder={t("referrals.medicationNotes")}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none
                          focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             />
@@ -811,7 +863,7 @@ function NewInterconsultaModal({
             onClick={onClose}
             className="px-4 py-2 text-sm text-gray-600 hover:text-ink transition"
           >
-            Cancelar
+            {t("common.cancel")}
           </button>
           <button
             onClick={onSubmit}
@@ -821,7 +873,7 @@ function NewInterconsultaModal({
                        flex items-center gap-2"
           >
             <Send className="w-4 h-4" />
-            Enviar Interconsulta
+            {t("referrals.sendReferral")}
           </button>
         </div>
       </div>
@@ -840,6 +892,15 @@ function NewEstudioModal({
   onClose: () => void;
   onSubmit: () => void;
 }) {
+  const { t } = useLocale();
+  const tipoLabels: Record<string, string> = {
+    laboratorio: t("referrals.labStudy"),
+    imagen: t("referrals.imaging"),
+    ecografia: t("referrals.ecografia"),
+    electrocardiograma: t("referrals.electrocardiograma"),
+    endoscopia: t("referrals.endoscopia"),
+    otro: t("referrals.other"),
+  };
   const [paciente, setPaciente] = useState("");
   const [tipo, setTipo] = useState<EstudioTipo>("laboratorio");
   const [estudio, setEstudio] = useState("");
@@ -865,7 +926,7 @@ function NewEstudioModal({
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-ink flex items-center gap-2">
               <FlaskConical className="w-5 h-5 text-purple-600" />
-              Solicitud de Estudio
+              {t("referrals.studyRequestTitle")}
             </h2>
             <button onClick={onClose} className="text-gray-400 hover:text-ink transition">
               <XCircle className="w-5 h-5" />
@@ -875,11 +936,13 @@ function NewEstudioModal({
 
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Paciente *</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              {t("referrals.patientRequired")}
+            </label>
             <input
               value={paciente}
               onChange={(e) => setPaciente(e.target.value)}
-              placeholder="Nombre del paciente"
+              placeholder={t("referrals.patientName")}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm
                          focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             />
@@ -887,7 +950,7 @@ function NewEstudioModal({
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Tipo de estudio *
+              {t("referrals.studyType")}
             </label>
             <select
               value={tipo}
@@ -895,9 +958,9 @@ function NewEstudioModal({
               className="w-full border border-border rounded-lg px-3 py-2 text-sm appearance-none
                          bg-white focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             >
-              {Object.entries(TIPO_ESTUDIO_LABELS).map(([k, v]) => (
+              {(Object.keys(TIPO_ESTUDIO_LABELS) as EstudioTipo[]).map((k) => (
                 <option key={k} value={k}>
-                  {v}
+                  {tipoLabels[k]}
                 </option>
               ))}
             </select>
@@ -905,12 +968,12 @@ function NewEstudioModal({
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Estudio solicitado *
+              {t("referrals.studyRequested")}
             </label>
             <input
               value={estudio}
               onChange={(e) => setEstudio(e.target.value)}
-              placeholder="Ej: RMN de cerebro sin contraste"
+              placeholder={t("referrals.studyExample")}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm
                          focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             />
@@ -918,7 +981,7 @@ function NewEstudioModal({
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Centro de destino
+              {t("referrals.destinationCenter")}
             </label>
             <select
               value={centroId}
@@ -926,7 +989,7 @@ function NewEstudioModal({
               className="w-full border border-border rounded-lg px-3 py-2 text-sm appearance-none
                          bg-white focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             >
-              <option value="">Seleccionar centro...</option>
+              <option value="">{t("referrals.selectCenter")}</option>
               {centros.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.nombre} — {c.institucion}
@@ -936,7 +999,9 @@ function NewEstudioModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Prioridad</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              {t("referrals.priority")}
+            </label>
             <div className="flex gap-2">
               {(["baja", "normal", "alta", "urgente"] as const).map((p) => (
                 <button
@@ -956,13 +1021,13 @@ function NewEstudioModal({
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Indicación clínica *
+              {t("referrals.clinicalIndication")}
             </label>
             <textarea
               value={indicacion}
               onChange={(e) => setIndicacion(e.target.value)}
               rows={3}
-              placeholder="Motivo del estudio y contexto clínico relevante..."
+              placeholder={t("referrals.clinicalContext")}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none
                          focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
             />
@@ -974,7 +1039,7 @@ function NewEstudioModal({
             onClick={onClose}
             className="px-4 py-2 text-sm text-gray-600 hover:text-ink transition"
           >
-            Cancelar
+            {t("common.cancel")}
           </button>
           <button
             onClick={onSubmit}
@@ -984,7 +1049,7 @@ function NewEstudioModal({
                        flex items-center gap-2"
           >
             <FlaskConical className="w-4 h-4" />
-            Solicitar Estudio
+            {t("referrals.requestStudyBtn")}
           </button>
         </div>
       </div>
@@ -1003,9 +1068,15 @@ function DoctorProfileModal({
   onClose: () => void;
   onRefer: () => void;
 }) {
+  const { t } = useLocale();
   const badge = DISPONIBILIDAD_BADGE[doctor.disponibilidad] ?? {
     label: "—",
     class: "bg-gray-100 text-gray-500",
+  };
+  const badgeLabel: Record<string, string> = {
+    disponible: t("referrals.available"),
+    limitada: t("referrals.limitedAvailability"),
+    no_disponible: t("referrals.unavailable"),
   };
 
   return (
@@ -1051,13 +1122,13 @@ function DoctorProfileModal({
             {doctor.turnaroundDays && (
               <div className="flex items-center gap-3 text-sm text-gray-700">
                 <Clock className="w-4 h-4 text-gray-400 shrink-0" />
-                Respuesta estimada: ~{doctor.turnaroundDays} día
-                {doctor.turnaroundDays > 1 ? "s" : ""}
+                {t("referrals.estimatedResponse")} ~{doctor.turnaroundDays}{" "}
+                {doctor.turnaroundDays > 1 ? t("common.days") : t("common.day")}
               </div>
             )}
             <div className="pt-1">
               <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${badge.class}`}>
-                {badge.label}
+                {badgeLabel[doctor.disponibilidad] ?? "—"}
               </span>
             </div>
           </div>
@@ -1068,7 +1139,7 @@ function DoctorProfileModal({
               className="flex-1 px-4 py-2.5 text-sm border border-border rounded-lg
                          text-gray-600 hover:border-gray-300 transition"
             >
-              Cerrar
+              {t("common.close")}
             </button>
             <button
               onClick={onRefer}
@@ -1078,7 +1149,7 @@ function DoctorProfileModal({
                          flex items-center justify-center gap-2"
             >
               <Send className="w-4 h-4" />
-              Derivar paciente
+              {t("referrals.referPatient")}
             </button>
           </div>
         </div>
