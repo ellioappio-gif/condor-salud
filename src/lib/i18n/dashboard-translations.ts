@@ -363,6 +363,9 @@ export const dashboardTranslations: DashTranslation = {
     en: "Rejections distribution by reason",
   },
   "rejections.rejections": { es: "rechazos", en: "rejections" },
+  "rejections.expiredInvoice": { es: "Factura vencida", en: "Expired invoice" },
+  "rejections.duplicateInvoice": { es: "Factura duplicada", en: "Duplicate invoice" },
+  "rejections.outdatedNomenclator": { es: "Nomenclador desactualizado", en: "Outdated fee schedule" },
 
   // ─── Pacientes ─────────────────────────────────────────────
   "patients.title": { es: "Pacientes", en: "Patients" },
@@ -651,6 +654,16 @@ export const dashboardTranslations: DashTranslation = {
   "audit.loadingAudit": { es: "Cargando auditoría...", en: "Loading audit..." },
   "audit.searchAudit": { es: "Buscar en auditoría", en: "Search in audit" },
   "audit.detail": { es: "Detalle", en: "Detail" },
+  "audit.auditCompletedMsg": {
+    es: "Auditoría completada: {count} facturas analizadas",
+    en: "Audit completed: {count} invoices analyzed",
+  },
+  "audit.severityHigh": { es: "Alta", en: "High" },
+  "audit.severityMedium": { es: "Media", en: "Medium" },
+  "audit.severityLow": { es: "Baja", en: "Low" },
+  "audit.resolvedLabel": { es: "Resuelto", en: "Resolved" },
+  "toast.audit.resolved": { es: "Observación marcada como resuelta", en: "Finding marked as resolved" },
+  "toast.audit.reviewed": { es: "Observación marcada como revisada", en: "Finding marked as reviewed" },
 
   // ─── Analítica / Reportes ──────────────────────────────────
   "analytics.title": { es: "Analítica", en: "Analytics" },
@@ -755,6 +768,73 @@ export const dashboardTranslations: DashTranslation = {
     es: "Flujo de atención remota completa",
     en: "Complete remote care flow",
   },
+  "telemedicine.startNewConsultationDemo": { es: "Iniciar nueva videoconsulta", en: "Start new video consultation" },
+  "telemedicine.sendIntakeDemo": { es: "Enviar formulario de intake a {name}", en: "Send intake form to {name}" },
+  "telemedicine.startVideoDemo": {
+    es: "Iniciar videoconsulta con {name} — sin descarga de app, desde el navegador",
+    en: "Start video consultation with {name} — no app download, from browser",
+  },
+  "telemedicine.activeSessionDemoText": {
+    es: "Dra. Fernández con Elena Martínez — Control cardiológico",
+    en: "Dr. Fernández with Elena Martínez — Cardiology checkup",
+  },
+  "telemedicine.activeSessionDemoDetail": {
+    es: "Duración: 12:34 - Compartiendo pantalla",
+    en: "Duration: 12:34 - Screen sharing",
+  },
+  "telemedicine.openActiveVideoDemo": {
+    es: "Abrir videoconsulta activa — compartir pantalla",
+    en: "Open active video consultation — screen sharing",
+  },
+  "telemedicine.startRecordingDemo": { es: "Iniciar grabación de sesión", en: "Start session recording" },
+  "telemedicine.endActiveVideoDemo": { es: "Finalizar videoconsulta activa", en: "End active video consultation" },
+  "telemedicine.consultationHeader": { es: "Consulta", en: "Consultation" },
+  "telemedicine.nomenclatorCode": { es: "Cód. nomenclador", en: "Fee schedule code" },
+  "telemedicine.billedHeader": { es: "Facturado", en: "Billed" },
+  "telemedicine.billConsultationDemo": {
+    es: "Facturar consulta {id} con código {code} al financiador",
+    en: "Bill consultation {id} with code {code} to insurer",
+  },
+  "telemedicine.generatePrescriptionDemo": {
+    es: "Generar receta digital para {name}",
+    en: "Generate digital prescription for {name}",
+  },
+  "telemedicine.sendToPharmacyDemo": {
+    es: "Enviar receta de {name} a Farmacia Online con carrito pre-cargado",
+    en: "Send {name}'s prescription to Online Pharmacy with pre-loaded cart",
+  },
+  "telemedicine.generateWhatsAppDemo": {
+    es: "Generar y enviar resumen WhatsApp a {name}: diagnóstico, indicaciones, receta, próximo turno",
+    en: "Generate and send WhatsApp summary to {name}: diagnosis, instructions, prescription, next appointment",
+  },
+  "telemedicine.viewConsultationDetailDemo": { es: "Ver detalle de consulta {id}", en: "View consultation detail {id}" },
+  "telemedicine.viewFullSummaryDemo": { es: "Ver resumen completo de {id}", en: "View full summary of {id}" },
+  "telemedicine.copyLinkDemo": { es: "Copiar link: {url}", en: "Copy link: {url}" },
+  "telemedicine.yearsOld": { es: "años", en: "years" },
+  "telemedicine.whatsAppPreviewHeader": { es: "Cóndor Salud — Resumen de consulta", en: "Cóndor Salud — Consultation summary" },
+  "telemedicine.whatsAppPreviewPatient": { es: "Paciente: Jorge Álvarez", en: "Patient: Jorge Álvarez" },
+  "telemedicine.whatsAppPreviewDoctor": { es: "Médico: Dra. Fernández", en: "Doctor: Dra. Fernández" },
+  "telemedicine.whatsAppPreviewDate": { es: "Fecha: 10/03/2026 09:30", en: "Date: 10/03/2026 09:30" },
+  "telemedicine.whatsAppPreviewDiagnosis": {
+    es: "Diagnóstico: Control cardiológico — Sin novedades",
+    en: "Diagnosis: Cardiology checkup — No findings",
+  },
+  "telemedicine.whatsAppPreviewInstructions": {
+    es: "Indicaciones: Continuar tratamiento actual",
+    en: "Instructions: Continue current treatment",
+  },
+  "telemedicine.whatsAppPreviewPrescription": {
+    es: "Receta: Losartán 50mg (enlace farmacia)",
+    en: "Prescription: Losartán 50mg (pharmacy link)",
+  },
+  "telemedicine.whatsAppPreviewNextAppt": {
+    es: "Próximo turno: 10/04/2026 09:30",
+    en: "Next appointment: 10/04/2026 09:30",
+  },
+  "toast.telemed.newCall": { es: "Iniciando nueva videoconsulta", en: "Starting new video consultation" },
+  "toast.telemed.shareScreen": { es: "Compartiendo pantalla", en: "Sharing screen" },
+  "toast.telemed.startRecording": { es: "Grabación iniciada", en: "Recording started" },
+  "toast.telemed.endCall": { es: "Consulta finalizada", en: "Consultation ended" },
 
   // ─── Configuración ────────────────────────────────────────
   "settings.title": { es: "Configuración", en: "Settings" },
@@ -948,6 +1028,8 @@ export const dashboardTranslations: DashTranslation = {
     es: "Las diferencias PAMI vs SSS suelen oscilar entre -12% y -18%",
     en: "PAMI vs SSS differences typically range between -12% and -18%",
   },
+  "nomenclator.valueSSSHeader": { es: "Valor SSS", en: "SSS Value" },
+  "nomenclator.valuePAMIHeader": { es: "Valor PAMI", en: "PAMI Value" },
 
   // ─── PAMI Nomenclador ──────────────────────────────────────
   "pami.title": { es: "Nomenclador PAMI", en: "PAMI Nomenclator" },
@@ -1391,6 +1473,100 @@ export const dashboardTranslations: DashTranslation = {
   "verification.activeCoverage": { es: "Cobertura activa", en: "Active coverage" },
   "verification.noCoverage": { es: "Sin cobertura", en: "No coverage" },
   "verification.recentChecks": { es: "Últimas verificaciones", en: "Recent checks" },
+
+  // ─── Account Verification (verificar-cuenta) ──────────────
+  "accountVerification.title": { es: "Verificación de Cuenta", en: "Account Verification" },
+  "accountVerification.formTitle": {
+    es: "Verificar tu Cuenta Médica",
+    en: "Verify Your Medical Account",
+  },
+  "accountVerification.formDescription": {
+    es: "La verificación aumenta la confianza de los pacientes y desbloquea funcionalidades premium como recetas digitales y perfil público.",
+    en: "Verification increases patient trust and unlocks premium features like digital prescriptions and a public profile.",
+  },
+  "accountVerification.status.pending.label": { es: "En Revisión", en: "Under Review" },
+  "accountVerification.status.pending.description": {
+    es: "Tu solicitud está siendo revisada por nuestro equipo.",
+    en: "Your application is being reviewed by our team.",
+  },
+  "accountVerification.status.approved.label": { es: "Verificado", en: "Verified" },
+  "accountVerification.status.approved.description": {
+    es: "Tu perfil ha sido verificado exitosamente.",
+    en: "Your profile has been successfully verified.",
+  },
+  "accountVerification.status.rejected.label": { es: "Rechazado", en: "Rejected" },
+  "accountVerification.status.rejected.description": {
+    es: "Tu solicitud fue rechazada. Por favor revisa los motivos e intenta nuevamente.",
+    en: "Your application was rejected. Please review the reasons and try again.",
+  },
+  "accountVerification.status.needs_review.label": {
+    es: "Requiere Corrección",
+    en: "Needs Correction",
+  },
+  "accountVerification.status.needs_review.description": {
+    es: "Se necesitan documentos adicionales o correcciones.",
+    en: "Additional documents or corrections are needed.",
+  },
+  "accountVerification.rejectionReason": { es: "Motivo:", en: "Reason:" },
+  "accountVerification.nationalLicense": { es: "Matrícula Nacional:", en: "National License:" },
+  "accountVerification.provincialLicense": {
+    es: "Matrícula Provincial:",
+    en: "Provincial License:",
+  },
+  "accountVerification.submittedAt": { es: "Enviado:", en: "Submitted:" },
+  "accountVerification.submittedDocuments": {
+    es: "Documentos enviados:",
+    en: "Submitted Documents:",
+  },
+  "accountVerification.resubmit": { es: "Enviar Nueva Solicitud", en: "Submit New Application" },
+  "accountVerification.nationalLicenseLabel": {
+    es: "Matrícula Nacional (MN)",
+    en: "National License (MN)",
+  },
+  "accountVerification.nationalLicensePlaceholder": { es: "Ej: MN 12345", en: "E.g.: MN 12345" },
+  "accountVerification.provincialLicenseLabel": {
+    es: "Matrícula Provincial (MP)",
+    en: "Provincial License (MP)",
+  },
+  "accountVerification.provincialLicensePlaceholder": {
+    es: "Ej: MP 6789",
+    en: "E.g.: MP 6789",
+  },
+  "accountVerification.dniLabel": { es: "DNI del Profesional", en: "Professional ID Number" },
+  "accountVerification.dniPlaceholder": { es: "Ej: 30123456", en: "E.g.: 30123456" },
+  "accountVerification.documentsLabel": {
+    es: "Documentos de Respaldo",
+    en: "Supporting Documents",
+  },
+  "accountVerification.documentsHelp": {
+    es: "Foto o scan de tu matrícula profesional y/o DNI. Formatos: JPG, PNG, PDF.",
+    en: "Photo or scan of your professional license and/or ID. Formats: JPG, PNG, PDF.",
+  },
+  "accountVerification.selectFiles": { es: "Seleccionar archivos", en: "Select files" },
+  "accountVerification.orDragHere": { es: " o arrastra aquí", en: " or drag here" },
+  "accountVerification.whatHappensNext": { es: "¿Qué pasa después?", en: "What happens next?" },
+  "accountVerification.reviewTimeline": {
+    es: "Nuestro equipo revisará tu documentación en 24-48hs hábiles",
+    en: "Our team will review your documentation within 24-48 business hours",
+  },
+  "accountVerification.notificationInfo": {
+    es: "Recibirás una notificación cuando tu cuenta sea verificada",
+    en: "You will receive a notification when your account is verified",
+  },
+  "accountVerification.badgeInfo": {
+    es: "El badge de verificación aparecerá en tu perfil público y recetas digitales",
+    en: "The verification badge will appear on your public profile and digital prescriptions",
+  },
+  "accountVerification.submitting": { es: "Enviando...", en: "Submitting..." },
+  "accountVerification.submitButton": {
+    es: "Enviar Solicitud de Verificación",
+    en: "Submit Verification Request",
+  },
+  "accountVerification.errorSubmit": { es: "Error al enviar", en: "Error submitting" },
+  "accountVerification.errorSubmitRequest": {
+    es: "Error al enviar la solicitud",
+    en: "Error submitting the request",
+  },
 
   // ─── Triage ────────────────────────────────────────────────
   "triage.title": { es: "Triage de Síntomas", en: "Symptom Triage" },
@@ -2257,6 +2433,7 @@ export const dashboardTranslations: DashTranslation = {
     es: "La página que buscás no existe o fue movida. Verificá la URL o volvé al inicio.",
     en: "The page you're looking for doesn't exist or was moved. Check the URL or go back to the home page.",
   },
+  "error.moduleError": { es: "Error en el módulo", en: "Module error" },
 
   // ─── Accessibility / Aria ──────────────────────────────────
   "aria.skipToContent": { es: "Ir al contenido principal", en: "Skip to main content" },
@@ -3365,4 +3542,170 @@ export const dashboardTranslations: DashTranslation = {
   "reviews.filterLabel": { es: "Filtrar por estado", en: "Filter by status" },
   "reviews.listLabel": { es: "Reseñas a moderar", en: "Reviews to moderate" },
   "reviews.verified": { es: "VERIFICADO", en: "VERIFIED" },
+
+  // ─── Online Bookings ──────────────────────────────────────
+  "onlineBooking.title": { es: "Turnos Online", en: "Online Bookings" },
+  "onlineBooking.subtitle": {
+    es: "Administrá los turnos de tu página pública",
+    en: "Manage bookings from your public page",
+  },
+  "onlineBooking.copyLink": { es: "Copiar enlace", en: "Copy link" },
+  "onlineBooking.openPage": { es: "Abrir página", en: "Open page" },
+  "onlineBooking.allStatuses": { es: "Todos los estados", en: "All statuses" },
+  "onlineBooking.dateTime": { es: "Fecha y Hora", en: "Date & Time" },
+  "onlineBooking.type": { es: "Tipo", en: "Type" },
+  "onlineBooking.actions": { es: "Acciones", en: "Actions" },
+  "onlineBooking.complete": { es: "Completar", en: "Complete" },
+  "onlineBooking.noShow": { es: "No asistió", en: "No show" },
+  "onlineBooking.noBookings": { es: "No hay turnos", en: "No bookings found" },
+  "onlineBooking.noBookingsDesc": {
+    es: "Compartí tu link de turnos para empezar a recibir reservas",
+    en: "Share your booking link to start receiving appointments",
+  },
+  "onlineBooking.presencial": { es: "Presencial", en: "In-person" },
+  "onlineBooking.teleconsulta": { es: "Teleconsulta", en: "Teleconsultation" },
+  "onlineBooking.bookedVia": { es: "Reservado por", en: "Booked via" },
+  "onlineBooking.page": { es: "Página", en: "Page" },
+  "onlineBooking.statusPending": { es: "Pendiente", en: "Pending" },
+  "onlineBooking.statusNotified": { es: "Notificada", en: "Notified" },
+  "onlineBooking.statusConfirmed": { es: "Confirmada", en: "Confirmed" },
+  "onlineBooking.statusCancelled": { es: "Cancelada", en: "Cancelled" },
+  "onlineBooking.statusCompleted": { es: "Completada", en: "Completed" },
+  "onlineBooking.statusNoShow": { es: "No asistió", en: "No Show" },
+  "onlineBooking.toastConfirmed": { es: "Turno confirmado", en: "Booking confirmed" },
+  "onlineBooking.toastCancelled": { es: "Turno cancelado", en: "Booking cancelled" },
+  "onlineBooking.toastCompleted": { es: "Turno completado", en: "Booking completed" },
+  "onlineBooking.toastNoShow": { es: "Marcado como no asistió", en: "Marked as no-show" },
+  "onlineBooking.linkCopied": { es: "¡Enlace copiado!", en: "Link copied!" },
+  "onlineBooking.errorLoading": { es: "Error cargando turnos", en: "Error loading bookings" },
+  "onlineBooking.actionFailed": { es: "Error en la acción", en: "Action failed" },
+
+  // ─── Toast: Configuración ─────────────────────────────────
+  "toast.config.clinicSaveError": { es: "Error al guardar: ", en: "Error saving: " },
+  "toast.config.clinicUpdated": { es: "Datos de la clínica actualizados", en: "Clinic data updated" },
+  "toast.config.clinicConnectionError": { es: "Error de conexión al guardar", en: "Connection error while saving" },
+  "toast.config.newIntegration": { es: "Nueva integración", en: "New integration" },
+
+  // ─── Toast: Verificaciones ────────────────────────────────
+  "toast.verificaciones.processError": { es: "Error al procesar verificación", en: "Error processing verification" },
+  "toast.verificaciones.approved": { es: "Médico verificado", en: "Doctor verified" },
+  "toast.verificaciones.rejected": { es: "Verificación rechazada", en: "Verification rejected" },
+
+  // ─── Settings: Clinic page ────────────────────────────────
+  "settings.clinic.breadcrumb": { es: "Configuración", en: "Settings" },
+  "settings.clinic.breadcrumbCurrent": { es: "Mi Clínica", en: "My Clinic" },
+  "settings.clinic.heading": { es: "Mi Clínica", en: "My Clinic" },
+  "settings.clinic.subtitle": { es: "Datos generales del centro médico", en: "General data for the medical center" },
+  "settings.clinic.edit": { es: "Editar", en: "Edit" },
+  "settings.clinic.cancel": { es: "Cancelar", en: "Cancel" },
+  "settings.clinic.save": { es: "Guardar", en: "Save" },
+  "settings.clinic.generalInfo": { es: "Información General", en: "General Information" },
+  "settings.clinic.name": { es: "Nombre", en: "Name" },
+  "settings.clinic.plan": { es: "Plan", en: "Plan" },
+  "settings.clinic.contactLocation": { es: "Contacto y Ubicación", en: "Contact & Location" },
+  "settings.clinic.address": { es: "Dirección", en: "Address" },
+  "settings.clinic.phone": { es: "Teléfono", en: "Phone" },
+  "settings.clinic.email": { es: "Email", en: "Email" },
+  "settings.clinic.notEntered": { es: "No ingresado", en: "Not entered" },
+  "settings.clinic.notEnteredF": { es: "No ingresada", en: "Not entered" },
+  "settings.clinic.specialties": { es: "Especialidades", en: "Specialties" },
+  "settings.clinic.noSpecialties": {
+    es: "No hay especialidades configuradas. Podés agregarlas desde el wizard de onboarding.",
+    en: "No specialties configured. You can add them from the onboarding wizard.",
+  },
+  "settings.clinic.currentPlan": { es: "Plan Actual", en: "Current Plan" },
+  "settings.clinic.changePlanHint": { es: "Podés cambiar de plan en cualquier momento.", en: "You can change your plan at any time." },
+  "settings.clinic.viewPlans": { es: "Ver planes", en: "View plans" },
+  "settings.clinic.loadingClinic": { es: "Cargando datos de la clínica...", en: "Loading clinic data..." },
+  "settings.clinic.loadError": { es: "No se pudo cargar la información de la clínica.", en: "Could not load clinic information." },
+  "settings.clinic.fetchError": { es: "Error al cargar datos de la clínica.", en: "Error loading clinic data." },
+  "settings.clinic.connectionError": { es: "Error de conexión.", en: "Connection error." },
+  "settings.clinic.notFound": { es: "Clínica no encontrada.", en: "Clinic not found." },
+  "settings.clinic.backToDashboard": { es: "Volver al dashboard", en: "Back to dashboard" },
+
+  // ─── Settings: Integrations page ──────────────────────────
+  "settings.integrations.breadcrumb": { es: "Configuración", en: "Settings" },
+  "settings.integrations.breadcrumbCurrent": { es: "Integraciones", en: "Integrations" },
+  "settings.integrations.heading": { es: "Integraciones", en: "Integrations" },
+  "settings.integrations.activeCount": { es: "{active} activas · {errors} con error", en: "{active} active · {errors} with errors" },
+  "settings.integrations.newIntegration": { es: "+ Nueva integración", en: "+ New Integration" },
+  "settings.integrations.kpiTotal": { es: "Total", en: "Total" },
+  "settings.integrations.kpiConnected": { es: "Conectadas", en: "Connected" },
+  "settings.integrations.kpiErrors": { es: "Con error", en: "With errors" },
+  "settings.integrations.kpiPending": { es: "Pendientes", en: "Pending" },
+  "settings.integrations.errorBanner": { es: "{count} integración con error", en: "{count} integration with error" },
+  "settings.integrations.lastSync": { es: "Última sincronización", en: "Last sync" },
+  "settings.integrations.sync": { es: "Sincronizar", en: "Sync" },
+  "settings.integrations.retry": { es: "Reintentar", en: "Retry" },
+  "settings.integrations.configure": { es: "Configurar", en: "Configure" },
+  "settings.integrations.settings": { es: "Ajustes", en: "Settings" },
+  "settings.integrations.syncToast": { es: "Sincronizar {name}", en: "Sync {name}" },
+  "settings.integrations.retryToast": { es: "Reintentar {name}", en: "Retry {name}" },
+  "settings.integrations.configureToast": { es: "Configurar {name}", en: "Configure {name}" },
+  "settings.integrations.settingsToast": { es: "Ajustes de {name}", en: "Settings for {name}" },
+  "settings.integrations.statusConnected": { es: "Conectado", en: "Connected" },
+  "settings.integrations.statusError": { es: "Error", en: "Error" },
+  "settings.integrations.statusDisconnected": { es: "Desconectado", en: "Disconnected" },
+  "settings.integrations.statusPending": { es: "Pendiente", en: "Pending" },
+  "settings.integrations.typeSocialInsurance": { es: "Obra Social", en: "Social Insurance" },
+  "settings.integrations.typeFiscal": { es: "Fiscal", en: "Fiscal" },
+  "settings.integrations.typeCommunication": { es: "Comunicacion", en: "Communication" },
+  "settings.integrations.descPami": {
+    es: "Presentacion electronica de facturacion, verificacion de cobertura y consulta de aranceles.",
+    en: "Electronic billing submission, coverage verification and fee schedule lookup.",
+  },
+  "settings.integrations.descAfip": {
+    es: "Emision de comprobantes electronicos (Factura C, Nota de Credito/Debito) via webservice WSFE.",
+    en: "Electronic voucher issuance (Invoice C, Credit/Debit Note) via WSFE webservice.",
+  },
+  "settings.integrations.descSwiss": {
+    es: "Autorizaciones online, verificacion de cobertura y envio electronico de facturas.",
+    en: "Online authorizations, coverage verification and electronic invoice submission.",
+  },
+  "settings.integrations.descOsde": {
+    es: "Presentacion electronica, consulta de pagos y verificacion de afiliados.",
+    en: "Electronic submission, payment lookup and member verification.",
+  },
+  "settings.integrations.descGaleno": {
+    es: "Conexion intermitente. Ultimo error: Timeout en autenticacion. Reintentando automaticamente.",
+    en: "Intermittent connection. Last error: Authentication timeout. Retrying automatically.",
+  },
+  "settings.integrations.descWhatsapp": {
+    es: "Recordatorios automaticos de turnos, confirmacion por mensaje y notificaciones al paciente.",
+    en: "Automatic appointment reminders, message confirmation and patient notifications.",
+  },
+  "settings.integrations.descIoma": {
+    es: "Integracion pendiente de configuracion. Actualmente se gestiona manualmente.",
+    en: "Integration pending configuration. Currently managed manually.",
+  },
+  "settings.integrations.descMedife": {
+    es: "En proceso de habilitacion. Esperando credenciales de produccion.",
+    en: "Enablement in progress. Waiting for production credentials.",
+  },
+
+  // ─── Verificaciones ───────────────────────────────────────
+  "verifications.title": { es: "Verificación de Médicos", en: "Doctor Verification" },
+  "verifications.subtitle": {
+    es: "Revisá la matrícula y DNI de médicos que solicitan verificación",
+    en: "Review the license and ID of doctors requesting verification",
+  },
+  "verifications.noPending": { es: "No hay verificaciones pendientes", en: "No pending verifications" },
+  "verifications.allProcessed": { es: "Todas las solicitudes han sido procesadas", en: "All requests have been processed" },
+  "verifications.nationalLicense": { es: "Matrícula Nacional", en: "National License" },
+  "verifications.provincialLicense": { es: "Matrícula Provincial", en: "Provincial License" },
+  "verifications.dni": { es: "DNI", en: "ID Number" },
+  "verifications.uploadedDocs": { es: "Documentos Subidos", en: "Uploaded Documents" },
+  "verifications.rejectionLabel": { es: "Motivo de rechazo (opcional)", en: "Rejection reason (optional)" },
+  "verifications.rejectionPlaceholder": {
+    es: "Ej: Matrícula ilegible, DNI no coincide...",
+    en: "E.g.: License unreadable, ID does not match...",
+  },
+  "verifications.approve": { es: "Aprobar", en: "Approve" },
+  "verifications.reject": { es: "Rechazar", en: "Reject" },
+  "verifications.docLicenseFront": { es: "Matrícula (Frente)", en: "License (Front)" },
+  "verifications.docLicenseBack": { es: "Matrícula (Dorso)", en: "License (Back)" },
+  "verifications.docDniFront": { es: "DNI (Frente)", en: "ID (Front)" },
+  "verifications.docDniBack": { es: "DNI (Dorso)", en: "ID (Back)" },
+  "verifications.docDegree": { es: "Título Universitario", en: "University Degree" },
+  "verifications.docOther": { es: "Otro Documento", en: "Other Document" },
 };
