@@ -58,6 +58,7 @@ describe("requireAuth", () => {
   });
 
   it("returns demo user when no cookies at all (demo mode)", async () => {
+    vi.stubEnv("DEMO_MODE", "true");
     const { requireAuth } = await import("@/lib/security/require-auth");
     const req = makeRequest({});
     const result = await requireAuth(req);
@@ -70,6 +71,7 @@ describe("requireAuth", () => {
   });
 
   it("returns demo user when session cookie is corrupt (demo mode)", async () => {
+    vi.stubEnv("DEMO_MODE", "true");
     const { requireAuth } = await import("@/lib/security/require-auth");
     const req = makeRequest({ condor_session: "not-json" });
     const result = await requireAuth(req);
@@ -81,6 +83,7 @@ describe("requireAuth", () => {
   });
 
   it("returns demo user when session cookie is missing required fields (demo mode)", async () => {
+    vi.stubEnv("DEMO_MODE", "true");
     const { requireAuth } = await import("@/lib/security/require-auth");
     const partial = { id: "u1" }; // missing email and role
     const req = makeRequest({ condor_session: JSON.stringify(partial) });

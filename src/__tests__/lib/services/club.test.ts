@@ -13,7 +13,8 @@ vi.mock("@/lib/env", () => ({
   isSupabaseConfigured: () => true,
 }));
 
-vi.mock("@/lib/supabase/server", () => ({
+// club.ts uses @supabase/supabase-js directly via getSupabase()
+vi.mock("@supabase/supabase-js", () => ({
   createClient: () => ({
     from: mockFrom,
   }),
