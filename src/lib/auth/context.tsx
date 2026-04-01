@@ -138,8 +138,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setState({ user, isLoading: false, isAuthenticated: true });
             }
           } else if (!cancelled) {
-            // No Supabase session — user is not logged in
-            setState({ user: null, isLoading: false, isAuthenticated: false });
+            // No Supabase session — fall back to demo user.
+            // The middleware currently allows unauthenticated access to /dashboard
+            // (demo mode). When auth gates are re-enabled in middleware, server-side
+            // redirects will prevent reaching this code, making the fallback inert.
+            setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
           }
 
           // Listen for auth state changes (login/logout/token refresh)
@@ -162,8 +165,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
         } catch {
           if (!cancelled) {
-            // Supabase unavailable — treat as logged out
-            setState({ user: null, isLoading: false, isAuthenticated: false });
+            // Supabase unavailable — fall back to demo user
+            setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
           }
         }
         return;
@@ -176,14 +179,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { user } = await res.json();
         if (!cancelled) {
           setState({
-            user: user ?? null,
+            user: user ?? DEMO_USER,
             isLoading: false,
-            isAuthenticated: !!user,
+            isAuthenticated: true,
           });
         }
       } catch {
         if (!cancelled) {
-          setState({ user: null, isLoading: false, isAuthenticated: false });
+          setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
         }
       }
     }
