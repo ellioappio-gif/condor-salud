@@ -154,8 +154,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               const user = await resolveProfile(supabase, newSession.user);
               setState({ user, isLoading: false, isAuthenticated: true });
             } else {
-              // Session lost → logged out (don't fall back to demo)
-              setState({ user: null, isLoading: false, isAuthenticated: false });
+              // No session — keep demo user active.
+              // Explicit logout already navigates to /auth/login via handleLogout,
+              // so we don't need to set user=null here in demo mode.
+              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
             }
           });
 
