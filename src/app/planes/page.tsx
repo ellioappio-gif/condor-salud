@@ -326,7 +326,7 @@ function PlanesContent() {
             Inicio
           </Link>
           <Link
-            href="/dashboard"
+            href="/auth/registro"
             className="px-4 py-2 text-xs font-semibold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
           >
             {t("planes.goToDashboard")}
@@ -439,7 +439,7 @@ function PlanesContent() {
 
               <div className="mt-6 space-y-2">
                 <Link
-                  href="/dashboard"
+                  href={`/auth/registro${activePresetDef ? `?plan=${activePresetDef.id}` : ""}`}
                   className="block w-full py-2.5 text-center text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
                 >
                   {t("planes.startWithPlan")}
@@ -478,7 +478,7 @@ function PlanesContent() {
             </p>
           </div>
           <Link
-            href="/dashboard"
+            href={`/auth/registro${activePresetDef ? `?plan=${activePresetDef.id}` : ""}`}
             className="px-5 py-2.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition whitespace-nowrap"
           >
             {t("planes.getStarted")}

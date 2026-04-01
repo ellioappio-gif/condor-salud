@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,8 @@ import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { GOOGLE_CLIENT_ID } from "@/lib/google";
 import { useLocale } from "@/lib/i18n/context";
+import { SEAT_PLANS, formatARS, type SeatPlanId } from "@/lib/plan-config";
+import { Check, Shield, Zap, HeadphonesIcon } from "lucide-react";
 
 const PROVINCIAS = [
   { value: "CABA", label: "CABA" },
@@ -47,10 +49,23 @@ const FINANCIADORES_LIST = [
 ];
 
 export default function RegistroPage() {
+  return (
+    <Suspense>
+      <RegistroContent />
+    </Suspense>
+  );
+}
+
+function RegistroContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { register: authRegister } = useAuth();
   const [serverError, setServerError] = useState("");
   const { t } = useLocale();
+
+  // Read plan from URL: /auth/registro?plan=basic|plus|enterprise
+  const planParam = searchParams.get("plan") as SeatPlanId | null;
+  const selectedPlan = planParam ? SEAT_PLANS.find((p) => p.id === planParam) : null;
 
   const {
     register,
@@ -124,24 +139,86 @@ export default function RegistroPage() {
               <span className="text-gold">SALUD</span>
             </div>
           </Link>
-          <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
-            Empezá a proteger tus
-            <br />
-            <em className="text-amber-600 not-italic">ingresos hoy</em>
-          </h1>
-          <p className="text-base text-ink-light leading-relaxed max-w-md">
-            Más de 120 clínicas en Argentina ya usan Cóndor Salud para automatizar su facturación y
-            reducir rechazos.
-          </p>
+
+          {selectedPlan ? (
+            /* ── Plan-aware header ── */
+            <>
+              <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-3">
+                TU PLAN SELECCIONADO
+              </p>
+              <h1 className="text-3xl font-bold leading-tight mb-2 text-ink">
+                {selectedPlan.name}
+              </h1>
+              <p className="text-sm text-ink-light mb-6">{selectedPlan.tagline}</p>
+
+              <div className="bg-white/80 border border-celeste/20 rounded-xl p-5 mb-6">
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-3xl font-bold text-celeste-dark">
+                    {formatARS(selectedPlan.price)}
+                  </span>
+                  <span className="text-sm text-ink-muted">/mes</span>
+                </div>
+                {selectedPlan.priceAnnual > 0 && selectedPlan.priceAnnual < selectedPlan.price && (
+                  <p className="text-xs text-green-700 bg-green-50 inline-block px-2 py-0.5 rounded mb-3">
+                    Anual: {formatARS(selectedPlan.priceAnnual)}/mes (ahorrá{" "}
+                    {Math.round((1 - selectedPlan.priceAnnual / selectedPlan.price) * 100)}%)
+                  </p>
+                )}
+                <ul className="space-y-2">
+                  {selectedPlan.features.map((feat) => (
+                    <li key={feat} className="flex items-start gap-2 text-sm text-ink/80">
+                      <Check className="w-4 h-4 text-celeste-dark mt-0.5 shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Link href="/planes" className="text-xs text-celeste-dark hover:underline">
+                ← Cambiar de plan
+              </Link>
+            </>
+          ) : (
+            /* ── Default brand messaging ── */
+            <>
+              <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
+                Empezá a proteger tus
+                <br />
+                <em className="text-amber-600 not-italic">ingresos hoy</em>
+              </h1>
+              <p className="text-base text-ink-light leading-relaxed max-w-md">
+                Más de 120 clínicas en Argentina ya usan Cóndor Salud para automatizar su
+                facturación y reducir rechazos.
+              </p>
+            </>
+          )}
         </div>
+
         <div className="relative z-10">
-          <div className="bg-celeste-100/50 border border-celeste/20 rounded-lg p-5">
-            <p className="text-sm text-ink-light italic leading-relaxed">
-              &ldquo;Desde que implementamos Cóndor, redujimos los rechazos de PAMI un 62% y
-              cobramos 45 días antes.&rdquo;
-            </p>
-            <p className="text-xs text-ink-muted mt-3">— Dra. Fernández, Centro Médico Palermo</p>
-          </div>
+          {selectedPlan ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5 text-sm text-ink/60">
+                <Shield className="w-4 h-4 text-celeste shrink-0" />
+                Pago seguro con MercadoPago
+              </div>
+              <div className="flex items-center gap-2.5 text-sm text-ink/60">
+                <Zap className="w-4 h-4 text-celeste shrink-0" />
+                Activación inmediata
+              </div>
+              <div className="flex items-center gap-2.5 text-sm text-ink/60">
+                <HeadphonesIcon className="w-4 h-4 text-celeste shrink-0" />
+                Soporte dedicado durante onboarding
+              </div>
+            </div>
+          ) : (
+            <div className="bg-celeste-100/50 border border-celeste/20 rounded-lg p-5">
+              <p className="text-sm text-ink-light italic leading-relaxed">
+                &ldquo;Desde que implementamos Cóndor, redujimos los rechazos de PAMI un 62% y
+                cobramos 45 días antes.&rdquo;
+              </p>
+              <p className="text-xs text-ink-muted mt-3">— Dra. Fernández, Centro Médico Palermo</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -166,8 +243,38 @@ export default function RegistroPage() {
             </div>
           </Link>
 
-          <h2 className="text-2xl font-bold text-ink mb-1">{t("auth.registerTitle")}</h2>
-          <p className="text-sm text-ink-muted mb-6">{t("auth.registerSubtitle")}</p>
+          <h2 className="text-2xl font-bold text-ink mb-1">
+            {selectedPlan ? `Registrate — ${selectedPlan.name}` : t("auth.registerTitle")}
+          </h2>
+          <p className="text-sm text-ink-muted mb-6">
+            {selectedPlan
+              ? "Completá tus datos para activar tu plan y acceder al dashboard."
+              : t("auth.registerSubtitle")}
+          </p>
+
+          {/* Mobile plan badge (only when plan is selected) */}
+          {selectedPlan && (
+            <div className="lg:hidden mb-4 bg-celeste-pale border border-celeste/20 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-ink">{selectedPlan.name}</p>
+                  <p className="text-xs text-ink-muted">{selectedPlan.tagline}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-celeste-dark">
+                    {formatARS(selectedPlan.price)}
+                  </p>
+                  <p className="text-[10px] text-ink-muted">/mes</p>
+                </div>
+              </div>
+              <Link
+                href="/planes"
+                className="text-xs text-celeste-dark hover:underline mt-2 inline-block"
+              >
+                Cambiar de plan
+              </Link>
+            </div>
+          )}
 
           {serverError && (
             <div
@@ -288,7 +395,9 @@ export default function RegistroPage() {
               </p>
             )}
             <Button type="submit" loading={isSubmitting} className="w-full py-3 mt-2">
-              {t("auth.createFreeAccount")}
+              {selectedPlan
+                ? `Crear cuenta y activar ${selectedPlan.name}`
+                : t("auth.createFreeAccount")}
             </Button>
           </form>
 
