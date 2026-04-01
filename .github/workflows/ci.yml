@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
   NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key-for-ci"
 
@@ -60,6 +60,7 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 7
+          if-no-files-found: ignore
 
   build:
     name: Build
