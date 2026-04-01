@@ -42,7 +42,7 @@ const PUBLIC_API_PREFIXES = [
   "/api/demo", // Demo admin panel (auth via JWT)
   "/api/billing/webhook", // Billing webhook (auth via HMAC)
   "/api/team/accept", // Team invitation accept (has own token auth)
-  "/api/club/webhook", // Club webhook (auth via HMAC)
+  "/api/club", // Club Salud (status, join, webhook — patient auth via localStorage)
   "/api/doctors/public", // Public doctor directory
   "/api/doctors/profile", // Doctor profile management (session auth)
   "/api/doctors/verification", // Doctor verification (session auth)
