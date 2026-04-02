@@ -1,35 +1,65 @@
 // ─── CRUD /api/services — Clinic service pricing ─────────────
+// Uses service-role client for DB ops (RLS bypass) + requireAuth for auth.
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
+import { getServiceClient } from "@/lib/supabase/service";
+import { requireAuth } from "@/lib/security/require-auth";
 
 export const runtime = "nodejs";
 
+/* ── Auth helper: get clinicId + role ─────────────────── */
+async function authorize(req: NextRequest, roles?: string[]) {
+  // 1. Try condor_session / Google OAuth cookie
+  const auth = await requireAuth(req);
+  if (!auth.error) {
+    if (roles && !roles.includes(auth.user.role)) {
+      return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+    }
+    return { clinicId: auth.user.clinicId, userId: auth.user.id };
+  }
+
+  // 2. Fallback: Supabase session (for users who logged in via Supabase auth)
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const anonSb = createClient();
+    const {
+      data: { user },
+    } = await anonSb.auth.getUser();
+    if (!user) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+
+    const sb = getServiceClient();
+    const { data: profile } = await sb
+      .from("profiles")
+      .select("clinic_id, role")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile?.clinic_id) {
+      return { error: NextResponse.json({ error: "No clinic" }, { status: 404 }) };
+    }
+    if (roles && !roles.includes(profile.role)) {
+      return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+    }
+    return { clinicId: profile.clinic_id, userId: user.id };
+  } catch {
+    return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  }
+}
+
 /* ── GET — list clinic services ───────────────────────── */
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (!isSupabaseConfigured()) {
     return NextResponse.json({ services: [] });
   }
 
-  const { createClient } = await import("@/lib/supabase/server");
-  const sb = createClient();
+  const auth = await authorize(req);
+  if ("error" in auth) return auth.error;
 
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("clinic_id")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.clinic_id) return NextResponse.json({ error: "No clinic" }, { status: 404 });
-
+  const sb = getServiceClient();
   const { data, error } = await sb
     .from("clinic_services")
     .select("*")
-    .eq("clinic_id", profile.clinic_id)
+    .eq("clinic_id", auth.clinicId)
     .order("category")
     .order("name");
 
@@ -43,34 +73,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
-  const { createClient } = await import("@/lib/supabase/server");
-  const sb = createClient();
-
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("clinic_id, role")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.clinic_id) return NextResponse.json({ error: "No clinic" }, { status: 404 });
-
-  if (!["admin", "recepcion"].includes(profile.role))
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await authorize(req, ["admin", "recepcion"]);
+  if ("error" in auth) return auth.error;
 
   const body = await req.json();
   const { name, description, category, price, currency, duration_min, active } = body;
 
   if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
+  const sb = getServiceClient();
   const { data, error } = await sb
     .from("clinic_services")
     .insert({
-      clinic_id: profile.clinic_id,
+      clinic_id: auth.clinicId,
       name: name.trim(),
       description: description?.trim() || null,
       category: category || "consulta",
@@ -92,24 +107,8 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
-  const { createClient } = await import("@/lib/supabase/server");
-  const sb = createClient();
-
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("clinic_id, role")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.clinic_id) return NextResponse.json({ error: "No clinic" }, { status: 404 });
-
-  if (!["admin", "recepcion"].includes(profile.role))
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await authorize(req, ["admin", "recepcion"]);
+  if ("error" in auth) return auth.error;
 
   const body = await req.json();
   const { id, ...updates } = body;
@@ -127,11 +126,12 @@ export async function PATCH(req: NextRequest) {
     allowed.duration_min = updates.duration_min ? Number(updates.duration_min) : null;
   if (updates.active !== undefined) allowed.active = Boolean(updates.active);
 
+  const sb = getServiceClient();
   const { data, error } = await sb
     .from("clinic_services")
     .update(allowed)
     .eq("id", id)
-    .eq("clinic_id", profile.clinic_id)
+    .eq("clinic_id", auth.clinicId)
     .select()
     .single();
 
@@ -145,33 +145,18 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
-  const { createClient } = await import("@/lib/supabase/server");
-  const sb = createClient();
-
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("clinic_id, role")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.clinic_id) return NextResponse.json({ error: "No clinic" }, { status: 404 });
-
-  if (!["admin", "recepcion"].includes(profile.role))
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await authorize(req, ["admin", "recepcion"]);
+  if ("error" in auth) return auth.error;
 
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Service id required" }, { status: 400 });
 
+  const sb = getServiceClient();
   const { error } = await sb
     .from("clinic_services")
     .delete()
     .eq("id", id)
-    .eq("clinic_id", profile.clinic_id);
+    .eq("clinic_id", auth.clinicId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

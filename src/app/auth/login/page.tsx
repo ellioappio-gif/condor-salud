@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { GOOGLE_CLIENT_ID } from "@/lib/google";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
+import { analytics } from "@/lib/analytics";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,6 +42,7 @@ export default function LoginPage() {
     setServerError("");
     const result = await login(data.email, data.password);
     if (result.success) {
+      analytics.track("login", { method: "email" });
       router.push(redirect);
     } else {
       setServerError(result.error || "Error al iniciar sesión");

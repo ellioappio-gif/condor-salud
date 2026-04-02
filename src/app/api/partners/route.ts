@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
     // ── Persist to Supabase if configured ──
     if (isSupabaseConfigured()) {
       try {
-        const { createClient } = await import("@/lib/supabase/server");
-        const supabase = createClient() as unknown as SupabaseClient;
+        const { getServiceClient } = await import("@/lib/supabase/service");
+        const supabase = getServiceClient();
         const { error: dbError } = await supabase.from("partner_applications").insert({
           company,
           contact_name: name,

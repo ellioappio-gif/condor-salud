@@ -11,8 +11,8 @@ import type { DoctorPublicProfile, DoctorPublicReview } from "@/lib/types";
 
 async function getSupabase(): Promise<SupabaseClient> {
   if (!isSupabaseConfigured()) throw new Error("Supabase not configured");
-  const { createClient } = await import("@/lib/supabase/server");
-  return createClient() as unknown as SupabaseClient;
+  const { getServiceClient } = await import("@/lib/supabase/service");
+  return getServiceClient();
 }
 
 /** Generate URL slug from doctor name */

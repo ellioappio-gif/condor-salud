@@ -15,6 +15,7 @@ import { GOOGLE_CLIENT_ID } from "@/lib/google";
 import { useLocale } from "@/lib/i18n/context";
 import { SEAT_PLANS, formatARS, type SeatPlanId } from "@/lib/plan-config";
 import { Check, Shield, Zap, HeadphonesIcon } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
 const PROVINCIAS = [
   { value: "CABA", label: "CABA" },
@@ -109,8 +110,12 @@ function RegistroContent() {
       especialidad: data.especialidad,
       financiadores: data.financiadores,
     });
-    if (result.success) router.push("/dashboard");
-    else setServerError(result.error || "Error al crear la cuenta");
+    if (result.success) {
+      analytics.track("register", { method: "email" });
+      router.push("/dashboard");
+    } else {
+      setServerError(result.error || "Error al crear la cuenta");
+    }
   };
 
   return (

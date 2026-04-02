@@ -1,10 +1,11 @@
 // Dashboard API: Get/Update own public profile
 // GET  → fetch my profile
 // PUT  → upsert my profile
+// Uses service-role client for DB ops (RLS bypass).
 
-import { type SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { upsertProfile, generateSlug } from "@/lib/services/doctor-profiles";
+import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
 import { isSupabaseConfigured } from "@/lib/env";
 
@@ -21,8 +22,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ profile: null });
     }
 
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = createClient() as unknown as SupabaseClient;
+    const supabase = getServiceClient();
 
     const { data } = await supabase
       .from("doctor_public_profiles")

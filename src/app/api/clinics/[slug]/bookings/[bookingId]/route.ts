@@ -1,9 +1,11 @@
 // ─── PATCH /api/clinics/[slug]/bookings/[bookingId] ──────────
 // Clinic staff endpoint: confirm, reject, or complete a booking.
 // Triggers notification to patient on status change.
+// Uses service-role client for DB ops (RLS bypass).
 
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
+import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -34,20 +36,35 @@ export async function PATCH(
       return NextResponse.json({ status: body.action === "cancel" ? "cancelled" : "confirmed" });
     }
 
-    const { createClient } = await import("@/lib/supabase/server");
-    const sb = createClient();
-    const sbAny = sb as unknown as { from: (t: string) => ReturnType<typeof sb.from> };
+    const sb = getServiceClient();
 
-    // Verify user is authenticated and belongs to this clinic
-    const {
-      data: { user },
-    } = await sb.auth.getUser();
-    if (!user) {
+    // Verify user is authenticated
+    let userId: string | null = null;
+    try {
+      const { requireAuth } = await import("@/lib/security/require-auth");
+      const auth = await requireAuth(req);
+      if (!auth.error) userId = auth.user.id;
+    } catch {
+      /* fallback */
+    }
+    if (!userId) {
+      try {
+        const { createClient } = await import("@/lib/supabase/server");
+        const anonSb = createClient();
+        const {
+          data: { user },
+        } = await anonSb.auth.getUser();
+        userId = user?.id ?? null;
+      } catch {
+        /* no auth */
+      }
+    }
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Fetch the booking with clinic + doctor info
-    const { data: booking } = (await sbAny
+    const { data: booking } = (await sb
       .from("clinic_bookings")
       .select(
         "id, clinic_id, doctor_id, patient_name, patient_email, patient_phone, " +
@@ -61,7 +78,7 @@ export async function PATCH(
     }
 
     // Fetch clinic info
-    const { data: clinic } = (await sbAny
+    const { data: clinic } = (await sb
       .from("clinics")
       .select("id, name, email, phone")
       .eq("id", booking.clinic_id)
@@ -93,7 +110,7 @@ export async function PATCH(
       updateData.cancel_reason = body.reason || null;
     }
 
-    await sbAny.from("clinic_bookings").update(updateData).eq("id", params.bookingId);
+    await sb.from("clinic_bookings").update(updateData).eq("id", params.bookingId);
 
     // Notify patient
     const notifyInput = {
@@ -145,11 +162,9 @@ export async function GET(
     return NextResponse.json({ error: "Not available in demo mode" }, { status: 501 });
   }
 
-  const { createClient } = await import("@/lib/supabase/server");
-  const sb = createClient();
-  const sbAny = sb as unknown as { from: (t: string) => ReturnType<typeof sb.from> };
+  const sb = getServiceClient();
 
-  const { data: booking } = (await sbAny
+  const { data: booking } = (await sb
     .from("clinic_bookings")
     .select("*")
     .eq("id", params.bookingId)
@@ -160,7 +175,7 @@ export async function GET(
   }
 
   // Fetch notification history
-  const { data: notifications } = (await sbAny
+  const { data: notifications } = (await sb
     .from("booking_notifications")
     .select("*")
     .eq("booking_id", params.bookingId)

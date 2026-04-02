@@ -20,6 +20,7 @@ import { useIsDemo, useAuth } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
 import { usePacientes } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
+import { analytics } from "@/lib/analytics";
 
 // ─── Patient display type ───────────────────────────────────
 interface PacienteDisplay {
@@ -1200,6 +1201,7 @@ function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreate
         return;
       }
 
+      analytics.track("paciente_created");
       onCreated();
     } catch {
       showToast(t("patients.patientCreateError"), "error");

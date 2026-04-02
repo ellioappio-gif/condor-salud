@@ -20,6 +20,7 @@ import {
   Shield,
   Loader2,
 } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -186,6 +187,7 @@ export default function PublicBookingPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Booking failed");
       setBookingResult(data);
+      analytics.track("turno_created", { via: "public", tipo });
       setStep("success");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Booking failed");

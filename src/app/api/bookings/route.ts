@@ -1,7 +1,9 @@
 // ─── POST /api/bookings  — Create a new appointment ──────────
 // ─── DELETE /api/bookings — Cancel an existing appointment ────
+// Uses service-role client for DB writes (RLS bypass).
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
+import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -23,6 +25,20 @@ interface CancelPayload {
   reason?: string;
 }
 
+/* ── Auth helper ──────────────────────────────────────── */
+async function getUser() {
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const anonSb = createClient();
+    const {
+      data: { user },
+    } = await anonSb.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 /* ── POST — create booking ────────────────────────────── */
 
 export async function POST(req: NextRequest) {
@@ -36,14 +52,9 @@ export async function POST(req: NextRequest) {
 
     // ── Supabase path ─────────────────────────────────
     if (isSupabaseConfigured()) {
-      const { createClient } = await import("@/lib/supabase/server");
-      const sb = createClient();
-      // appointments table exists (migration 005) but isn't in generated types yet
-      const sbAny = sb as unknown as { from: (t: string) => ReturnType<typeof sb.from> };
+      const sb = getServiceClient();
 
-      const {
-        data: { user },
-      } = await sb.auth.getUser();
+      const user = await getUser();
       if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
@@ -68,7 +79,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Insert into appointments table
-      const { data: apt, error: insertErr } = await sbAny
+      const { data: apt, error: insertErr } = await sb
         .from("appointments")
         .insert({
           patient_id: patientId,
@@ -111,7 +122,7 @@ export async function POST(req: NextRequest) {
         const { pushBookingConfirmed, isPushConfigured } =
           await import("@/lib/services/push-notifications");
         if (isPushConfigured()) {
-          const { data: subs } = await sbAny
+          const { data: subs } = await sb
             .from("push_subscriptions")
             .select("endpoint, keys")
             .eq("user_id", user.id);
@@ -199,19 +210,15 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
-      const { createClient } = await import("@/lib/supabase/server");
-      const sb = createClient();
-      const sbAny = sb as unknown as { from: (t: string) => ReturnType<typeof sb.from> };
+      const sb = getServiceClient();
 
-      const {
-        data: { user },
-      } = await sb.auth.getUser();
+      const user = await getUser();
       if (!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
       // Fetch the appointment to get doctor info for email
-      const { data: apt } = await sbAny
+      const { data: apt } = await sb
         .from("appointments")
         .select("*")
         .eq("id", appointmentId)
@@ -222,7 +229,7 @@ export async function DELETE(req: NextRequest) {
       }
 
       // Update status to cancelled
-      const { error: updateErr } = await sbAny
+      const { error: updateErr } = await sb
         .from("appointments")
         .update({ status: "cancelled", updated_at: new Date().toISOString() })
         .eq("id", appointmentId);
@@ -252,8 +259,7 @@ export async function DELETE(req: NextRequest) {
         const { pushBookingCancelled, isPushConfigured } =
           await import("@/lib/services/push-notifications");
         if (isPushConfigured()) {
-          const sbAny2 = sb as unknown as { from: (t: string) => ReturnType<typeof sb.from> };
-          const { data: subs } = await sbAny2
+          const { data: subs } = await sb
             .from("push_subscriptions")
             .select("endpoint, keys")
             .eq("user_id", user.id);

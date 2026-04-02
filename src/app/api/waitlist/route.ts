@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
     // ── Persist to Supabase if configured ──
     if (isSupabaseConfigured()) {
       try {
-        const { createClient } = await import("@/lib/supabase/server");
-        const supabase = createClient();
+        const { getServiceClient } = await import("@/lib/supabase/service");
+        const supabase = getServiceClient();
         const { error: dbError } = await supabase
           .from("waitlist")
           .upsert({ email, source: "landing" }, { onConflict: "email" });

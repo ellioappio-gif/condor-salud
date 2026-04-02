@@ -1,8 +1,10 @@
 // ─── GET / POST / DELETE  /api/availability ──────────────────
 // CRUD for doctor_availability table (admin side).
+// Uses service-role client for DB ops (RLS bypass).
 
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
+import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -14,8 +16,7 @@ export async function GET(req: NextRequest) {
   const weekStart = req.nextUrl.searchParams.get("weekStart"); // YYYY-MM-DD
 
   if (isSupabaseConfigured()) {
-    const { createClient } = await import("@/lib/supabase/server");
-    const sb = createClient();
+    const sb = getServiceClient();
 
     let query = sb
       .from("doctor_availability")
@@ -61,8 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
-      const { createClient } = await import("@/lib/supabase/server");
-      const sb = createClient();
+      const sb = getServiceClient();
 
       const rows = timeSlots.map((ts: string) => ({
         doctor_id: doctorId,
@@ -102,8 +102,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
-      const { createClient } = await import("@/lib/supabase/server");
-      const sb = createClient();
+      const sb = getServiceClient();
 
       const { error } = await sb
         .from("doctor_availability")

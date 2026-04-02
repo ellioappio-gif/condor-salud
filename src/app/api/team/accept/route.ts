@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { getServiceClient } from "@/lib/supabase/service";
 
 /**
  * GET /api/team/accept?token=xxx
  * Accept a team invitation — links the current user to the clinic.
- *
- * Flow:
- * 1. User clicks link in email → arrives here
- * 2. If not logged in → redirect to /auth/login?redirect=/api/team/accept?token=xxx
- * 3. If logged in → validate token, link user to clinic, redirect to /dashboard
+ * Uses service-role client for all DB writes (RLS bypass).
  */
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
@@ -19,13 +16,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Check if user is authenticated via Supabase session
     const { createClient } = await import("@/lib/supabase/server");
-    const sb = await createClient();
+    const anonSb = createClient();
 
-    // Check if user is authenticated
     const {
       data: { user },
-    } = await sb.auth.getUser();
+    } = await anonSb.auth.getUser();
 
     if (!user) {
       // Redirect to login with return URL
@@ -34,6 +31,9 @@ export async function GET(req: NextRequest) {
         new URL(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`, appUrl),
       );
     }
+
+    // Use service-role client for all DB operations
+    const sb = getServiceClient();
 
     // Look up the invitation
     const { data: invitation, error: lookupErr } = await sb

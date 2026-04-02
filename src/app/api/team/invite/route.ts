@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { logger } from "@/lib/logger";
+import { getServiceClient } from "@/lib/supabase/service";
+import { requireAuth } from "@/lib/security/require-auth";
 
 /**
  * POST /api/team/invite
@@ -11,33 +13,18 @@ import { logger } from "@/lib/logger";
  */
 export async function POST(req: NextRequest) {
   try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const sb = await createClient();
-    const {
-      data: { user },
-    } = await sb.auth.getUser();
+    const auth = await requireAuth(req);
+    if (auth.error) return auth.error;
 
-    if (!user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-    }
-
-    // Get profile + clinic
-    const { data: profile } = await sb
-      .from("profiles")
-      .select("clinic_id, role")
-      .eq("id", user.id)
-      .single();
-
-    if (!profile?.clinic_id) {
-      return NextResponse.json({ error: "No tenés una clínica asociada" }, { status: 403 });
-    }
-
-    if (profile.role !== "admin") {
+    const { user } = auth;
+    if (user.role !== "admin") {
       return NextResponse.json(
         { error: "Solo administradores pueden invitar miembros" },
         { status: 403 },
       );
     }
+
+    const sb = getServiceClient();
 
     const body = (await req.json()) as { email?: string; role?: string };
 
@@ -54,7 +41,7 @@ export async function POST(req: NextRequest) {
     const { data: existing } = await sb
       .from("team_invitations")
       .select("id")
-      .eq("clinic_id", profile.clinic_id)
+      .eq("clinic_id", user.clinicId)
       .eq("email", body.email.toLowerCase())
       .eq("status", "pending")
       .single();
@@ -66,9 +53,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user already belongs to this clinic (skip — we can't look up by email without admin API)
-    // The accept endpoint will handle this check when they actually accept
-
     // Generate secure token
     const token = randomBytes(32).toString("hex");
 
@@ -76,7 +60,7 @@ export async function POST(req: NextRequest) {
     const { data: invitation, error: insertErr } = await sb
       .from("team_invitations")
       .insert({
-        clinic_id: profile.clinic_id,
+        clinic_id: user.clinicId,
         invited_by: user.id,
         email: body.email.toLowerCase(),
         role: body.role,
@@ -94,7 +78,7 @@ export async function POST(req: NextRequest) {
     const { data: clinic } = await sb
       .from("clinics")
       .select("name")
-      .eq("id", profile.clinic_id)
+      .eq("id", user.clinicId)
       .single();
 
     // Send invitation email
@@ -136,7 +120,7 @@ export async function POST(req: NextRequest) {
     }
 
     logger.info(
-      { clinicId: profile.clinic_id, email: body.email, role: body.role },
+      { clinicId: user.clinicId, email: body.email, role: body.role },
       "Team invitation created",
     );
 
@@ -160,32 +144,22 @@ export async function POST(req: NextRequest) {
  * GET /api/team/invite
  * List pending invitations for the current clinic.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const sb = await createClient();
-    const {
-      data: { user },
-    } = await sb.auth.getUser();
+    const auth = await requireAuth(req);
+    if (auth.error) return auth.error;
 
-    if (!user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-    }
-
-    const { data: profile } = await sb
-      .from("profiles")
-      .select("clinic_id, role")
-      .eq("id", user.id)
-      .single();
-
-    if (!profile?.clinic_id || profile.role !== "admin") {
+    const { user } = auth;
+    if (user.role !== "admin") {
       return NextResponse.json({ error: "Acceso denegado" }, { status: 403 });
     }
+
+    const sb = getServiceClient();
 
     const { data: invitations } = await sb
       .from("team_invitations")
       .select("id, email, role, status, expires_at, created_at")
-      .eq("clinic_id", profile.clinic_id)
+      .eq("clinic_id", user.clinicId)
       .order("created_at", { ascending: false });
 
     return NextResponse.json({ invitations: invitations || [] });
@@ -201,25 +175,15 @@ export async function GET() {
  */
 export async function DELETE(req: NextRequest) {
   try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const sb = await createClient();
-    const {
-      data: { user },
-    } = await sb.auth.getUser();
+    const auth = await requireAuth(req);
+    if (auth.error) return auth.error;
 
-    if (!user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-    }
-
-    const { data: profile } = await sb
-      .from("profiles")
-      .select("clinic_id, role")
-      .eq("id", user.id)
-      .single();
-
-    if (!profile?.clinic_id || profile.role !== "admin") {
+    const { user } = auth;
+    if (user.role !== "admin") {
       return NextResponse.json({ error: "Acceso denegado" }, { status: 403 });
     }
+
+    const sb = getServiceClient();
 
     const body = (await req.json()) as { invitationId?: string };
     if (!body.invitationId) {
@@ -230,7 +194,7 @@ export async function DELETE(req: NextRequest) {
       .from("team_invitations")
       .update({ status: "cancelled", updated_at: new Date().toISOString() })
       .eq("id", body.invitationId)
-      .eq("clinic_id", profile.clinic_id)
+      .eq("clinic_id", user.clinicId)
       .eq("status", "pending");
 
     if (error) {

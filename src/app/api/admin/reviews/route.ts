@@ -1,25 +1,19 @@
 // ─── Admin Review Moderation API ─────────────────────────────
 // GET  → list reviews by status (default: pending)
 // PATCH → approve or reject a review, update doctor avg_rating
+// Uses service-role client for DB ops (RLS bypass).
 
 import { NextRequest, NextResponse } from "next/server";
-import { type SupabaseClient } from "@supabase/supabase-js";
+import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
-import { isSupabaseConfigured } from "@/lib/env";
 
 export const runtime = "nodejs";
-
-async function getSupabase(): Promise<SupabaseClient> {
-  if (!isSupabaseConfigured()) throw new Error("Supabase not configured");
-  const { createClient } = await import("@/lib/supabase/server");
-  return createClient() as unknown as SupabaseClient;
-}
 
 // GET /api/admin/reviews?status=pending
 export async function GET(request: NextRequest) {
   try {
     const status = request.nextUrl.searchParams.get("status") || "pending";
-    const supabase = await getSupabase();
+    const supabase = getServiceClient();
 
     const { data, error } = await supabase
       .from("doctor_reviews_public")
@@ -71,7 +65,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const supabase = await getSupabase();
+    const supabase = getServiceClient();
     const newStatus = action === "approve" ? "approved" : "rejected";
 
     const { error } = await supabase

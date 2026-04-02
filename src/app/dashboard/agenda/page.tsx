@@ -17,6 +17,7 @@ import { useTurnos } from "@/hooks/use-data";
 import { useDoctors } from "@/lib/hooks/useModules";
 import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui";
+import { analytics } from "@/lib/analytics";
 
 // ─── Google Calendar hook ────────────────────────────────────
 
@@ -245,6 +246,7 @@ export default function AgendaPage() {
     async (input: CreateTurnoInput) => {
       const result = await createTurno(input);
       if (result.success) {
+        analytics.track("turno_created");
         showToast(`${t("schedule.appointmentCreated")}`);
         mutate();
         setShowNewModal(false);
