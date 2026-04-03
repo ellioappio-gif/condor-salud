@@ -13,6 +13,7 @@ import {
   Building2,
   UserCircle,
   Settings,
+  MessageCircle,
   CreditCard,
   Star,
   FileText,
@@ -23,6 +24,8 @@ import {
   Activity,
   Stethoscope,
   ClipboardList,
+  Bell,
+  Phone,
 } from "lucide-react";
 
 // ─── Reusable field wrapper ──────────────────────────────────
@@ -508,7 +511,107 @@ function StepConfiguracion() {
   );
 }
 
-// ─── Step 4: Plan selection ──────────────────────────────────
+// ─── Step 4: WhatsApp setup ──────────────────────────────────
+
+function StepWhatsApp() {
+  const { formData, updateForm } = useWizard();
+  const effectiveNumber = formData.whatsappNumber || formData.telefono;
+
+  return (
+    <div className="space-y-8">
+      <div className="rounded-xl border border-celeste-100 bg-celeste-50/40 p-5">
+        <div className="flex items-start gap-3">
+          <MessageCircle className="h-5 w-5 text-celeste-dark shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-bold text-ink">WhatsApp listo desde el día uno</h3>
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">
+              Configuramos automáticamente tu inbox, respuestas de bienvenida y plantillas de
+              recordatorio. Si ya tenés un número de WhatsApp Business, cargalo acá. Si todavía no
+              lo tenés, usaremos el teléfono principal de tu clínica como valor inicial para que el
+              módulo quede preparado y solo tengas que conectar Meta después.
+            </p>
+            <div className="mt-3 p-3 rounded-lg bg-white/60 border border-celeste-100">
+              <p className="text-xs font-semibold text-ink mb-1">Qué se crea automáticamente:</p>
+              <ul className="text-xs text-ink-muted space-y-1">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>Inbox de conversaciones y pipeline de consultas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>
+                    Plantillas para confirmación, recordatorios, cancelación y post-visita
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                  <span>Mensajes de bienvenida y fuera de horario con datos de tu clínica</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field
+          label="Número de WhatsApp"
+          hint="Formato sugerido: +54 9 11 1234-5678. Si lo dejás vacío, usamos el teléfono principal de la clínica."
+        >
+          <input
+            type="tel"
+            className={inputClass}
+            placeholder="+54 9 11 1234-5678"
+            value={formData.whatsappNumber}
+            onChange={(e) => updateForm({ whatsappNumber: e.target.value })}
+            autoFocus
+          />
+        </Field>
+
+        <div className="rounded-xl border border-border bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+            Número que quedará preconfigurado
+          </p>
+          <p className="mt-2 text-lg font-bold text-ink">{effectiveNumber || "Sin definir aún"}</p>
+          <p className="mt-2 text-xs text-ink-muted leading-relaxed">
+            Después vas a poder conectar el token de Meta desde Configuración y empezar a recibir
+            mensajes sin volver a cargar las plantillas.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+          Funcionalidades que se activan con estos datos
+        </h4>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <FeatureCard
+            icon={Bell}
+            title="Recordatorios automáticos"
+            description="Se dejan listos los mensajes de 24h y 2h para reducir ausencias desde el primer día."
+          />
+          <FeatureCard
+            icon={MessageCircle}
+            title="Inbox omnicanal"
+            description="Las consultas de pacientes entran en una bandeja única con historial y estado."
+          />
+          <FeatureCard
+            icon={Phone}
+            title="Fallback inmediato"
+            description="Si todavía no conectaste Meta, la clínica igual queda preparada con tu número principal."
+          />
+          <FeatureCard
+            icon={Calendar}
+            title="Plantillas listas"
+            description="Se precargan confirmación, cancelación, reprogramación y seguimiento para editar si querés."
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 5: Plan selection ──────────────────────────────────
 
 function StepPlan() {
   const { formData, updateForm } = useWizard();
@@ -641,7 +744,7 @@ function StepPlan() {
   );
 }
 
-// ─── Step 5: Confirmation ────────────────────────────────────
+// ─── Step 6: Confirmation ────────────────────────────────────
 
 function StepConfirmacion() {
   const { formData, completeSetup, isSubmitting, setupError } = useWizard();
@@ -725,6 +828,17 @@ function StepConfirmacion() {
               formData.financiadores.length ? formData.financiadores.join(", ") : "No seleccionadas"
             }
           />
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">WhatsApp</h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <SummaryCard
+            label="Número de WhatsApp"
+            value={formData.whatsappNumber || formData.telefono || "Se configura después"}
+          />
+          <SummaryCard label="Estado inicial" value="Plantillas y CRM preconfigurados" />
         </div>
       </div>
 
@@ -868,6 +982,7 @@ const STEP_COMPONENTS: Record<string, React.ComponentType> = {
   clinica: StepClinica,
   profesional: StepProfesional,
   configuracion: StepConfiguracion,
+  whatsapp: StepWhatsApp,
   plan: StepPlan,
   confirmacion: StepConfirmacion,
 };

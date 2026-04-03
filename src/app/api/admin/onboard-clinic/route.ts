@@ -16,6 +16,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
+import { buildDefaultWhatsAppSetup } from "@/lib/services/whatsapp-defaults";
 
 // ─── Validation Schema ──────────────────────────────────────
 
@@ -41,6 +42,7 @@ const OnboardClinicSchema = z.object({
   name: z.string().min(2, "Nombre requerido"),
   cuit: z.string().min(8, "CUIT requerido"),
   phone: z.string().optional(),
+  whatsappNumber: z.string().optional(),
   email: z.string().email().optional(),
   address: z.string().optional(),
   provincia: z.string().default("CABA"),
@@ -212,6 +214,48 @@ export async function POST(req: NextRequest) {
     }
 
     const clinicId = clinic.id;
+    const bookingUrlAbsolute = `${process.env.NEXT_PUBLIC_APP_URL || "https://condorsalud.com"}/reservar/${slug}`;
+
+    const defaultWhatsApp = buildDefaultWhatsAppSetup({
+      clinicName: input.name,
+      whatsappNumber: input.whatsappNumber || input.phone,
+      clinicPhone: input.phone,
+      clinicAddress: input.address,
+      bookingUrl: bookingUrlAbsolute,
+      operatingHours: input.operatingHours,
+    });
+
+    const { error: whatsappConfigErr } = await sb.from("whatsapp_config").upsert(
+      {
+        clinic_id: clinicId,
+        ...defaultWhatsApp.config,
+      },
+      { onConflict: "clinic_id" },
+    );
+
+    if (whatsappConfigErr) {
+      logger.warn(
+        { err: whatsappConfigErr, clinicId },
+        "WhatsApp config seed failed during onboarding",
+      );
+    }
+
+    for (const template of defaultWhatsApp.templates) {
+      const { error: templateErr } = await sb.from("whatsapp_templates").upsert(
+        {
+          clinic_id: clinicId,
+          ...template,
+        },
+        { onConflict: "clinic_id,name" },
+      );
+
+      if (templateErr) {
+        logger.warn(
+          { err: templateErr, clinicId, template: template.name },
+          "WhatsApp template seed failed during onboarding",
+        );
+      }
+    }
 
     // 6. Create doctors
     const doctorIds: string[] = [];

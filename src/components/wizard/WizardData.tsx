@@ -2,7 +2,14 @@
 
 import { useState, useCallback, createContext, useContext, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, UserCircle, Settings, CreditCard, CheckCircle2 } from "lucide-react";
+import {
+  Building2,
+  UserCircle,
+  Settings,
+  CreditCard,
+  CheckCircle2,
+  MessageCircle,
+} from "lucide-react";
 import type { PlanTier } from "@/lib/types";
 
 // ─── Icon map ────────────────────────────────────────────────
@@ -11,6 +18,7 @@ export const WIZARD_ICON_MAP: Record<string, React.ComponentType<{ className?: s
   clinica: Building2,
   profesional: UserCircle,
   configuracion: Settings,
+  whatsapp: MessageCircle,
   plan: CreditCard,
   confirmacion: CheckCircle2,
 };
@@ -30,34 +38,40 @@ export const WIZARD_STEPS: SetupStep[] = [
     id: "clinica",
     icon: "clinica",
     title: "Datos de la clínica",
-    subtitle: "Paso 1 de 5",
+    subtitle: "Paso 1 de 6",
     requiredFields: ["nombre"],
   },
   {
     id: "profesional",
     icon: "profesional",
     title: "Perfil profesional",
-    subtitle: "Paso 2 de 5",
+    subtitle: "Paso 2 de 6",
     requiredFields: ["doctorNombre", "doctorMatricula"],
   },
   {
     id: "configuracion",
     icon: "configuracion",
     title: "Especialidades y cobertura",
-    subtitle: "Paso 3 de 5",
+    subtitle: "Paso 3 de 6",
+  },
+  {
+    id: "whatsapp",
+    icon: "whatsapp",
+    title: "WhatsApp y recordatorios",
+    subtitle: "Paso 4 de 6",
   },
   {
     id: "plan",
     icon: "plan",
     title: "Elegí tu plan",
-    subtitle: "Paso 4 de 5",
+    subtitle: "Paso 5 de 6",
     requiredFields: ["planTier"],
   },
   {
     id: "confirmacion",
     icon: "confirmacion",
     title: "Confirmar y activar",
-    subtitle: "Paso 5 de 5",
+    subtitle: "Paso 6 de 6",
   },
 ];
 
@@ -123,6 +137,7 @@ export interface OnboardingFormData {
   direccion: string;
   telefono: string;
   email: string;
+  whatsappNumber: string;
   // Step 2: Doctor profile
   doctorNombre: string;
   doctorMatricula: string;
@@ -139,6 +154,7 @@ const DEFAULT_FORM: OnboardingFormData = {
   direccion: "",
   telefono: "",
   email: "",
+  whatsappNumber: "",
   doctorNombre: "",
   doctorMatricula: "",
   doctorEspecialidad: "",
@@ -294,6 +310,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
         direccion: formData.direccion || undefined,
         telefono: formData.telefono || undefined,
         email: formData.email || undefined,
+        whatsappNumber: formData.whatsappNumber || formData.telefono || undefined,
         doctorNombre: formData.doctorNombre,
         doctorMatricula: formData.doctorMatricula,
         doctorEspecialidad: formData.doctorEspecialidad || undefined,

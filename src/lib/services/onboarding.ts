@@ -1,5 +1,6 @@
 import type { SupabaseClient, DBRow } from "@/lib/services/db-types";
 import type { PlanTier } from "@/lib/types";
+import { buildDefaultWhatsAppSetup } from "@/lib/services/whatsapp-defaults";
 /**
  * Onboarding service — persists clinic setup to Supabase.
  *
@@ -16,6 +17,7 @@ export interface ClinicOnboardingInput {
   direccion?: string;
   telefono?: string;
   email?: string;
+  whatsappNumber?: string;
   // Doctor profile (step 2)
   doctorNombre: string;
   doctorMatricula: string;
@@ -31,6 +33,37 @@ export interface OnboardingResult {
   success: boolean;
   clinicId?: string;
   error?: string;
+}
+
+async function seedDefaultWhatsApp(
+  clinic: {
+    name: string;
+    slug?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  },
+  input: ClinicOnboardingInput,
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://condorsalud.com";
+  const bookingUrl = clinic.slug ? `${baseUrl}/reservar/${clinic.slug}` : undefined;
+  const payload = buildDefaultWhatsAppSetup({
+    clinicName: clinic.name,
+    whatsappNumber: input.whatsappNumber,
+    clinicPhone: input.telefono ?? clinic.phone,
+    clinicAddress: input.direccion ?? clinic.address,
+    bookingUrl,
+  });
+
+  const res = await fetch("/api/whatsapp/config", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const data = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(data?.error || "No se pudo configurar WhatsApp");
+  }
 }
 
 // ─── Service ─────────────────────────────────────────────────
@@ -123,6 +156,28 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
       if (profileErr) {
         console.error("[onboarding] profile update error", profileErr);
         // Non-fatal — clinic was created, profile update can be retried
+      }
+
+      const { data: clinicData } = await (sb as SupabaseClient)
+        .from("clinics")
+        .select("name, slug, phone, address")
+        .eq("id", clinicId)
+        .maybeSingle();
+
+      if (clinicData) {
+        try {
+          await seedDefaultWhatsApp(
+            {
+              name: (clinicData as DBRow).name as string,
+              slug: ((clinicData as DBRow).slug as string | null | undefined) ?? null,
+              phone: ((clinicData as DBRow).phone as string | null | undefined) ?? null,
+              address: ((clinicData as DBRow).address as string | null | undefined) ?? null,
+            },
+            input,
+          );
+        } catch (whatsAppErr) {
+          console.error("[onboarding] whatsapp seed error", whatsAppErr);
+        }
       }
     }
 
