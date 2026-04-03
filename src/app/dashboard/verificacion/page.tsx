@@ -39,7 +39,8 @@ export default function VerificacionPage() {
         const res = await fetch(`/api/verificacion?dni=${encodeURIComponent(clean)}`);
         if (!res.ok) throw new Error(t("verification.errorQuery"));
         const data = await res.json();
-        setResult(data);
+        const r = data.result ?? data;
+        setResult(r);
 
         // Prepend to local history
         const now = new Date();
@@ -49,10 +50,10 @@ export default function VerificacionPage() {
           now.getMinutes().toString().padStart(2, "0");
         setHistory((prev) => [
           {
-            nombre: data.nombre ?? "—",
+            nombre: r.nombre ?? "—",
             dni: clean.replace(/(\d{2})(\d{3})(\d{3})/, "$1.$2.$3"),
-            financiador: data.financiador ?? "—",
-            status: data.status ?? "inactivo",
+            financiador: r.financiador ?? "—",
+            status: r.status ?? "inactivo",
             hora,
           },
           ...prev.slice(0, 9),
