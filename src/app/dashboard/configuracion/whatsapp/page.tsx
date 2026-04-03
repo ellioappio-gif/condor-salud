@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
 import { useWhatsAppConfig, useSaveWhatsAppConfig } from "@/lib/hooks/useCRM";
@@ -136,6 +137,9 @@ export default function WhatsAppConfigPage() {
     "Nuestro horario de atencion es de 8:00 a 20:00. Te responderemos a primera hora.",
   );
   const [notifyOnNewLead, setNotifyOnNewLead] = useState(true);
+  const [metaPhoneNumberId, setMetaPhoneNumberId] = useState("");
+  const [metaAccessToken, setMetaAccessToken] = useState("");
+  const [showMetaAccessToken, setShowMetaAccessToken] = useState(false);
   const [reminderSettings, setReminderSettings] =
     useState<ReminderSettings>(DEFAULT_REMINDER_SETTINGS);
   const [templates, setTemplates] = useState<PageTemplate[]>(DEFAULT_TEMPLATES);
@@ -151,6 +155,8 @@ export default function WhatsAppConfigPage() {
     if (savedConfig.welcome_message) setWelcomeMessage(savedConfig.welcome_message);
     if (savedConfig.out_of_hours_message) setOutOfHoursMessage(savedConfig.out_of_hours_message);
     setNotifyOnNewLead(savedConfig.notify_on_new_lead);
+    setMetaPhoneNumberId(savedConfig.meta_phone_number_id || "");
+    setMetaAccessToken(savedConfig.meta_access_token || "");
 
     // Parse reminder settings from business_hours JSON
     try {
@@ -218,6 +224,12 @@ export default function WhatsAppConfigPage() {
           business_hours: businessHoursJson,
           out_of_hours_message: outOfHoursMessage,
           notify_on_new_lead: notifyOnNewLead,
+          meta_phone_number_id: metaPhoneNumberId.trim() || undefined,
+          meta_access_token: metaAccessToken.trim() || undefined,
+          provider:
+            metaPhoneNumberId.trim() && metaAccessToken.trim()
+              ? "meta"
+              : savedConfig?.provider || "auto",
         },
         templates: templates.map((t) => ({
           name: t.name,
@@ -256,7 +268,12 @@ export default function WhatsAppConfigPage() {
     .replace(/\{\{financiador\}\}/g, "PAMI");
 
   const activeCount = templates.filter((t) => t.active).length;
-  const isConnected = !!savedConfig?.whatsapp_number;
+  const hasBootstrapNumber = !!(savedConfig?.whatsapp_number || whatsappNumber);
+  const hasMetaCredentials = !!(
+    (savedConfig?.meta_phone_number_id || metaPhoneNumberId) &&
+    (savedConfig?.meta_access_token || metaAccessToken)
+  );
+  const isConnected = hasMetaCredentials;
 
   if (isLoading) {
     return (
@@ -335,8 +352,10 @@ export default function WhatsAppConfigPage() {
               <h3 className="text-sm font-bold text-ink">WhatsApp Business API</h3>
               <p className="text-[10px] text-ink-muted">
                 {isConnected
-                  ? `Conectado -- Linea: ${savedConfig?.whatsapp_number} -- ${displayName}`
-                  : `Demo -- Configure su numero para activar`}
+                  ? `Conectado -- Linea: ${savedConfig?.whatsapp_number || whatsappNumber} -- ${displayName}`
+                  : hasBootstrapNumber
+                    ? `Preconfigurado -- Solo faltan 2 datos de Meta para activar la linea`
+                    : `Demo -- Configure su numero para activar`}
               </p>
             </div>
           </div>
@@ -344,10 +363,12 @@ export default function WhatsAppConfigPage() {
             className={`px-2.5 py-1 text-[10px] font-bold rounded border ${
               isConnected
                 ? "bg-green-50 text-green-700 border-green-200"
-                : "bg-amber-50 text-amber-700 border-amber-200"
+                : hasBootstrapNumber
+                  ? "bg-celeste-50 text-celeste-dark border-celeste-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
             }`}
           >
-            {isConnected ? "Conectado" : "Demo"}
+            {isConnected ? "Conectado" : hasBootstrapNumber ? "Listo para Meta" : "Demo"}
           </span>
         </div>
 
@@ -383,6 +404,90 @@ export default function WhatsAppConfigPage() {
               className="mt-1 w-full px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste"
             />
           </div>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-celeste-100 bg-celeste-50/40 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h4 className="text-sm font-bold text-ink">Conecta Meta en 2 pasos</h4>
+              <p className="text-xs text-ink-muted mt-1 max-w-2xl leading-relaxed">
+                Tu CRM, inbox y plantillas ya quedaron cargados. Para empezar a recibir y enviar
+                mensajes reales solo pega estos dos datos desde Meta Developer Console → WhatsApp →
+                API Setup.
+              </p>
+            </div>
+            <span
+              className={`px-2.5 py-1 text-[10px] font-bold rounded border ${
+                hasMetaCredentials
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
+              }`}
+            >
+              {hasMetaCredentials ? "Meta listo" : "Pendiente"}
+            </span>
+          </div>
+
+          <div className="mt-4 grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                Paso 1 -- Phone Number ID
+              </label>
+              <input
+                type="text"
+                value={metaPhoneNumberId}
+                onChange={(e) => {
+                  setMetaPhoneNumberId(e.target.value);
+                  markDirty();
+                }}
+                placeholder="Ej: 123456789012345"
+                className="mt-1 w-full px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste"
+              />
+              <p className="mt-1 text-[10px] text-ink-muted">
+                Lo encontrás en Meta, dentro de tu app de WhatsApp Business.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                Paso 2 -- Permanent Access Token
+              </label>
+              <div className="mt-1 flex items-center rounded border border-border focus-within:ring-1 focus-within:ring-celeste">
+                <input
+                  type={showMetaAccessToken ? "text" : "password"}
+                  value={metaAccessToken}
+                  onChange={(e) => {
+                    setMetaAccessToken(e.target.value);
+                    markDirty();
+                  }}
+                  placeholder="EAA..."
+                  className="w-full px-3 py-2 text-sm rounded-l focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowMetaAccessToken((prev) => !prev)}
+                  className="px-3 text-ink-muted hover:text-ink transition"
+                  aria-label={
+                    showMetaAccessToken ? "Ocultar token de Meta" : "Mostrar token de Meta"
+                  }
+                >
+                  {showMetaAccessToken ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              <p className="mt-1 text-[10px] text-ink-muted">
+                Guardamos este token en tu configuración para activar la línea sin intervención
+                manual.
+              </p>
+            </div>
+          </div>
+
+          <ol className="mt-4 space-y-1 text-xs text-ink-muted list-decimal pl-4">
+            <li>Copiá el Phone Number ID desde Meta.</li>
+            <li>Pegá el permanent access token y hacé clic en Guardar cambios.</li>
+          </ol>
         </div>
       </div>
 

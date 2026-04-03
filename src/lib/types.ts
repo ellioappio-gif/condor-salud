@@ -379,6 +379,9 @@ export interface WhatsAppConfig {
   display_name: string;
   twilio_sid: string | null;
   twilio_token: string | null;
+  meta_phone_number_id?: string | null;
+  meta_access_token?: string | null;
+  provider?: "meta" | "twilio" | "auto" | null;
   welcome_message: string | null;
   auto_reply: boolean;
   business_hours: string; // JSON string with schedule + reminder settings
