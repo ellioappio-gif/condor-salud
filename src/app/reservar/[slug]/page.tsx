@@ -19,6 +19,8 @@ import {
   Mail,
   Shield,
   Loader2,
+  Search,
+  Filter,
 } from "lucide-react";
 import { analytics } from "@/lib/analytics";
 
@@ -33,6 +35,7 @@ interface ClinicPublic {
   email: string | null;
   logoUrl: string | null;
   specialties: string | null;
+  specialtyList: string[];
   description: string | null;
   languages: string[] | null;
   operatingHours: Record<string, { open: string; close: string }> | null;
@@ -40,6 +43,12 @@ interface ClinicPublic {
   lng: number | null;
   acceptsInsurance: string[] | null;
   bookingEnabled: boolean;
+}
+
+interface DoctorScheduleBlock {
+  day: number; // 0=Sun .. 6=Sat
+  start: string;
+  end: string;
 }
 
 interface DoctorPublic {
@@ -55,6 +64,7 @@ interface DoctorPublic {
   bio: string | null;
   photoUrl: string | null;
   matricula: string | null;
+  schedule: DoctorScheduleBlock[];
 }
 
 interface BookingSettings {
@@ -69,6 +79,21 @@ interface BookingSettings {
 
 type Step = "doctor" | "datetime" | "info" | "confirm" | "success";
 
+// ─── Helpers ─────────────────────────────────────────────────
+
+const DAY_NAMES_ES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const DAY_NAMES_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function formatScheduleBadges(schedule: DoctorScheduleBlock[], lang: "es" | "en") {
+  const names = lang === "en" ? DAY_NAMES_EN : DAY_NAMES_ES;
+  const sorted = [...schedule].sort((a, b) => a.day - b.day);
+  return sorted.map((s) => ({
+    label: names[s.day] ?? "",
+    time: `${s.start}–${s.end}`,
+    day: s.day,
+  }));
+}
+
 // ─── Component ───────────────────────────────────────────────
 
 export default function PublicBookingPage() {
@@ -81,6 +106,10 @@ export default function PublicBookingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Filters
+  const [searchQ, setSearchQ] = useState("");
+  const [filterSpec, setFilterSpec] = useState<string>("all");
+
   // Booking state
   const [step, setStep] = useState<Step>("doctor");
   const [selectedDoctor, setSelectedDoctor] = useState<DoctorPublic | null>(null);
@@ -91,6 +120,8 @@ export default function PublicBookingPage() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", notes: "" });
   const [submitting, setSubmitting] = useState(false);
   const [bookingResult, setBookingResult] = useState<{ id: string; status: string } | null>(null);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [doctorSlots, setDoctorSlots] = useState<string[]>([]);
 
   const t = useCallback((es: string, en: string) => (lang === "en" ? en : es), [lang]);
 
@@ -110,57 +141,58 @@ export default function PublicBookingPage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  // Generate available dates (next N days, working days only)
+  // Filtered & searched doctors
+  const filteredDoctors = useMemo(() => {
+    let list = doctors.filter((d) => d.available);
+    if (filterSpec !== "all") {
+      list = list.filter((d) => d.specialty === filterSpec);
+    }
+    if (searchQ.trim()) {
+      const q = searchQ.toLowerCase();
+      list = list.filter(
+        (d) => d.name.toLowerCase().includes(q) || d.specialty.toLowerCase().includes(q),
+      );
+    }
+    return list;
+  }, [doctors, filterSpec, searchQ]);
+
+  // Generate available dates for selected doctor (based on their schedule days)
   const availableDates = useMemo(() => {
     const days: string[] = [];
     const maxDays = settings?.maxAdvanceDays ?? 60;
-    const workingDays = settings?.workingDays ?? [1, 2, 3, 4, 5];
     const now = new Date();
 
-    for (let i = 1; i <= maxDays && days.length < 21; i++) {
+    if (!selectedDoctor) return days;
+
+    // Use doctor's schedule days if available, otherwise fall back to working days
+    const doctorDays =
+      selectedDoctor.schedule.length > 0
+        ? new Set(selectedDoctor.schedule.map((s) => s.day))
+        : new Set(settings?.workingDays ?? [1, 2, 3, 4, 5]);
+
+    for (let i = 1; i <= maxDays && days.length < 28; i++) {
       const d = new Date(now);
       d.setDate(d.getDate() + i);
-      if (workingDays.includes(d.getDay())) {
+      if (doctorDays.has(d.getDay())) {
         days.push(d.toISOString().slice(0, 10));
       }
     }
     return days;
-  }, [settings]);
+  }, [selectedDoctor, settings]);
 
-  // Generate time slots for selected date
-  const timeSlots = useMemo(() => {
-    if (!settings || !clinic?.operatingHours) return [];
-    const dayName = ["dom", "lun", "mar", "mie", "jue", "vie", "sab"];
-    const d = new Date(selectedDate + "T12:00:00");
-    const dayKey = dayName[d.getDay()] as string;
-    const hours = clinic.operatingHours[dayKey as keyof typeof clinic.operatingHours];
-    if (!hours) return [];
-
-    const slots: string[] = [];
-    const duration = settings.slotDuration || 30;
-    const [openH, openM] = hours.open.split(":").map(Number);
-    const [closeH, closeM] = hours.close.split(":").map(Number);
-    const [breakStartH, breakStartM] = (settings.breakStart || "13:00").split(":").map(Number);
-    const [breakEndH, breakEndM] = (settings.breakEnd || "14:00").split(":").map(Number);
-
-    let current = (openH ?? 0) * 60 + (openM ?? 0);
-    const end = (closeH ?? 0) * 60 + (closeM ?? 0);
-    const breakStart = (breakStartH ?? 0) * 60 + (breakStartM ?? 0);
-    const breakEnd = (breakEndH ?? 0) * 60 + (breakEndM ?? 0);
-
-    while (current + duration <= end) {
-      // Skip break
-      if (current >= breakStart && current < breakEnd) {
-        current = breakEnd;
-        continue;
-      }
-      const hh = String(Math.floor(current / 60)).padStart(2, "0");
-      const mm = String(current % 60).padStart(2, "0");
-      slots.push(`${hh}:${mm}`);
-      current += duration;
+  // Fetch time slots for selected doctor + date
+  useEffect(() => {
+    if (!selectedDoctor || !selectedDate) {
+      setDoctorSlots([]);
+      return;
     }
-    return slots;
-  }, [selectedDate, settings, clinic]);
+    setSlotsLoading(true);
+    fetch(`/api/clinics/${slug}/slots?doctorId=${selectedDoctor.id}&date=${selectedDate}`)
+      .then((r) => r.json())
+      .then((data) => setDoctorSlots(data.slots ?? []))
+      .catch(() => setDoctorSlots([]))
+      .finally(() => setSlotsLoading(false));
+  }, [slug, selectedDoctor, selectedDate]);
 
   // Submit booking
   async function handleSubmit() {
@@ -205,7 +237,7 @@ export default function PublicBookingPage() {
     );
   }
 
-  if (error || !clinic) {
+  if (error && !clinic) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-celeste-pale/30 to-white flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl border border-border p-10 text-center max-w-md">
@@ -218,12 +250,14 @@ export default function PublicBookingPage() {
     );
   }
 
+  if (!clinic) return null;
+
   // ── Render ─────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-celeste-pale/30 to-white">
       {/* Header */}
       <header className="border-b border-border bg-white/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {clinic.logoUrl ? (
               <Image
@@ -257,7 +291,7 @@ export default function PublicBookingPage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-8">
+      <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8">
           {(["doctor", "datetime", "info", "confirm"] as Step[]).map((s, i) => (
@@ -284,21 +318,61 @@ export default function PublicBookingPage() {
             <h2 className="text-xl font-bold text-ink mb-1">
               {t("Elegí tu profesional", "Choose your doctor")}
             </h2>
-            <p className="text-sm text-ink-muted mb-6">
+            <p className="text-sm text-ink-muted mb-4">
               {t(
-                `${doctors.length} profesionales disponibles`,
-                `${doctors.length} doctors available`,
+                `${doctors.filter((d) => d.available).length} profesionales disponibles`,
+                `${doctors.filter((d) => d.available).length} doctors available`,
               )}
             </p>
 
+            {/* Search + Filter */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+                <input
+                  type="text"
+                  value={searchQ}
+                  onChange={(e) => setSearchQ(e.target.value)}
+                  placeholder={t("Buscar profesional...", "Search doctor...")}
+                  className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-pale focus:border-celeste bg-white"
+                />
+              </div>
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+                <select
+                  value={filterSpec}
+                  onChange={(e) => setFilterSpec(e.target.value)}
+                  className="pl-10 pr-8 py-2.5 border border-border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-celeste-pale focus:border-celeste appearance-none cursor-pointer"
+                >
+                  <option value="all">{t("Todas las especialidades", "All specialties")}</option>
+                  {(clinic.specialtyList ?? []).map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Doctor list */}
             <div className="grid gap-3">
-              {doctors
-                .filter((d) => d.available)
-                .map((doc) => (
+              {filteredDoctors.length === 0 && (
+                <div className="text-center py-10 text-ink-muted text-sm">
+                  {t(
+                    "No se encontraron profesionales con ese criterio.",
+                    "No doctors found matching that criteria.",
+                  )}
+                </div>
+              )}
+              {filteredDoctors.map((doc) => {
+                const badges = formatScheduleBadges(doc.schedule, lang);
+                return (
                   <button
                     key={doc.id}
                     onClick={() => {
                       setSelectedDoctor(doc);
+                      setSelectedDate("");
+                      setSelectedTime("");
                       setStep("datetime");
                     }}
                     className={`text-left bg-white border rounded-xl p-5 hover:shadow-sm transition
@@ -320,12 +394,33 @@ export default function PublicBookingPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-ink">{doc.name}</p>
-                        <p className="text-sm text-ink-light">{doc.specialty}</p>
+                        <p className="text-sm text-celeste-dark font-medium">{doc.specialty}</p>
+                        {doc.matricula && (
+                          <p className="text-[11px] text-ink-muted">{doc.matricula}</p>
+                        )}
+
+                        {/* Schedule badges */}
+                        {badges.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {badges.map((b) => (
+                              <span
+                                key={b.day}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-celeste-pale/50 text-celeste-dark text-[11px] font-semibold rounded-md"
+                              >
+                                <Calendar className="w-3 h-3" />
+                                {b.label} {b.time}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
                         <div className="flex items-center gap-3 mt-2 text-xs text-ink-muted">
-                          <span className="flex items-center gap-1">
-                            <Star className="w-3.5 h-3.5 text-gold fill-gold" />
-                            {doc.rating} ({doc.reviewCount})
-                          </span>
+                          {doc.rating > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Star className="w-3.5 h-3.5 text-gold fill-gold" />
+                              {doc.rating} ({doc.reviewCount})
+                            </span>
+                          )}
                           {doc.experience && <span>{doc.experience}</span>}
                           {doc.teleconsulta && (
                             <span className="flex items-center gap-1 text-celeste-dark">
@@ -339,7 +434,8 @@ export default function PublicBookingPage() {
                       </div>
                     </div>
                   </button>
-                ))}
+                );
+              })}
             </div>
 
             {/* Clinic info footer */}
@@ -376,17 +472,23 @@ export default function PublicBookingPage() {
         )}
 
         {/* ── Step 2: Date & Time ────────────────── */}
-        {step === "datetime" && (
+        {step === "datetime" && selectedDoctor && (
           <div>
             <h2 className="text-xl font-bold text-ink mb-1">
               {t("Elegí fecha y hora", "Choose date & time")}
             </h2>
-            <p className="text-sm text-ink-muted mb-6">
-              {selectedDoctor?.name} · {selectedDoctor?.specialty}
-            </p>
+            <div className="flex items-center gap-3 mb-6 bg-white border border-border rounded-xl p-4">
+              <div className="w-10 h-10 rounded-full bg-celeste-pale flex items-center justify-center shrink-0">
+                <Stethoscope className="w-5 h-5 text-celeste-dark" />
+              </div>
+              <div>
+                <p className="font-bold text-ink text-sm">{selectedDoctor.name}</p>
+                <p className="text-xs text-celeste-dark">{selectedDoctor.specialty}</p>
+              </div>
+            </div>
 
             {/* Type selector */}
-            {selectedDoctor?.teleconsulta && (
+            {selectedDoctor.teleconsulta && (
               <div className="flex gap-2 mb-6">
                 {(["presencial", "teleconsulta"] as const).map((t2) => (
                   <button
@@ -406,41 +508,73 @@ export default function PublicBookingPage() {
               </div>
             )}
 
+            {/* Schedule hint */}
+            {selectedDoctor.schedule.length > 0 && (
+              <div className="bg-celeste-pale/30 border border-celeste-pale rounded-xl px-4 py-3 mb-4 text-xs text-celeste-dark">
+                <p className="font-semibold mb-1">{t("Días de atención", "Available days")}:</p>
+                <div className="flex flex-wrap gap-2">
+                  {formatScheduleBadges(selectedDoctor.schedule, lang).map((b) => (
+                    <span key={b.day} className="font-bold">
+                      {b.label} {b.time}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Date picker */}
             <p className="text-sm font-semibold text-ink mb-2">{t("Fecha", "Date")}</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-6">
-              {availableDates.map((date) => {
-                const d = new Date(date + "T12:00:00");
-                const isSelected = selectedDate === date;
-                return (
-                  <button
-                    key={date}
-                    onClick={() => {
-                      setSelectedDate(date);
-                      setSelectedTime("");
-                    }}
-                    className={`shrink-0 w-16 py-3 rounded-xl text-center transition border
-                      ${isSelected ? "bg-celeste-dark text-white border-celeste-dark" : "bg-white border-border hover:border-celeste"}`}
-                  >
-                    <p className="text-[10px] uppercase font-semibold">
-                      {d.toLocaleDateString(lang === "en" ? "en-US" : "es-AR", {
-                        weekday: "short",
-                      })}
-                    </p>
-                    <p className="text-lg font-bold">{d.getDate()}</p>
-                    <p className="text-[10px]">
-                      {d.toLocaleDateString(lang === "en" ? "en-US" : "es-AR", { month: "short" })}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
+            {availableDates.length === 0 ? (
+              <p className="text-sm text-ink-muted bg-surface rounded-xl p-4 text-center mb-4">
+                {t(
+                  "No hay fechas disponibles para este profesional",
+                  "No available dates for this doctor",
+                )}
+              </p>
+            ) : (
+              <div className="flex gap-2 overflow-x-auto pb-2 mb-6">
+                {availableDates.map((date) => {
+                  const d = new Date(date + "T12:00:00");
+                  const isSelected = selectedDate === date;
+                  return (
+                    <button
+                      key={date}
+                      onClick={() => {
+                        setSelectedDate(date);
+                        setSelectedTime("");
+                      }}
+                      className={`shrink-0 w-16 py-3 rounded-xl text-center transition border
+                        ${isSelected ? "bg-celeste-dark text-white border-celeste-dark" : "bg-white border-border hover:border-celeste"}`}
+                    >
+                      <p className="text-[10px] uppercase font-semibold">
+                        {d.toLocaleDateString(lang === "en" ? "en-US" : "es-AR", {
+                          weekday: "short",
+                        })}
+                      </p>
+                      <p className="text-lg font-bold">{d.getDate()}</p>
+                      <p className="text-[10px]">
+                        {d.toLocaleDateString(lang === "en" ? "en-US" : "es-AR", {
+                          month: "short",
+                        })}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-            {/* Time slots */}
+            {/* Time slots — fetched per doctor */}
             {selectedDate && (
               <>
                 <p className="text-sm font-semibold text-ink mb-2">{t("Hora", "Time")}</p>
-                {timeSlots.length === 0 ? (
+                {slotsLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-5 h-5 text-celeste animate-spin" />
+                    <span className="ml-2 text-sm text-ink-muted">
+                      {t("Cargando horarios...", "Loading slots...")}
+                    </span>
+                  </div>
+                ) : doctorSlots.length === 0 ? (
                   <p className="text-sm text-ink-muted bg-surface rounded-xl p-4 text-center">
                     {t(
                       "No hay horarios disponibles para esta fecha",
@@ -449,7 +583,7 @@ export default function PublicBookingPage() {
                   </p>
                 ) : (
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-6">
-                    {timeSlots.map((time) => (
+                    {doctorSlots.map((time) => (
                       <button
                         key={time}
                         onClick={() => setSelectedTime(time)}
@@ -728,7 +862,7 @@ export default function PublicBookingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-white mt-12">
-        <div className="max-w-3xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-6 py-6 flex items-center justify-between">
           <p className="text-[11px] text-ink-muted">
             Powered by <span className="font-semibold text-celeste-dark">Cóndor Salud</span>
           </p>

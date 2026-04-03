@@ -51,7 +51,53 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
         )
         .eq("clinic_id", clinic.id as string)
         .eq("active", true)
-        .order("rating", { ascending: false })) as { data: Record<string, unknown>[] | null };
+        .order("name", { ascending: true })) as { data: Record<string, unknown>[] | null };
+
+      // Fetch per-doctor schedule summary from doctor_availability
+      // (distinct date → day-of-week + min/max time_slot per doctor)
+      const doctorIds = (doctors ?? []).map((d) => d.id as string);
+      let scheduleMap: Record<string, { day: number; start: string; end: string }[]> = {};
+
+      if (doctorIds.length > 0) {
+        // Get next 14 days of availability to derive weekly schedule
+        const today = new Date().toISOString().slice(0, 10);
+        const twoWeeks = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+
+        const { data: avail } = (await sbAny
+          .from("doctor_availability")
+          .select("doctor_id, date, time_slot")
+          .in("doctor_id", doctorIds)
+          .gte("date", today)
+          .lte("date", twoWeeks)
+          .eq("booked", false)
+          .order("time_slot", { ascending: true })) as {
+          data: { doctor_id: string; date: string; time_slot: string }[] | null;
+        };
+
+        if (avail && avail.length > 0) {
+          // Group by doctor_id → day-of-week → min/max time
+          const grouped: Record<string, Record<number, { min: string; max: string }>> = {};
+          for (const row of avail) {
+            const d = new Date(row.date + "T12:00:00");
+            const dow = d.getDay(); // 0=Sun..6=Sat
+            const t = String(row.time_slot).slice(0, 5);
+            if (!grouped[row.doctor_id]) grouped[row.doctor_id] = {};
+            if (!grouped[row.doctor_id][dow]) {
+              grouped[row.doctor_id][dow] = { min: t, max: t };
+            } else {
+              if (t < grouped[row.doctor_id][dow].min) grouped[row.doctor_id][dow].min = t;
+              if (t > grouped[row.doctor_id][dow].max) grouped[row.doctor_id][dow].max = t;
+            }
+          }
+          for (const [docId, days] of Object.entries(grouped)) {
+            scheduleMap[docId] = Object.entries(days).map(([dow, range]) => ({
+              day: Number(dow),
+              start: range.min,
+              end: range.max,
+            }));
+          }
+        }
+      }
 
       // Fetch booking settings (new table from migration 017)
       const { data: settings } = (await sbAny
@@ -59,6 +105,12 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
         .select("*")
         .eq("clinic_id", clinic.id)
         .single()) as { data: Record<string, unknown> | null };
+
+      // Collect unique specialties
+      const specialtySet = new Set<string>();
+      for (const d of doctors ?? []) {
+        if (d.specialty) specialtySet.add(d.specialty as string);
+      }
 
       return NextResponse.json({
         clinic: {
@@ -70,6 +122,7 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
           email: clinic.email,
           logoUrl: clinic.logo_url,
           specialties: clinic.especialidad,
+          specialtyList: Array.from(specialtySet).sort(),
           description: clinic.description,
           languages: clinic.languages,
           operatingHours: clinic.operating_hours,
@@ -91,6 +144,7 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
           bio: d.bio,
           photoUrl: d.photo_url,
           matricula: d.matricula,
+          schedule: scheduleMap[d.id as string] ?? [],
         })),
         settings: settings
           ? {
@@ -121,6 +175,7 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
       email: "turnos@clinicarecoleta.com.ar",
       logoUrl: null,
       specialties: ["Clínica General", "Dermatología", "Pediatría", "Cardiología"],
+      specialtyList: ["Cardiología", "Clínica General", "Dermatología", "Pediatría"],
       description:
         "Clínica de atención integral en el corazón de Recoleta. Atendemos con obras sociales y prepagas.",
       languages: ["es", "en"],
@@ -151,6 +206,10 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
         bio: "Médico clínico con amplia experiencia en atención primaria.",
         photoUrl: null,
         matricula: "MN-45892",
+        schedule: [
+          { day: 1, start: "08:00", end: "12:00" },
+          { day: 3, start: "14:00", end: "18:00" },
+        ],
       },
       {
         id: "doc-02",
@@ -165,6 +224,10 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
         bio: "Especialista en dermatología clínica y estética.",
         photoUrl: null,
         matricula: "MN-38741",
+        schedule: [
+          { day: 2, start: "09:00", end: "13:00" },
+          { day: 4, start: "09:00", end: "13:00" },
+        ],
       },
       {
         id: "doc-03",
@@ -179,6 +242,10 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
         bio: "Pediatra dedicado al cuidado integral del niño.",
         photoUrl: null,
         matricula: "MN-52103",
+        schedule: [
+          { day: 1, start: "14:00", end: "18:00" },
+          { day: 5, start: "08:00", end: "12:00" },
+        ],
       },
     ],
     settings: {
