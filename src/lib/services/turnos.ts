@@ -326,6 +326,7 @@ export async function createTurno(
         profesional: data.profesional,
         estado: data.estado as Turno["estado"],
         notas: data.notas ?? undefined,
+        durationMin: data.duration_min ?? undefined,
       },
     };
   }
@@ -486,6 +487,7 @@ export async function getTurnosByDateRange(startDate: string, endDate: string): 
       profesional: row.profesional,
       estado: row.estado as Turno["estado"],
       notas: row.notas ?? undefined,
+      durationMin: row.duration_min ?? undefined,
     }));
   }
 
@@ -526,6 +528,7 @@ export async function getTurnosByProfessional(
       profesional: row.profesional,
       estado: row.estado as Turno["estado"],
       notas: row.notas ?? undefined,
+      durationMin: row.duration_min ?? undefined,
     }));
   }
 

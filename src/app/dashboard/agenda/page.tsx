@@ -118,6 +118,20 @@ const tiposTurno = [
   "Laboratorio",
   "Procedimiento",
 ];
+
+/** Preset duration options (minutes) the receptionist can choose from */
+const DURATION_OPTIONS = [15, 20, 30, 45, 60, 90, 120] as const;
+
+/** Default duration per appointment type (fallback when clinic_services not loaded) */
+const DEFAULT_DURATION_BY_TYPE: Record<string, number> = {
+  Consulta: 30,
+  Control: 15,
+  "Primera vez": 45,
+  Ecografía: 30,
+  Laboratorio: 15,
+  Procedimiento: 60,
+};
+
 const financiadoresOptions = [
   "PAMI",
   "OSDE 310",
@@ -420,6 +434,9 @@ export default function AgendaPage() {
                   {t("label.time")}
                 </th>
                 <th scope="col" className="text-left px-5 py-2.5">
+                  {locale === "en" ? "Duration" : "Duración"}
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
                   {t("label.patient")}
                 </th>
                 <th scope="col" className="text-left px-5 py-2.5">
@@ -448,6 +465,16 @@ export default function AgendaPage() {
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
                   >
                     <td className="px-5 py-3 font-mono text-xs text-ink">{turno.hora}</td>
+                    <td className="px-5 py-3 text-xs text-ink-light">
+                      {turno.durationMin ? (
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {turno.durationMin} min
+                        </span>
+                      ) : (
+                        <span className="text-ink-muted">—</span>
+                      )}
+                    </td>
                     <td className="px-5 py-3 text-xs font-semibold text-ink">{turno.paciente}</td>
                     <td className="px-5 py-3 text-xs text-ink-light">{turno.profesional}</td>
                     <td className="px-5 py-3 text-xs text-ink-light">{turno.tipo}</td>
@@ -546,16 +573,30 @@ export default function AgendaPage() {
                         return <td key={di} className="px-1 py-1" />;
                       return (
                         <td key={di} className="px-1 py-1">
-                          <div className="block p-1.5 rounded text-[10px] border-l-2 bg-celeste-pale text-celeste-dark border-celeste hover:shadow-sm transition cursor-pointer">
+                          <div
+                            className="block p-1.5 rounded text-[10px] border-l-2 bg-celeste-pale text-celeste-dark border-celeste hover:shadow-sm transition cursor-pointer"
+                            style={
+                              turno.durationMin && turno.durationMin > 30
+                                ? { minHeight: `${Math.round(turno.durationMin * 1.2)}px` }
+                                : undefined
+                            }
+                          >
                             <div className="font-semibold truncate">{turno.paciente}</div>
                             <div className="text-ink-muted truncate">
                               {turno.tipo} · {turno.financiador}
                             </div>
-                            <span
-                              className={`inline-block mt-0.5 px-1 py-0.5 rounded text-[8px] font-bold capitalize ${estadoColor[turno.estado] ?? ""}`}
-                            >
-                              {turno.estado}
-                            </span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span
+                                className={`inline-block px-1 py-0.5 rounded text-[8px] font-bold capitalize ${estadoColor[turno.estado] ?? ""}`}
+                              >
+                                {turno.estado}
+                              </span>
+                              {turno.durationMin && (
+                                <span className="text-[8px] text-ink-muted font-medium">
+                                  {turno.durationMin}′
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </td>
                       );
@@ -619,6 +660,35 @@ function NewTurnoModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [profSearch, setProfSearch] = useState("");
+  /** Whether the receptionist manually changed the duration (override mode) */
+  const [durationOverridden, setDurationOverridden] = useState(false);
+
+  /** Map of service category → duration_min from clinic_services */
+  const [serviceDurations, setServiceDurations] = useState<Record<string, number>>({});
+
+  // Fetch clinic_services once to get per-type default durations
+  useEffect(() => {
+    fetch("/api/services")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data?.services) return;
+        const map: Record<string, number> = {};
+        for (const svc of data.services as {
+          name: string;
+          category: string;
+          duration_min: number | null;
+        }[]) {
+          if (svc.duration_min) {
+            // Map by name (exact match) and by category as fallback
+            map[svc.name] = svc.duration_min;
+            if (!map[svc.category]) map[svc.category] = svc.duration_min;
+          }
+        }
+        setServiceDurations(map);
+      })
+      .catch(() => {});
+  }, []);
+
   const [form, setForm] = useState<CreateTurnoInput>({
     fecha: new Date().toISOString().slice(0, 10),
     hora: "09:00",
@@ -628,6 +698,7 @@ function NewTurnoModal({
     profesional: "",
     profesionalId: "",
     notas: "",
+    durationMin: DEFAULT_DURATION_BY_TYPE["Consulta"] ?? 30,
   });
 
   // Filter profesionales by search text
@@ -638,6 +709,41 @@ function NewTurnoModal({
       (p) => p.nombre.toLowerCase().includes(q) || p.especialidad.toLowerCase().includes(q),
     );
   }, [profesionales, profSearch]);
+
+  /** Derive best-guess duration for a given appointment type */
+  const getDurationForType = useCallback(
+    (tipo: string): number => {
+      // 1. Exact match from clinic_services
+      if (serviceDurations[tipo]) return serviceDurations[tipo];
+      // 2. Category fallback (lowercase match)
+      const lower = tipo.toLowerCase();
+      for (const [key, dur] of Object.entries(serviceDurations)) {
+        if (key.toLowerCase() === lower) return dur;
+      }
+      // 3. Built-in defaults
+      return DEFAULT_DURATION_BY_TYPE[tipo] ?? 30;
+    },
+    [serviceDurations],
+  );
+
+  /** Handle tipo change — auto-set duration unless receptionist overrode it */
+  const handleTipoChange = useCallback(
+    (newTipo: string) => {
+      const suggestedDur = getDurationForType(newTipo);
+      setForm((prev) => ({
+        ...prev,
+        tipo: newTipo,
+        ...(durationOverridden ? {} : { durationMin: suggestedDur }),
+      }));
+    },
+    [getDurationForType, durationOverridden],
+  );
+
+  /** Handle manual duration change by receptionist */
+  const handleDurationChange = useCallback((min: number) => {
+    setDurationOverridden(true);
+    setForm((prev) => ({ ...prev, durationMin: min }));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -788,7 +894,7 @@ function NewTurnoModal({
               </label>
               <select
                 value={form.tipo}
-                onChange={(e) => setForm({ ...form, tipo: e.target.value })}
+                onChange={(e) => handleTipoChange(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
               >
                 {tiposTurno.map((t) => (
@@ -798,6 +904,59 @@ function NewTurnoModal({
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Duration picker — receptionist-configurable */}
+          <div>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
+              {locale === "en" ? "Duration" : "Duración"}
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-wrap gap-1.5">
+                {DURATION_OPTIONS.map((min) => (
+                  <button
+                    key={min}
+                    type="button"
+                    onClick={() => handleDurationChange(min)}
+                    className={`px-2.5 py-1.5 text-xs rounded-[4px] border transition font-medium ${
+                      form.durationMin === min
+                        ? "bg-celeste-dark text-white border-celeste-dark"
+                        : "border-border text-ink-light hover:border-celeste-dark hover:text-celeste-dark"
+                    }`}
+                  >
+                    {min} min
+                  </button>
+                ))}
+              </div>
+              {/* Custom input for non-standard durations */}
+              <input
+                type="number"
+                min={5}
+                max={480}
+                step={5}
+                value={form.durationMin ?? 30}
+                onChange={(e) => handleDurationChange(Math.max(5, Number(e.target.value) || 30))}
+                className="w-20 px-2 py-1.5 border border-border rounded-[4px] text-xs text-center focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
+                title={locale === "en" ? "Custom duration (min)" : "Duración personalizada (min)"}
+              />
+            </div>
+            {durationOverridden && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDurationOverridden(false);
+                  setForm((prev) => ({
+                    ...prev,
+                    durationMin: getDurationForType(prev.tipo),
+                  }));
+                }}
+                className="mt-1 text-[10px] text-celeste-dark hover:underline"
+              >
+                {locale === "en"
+                  ? "↩ Reset to default for this type"
+                  : "↩ Restablecer duración por defecto"}
+              </button>
+            )}
           </div>
 
           <div>

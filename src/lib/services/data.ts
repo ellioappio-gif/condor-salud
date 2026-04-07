@@ -707,6 +707,8 @@ export interface Turno {
   profesional: string;
   estado: "confirmado" | "pendiente" | "cancelado" | "atendido";
   notas?: string;
+  /** Appointment duration in minutes (receptionist-configurable) */
+  durationMin?: number;
 }
 
 const TURNOS: Turno[] = [

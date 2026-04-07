@@ -143,6 +143,7 @@ function mapTurno(row: TurnoRow): Turno {
     profesional: row.profesional,
     estado: row.estado as Turno["estado"],
     notas: row.notas ?? undefined,
+    durationMin: row.duration_min ?? undefined,
   };
 }
 
