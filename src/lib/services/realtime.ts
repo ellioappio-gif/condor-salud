@@ -255,3 +255,320 @@ export function useRealtimeTable<TRow extends Record<string, unknown>, TEntity>(
 
   return { data, isConnected };
 }
+
+// ─── Realtime Turno Notifications for Doctors ────────────────
+// Subscribes to INSERT/UPDATE on the `turnos` table.
+// Surfaces new bookings + upcoming appointments with patient info.
+
+export interface TurnoNotification {
+  id: string;
+  turnoId: string;
+  type: "new_booking" | "upcoming" | "status_change";
+  hora: string;
+  fecha: string;
+  paciente: string;
+  pacienteId?: string;
+  tipo: string;
+  financiador: string;
+  profesional: string;
+  estado: string;
+  durationMin?: number;
+  notas?: string;
+  /** Patient detail (populated via lookup) */
+  patientDetail?: {
+    id: string;
+    nombre: string;
+    dni: string;
+    financiador: string;
+    plan: string;
+    telefono: string;
+    email: string;
+    ultimaVisita: string;
+  } | null;
+  timestamp: number;
+  dismissed: boolean;
+}
+
+interface TurnoRow {
+  id: string;
+  hora: string;
+  fecha: string;
+  paciente: string;
+  tipo: string;
+  financiador: string;
+  profesional: string;
+  estado: string;
+  duration_min?: number;
+  notas?: string;
+  created_at?: string;
+}
+
+interface UseTurnoNotificationsOptions {
+  /** Filter to only show turnos for this professional name or ID */
+  profesionalFilter?: string;
+  /** How many minutes before an appointment to fire "upcoming" */
+  upcomingThresholdMin?: number;
+  /** Max notifications to keep in state */
+  maxNotifications?: number;
+}
+
+export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOptions = {}): {
+  notifications: TurnoNotification[];
+  activePatient: TurnoNotification | null;
+  unreadCount: number;
+  dismiss: (id: string) => void;
+  dismissAll: () => void;
+  showPatient: (notification: TurnoNotification) => void;
+  closePatient: () => void;
+  isConnected: boolean;
+} {
+  const { profesionalFilter, upcomingThresholdMin = 10, maxNotifications = 20 } = options;
+  const [notifications, setNotifications] = useState<TurnoNotification[]>([]);
+  const [activePatient, setActivePatient] = useState<TurnoNotification | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const upcomingTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const unreadCount = notifications.filter((n) => !n.dismissed).length;
+
+  /** Look up patient details from pacientes table */
+  const enrichWithPatient = useCallback(
+    async (notif: TurnoNotification): Promise<TurnoNotification> => {
+      if (!isSupabaseConfigured()) return notif;
+      try {
+        const supabase = createClient();
+        // Try matching by name (partial match on first word)
+        const firstName = notif.paciente.split(" ")[0];
+        if (!firstName || firstName.length < 2) return notif;
+
+        const { data } = await supabase
+          .from("pacientes")
+          .select("id, nombre, dni, financiador, plan, telefono, email, ultima_visita")
+          .ilike("nombre", `%${firstName}%`)
+          .limit(1)
+          .single();
+
+        if (data) {
+          return {
+            ...notif,
+            patientDetail: {
+              id: data.id,
+              nombre: data.nombre,
+              dni: data.dni,
+              financiador: data.financiador || notif.financiador,
+              plan: data.plan || "",
+              telefono: data.telefono || "",
+              email: data.email || "",
+              ultimaVisita: data.ultima_visita || "",
+            },
+          };
+        }
+      } catch {
+        // Non-critical — show notification without patient detail
+      }
+      return notif;
+    },
+    [],
+  );
+
+  /** Add a notification (with patient enrichment + auto-show) */
+  const addNotification = useCallback(
+    async (notif: TurnoNotification) => {
+      const enriched = await enrichWithPatient(notif);
+      setNotifications((prev) => {
+        // Deduplicate by turnoId + type
+        const filtered = prev.filter(
+          (n) => !(n.turnoId === enriched.turnoId && n.type === enriched.type),
+        );
+        return [enriched, ...filtered].slice(0, maxNotifications);
+      });
+      // Auto-show patient card for new bookings
+      if (enriched.type === "new_booking" || enriched.type === "upcoming") {
+        setActivePatient(enriched);
+      }
+    },
+    [enrichWithPatient, maxNotifications],
+  );
+
+  // Subscribe to realtime turno changes
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    const supabase = createClient();
+
+    // Subscribe to INSERT (new booking) and UPDATE (status change)
+    const channel = supabase
+      .channel("turnos-doctor-notifications")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "turnos" },
+        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+          if (!payload.new || !("id" in payload.new)) return;
+          const row = payload.new as unknown as TurnoRow;
+
+          // Filter by professional if specified
+          if (
+            profesionalFilter &&
+            row.profesional !== profesionalFilter &&
+            row.profesional !== profesionalFilter
+          ) {
+            return;
+          }
+
+          addNotification({
+            id: `notif-${row.id}-new`,
+            turnoId: row.id,
+            type: "new_booking",
+            hora: row.hora,
+            fecha: row.fecha,
+            paciente: row.paciente,
+            tipo: row.tipo,
+            financiador: row.financiador,
+            profesional: row.profesional,
+            estado: row.estado,
+            durationMin: row.duration_min,
+            notas: row.notas,
+            timestamp: Date.now(),
+            dismissed: false,
+          });
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "turnos" },
+        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+          if (!payload.new || !("id" in payload.new)) return;
+          const row = payload.new as unknown as TurnoRow;
+
+          if (profesionalFilter && row.profesional !== profesionalFilter) {
+            return;
+          }
+
+          // Only notify on meaningful status changes
+          const oldEstado = (payload.old as Record<string, unknown>)?.estado;
+          if (oldEstado && oldEstado !== row.estado) {
+            addNotification({
+              id: `notif-${row.id}-status-${row.estado}`,
+              turnoId: row.id,
+              type: "status_change",
+              hora: row.hora,
+              fecha: row.fecha,
+              paciente: row.paciente,
+              tipo: row.tipo,
+              financiador: row.financiador,
+              profesional: row.profesional,
+              estado: row.estado,
+              durationMin: row.duration_min,
+              notas: row.notas,
+              timestamp: Date.now(),
+              dismissed: false,
+            });
+          }
+        },
+      )
+      .subscribe((status: string) => {
+        setIsConnected(status === "SUBSCRIBED");
+      });
+
+    channelRef.current = channel;
+
+    return () => {
+      channel.unsubscribe();
+      channelRef.current = null;
+    };
+  }, [profesionalFilter, addNotification]);
+
+  // Upcoming appointment checker — runs every 60s
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    async function checkUpcoming() {
+      try {
+        const supabase = createClient();
+        const now = new Date();
+        const today = now.toISOString().slice(0, 10);
+        const currentMin = now.getHours() * 60 + now.getMinutes();
+        const thresholdMin = currentMin + upcomingThresholdMin;
+
+        let query = supabase
+          .from("turnos")
+          .select("*")
+          .eq("fecha", today)
+          .in("estado", ["confirmado", "pendiente"]);
+
+        if (profesionalFilter) {
+          query = query.eq("profesional", profesionalFilter);
+        }
+
+        const { data: rows } = await query;
+        if (!rows) return;
+
+        for (const row of rows as unknown as TurnoRow[]) {
+          const [hh, mm] = (row.hora || "").split(":").map(Number);
+          const turnoMin = (hh || 0) * 60 + (mm || 0);
+
+          // Fire if within threshold and not past
+          if (turnoMin > currentMin && turnoMin <= thresholdMin) {
+            addNotification({
+              id: `notif-${row.id}-upcoming`,
+              turnoId: row.id,
+              type: "upcoming",
+              hora: row.hora,
+              fecha: row.fecha,
+              paciente: row.paciente,
+              tipo: row.tipo,
+              financiador: row.financiador,
+              profesional: row.profesional,
+              estado: row.estado,
+              durationMin: row.duration_min,
+              notas: row.notas,
+              timestamp: Date.now(),
+              dismissed: false,
+            });
+          }
+        }
+      } catch {
+        // Non-critical
+      }
+    }
+
+    // Check immediately + every 60s
+    checkUpcoming();
+    const interval = setInterval(checkUpcoming, 60_000);
+    const timers = upcomingTimersRef.current;
+
+    return () => {
+      clearInterval(interval);
+      timers.forEach(clearTimeout);
+    };
+  }, [profesionalFilter, upcomingThresholdMin, addNotification]);
+
+  const dismiss = useCallback((id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n)));
+    setActivePatient((curr) => (curr?.id === id ? null : curr));
+  }, []);
+
+  const dismissAll = useCallback(() => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, dismissed: true })));
+    setActivePatient(null);
+  }, []);
+
+  const showPatient = useCallback((notif: TurnoNotification) => {
+    setActivePatient(notif);
+  }, []);
+
+  const closePatient = useCallback(() => {
+    setActivePatient(null);
+  }, []);
+
+  return {
+    notifications,
+    activePatient,
+    unreadCount,
+    dismiss,
+    dismissAll,
+    showPatient,
+    closePatient,
+    isConnected,
+  };
+}

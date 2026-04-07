@@ -43,6 +43,12 @@ import {
   usePacientes,
 } from "@/hooks/use-data";
 import { useWhatsAppConfig } from "@/lib/hooks/useCRM";
+import { useRealtimeTurnoNotifications } from "@/lib/services/realtime";
+import {
+  NotificationToastList,
+  PatientSlideCard,
+  TurnoNotificationBadge,
+} from "@/components/TurnoNotifications";
 
 // ─── Quick-link definitions (UI config — not mock data) ──────
 
@@ -143,6 +149,22 @@ export default function DashboardPage() {
   const { data: turnosData } = useTurnos();
   const { data: auditoriaData } = useAuditoria();
   const { data: pacientesData } = usePacientes();
+
+  // ── Realtime turno notifications (medico & admin only) ───
+  const showNotifications = user?.role === "medico" || user?.role === "admin";
+  const {
+    notifications: turnoNotifs,
+    activePatient: activePatientNotif,
+    unreadCount,
+    dismiss: dismissNotif,
+    dismissAll: dismissAllNotifs,
+    showPatient,
+    closePatient,
+    isConnected: realtimeConnected,
+  } = useRealtimeTurnoNotifications({
+    profesionalFilter: user?.role === "medico" ? user.name : undefined,
+    upcomingThresholdMin: 15,
+  });
 
   // Derived states: undefined = loading, [] = no data, [...] = has data
   const isKpiLoading = kpiData === undefined;
@@ -767,6 +789,22 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Realtime turno notifications overlay ───────────── */}
+      {showNotifications && (
+        <>
+          <NotificationToastList
+            notifications={turnoNotifs}
+            onDismiss={dismissNotif}
+            onDismissAll={dismissAllNotifs}
+            onSelect={showPatient}
+            unreadCount={unreadCount}
+          />
+          {activePatientNotif && (
+            <PatientSlideCard notification={activePatientNotif} onClose={closePatient} />
+          )}
+        </>
+      )}
     </div>
   );
 }
