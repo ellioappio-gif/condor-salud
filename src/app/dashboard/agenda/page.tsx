@@ -15,6 +15,7 @@ import {
 import type { Turno } from "@/lib/services/data";
 import { useTurnos } from "@/hooks/use-data";
 import { useDoctors } from "@/lib/hooks/useModules";
+import { formatDoctorSchedule } from "@/lib/services/directorio";
 import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui";
 import { analytics } from "@/lib/analytics";
@@ -93,7 +94,14 @@ const profColors = [
   "bg-orange-100 text-orange-700",
 ];
 
-export type Profesional = { id: string; nombre: string; especialidad: string; color: string };
+export type Profesional = {
+  id: string;
+  nombre: string;
+  especialidad: string;
+  color: string;
+  /** Compact schedule text, e.g. "Lun 14:30–16:30 · Jue 10:00–12:00" */
+  horario: string;
+};
 
 const estadoColor: Record<string, string> = {
   confirmado: "bg-green-50 text-green-700",
@@ -140,6 +148,7 @@ export default function AgendaPage() {
         nombre: d.name,
         especialidad: d.specialty,
         color: profColors[i % profColors.length] ?? "bg-blue-100 text-blue-700",
+        horario: formatDoctorSchedule(d.schedule),
       })),
     [doctors],
   );
@@ -362,12 +371,33 @@ export default function AgendaPage() {
           <button
             key={p.id}
             onClick={() => setProfFilter(p.id)}
+            title={p.horario ? `${p.especialidad} — ${p.horario}` : p.especialidad}
             className={`px-3 py-1.5 text-xs rounded-[4px] border transition ${profFilter === p.id ? p.color + " font-semibold" : "border-border text-ink-light hover:border-ink"}`}
           >
             {p.nombre.split(" ").slice(0, 2).join(" ")}
+            {p.horario && (
+              <span className="ml-1 opacity-60 hidden sm:inline">
+                <Clock className="inline w-3 h-3 -mt-px" />
+              </span>
+            )}
           </button>
         ))}
       </div>
+
+      {/* Selected professional schedule banner */}
+      {profFilter &&
+        (() => {
+          const prof = profesionales.find((p) => p.id === profFilter);
+          if (!prof?.horario) return null;
+          return (
+            <div className="flex items-center gap-2 px-4 py-2 bg-celeste-pale/40 border border-celeste-light rounded-lg text-sm">
+              <Clock className="w-4 h-4 text-celeste-dark flex-shrink-0" />
+              <span className="font-semibold text-ink">{prof.nombre}</span>
+              <span className="text-ink-muted">—</span>
+              <span className="text-ink-light">{prof.horario}</span>
+            </div>
+          );
+        })()}
 
       {/* Loading */}
       {isLoading && (
@@ -730,9 +760,27 @@ function NewTurnoModal({
                 {filteredProfs.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.nombre} — {p.especialidad}
+                    {p.horario ? ` (${p.horario})` : ""}
                   </option>
                 ))}
               </select>
+              {/* Schedule detail card for selected professional */}
+              {form.profesionalId &&
+                (() => {
+                  const sel = profesionales.find((p) => p.id === form.profesionalId);
+                  if (!sel?.horario) return null;
+                  return (
+                    <div className="mt-1.5 px-3 py-2 bg-celeste-pale/30 border border-celeste-light rounded text-xs text-ink-light flex items-start gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-celeste-dark flex-shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold text-ink">
+                          {locale === "en" ? "Hours:" : "Horarios:"}
+                        </span>{" "}
+                        {sel.horario}
+                      </div>
+                    </div>
+                  );
+                })()}
             </div>
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">

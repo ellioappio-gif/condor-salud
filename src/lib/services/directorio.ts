@@ -5,7 +5,7 @@
 
 import { isSupabaseConfigured } from "@/lib/env";
 import { getGoogleMapsSearchUrl } from "@/lib/doctor-search";
-import type { Doctor, DoctorReview } from "@/lib/types";
+import type { Doctor, DoctorReview, DoctorScheduleEntry } from "@/lib/types";
 
 // ─── Static Data ─────────────────────────────────────────────
 
@@ -254,10 +254,103 @@ export async function getDoctors(filters?: {
     if (filters?.financiador && filters.financiador !== "Todos") {
       doctors = doctors.filter((d) => d.financiadores.includes(filters.financiador!));
     }
+
+    // ── Enrich with weekly schedule from doctor_availability ──
+    const doctorIds = doctors.map((d) => d.id);
+    if (doctorIds.length > 0) {
+      const scheduleMap = await fetchDoctorSchedules(doctorIds);
+      doctors = doctors.map((d) => ({
+        ...d,
+        schedule: scheduleMap[d.id] ?? [],
+      }));
+    }
+
     return enrichWithGoogleMaps(doctors);
   } catch {
     return [];
   }
+}
+
+// ─── Schedule derivation from availability slots ─────────────
+
+const DAY_NAMES_ES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+interface AvailabilitySlot {
+  doctor_id: string;
+  date: string;
+  time_slot: string;
+}
+
+/**
+ * Fetches doctor_availability rows for the next 14 days and derives
+ * a compact weekly schedule (day + start + end) per doctor.
+ */
+async function fetchDoctorSchedules(
+  doctorIds: string[],
+): Promise<Record<string, DoctorScheduleEntry[]>> {
+  const result: Record<string, DoctorScheduleEntry[]> = {};
+  try {
+    const sb = await getSupabase();
+    const today = new Date();
+    const future = new Date(today);
+    future.setDate(future.getDate() + 14);
+    const todayStr = today.toISOString().slice(0, 10);
+    const futureStr = future.toISOString().slice(0, 10);
+
+    const { data: slots, error } = await sb
+      .from("doctor_availability")
+      .select("doctor_id, date, time_slot")
+      .in("doctor_id", doctorIds)
+      .gte("date", todayStr)
+      .lte("date", futureStr)
+      .order("time_slot", { ascending: true });
+
+    if (error || !slots) return result;
+
+    // Group by doctor_id → day-of-week → list of time_slot strings
+    const byDoctor: Record<string, Record<number, string[]>> = {};
+    for (const raw of slots) {
+      const slot = raw as unknown as AvailabilitySlot;
+      const d = new Date(slot.date + "T00:00:00");
+      const dow = d.getDay(); // 0=Sun..6=Sat
+      const docEntry = byDoctor[slot.doctor_id] ?? (byDoctor[slot.doctor_id] = {});
+      const dayEntry = docEntry[dow] ?? (docEntry[dow] = []);
+      dayEntry.push(String(slot.time_slot));
+    }
+
+    // Derive start/end per day for each doctor
+    for (const docId of Object.keys(byDoctor)) {
+      const dayMap = byDoctor[docId] ?? {};
+      const entries: DoctorScheduleEntry[] = [];
+      for (const dayStr of Object.keys(dayMap)) {
+        const day = Number(dayStr);
+        const times = dayMap[day] ?? [];
+        const unique = Array.from(new Set(times)).sort();
+        if (unique.length === 0) continue;
+        const first = unique[0] ?? "00:00";
+        const last = unique[unique.length - 1] ?? first;
+        entries.push({
+          day,
+          start: first.slice(0, 5),
+          end: last.slice(0, 5),
+        });
+      }
+      entries.sort((a, b) => a.day - b.day);
+      result[docId] = entries;
+    }
+  } catch {
+    // Non-fatal — return what we have
+  }
+  return result;
+}
+
+/**
+ * Format a doctor's schedule into a compact display string.
+ * e.g. "Lun 14:30–16:30 · Jue 10:00–12:00"
+ */
+export function formatDoctorSchedule(schedule?: DoctorScheduleEntry[]): string {
+  if (!schedule || schedule.length === 0) return "";
+  return schedule.map((s) => `${DAY_NAMES_ES[s.day]} ${s.start}–${s.end}`).join(" · ");
 }
 
 function mapDoctor(r: Record<string, unknown>): Doctor {

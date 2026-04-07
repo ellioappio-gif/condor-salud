@@ -49,19 +49,16 @@ export async function POST(request: NextRequest) {
     const { nombre, dni, email, telefono, fechaNacimiento, direccion, financiador, plan, notas } =
       parsed.data;
 
-    // Insert into Supabase
-    const { isSupabaseConfigured } = await import("@/lib/env");
-    if (!isSupabaseConfigured()) {
+    // Insert into Supabase using the shared service-role client.
+    // Our custom auth (condor_session) doesn't create Supabase sessions,
+    // so the anon-key client is blocked by RLS.
+    const { getServiceClient } = await import("@/lib/supabase/service");
+    let supabase;
+    try {
+      supabase = getServiceClient();
+    } catch {
       return NextResponse.json({ error: "Base de datos no configurada" }, { status: 503 });
     }
-
-    // Use service role client — our custom auth (condor_session) doesn't
-    // create Supabase sessions, so the anon-key client is blocked by RLS.
-    const { createClient: createSupa } = await import("@supabase/supabase-js");
-    const supabase = createSupa(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    );
 
     const { data, error } = await supabase
       .from("pacientes")

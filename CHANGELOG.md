@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.1] — 2026-04-04
+
+### Fixed
+
+- **Receptionist patient save** — Replaced inline Supabase client creation in `/api/dashboard/patients` with the shared `getServiceClient()` from `@/lib/supabase/service`. The old code silently created an anon-key client if `SUPABASE_SERVICE_ROLE_KEY` was missing, causing RLS to block inserts. The shared module validates the key exists and throws a clear error.
+
+### Added
+
+- **Doctor dropdown with hours of operation** — The agenda's "New Appointment" modal and professional filter chips now show each doctor's weekly schedule (e.g. "Lun 14:30–16:30 · Jue 10:00–12:00"). Hours are derived from `doctor_availability` slots over the next 14 days. Selecting a professional in the filter shows a schedule banner. The dropdown options include hours inline.
+- **`DoctorScheduleEntry` type** — New type in `types.ts` for structured day/start/end schedule entries.
+- **`formatDoctorSchedule()` helper** — Exported from `directorio.ts` for compact schedule display strings.
+- **Schedule enrichment in `getDoctors()`** — Directorio service now fetches `doctor_availability` slots and attaches a `schedule` array to each `Doctor` object.
+
 ## [0.21.0] — 2026-04-03
 
 ### Added

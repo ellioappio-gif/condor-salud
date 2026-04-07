@@ -199,6 +199,15 @@ export interface Consultation {
 
 // ─── Module 13: Directorio Médico ────────────────────────────
 
+export interface DoctorScheduleEntry {
+  /** Day of week: 0=Sun, 1=Mon … 6=Sat */
+  day: number;
+  /** e.g. "09:00" */
+  start: string;
+  /** e.g. "14:00" */
+  end: string;
+}
+
 export interface Doctor {
   id: string;
   name: string;
@@ -219,6 +228,8 @@ export interface Doctor {
   source?: "local" | "google_places";
   /** Doctor photo URL (Google Places proxy or database) */
   photoUrl?: string;
+  /** Weekly schedule derived from doctor_availability slots */
+  schedule?: DoctorScheduleEntry[];
 }
 
 export interface DoctorReview {
