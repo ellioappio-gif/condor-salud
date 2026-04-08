@@ -117,13 +117,29 @@ export default function ReportesPage() {
                 className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition bg-white text-ink"
               >
                 {(() => {
-                  const y = new Date().getFullYear();
-                  const months = ["Marzo", "Febrero", "Enero"];
-                  return months.map((m) => (
-                    <option key={m}>
-                      {m} {y}
-                    </option>
-                  ));
+                  const now = new Date();
+                  const y = now.getFullYear();
+                  const meses = [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre",
+                  ];
+                  // Show current month + 5 previous months
+                  const months: string[] = [];
+                  for (let i = 0; i < 6; i++) {
+                    const d = new Date(y, now.getMonth() - i, 1);
+                    months.push(`${meses[d.getMonth()]} ${d.getFullYear()}`);
+                  }
+                  return months.map((m) => <option key={m}>{m}</option>);
                 })()}
                 <option>Q1 {new Date().getFullYear()}</option>
                 <option>

@@ -143,6 +143,7 @@ export async function updateFactura(id: string, input: UpdateFacturaInput): Prom
     if (input.fechaPresentacion) updates.fecha_presentacion = input.fechaPresentacion;
     if (input.fechaCobro) updates.fecha_cobro = input.fechaCobro;
     if (input.cae) updates.cae = input.cae;
+    if (input.notas !== undefined) updates.notas = input.notas;
 
     const { data, error } = await (sb as SupabaseClient)
       .from("facturas")
@@ -213,5 +214,6 @@ function mapFacturaFromDB(row: DBRow): Factura {
     fechaPresentacion: row.fecha_presentacion ?? undefined,
     fechaCobro: row.fecha_cobro ?? undefined,
     cae: row.cae ?? undefined,
+    notas: row.notas ?? undefined,
   };
 }

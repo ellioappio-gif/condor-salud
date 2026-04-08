@@ -93,12 +93,12 @@ export default function ClinicaConfigPage() {
         .from("clinics")
         .update({
           name: name.trim(),
-          cuit: cuit.trim() || undefined,
-          phone: phone.trim() || undefined,
-          email: email.trim() || undefined,
-          address: address.trim() || undefined,
+          cuit: cuit.trim() || null,
+          phone: phone.trim() || null,
+          email: email.trim() || null,
+          address: address.trim() || null,
           updated_at: new Date().toISOString(),
-        })
+        } as any)
         .eq("id", clinic.id);
 
       if (updateErr) {

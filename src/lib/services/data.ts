@@ -703,6 +703,7 @@ export interface Turno {
   fecha?: string;
   hora: string;
   paciente: string;
+  pacienteId?: string;
   tipo: string;
   financiador: string;
   profesional: string;
@@ -712,9 +713,20 @@ export interface Turno {
   durationMin?: number;
 }
 
+// Demo date helper: spread turnos across the current week (Mon–Sat)
+const _demoToday = new Date();
+const _demoMonday = new Date(_demoToday);
+_demoMonday.setDate(_demoToday.getDate() - ((_demoToday.getDay() + 6) % 7));
+const _demoISO = (offset: number) => {
+  const d = new Date(_demoMonday);
+  d.setDate(_demoMonday.getDate() + offset);
+  return d.toISOString().split("T")[0];
+};
+
 const TURNOS: Turno[] = [
   {
     id: "t1",
+    fecha: _demoISO(0),
     hora: "08:00",
     paciente: "María García",
     tipo: "Consulta clínica",
@@ -724,6 +736,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t2",
+    fecha: _demoISO(0),
     hora: "08:30",
     paciente: "Carlos López",
     tipo: "Electrocardiograma",
@@ -733,6 +746,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t3",
+    fecha: _demoISO(1),
     hora: "09:00",
     paciente: "Ana Martínez",
     tipo: "Control",
@@ -742,6 +756,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t4",
+    fecha: _demoISO(1),
     hora: "09:30",
     paciente: "Roberto Sánchez",
     tipo: "Ecografía",
@@ -751,6 +766,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t5",
+    fecha: _demoISO(2),
     hora: "10:00",
     paciente: "Lucía Fernández",
     tipo: "Consulta",
@@ -760,6 +776,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t6",
+    fecha: _demoISO(2),
     hora: "10:30",
     paciente: "Diego Rodríguez",
     tipo: "Radiografía",
@@ -769,6 +786,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t7",
+    fecha: _demoISO(3),
     hora: "11:00",
     paciente: "Valentina Pérez",
     tipo: "RMN",
@@ -778,6 +796,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t8",
+    fecha: _demoISO(3),
     hora: "11:30",
     paciente: "Martín Gómez",
     tipo: "Consulta",
@@ -787,6 +806,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t9",
+    fecha: _demoISO(0),
     hora: "12:00",
     paciente: "Sofía Torres",
     tipo: "Cardiología",
@@ -796,6 +816,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t10",
+    fecha: _demoISO(4),
     hora: "14:00",
     paciente: "Facundo Díaz",
     tipo: "Laboratorio",
@@ -805,6 +826,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t11",
+    fecha: _demoISO(4),
     hora: "14:30",
     paciente: "Camila Ruiz",
     tipo: "Consulta",
@@ -815,6 +837,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t12",
+    fecha: _demoISO(0),
     hora: "15:00",
     paciente: "Tomás Herrera",
     tipo: "Control post-op",
@@ -824,6 +847,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t13",
+    fecha: _demoISO(5),
     hora: "15:30",
     paciente: "Laura Méndez",
     tipo: "Nutrición",
@@ -833,6 +857,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t14",
+    fecha: _demoISO(5),
     hora: "16:00",
     paciente: "Pedro Acosta",
     tipo: "TAC",
@@ -842,6 +867,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t15",
+    fecha: _demoISO(1),
     hora: "16:30",
     paciente: "Jorge Gutiérrez",
     tipo: "Kinesiología",
@@ -851,6 +877,7 @@ const TURNOS: Turno[] = [
   },
   {
     id: "t16",
+    fecha: _demoISO(2),
     hora: "17:00",
     paciente: "Claudia Vega",
     tipo: "Mamografía",

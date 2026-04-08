@@ -174,21 +174,25 @@ export default function AgendaPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   // Merge Google Calendar events as virtual turnos
-  const gCalTurnos: Turno[] = gCalEvents.map((e) => ({
-    id: `gcal-${e.id}`,
-    hora: e.start
-      ? new Date(e.start).toLocaleTimeString(locale === "en" ? "en-US" : "es-AR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "",
-    paciente: e.title,
-    tipo: e.meetLink ? "Teleconsulta" : "Google Calendar",
-    financiador: "",
-    profesional: "",
-    estado: "confirmado" as const,
-    notas: e.meetLink ? `Meet: ${e.meetLink}` : undefined,
-  }));
+  const gCalTurnos: Turno[] = gCalEvents.map((e) => {
+    const startDate = e.start ? new Date(e.start) : null;
+    return {
+      id: `gcal-${e.id}`,
+      fecha: startDate ? startDate.toISOString().split("T")[0] : undefined,
+      hora: startDate
+        ? startDate.toLocaleTimeString(locale === "en" ? "en-US" : "es-AR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "",
+      paciente: e.title,
+      tipo: e.meetLink ? "Teleconsulta" : "Google Calendar",
+      financiador: "",
+      profesional: "",
+      estado: "confirmado" as const,
+      notas: e.meetLink ? `Meet: ${e.meetLink}` : undefined,
+    };
+  });
 
   const allTurnos = [...(turnos ?? []), ...gCalTurnos];
   const filtered = profFilter
@@ -202,6 +206,13 @@ export default function AgendaPage() {
   const hoy = new Date();
   const lunes = new Date(hoy);
   lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
+
+  // ISO date strings for each column (Mon–Sat): YYYY-MM-DD
+  const isoFechas = localeDays.map((_, i) => {
+    const d = new Date(lunes);
+    d.setDate(lunes.getDate() + i);
+    return d.toISOString().split("T")[0];
+  });
 
   const fechasDias = localeDays.map((_, i) => {
     const d = new Date(lunes);
@@ -222,10 +233,10 @@ export default function AgendaPage() {
       const result = await confirmTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast(`${t("schedule.appointmentConfirmed")}`);
+        showToast(`${t("schedule.appointmentConfirmed")}`, "success");
         mutate();
       } else {
-        showToast(`${result.error}`);
+        showToast(`${result.error}`, "error");
       }
     },
     [mutate, showToast, t],
@@ -237,10 +248,10 @@ export default function AgendaPage() {
       const result = await attendTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast(`${t("schedule.patientAttended")}`);
+        showToast(`${t("schedule.patientAttended")}`, "success");
         mutate();
       } else {
-        showToast(`${result.error}`);
+        showToast(`${result.error}`, "error");
       }
     },
     [mutate, showToast, t],
@@ -254,10 +265,10 @@ export default function AgendaPage() {
       const result = await cancelTurno(id);
       setActionLoading(null);
       if (result.success) {
-        showToast(t("schedule.appointmentCancelled"));
+        showToast(t("schedule.appointmentCancelled"), "success");
         mutate();
       } else {
-        showToast(`${result.error}`);
+        showToast(`${result.error}`, "error");
       }
     },
     [mutate, showToast, t],
@@ -270,11 +281,11 @@ export default function AgendaPage() {
       const result = await createTurno(input);
       if (result.success) {
         analytics.track("turno_created");
-        showToast(`${t("schedule.appointmentCreated")}`);
+        showToast(`${t("schedule.appointmentCreated")}`, "success");
         mutate();
         setShowNewModal(false);
       } else {
-        showToast(`${result.error}`);
+        showToast(`${result.error}`, "error");
       }
       return result;
     },
@@ -561,16 +572,17 @@ export default function AgendaPage() {
             </thead>
             <tbody>
               {horas.map((hora) => {
-                const matching = filtered.filter((t: Turno) => t.hora === hora);
                 return (
                   <tr key={hora} className="border-t border-border-light hover:bg-[#FCFCFD]">
                     <td className="px-3 py-1.5 text-[10px] font-mono text-ink-muted text-center">
                       {hora}
                     </td>
-                    {diasSemana.map((_, di) => {
-                      const turno = matching[di % Math.max(matching.length, 1)];
-                      if (!turno || di >= matching.length)
-                        return <td key={di} className="px-1 py-1" />;
+                    {localeDays.map((_, di) => {
+                      const dayISO = isoFechas[di];
+                      const turno = filtered.find(
+                        (t: Turno) => t.hora === hora && t.fecha === dayISO,
+                      );
+                      if (!turno) return <td key={di} className="px-1 py-1" />;
                       return (
                         <td key={di} className="px-1 py-1">
                           <div

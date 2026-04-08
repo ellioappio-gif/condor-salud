@@ -9,9 +9,36 @@ import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
+/* ── Auth helper ──────────────────────────────────────── */
+
+async function requireAuth(): Promise<
+  { user: { id: string; role?: string }; error?: never } | { user?: never; error: NextResponse }
+> {
+  if (!isSupabaseConfigured()) {
+    // Demo mode — allow through
+    return { user: { id: "demo" } };
+  }
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const sb = createClient();
+    const {
+      data: { user },
+    } = await sb.auth.getUser();
+    if (!user) {
+      return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+    }
+    return { user: { id: user.id, role: user.user_metadata?.role } };
+  } catch {
+    return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  }
+}
+
 /* ── GET — list availability for a doctor ─────────────── */
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth();
+  if (auth.error) return auth.error;
+
   const doctorId = req.nextUrl.searchParams.get("doctorId");
   const weekStart = req.nextUrl.searchParams.get("weekStart"); // YYYY-MM-DD
 
@@ -46,6 +73,9 @@ export async function GET(req: NextRequest) {
 /* ── POST — create availability slots (bulk) ──────────── */
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth();
+  if (auth.error) return auth.error;
+
   try {
     const body = await req.json();
     const { doctorId, date, timeSlots } = body as {
@@ -93,6 +123,9 @@ export async function POST(req: NextRequest) {
 /* ── DELETE — remove an availability slot ─────────────── */
 
 export async function DELETE(req: NextRequest) {
+  const auth = await requireAuth();
+  if (auth.error) return auth.error;
+
   try {
     const body = await req.json();
     const { slotId } = body as { slotId: string };

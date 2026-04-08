@@ -18,7 +18,7 @@ import {
 import { useCrudAction } from "@/hooks/use-crud-action";
 import { useIsDemo, useAuth } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
-import { usePacientes } from "@/hooks/use-data";
+import { usePacientes, useTurnos } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
 import { analytics } from "@/lib/analytics";
 
@@ -128,24 +128,54 @@ export default function PacientesPage() {
 
   // Patient data: real from Supabase or demo
   const { data: realPacientes, mutate: mutatePacientes } = usePacientes();
+  const { data: allTurnos } = useTurnos();
+
+  // Build a map of paciente_id → turno count for quick lookup
+  const turnoCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    if (allTurnos) {
+      for (const t of allTurnos) {
+        // Match by paciente_id when available, fall back to exact name match
+        const key = (t as any).pacienteId ?? t.paciente;
+        if (key) map.set(key, (map.get(key) ?? 0) + 1);
+      }
+    }
+    return map;
+  }, [allTurnos]);
+
   const pacientes = useMemo((): PacienteDisplay[] => {
     if (!realPacientes || realPacientes.length === 0) return [];
-    return realPacientes.map((p) => ({
-      id: p.id,
-      nombre: p.nombre?.split(" ")[0] ?? "",
-      apellido: p.nombre?.split(" ").slice(1).join(" ") ?? "",
-      dni: p.dni,
-      edad: 0,
-      sexo: "—",
-      financiador: p.financiador,
-      plan: p.plan ?? "—",
-      telefono: p.telefono ?? "—",
-      email: p.email ?? null,
-      ultimaVisita: p.ultimaVisita ?? "—",
-      estado: p.estado as "activo" | "inactivo",
-      turnos: 0,
-    }));
-  }, [realPacientes]);
+    return realPacientes.map((p) => {
+      // Calculate age from fechaNacimiento
+      let edad = 0;
+      if (p.fechaNacimiento) {
+        const birth = new Date(p.fechaNacimiento);
+        if (!isNaN(birth.getTime())) {
+          edad = Math.floor((Date.now() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+          if (edad < 0) edad = 0;
+        }
+      }
+
+      // Count turnos for this patient
+      const turnoCount = turnoCountMap.get(p.id) ?? turnoCountMap.get(p.nombre) ?? 0;
+
+      return {
+        id: p.id,
+        nombre: p.nombre?.split(" ")[0] ?? "",
+        apellido: p.nombre?.split(" ").slice(1).join(" ") ?? "",
+        dni: p.dni,
+        edad,
+        sexo: "—",
+        financiador: p.financiador,
+        plan: p.plan ?? "—",
+        telefono: p.telefono ?? "—",
+        email: p.email ?? null,
+        ultimaVisita: p.ultimaVisita ?? "—",
+        estado: p.estado as "activo" | "inactivo",
+        turnos: turnoCount,
+      };
+    });
+  }, [realPacientes, turnoCountMap]);
 
   // Patient filters
   const [search, setSearch] = useState("");

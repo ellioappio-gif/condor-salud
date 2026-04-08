@@ -74,6 +74,7 @@ function mapFactura(row: FacturaRow): Factura {
     fechaPresentacion: row.fecha_presentacion ?? undefined,
     fechaCobro: row.fecha_cobro ?? undefined,
     cae: row.cae ?? undefined,
+    notas: (row as any).notas ?? undefined,
   };
 }
 
@@ -139,6 +140,7 @@ function mapTurno(row: TurnoRow): Turno {
     fecha: row.fecha,
     hora: row.hora,
     paciente: row.paciente,
+    pacienteId: row.paciente_id ?? undefined,
     tipo: row.tipo,
     financiador: row.financiador,
     profesional: row.profesional,

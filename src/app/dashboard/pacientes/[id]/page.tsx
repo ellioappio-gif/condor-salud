@@ -11,6 +11,7 @@ import { usePacientes, useTurnos, useFacturas } from "@/hooks/use-data";
 import { EmptyState, TableSkeleton } from "@/components/ui";
 import { Users, Calendar, FileText } from "lucide-react";
 import type { Paciente } from "@/lib/services/data";
+import { formatCurrency } from "@/lib/utils";
 
 // ─── NOTE: No hardcoded patient data. ────────────────────────
 // Real patient details come from usePacientes() via Supabase.
@@ -35,12 +36,16 @@ export default function PacienteDetailPage({ params }: { params: Promise<{ id: s
 
   const paciente = allPacientes?.find((p) => p.id === id);
   const turnosPaciente =
-    allTurnos?.filter((t) =>
-      t.paciente?.toLowerCase().includes(paciente?.nombre?.split(" ")[0]?.toLowerCase() ?? "___"),
+    allTurnos?.filter(
+      (t) =>
+        t.pacienteId === id ||
+        (!t.pacienteId && t.paciente?.toLowerCase() === paciente?.nombre?.toLowerCase()),
     ) ?? [];
   const facturasPaciente =
-    allFacturas?.filter((f) =>
-      f.paciente?.toLowerCase().includes(paciente?.nombre?.split(" ")[0]?.toLowerCase() ?? "___"),
+    allFacturas?.filter(
+      (f) =>
+        (f as any).pacienteId === id ||
+        f.paciente?.toLowerCase() === paciente?.nombre?.toLowerCase(),
     ) ?? [];
 
   const isLoading = loadingPacientes || loadingTurnos || loadingFacturas;
@@ -341,7 +346,7 @@ export default function PacienteDetailPage({ params }: { params: Promise<{ id: s
                 <tr key={i} className="border-t border-border-light">
                   <td className="px-5 py-3 text-xs font-semibold text-ink">{f.financiador}</td>
                   <td className="px-5 py-3 text-xs text-ink-light">{f.paciente}</td>
-                  <td className="px-5 py-3 text-right text-ink">{f.monto}</td>
+                  <td className="px-5 py-3 text-right text-ink">{formatCurrency(f.monto)}</td>
                   <td className="px-5 py-3 text-center">
                     <span
                       className={`px-2 py-0.5 text-[10px] font-bold rounded ${

@@ -195,7 +195,7 @@ export async function checkConflict(
     let query = sb
       .from("turnos")
       .select("*")
-      .eq("profesional", profesionalId)
+      .eq("profesional_id", profesionalId)
       .eq("fecha", fecha)
       .eq("hora", hora)
       .neq("estado", "cancelado");
@@ -337,6 +337,7 @@ export async function createTurno(
         fecha: data.fecha,
         hora: data.hora,
         paciente: data.paciente,
+        pacienteId: data.paciente_id ?? undefined,
         tipo: data.tipo,
         financiador: data.financiador,
         profesional: data.profesional,
@@ -500,6 +501,7 @@ export async function getTurnosByDateRange(startDate: string, endDate: string): 
       fecha: row.fecha,
       hora: row.hora,
       paciente: row.paciente,
+      pacienteId: row.paciente_id ?? undefined,
       tipo: row.tipo,
       financiador: row.financiador,
       profesional: row.profesional,
@@ -542,6 +544,7 @@ export async function getTurnosByProfessional(
       fecha: row.fecha,
       hora: row.hora,
       paciente: row.paciente,
+      pacienteId: row.paciente_id ?? undefined,
       tipo: row.tipo,
       financiador: row.financiador,
       profesional: row.profesional,

@@ -61,6 +61,7 @@ export interface Factura {
   fechaPresentacion?: string;
   fechaCobro?: string;
   cae?: string;
+  notas?: string;
 }
 
 export interface Rechazo {
