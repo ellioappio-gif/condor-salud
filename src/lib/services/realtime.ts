@@ -142,15 +142,15 @@ export function useRealtimeAlerts(initialAlerts: Alerta[] = []): RealtimeAlertSt
 
   // Mark all alerts as read
   const markAllAsRead = useCallback(async () => {
+    // Compute unread IDs BEFORE updating the set — otherwise filter returns []
+    const unreadIds = alerts.filter((a) => !readSetRef.current.has(a.id)).map((a) => a.id);
+
     alerts.forEach((a) => readSetRef.current.add(a.id));
     setUnreadCount(0);
 
-    if (isSupabaseConfigured()) {
+    if (isSupabaseConfigured() && unreadIds.length > 0) {
       const supabase = createClient();
-      const unreadIds = alerts.filter((a) => !readSetRef.current.has(a.id)).map((a) => a.id);
-      if (unreadIds.length > 0) {
-        await supabase.from("alertas").update({ read: true }).in("id", unreadIds);
-      }
+      await supabase.from("alertas").update({ read: true }).in("id", unreadIds);
     }
   }, [alerts]);
 

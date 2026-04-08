@@ -127,13 +127,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const { createClient } = await import("@/lib/supabase/client");
           const supabase = createClient();
 
-          // Get current session
+          // Get current authenticated user (server-validated, not local storage)
           const {
-            data: { session },
-          } = await supabase.auth.getSession();
+            data: { user: authUser },
+          } = await supabase.auth.getUser();
 
-          if (session?.user) {
-            const user = await resolveProfile(supabase, session.user);
+          if (authUser) {
+            const user = await resolveProfile(supabase, authUser);
             if (!cancelled) {
               setState({ user, isLoading: false, isAuthenticated: true });
             }

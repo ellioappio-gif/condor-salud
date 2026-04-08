@@ -127,20 +127,21 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Demo mode: dashboard is publicly accessible ──────────
-  // The dashboard runs in demo mode with synthetic data.
-  // When real clinics onboard, re-enable the Supabase auth gates below.
-  if (pathname.startsWith("/dashboard")) {
+  // Only bypass auth when Supabase is NOT configured (pure demo).
+  // When Supabase is ready, fall through to the auth gates below.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const isSupabaseReady =
+    supabaseUrl &&
+    supabaseUrl !== "https://your-project.supabase.co" &&
+    supabaseUrl !== "https://placeholder.supabase.co";
+
+  if (pathname.startsWith("/dashboard") && !isSupabaseReady) {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
     response.headers.set("Content-Security-Policy", cspHeader);
     return response;
   }
 
   // ── Supabase auth (when configured) ──────────────────────
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const isSupabaseReady =
-    supabaseUrl &&
-    supabaseUrl !== "https://your-project.supabase.co" &&
-    supabaseUrl !== "https://placeholder.supabase.co";
 
   if (isSupabaseReady) {
     try {
