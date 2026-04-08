@@ -700,6 +700,7 @@ const ALERTAS: Alerta[] = [
 // ─── Agenda / Turnos ─────────────────────────────────────────
 export interface Turno {
   id: string;
+  fecha?: string;
   hora: string;
   paciente: string;
   tipo: string;

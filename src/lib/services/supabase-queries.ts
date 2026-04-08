@@ -136,6 +136,7 @@ function mapAlerta(row: AlertaRow): Alerta {
 function mapTurno(row: TurnoRow): Turno {
   return {
     id: row.id,
+    fecha: row.fecha,
     hora: row.hora,
     paciente: row.paciente,
     tipo: row.tipo,

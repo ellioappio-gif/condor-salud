@@ -286,6 +286,19 @@ export async function createTurno(
     } = await sb.auth.getUser();
     const clinicId = user?.user_metadata?.clinic_id ?? "demo-clinic";
 
+    // Resolve paciente_id if not already provided
+    let pacienteId = input.pacienteId ?? null;
+    if (!pacienteId && input.paciente?.trim()) {
+      const { data: match } = await sb
+        .from("pacientes")
+        .select("id")
+        .eq("clinic_id", clinicId)
+        .ilike("nombre", input.paciente.trim())
+        .limit(1)
+        .single();
+      if (match) pacienteId = match.id;
+    }
+
     const { data, error } = await sb
       .from("turnos")
       .insert({
@@ -293,9 +306,11 @@ export async function createTurno(
         fecha: input.fecha,
         hora: input.hora,
         paciente: input.paciente,
+        paciente_id: pacienteId,
         tipo: input.tipo,
         financiador: input.financiador,
         profesional: input.profesional,
+        profesional_id: input.profesionalId ?? null,
         estado: "pendiente",
         notas: input.notas ?? null,
         duration_min: input.durationMin ?? DEFAULT_SLOT_DURATION,
@@ -319,6 +334,7 @@ export async function createTurno(
       success: true,
       turno: {
         id: data.id,
+        fecha: data.fecha,
         hora: data.hora,
         paciente: data.paciente,
         tipo: data.tipo,
@@ -335,6 +351,7 @@ export async function createTurno(
   await delay(200);
   const newTurno: Turno = {
     id: `t-${Date.now()}`,
+    fecha: input.fecha,
     hora: input.hora,
     paciente: input.paciente,
     tipo: input.tipo,
@@ -480,6 +497,7 @@ export async function getTurnosByDateRange(startDate: string, endDate: string): 
 
     return (data ?? []).map((row) => ({
       id: row.id,
+      fecha: row.fecha,
       hora: row.hora,
       paciente: row.paciente,
       tipo: row.tipo,
@@ -521,6 +539,7 @@ export async function getTurnosByProfessional(
 
     return (data ?? []).map((row) => ({
       id: row.id,
+      fecha: row.fecha,
       hora: row.hora,
       paciente: row.paciente,
       tipo: row.tipo,
