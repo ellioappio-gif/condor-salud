@@ -16,7 +16,7 @@ import type { Turno } from "@/lib/services/data";
 import { useTurnos } from "@/hooks/use-data";
 import { useDoctors } from "@/lib/hooks/useModules";
 import { formatDoctorSchedule } from "@/lib/services/directorio";
-import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download } from "lucide-react";
+import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download, UserRound } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui";
 import { analytics } from "@/lib/analytics";
 
@@ -802,6 +802,61 @@ function NewTurnoModal({
             </div>
           )}
 
+          {/* ── Professional — primary decision for receptionist ── */}
+          <div className="bg-celeste-pale/20 border border-celeste-light/60 rounded-lg p-4">
+            <label className="flex items-center gap-1.5 text-xs font-bold text-celeste-dark uppercase tracking-wider mb-2">
+              <UserRound className="w-3.5 h-3.5" />
+              {t("label.professional")}
+            </label>
+            {profesionales.length > 6 && (
+              <input
+                type="text"
+                placeholder={locale === "en" ? "Search doctor..." : "Buscar profesional..."}
+                value={profSearch}
+                onChange={(e) => setProfSearch(e.target.value)}
+                className="w-full px-3 py-1.5 mb-1.5 border border-border rounded-[4px] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
+              />
+            )}
+            <select
+              value={form.profesionalId}
+              onChange={(e) => {
+                const prof = profesionales.find((p) => p.id === e.target.value);
+                setForm({
+                  ...form,
+                  profesionalId: e.target.value,
+                  profesional: prof?.nombre ?? e.target.value,
+                });
+              }}
+              className="w-full px-3 py-2.5 border border-celeste-light rounded-[4px] text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
+            >
+              <option value="">
+                {locale === "en" ? "— Select professional —" : "— Seleccionar profesional —"}
+              </option>
+              {filteredProfs.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre} — {p.especialidad}
+                  {p.horario ? ` (${p.horario})` : ""}
+                </option>
+              ))}
+            </select>
+            {form.profesionalId &&
+              (() => {
+                const sel = profesionales.find((p) => p.id === form.profesionalId);
+                if (!sel?.horario) return null;
+                return (
+                  <div className="mt-2 px-3 py-2 bg-white border border-celeste-light rounded text-xs text-ink-light flex items-start gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-celeste-dark flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-semibold text-ink">
+                        {locale === "en" ? "Hours:" : "Horarios:"}
+                      </span>{" "}
+                      {sel.horario}
+                    </div>
+                  </div>
+                );
+              })()}
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
@@ -832,73 +887,18 @@ function NewTurnoModal({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-              {t("label.patient")}
-            </label>
-            <input
-              type="text"
-              placeholder={t("schedule.patientNamePlaceholder")}
-              value={form.paciente}
-              onChange={(e) => setForm({ ...form, paciente: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
-            />
-          </div>
-
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
-                {t("label.professional")}
+                {t("label.patient")}
               </label>
-              {/* Search filter for long doctor lists */}
-              {profesionales.length > 6 && (
-                <input
-                  type="text"
-                  placeholder={locale === "en" ? "Search doctor..." : "Buscar profesional..."}
-                  value={profSearch}
-                  onChange={(e) => setProfSearch(e.target.value)}
-                  className="w-full px-3 py-1.5 mb-1 border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
-                />
-              )}
-              <select
-                value={form.profesionalId}
-                onChange={(e) => {
-                  const prof = profesionales.find((p) => p.id === e.target.value);
-                  setForm({
-                    ...form,
-                    profesionalId: e.target.value,
-                    profesional: prof?.nombre ?? e.target.value,
-                  });
-                }}
+              <input
+                type="text"
+                placeholder={t("schedule.patientNamePlaceholder")}
+                value={form.paciente}
+                onChange={(e) => setForm({ ...form, paciente: e.target.value })}
                 className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
-              >
-                <option value="">
-                  {locale === "en" ? "— Select professional —" : "— Seleccionar profesional —"}
-                </option>
-                {filteredProfs.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre} — {p.especialidad}
-                    {p.horario ? ` (${p.horario})` : ""}
-                  </option>
-                ))}
-              </select>
-              {/* Schedule detail card for selected professional */}
-              {form.profesionalId &&
-                (() => {
-                  const sel = profesionales.find((p) => p.id === form.profesionalId);
-                  if (!sel?.horario) return null;
-                  return (
-                    <div className="mt-1.5 px-3 py-2 bg-celeste-pale/30 border border-celeste-light rounded text-xs text-ink-light flex items-start gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-celeste-dark flex-shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-semibold text-ink">
-                          {locale === "en" ? "Hours:" : "Horarios:"}
-                        </span>{" "}
-                        {sel.horario}
-                      </div>
-                    </div>
-                  );
-                })()}
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
