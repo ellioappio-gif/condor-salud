@@ -849,6 +849,7 @@ function NewTurnoModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [profSearch, setProfSearch] = useState("");
+  const [profDropdownOpen, setProfDropdownOpen] = useState(false);
   /** Whether the receptionist manually changed the duration (override mode) */
   const [durationOverridden, setDurationOverridden] = useState(false);
 
@@ -979,43 +980,93 @@ function NewTurnoModal({
             </div>
           )}
 
-          {/* ── Professional — primary decision for receptionist ── */}
+          {/* ── Professional — autocomplete text field ── */}
           <div className="bg-celeste-pale/20 border border-celeste-light/60 rounded-lg p-4">
             <label className="flex items-center gap-1.5 text-xs font-bold text-celeste-dark uppercase tracking-wider mb-2">
               <UserRound className="w-3.5 h-3.5" />
               {t("label.professional")}
             </label>
-            {profesionales.length > 6 && (
+            <div className="relative">
               <input
                 type="text"
-                placeholder={locale === "en" ? "Search doctor..." : "Buscar profesional..."}
+                placeholder={
+                  locale === "en"
+                    ? "Type to search doctor..."
+                    : "Escriba para buscar profesional..."
+                }
                 value={profSearch}
-                onChange={(e) => setProfSearch(e.target.value)}
-                className="w-full px-3 py-1.5 mb-1.5 border border-border rounded-[4px] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
+                onChange={(e) => {
+                  setProfSearch(e.target.value);
+                  setProfDropdownOpen(true);
+                  // Clear selection if text no longer matches
+                  if (form.profesionalId) {
+                    const sel = profesionales.find((p) => p.id === form.profesionalId);
+                    if (
+                      sel &&
+                      !`${sel.nombre} — ${sel.especialidad}`
+                        .toLowerCase()
+                        .includes(e.target.value.toLowerCase())
+                    ) {
+                      setForm({ ...form, profesionalId: "", profesional: "" });
+                    }
+                  }
+                }}
+                onFocus={() => setProfDropdownOpen(true)}
+                onBlur={() => {
+                  // Delay to allow click on dropdown item
+                  setTimeout(() => setProfDropdownOpen(false), 200);
+                }}
+                className={`w-full px-3 py-2.5 border rounded-[4px] text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark ${
+                  form.profesionalId ? "border-green-400 bg-green-50/30" : "border-celeste-light"
+                }`}
               />
-            )}
-            <select
-              value={form.profesionalId}
-              onChange={(e) => {
-                const prof = profesionales.find((p) => p.id === e.target.value);
-                setForm({
-                  ...form,
-                  profesionalId: e.target.value,
-                  profesional: prof?.nombre ?? e.target.value,
-                });
-              }}
-              className="w-full px-3 py-2.5 border border-celeste-light rounded-[4px] text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
-            >
-              <option value="">
-                {locale === "en" ? "— Select professional —" : "— Seleccionar profesional —"}
-              </option>
-              {filteredProfs.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nombre} — {p.especialidad}
-                  {p.horario ? ` (${p.horario})` : ""}
-                </option>
-              ))}
-            </select>
+              {form.profesionalId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfSearch("");
+                    setForm({ ...form, profesionalId: "", profesional: "" });
+                    setProfDropdownOpen(false);
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-ink-muted hover:text-ink transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+              {profDropdownOpen && !form.profesionalId && (
+                <div className="absolute z-50 mt-1 w-full bg-white border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                  {filteredProfs.length === 0 ? (
+                    <div className="px-3 py-2 text-xs text-ink-muted">
+                      {locale === "en"
+                        ? "No professionals found"
+                        : "No se encontraron profesionales"}
+                    </div>
+                  ) : (
+                    filteredProfs.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setProfSearch(`${p.nombre} — ${p.especialidad}`);
+                          setForm({ ...form, profesionalId: p.id, profesional: p.nombre });
+                          setProfDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-celeste-pale/40 transition flex items-center justify-between gap-2 border-b border-border/50 last:border-b-0"
+                      >
+                        <span className="font-medium text-ink">
+                          {p.nombre}{" "}
+                          <span className="text-ink-muted font-normal">— {p.especialidad}</span>
+                        </span>
+                        {p.horario && (
+                          <span className="text-[10px] text-ink-muted shrink-0">{p.horario}</span>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
             {form.profesionalId &&
               (() => {
                 const sel = profesionales.find((p) => p.id === form.profesionalId);
