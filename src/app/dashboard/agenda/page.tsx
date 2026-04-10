@@ -12,8 +12,8 @@ import {
   attendTurno,
   type CreateTurnoInput,
 } from "@/lib/services/turnos";
-import type { Turno } from "@/lib/services/data";
-import { useTurnos } from "@/hooks/use-data";
+import type { Turno, Paciente } from "@/lib/services/data";
+import { useTurnos, usePacientes } from "@/hooks/use-data";
 import { useDoctors } from "@/lib/hooks/useModules";
 import { formatDoctorSchedule } from "@/lib/services/directorio";
 import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download, UserRound } from "lucide-react";
@@ -341,6 +341,7 @@ export default function AgendaPage() {
   const { t, locale } = useLocale();
   const { showToast } = useToast();
   const { data: turnos, isLoading, mutate } = useTurnos();
+  const { data: pacientes } = usePacientes();
   const { data: doctors = [] } = useDoctors();
   const { exportPDF, exportExcel, isExporting } = useExport();
   const { events: gCalEvents } = useGoogleCalendarEvents();
@@ -1018,6 +1019,7 @@ export default function AgendaPage() {
           onClose={() => setShowNewModal(false)}
           onCreate={handleCreate}
           profesionales={profesionales}
+          pacientes={pacientes ?? []}
         />
       )}
 
@@ -1042,16 +1044,21 @@ function NewTurnoModal({
   onClose,
   onCreate,
   profesionales,
+  pacientes,
 }: {
   onClose: () => void;
   onCreate: (input: CreateTurnoInput) => Promise<{ success: boolean; error?: string }>;
   profesionales: Profesional[];
+  pacientes: Paciente[];
 }) {
   const { t, locale } = useLocale();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [profSearch, setProfSearch] = useState("");
   const [profDropdownOpen, setProfDropdownOpen] = useState(false);
+  const [patientSearch, setPatientSearch] = useState("");
+  const [patientDropdownOpen, setPatientDropdownOpen] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   /** Whether the receptionist manually changed the duration (override mode) */
   const [durationOverridden, setDurationOverridden] = useState(false);
 
@@ -1322,13 +1329,103 @@ function NewTurnoModal({
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
                 {t("label.patient")}
               </label>
-              <input
-                type="text"
-                placeholder={t("schedule.patientNamePlaceholder")}
-                value={form.paciente}
-                onChange={(e) => setForm({ ...form, paciente: e.target.value })}
-                className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t("schedule.patientNamePlaceholder")}
+                  value={patientSearch}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPatientSearch(val);
+                    setPatientDropdownOpen(val.length >= 1);
+                    // Clear selection if text no longer matches
+                    if (selectedPatientId) {
+                      const sel = pacientes.find((p) => p.id === selectedPatientId);
+                      if (sel && !sel.nombre.toLowerCase().includes(val.toLowerCase())) {
+                        setSelectedPatientId(null);
+                        setForm((prev) => ({ ...prev, paciente: val, pacienteId: undefined }));
+                      } else {
+                        setForm((prev) => ({ ...prev, paciente: val }));
+                      }
+                    } else {
+                      setForm((prev) => ({ ...prev, paciente: val }));
+                    }
+                  }}
+                  onFocus={() => {
+                    if (patientSearch.length >= 1) setPatientDropdownOpen(true);
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => setPatientDropdownOpen(false), 200);
+                  }}
+                  className={`w-full px-3 py-2 border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark ${
+                    selectedPatientId ? "border-green-400 bg-green-50/30" : "border-border"
+                  }`}
+                />
+                {selectedPatientId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPatientId(null);
+                      setPatientSearch("");
+                      setForm((prev) => ({
+                        ...prev,
+                        paciente: "",
+                        pacienteId: undefined,
+                        financiador: "PAMI",
+                      }));
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-ink-muted hover:text-ink transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                {patientDropdownOpen &&
+                  !selectedPatientId &&
+                  (() => {
+                    const q = patientSearch.toLowerCase();
+                    const matches = pacientes
+                      .filter((p) => p.estado === "activo")
+                      .filter(
+                        (p) =>
+                          p.nombre.toLowerCase().includes(q) ||
+                          p.dni.replace(/\./g, "").includes(q.replace(/\./g, "")),
+                      )
+                      .slice(0, 8);
+                    if (matches.length === 0) return null;
+                    return (
+                      <div className="absolute z-50 mt-1 w-full bg-white border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {matches.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              setSelectedPatientId(p.id);
+                              setPatientSearch(p.nombre);
+                              setPatientDropdownOpen(false);
+                              setForm((prev) => ({
+                                ...prev,
+                                paciente: p.nombre,
+                                pacienteId: p.id,
+                                financiador: p.financiador || prev.financiador,
+                              }));
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-celeste-pale/40 transition border-b border-border/50 last:border-b-0"
+                          >
+                            <span className="font-medium text-ink">{p.nombre}</span>
+                            <span className="text-ink-muted ml-1.5">DNI {p.dni}</span>
+                            {p.financiador && (
+                              <span className="text-[10px] text-celeste-dark ml-2 bg-celeste-pale/40 px-1.5 py-0.5 rounded">
+                                {p.financiador}
+                                {p.plan ? ` · ${p.plan}` : ""}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
+              </div>
             </div>
             <div>
               <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
