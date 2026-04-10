@@ -1,9 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 
-// Mock jose before importing requireAuth
-vi.mock("jose", () => ({
-  jwtVerify: vi.fn(),
+// Mock @supabase/ssr before importing requireAuth
+const mockGetUser = vi.fn();
+vi.mock("@supabase/ssr", () => ({
+  createServerClient: () => ({
+    auth: {
+      getUser: mockGetUser,
+    },
+  }),
 }));
 
 // Mock logger to prevent output
@@ -26,6 +31,9 @@ describe("requireAuth", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.unstubAllEnvs();
+    mockGetUser.mockReset();
+    // Default: Supabase getUser returns no user
+    mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
   });
 
   function makeRequest(cookies: Record<string, string> = {}): NextRequest {
@@ -96,15 +104,35 @@ describe("requireAuth", () => {
   });
 
   it("falls back to supabase auth when no condor_session", async () => {
-    // Without SUPABASE_JWT_SECRET, presence of sb-access-token is trusted
+    // Mock Supabase getUser returning a valid user
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://test.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "test-anon-key");
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "sb-user-123",
+          email: "nicole@clinica.com",
+          user_metadata: {
+            full_name: "Nicole R.",
+            role: "recepcion",
+            clinic_id: "clinic-cmr",
+            clinic_name: "Centro Médico Roca",
+          },
+        },
+      },
+      error: null,
+    });
+
     const { requireAuth } = await import("@/lib/security/require-auth");
-    const req = makeRequest({ "sb-access-token": "some-supabase-token" });
+    const req = makeRequest({ "sb-test-auth-token": "some-supabase-token" });
     const result = await requireAuth(req);
 
-    // Without JWT secret configured, it should trust the cookie
     expect(result.error).toBeUndefined();
     expect(result.user).toBeDefined();
-    expect(result.user?.id).toBe("supabase-user");
+    expect(result.user?.id).toBe("sb-user-123");
+    expect(result.user?.email).toBe("nicole@clinica.com");
+    expect(result.user?.role).toBe("recepcion");
+    expect(result.user?.clinicId).toBe("clinic-cmr");
   });
 
   it("returns user when session has all required fields", async () => {

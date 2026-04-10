@@ -11,7 +11,7 @@
 // S-01: Addresses the audit finding that 9/11 API routes had zero auth.
 
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { createServerClient } from "@supabase/ssr";
 import { logger } from "@/lib/logger";
 
 const SESSION_COOKIE = "condor_session";
@@ -85,53 +85,51 @@ export async function requireAuth(req: NextRequest): Promise<AuthResult> {
   }
 
   // ── 3. Check Supabase session (when configured) ──
-  const supabaseAuth =
-    req.cookies.get("sb-access-token")?.value ||
-    req.cookies.getAll().find((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"))
-      ?.value;
+  // The @supabase/ssr cookie is base64-encoded JSON (possibly chunked),
+  // NOT a raw JWT. We must use the Supabase SDK to parse it correctly.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (supabaseAuth) {
-    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
-    if (jwtSecret) {
-      try {
-        const secret = new TextEncoder().encode(jwtSecret);
-        const { payload } = await jwtVerify(supabaseAuth, secret, {
-          issuer: "supabase",
-        });
-        const meta = (payload.user_metadata ?? payload.app_metadata ?? {}) as Record<
-          string,
-          string
-        >;
+  if (supabaseUrl && supabaseAnonKey) {
+    try {
+      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+          get(name: string) {
+            return req.cookies.get(name)?.value;
+          },
+          set() {
+            // API routes are read-only for cookies
+          },
+          remove() {
+            // API routes are read-only for cookies
+          },
+        },
+      });
+
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (user && !error) {
+        const meta = (user.user_metadata ?? {}) as Record<string, string>;
         return {
           user: {
-            id: payload.sub ?? "unknown",
-            email: (payload.email as string) ?? meta.email ?? "unknown",
+            id: user.id,
+            email: user.email ?? meta.email ?? "unknown",
             name: meta.full_name ?? meta.name ?? "Supabase User",
-            role: meta.role ?? (payload.role as string) ?? "admin",
+            role: meta.role ?? "admin",
             clinicId: meta.clinic_id ?? "clinic-001",
             clinicName: meta.clinic_name ?? "Clínica",
           },
         };
-      } catch (err) {
-        logger.warn({ err, route: req.nextUrl.pathname }, "JWT verification failed");
-        // Fall through to 401
       }
-    } else if (process.env.NODE_ENV !== "production") {
-      // Dev-only: trust Supabase cookie presence when no JWT secret
-      logger.debug("SUPABASE_JWT_SECRET not set — skipping JWT check (dev only)");
-      return {
-        user: {
-          id: "supabase-user",
-          email: "unknown",
-          name: "Supabase User",
-          role: "admin",
-          clinicId: "clinic-001",
-          clinicName: "Unknown Clinic",
-        },
-      };
-    } else {
-      // Production: require JWT verification — refuse to trust unsigned cookies
-      logger.warn("SUPABASE_JWT_SECRET not set in production — Supabase auth cannot be verified");
+
+      if (error) {
+        logger.warn({ err: error.message, route: req.nextUrl.pathname }, "Supabase getUser failed");
+      }
+    } catch (err) {
+      logger.warn({ err, route: req.nextUrl.pathname }, "Supabase auth check failed");
     }
   }
 
