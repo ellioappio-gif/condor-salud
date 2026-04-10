@@ -144,6 +144,7 @@ function mapTurno(row: TurnoRow): Turno {
     tipo: row.tipo,
     financiador: row.financiador,
     profesional: row.profesional,
+    profesionalId: row.profesional_id ?? undefined,
     estado: row.estado as Turno["estado"],
     notas: row.notas ?? undefined,
     durationMin: row.duration_min ?? undefined,

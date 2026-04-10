@@ -707,6 +707,7 @@ export interface Turno {
   tipo: string;
   financiador: string;
   profesional: string;
+  profesionalId?: string;
   estado: "confirmado" | "pendiente" | "cancelado" | "atendido";
   notas?: string;
   /** Appointment duration in minutes (receptionist-configurable) */

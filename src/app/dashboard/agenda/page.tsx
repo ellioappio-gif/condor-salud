@@ -198,6 +198,7 @@ export default function AgendaPage() {
   const filtered = profFilter
     ? allTurnos.filter(
         (t: Turno) =>
+          t.profesionalId === profFilter ||
           t.profesional === profFilter ||
           profesionales.find((p) => p.id === profFilter)?.nombre === t.profesional,
       )
@@ -548,89 +549,268 @@ export default function AgendaPage() {
         </div>
       )}
 
-      {/* Week view */}
-      {!isLoading && vista === "semana" && (
-        <div className="bg-white border border-border rounded-lg overflow-x-auto">
-          <table className="w-full min-w-[800px] text-sm" aria-label="Agenda semanal">
-            <thead>
-              <tr className="border-b border-border">
-                <th
-                  scope="col"
-                  className="w-16 px-3 py-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase bg-surface"
-                >
-                  {t("label.time")}
-                </th>
-                {localeDays.map((d, i) => (
-                  <th
-                    key={d}
-                    className={`px-2 py-2 text-[10px] font-bold tracking-wider uppercase ${i === (hoy.getDay() + 6) % 7 ? "text-celeste-dark bg-celeste-pale/40" : "text-ink-muted bg-surface"}`}
-                  >
-                    {d} {fechasDias[i]}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {horas.map((hora) => {
-                return (
-                  <tr key={hora} className="border-t border-border-light hover:bg-[#FCFCFD]">
-                    <td className="px-3 py-1.5 text-[10px] font-mono text-ink-muted text-center">
-                      {hora}
-                    </td>
-                    {localeDays.map((_, di) => {
-                      const dayISO = isoFechas[di];
-                      const turno = filtered.find(
-                        (t: Turno) => t.hora === hora && t.fecha === dayISO,
-                      );
-                      if (!turno) return <td key={di} className="px-1 py-1" />;
+      {/* ────────────────────────────────────────────────────────
+           ENTERPRISE WEEK VIEW — Vertical timeline schedule grid
+           07:00–21:00 · 30-min gridlines · doctor-colored blocks
+           current-time indicator · duration-aware heights
+         ──────────────────────────────────────────────────────── */}
+      {!isLoading &&
+        vista === "semana" &&
+        (() => {
+          // ── Constants ──
+          const START_HOUR = 7;
+          const END_HOUR = 21;
+          const TOTAL_HOURS = END_HOUR - START_HOUR; // 14
+          const HOUR_PX = 64; // height per hour
+          const TOTAL_PX = TOTAL_HOURS * HOUR_PX; // 896px
+          const PX_PER_MIN = HOUR_PX / 60;
+
+          // Half-hour time labels
+          const timeLabels: string[] = [];
+          for (let h = START_HOUR; h < END_HOUR; h++) {
+            timeLabels.push(`${String(h).padStart(2, "0")}:00`);
+            timeLabels.push(`${String(h).padStart(2, "0")}:30`);
+          }
+
+          // Parse "HH:MM" to minutes since START_HOUR
+          const parseToOffset = (hora: string): number => {
+            const [hh, mm] = hora.split(":").map(Number);
+            return ((hh ?? START_HOUR) - START_HOUR) * 60 + (mm ?? 0);
+          };
+
+          // Current time position
+          const now = new Date();
+          const nowMinOffset = (now.getHours() - START_HOUR) * 60 + now.getMinutes();
+          const todayDayIdx = (now.getDay() + 6) % 7; // 0=Mon
+
+          // Color lookup: profesionalId → bg class
+          const profColorMap: Record<string, { bg: string; border: string; text: string }> = {};
+          const colorPalette = [
+            { bg: "bg-blue-50", border: "border-blue-400", text: "text-blue-700" },
+            { bg: "bg-green-50", border: "border-green-400", text: "text-green-700" },
+            { bg: "bg-purple-50", border: "border-purple-400", text: "text-purple-700" },
+            { bg: "bg-amber-50", border: "border-amber-500", text: "text-amber-700" },
+            { bg: "bg-pink-50", border: "border-pink-400", text: "text-pink-700" },
+            { bg: "bg-teal-50", border: "border-teal-400", text: "text-teal-700" },
+            { bg: "bg-indigo-50", border: "border-indigo-400", text: "text-indigo-700" },
+            { bg: "bg-red-50", border: "border-red-400", text: "text-red-700" },
+            { bg: "bg-cyan-50", border: "border-cyan-400", text: "text-cyan-700" },
+            { bg: "bg-orange-50", border: "border-orange-400", text: "text-orange-700" },
+          ];
+          profesionales.forEach((p, i) => {
+            profColorMap[p.id] = colorPalette[i % colorPalette.length]!;
+            // Also map by name for turnos that only have profesional name
+            profColorMap[p.nombre] = colorPalette[i % colorPalette.length]!;
+          });
+
+          const defaultColor = {
+            bg: "bg-celeste-pale",
+            border: "border-celeste",
+            text: "text-celeste-dark",
+          };
+
+          // Group turnos by day column index
+          const turnosByDay: Record<number, Turno[]> = {};
+          for (const turno of filtered) {
+            const dayIdx = isoFechas.indexOf(turno.fecha ?? "");
+            if (dayIdx < 0) continue;
+            (turnosByDay[dayIdx] ??= []).push(turno);
+          }
+
+          return (
+            <div className="bg-white border border-border rounded-lg overflow-hidden">
+              {/* Day header row */}
+              <div
+                className="grid border-b border-border"
+                style={{ gridTemplateColumns: "56px repeat(6, 1fr)" }}
+              >
+                <div className="bg-surface px-2 py-3 text-center">
+                  <span className="text-[9px] font-bold tracking-widest text-ink-muted uppercase">
+                    {locale === "en" ? "Time" : "Hora"}
+                  </span>
+                </div>
+                {localeDays.map((day, i) => {
+                  const isToday = i === todayDayIdx;
+                  const dateNum = fechasDias[i]?.split("/")[0];
+                  return (
+                    <div
+                      key={day}
+                      className={`px-2 py-2 text-center border-l border-border ${isToday ? "bg-celeste-pale/40" : "bg-surface"}`}
+                    >
+                      <div
+                        className={`text-[10px] font-bold tracking-wider uppercase ${isToday ? "text-celeste-dark" : "text-ink-muted"}`}
+                      >
+                        {day}
+                      </div>
+                      <div
+                        className={`text-lg font-bold leading-tight ${isToday ? "text-celeste-dark" : "text-ink"}`}
+                      >
+                        {dateNum}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Scrollable schedule body */}
+              <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 340px)" }}>
+                <div className="grid" style={{ gridTemplateColumns: "56px repeat(6, 1fr)" }}>
+                  {/* Time gutter + grid lines + appointment columns */}
+                  <div className="relative" style={{ height: `${TOTAL_PX}px` }}>
+                    {/* Time labels */}
+                    {timeLabels.map((label) => {
+                      const [hh, mm] = label.split(":").map(Number);
+                      const offset =
+                        ((hh ?? START_HOUR) - START_HOUR) * HOUR_PX + (mm ?? 0) * PX_PER_MIN;
+                      const isHour = (mm ?? 0) === 0;
                       return (
-                        <td key={di} className="px-1 py-1">
+                        <div
+                          key={label}
+                          className={`absolute right-0 left-0 pr-2 text-right ${isHour ? "text-[10px] font-semibold text-ink-muted" : "text-[9px] text-ink-muted/50"}`}
+                          style={{ top: `${offset - 6}px` }}
+                        >
+                          {label}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Day columns */}
+                  {localeDays.map((_, di) => {
+                    const isToday = di === todayDayIdx;
+                    const dayTurnos = turnosByDay[di] ?? [];
+
+                    return (
+                      <div
+                        key={di}
+                        className={`relative border-l border-border ${isToday ? "bg-celeste-pale/10" : ""}`}
+                        style={{ height: `${TOTAL_PX}px` }}
+                      >
+                        {/* Horizontal grid lines at each half hour */}
+                        {timeLabels.map((label) => {
+                          const [hh, mm] = label.split(":").map(Number);
+                          const offset =
+                            ((hh ?? START_HOUR) - START_HOUR) * HOUR_PX + (mm ?? 0) * PX_PER_MIN;
+                          const isHour = (mm ?? 0) === 0;
+                          return (
+                            <div
+                              key={label}
+                              className={`absolute left-0 right-0 ${isHour ? "border-t border-border" : "border-t border-border-light/50 border-dashed"}`}
+                              style={{ top: `${offset}px` }}
+                            />
+                          );
+                        })}
+
+                        {/* Current-time indicator (red line) */}
+                        {isToday && nowMinOffset >= 0 && nowMinOffset <= TOTAL_HOURS * 60 && (
                           <div
-                            className="block p-1.5 rounded text-[10px] border-l-2 bg-celeste-pale text-celeste-dark border-celeste hover:shadow-sm transition cursor-pointer"
-                            style={
-                              turno.durationMin && turno.durationMin > 30
-                                ? { minHeight: `${Math.round(turno.durationMin * 1.2)}px` }
-                                : undefined
-                            }
+                            className="absolute left-0 right-0 z-20 flex items-center pointer-events-none"
+                            style={{ top: `${nowMinOffset * PX_PER_MIN}px` }}
                           >
-                            <div className="font-semibold truncate">{turno.paciente}</div>
-                            <div className="text-ink-muted truncate">
-                              {turno.tipo} · {turno.financiador}
-                            </div>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span
-                                className={`inline-block px-1 py-0.5 rounded text-[8px] font-bold capitalize ${estadoColor[turno.estado] ?? ""}`}
-                              >
-                                {turno.estado}
-                              </span>
-                              {turno.durationMin && (
-                                <span className="text-[8px] text-ink-muted font-medium">
-                                  {turno.durationMin}′
+                            <div className="w-2 h-2 rounded-full bg-red-500 -ml-1 shrink-0" />
+                            <div className="flex-1 border-t-2 border-red-500" />
+                          </div>
+                        )}
+
+                        {/* Appointment blocks */}
+                        {dayTurnos.map((turno, ti) => {
+                          const offset = parseToOffset(turno.hora);
+                          const duration = turno.durationMin ?? 30;
+                          const blockHeight = Math.max(duration * PX_PER_MIN, 24);
+                          const topPx = Math.max(offset * PX_PER_MIN, 0);
+
+                          // Find color by profesionalId or name
+                          const color =
+                            profColorMap[turno.profesionalId ?? ""] ??
+                            profColorMap[turno.profesional ?? ""] ??
+                            defaultColor;
+
+                          // Check for overlapping — nudge right if same time
+                          const overlapIdx = dayTurnos.slice(0, ti).filter((prev) => {
+                            const prevOff = parseToOffset(prev.hora);
+                            const prevDur = prev.durationMin ?? 30;
+                            return prevOff < offset + duration && prevOff + prevDur > offset;
+                          }).length;
+                          const overlapShift = overlapIdx * 6;
+
+                          return (
+                            <div
+                              key={turno.id}
+                              className={`absolute left-1 border-l-[3px] rounded-r-[3px] px-1.5 py-0.5 overflow-hidden cursor-pointer
+                              hover:shadow-md hover:z-30 transition-shadow group
+                              ${color.bg} ${color.border} ${color.text}`}
+                              style={{
+                                top: `${topPx + 1}px`,
+                                height: `${blockHeight - 2}px`,
+                                right: "4px",
+                                marginLeft: overlapShift > 0 ? `${overlapShift}px` : undefined,
+                                zIndex: 10 + ti,
+                              }}
+                              title={`${turno.hora} — ${turno.paciente}\n${turno.profesional} · ${turno.tipo}\n${turno.financiador} · ${turno.estado}`}
+                            >
+                              <div className="flex items-center gap-1 leading-tight">
+                                <span className="font-bold text-[10px] truncate">
+                                  {turno.paciente}
+                                </span>
+                                {turno.estado === "confirmado" && (
+                                  <Check className="w-2.5 h-2.5 text-green-600 shrink-0" />
+                                )}
+                              </div>
+                              {blockHeight > 28 && (
+                                <div className="text-[9px] opacity-80 truncate leading-tight">
+                                  {turno.profesional}
+                                </div>
+                              )}
+                              {blockHeight > 42 && (
+                                <div className="flex items-center gap-1 text-[8px] opacity-60 mt-0.5">
+                                  <span className="truncate">{turno.tipo}</span>
+                                  <span>·</span>
+                                  <span>{duration}′</span>
+                                </div>
+                              )}
+                              {blockHeight > 56 && (
+                                <span
+                                  className={`inline-block mt-0.5 px-1 py-px rounded text-[7px] font-bold capitalize ${estadoColor[turno.estado] ?? "bg-gray-50 text-gray-500"}`}
+                                >
+                                  {turno.estado}
                                 </span>
                               )}
                             </div>
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 text-[10px] text-ink-muted">
-        {profesionales.map((p) => (
-          <div key={p.id} className="flex items-center gap-1.5">
-            <span className={`w-2.5 h-2.5 rounded-sm ${p.color.split(" ")[0]}`} />
-            <span>
-              {p.nombre} — {p.especialidad}
-            </span>
-          </div>
-        ))}
+        {profesionales.map((p, i) => {
+          const palette = [
+            "bg-blue-400",
+            "bg-green-400",
+            "bg-purple-400",
+            "bg-amber-500",
+            "bg-pink-400",
+            "bg-teal-400",
+            "bg-indigo-400",
+            "bg-red-400",
+            "bg-cyan-400",
+            "bg-orange-400",
+          ];
+          return (
+            <div key={p.id} className="flex items-center gap-1.5">
+              <span className={`w-2.5 h-2.5 rounded-sm ${palette[i % palette.length]}`} />
+              <span>
+                {p.nombre} — {p.especialidad}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* New Turno Modal */}

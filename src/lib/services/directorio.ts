@@ -207,12 +207,16 @@ async function getSupabase() {
   return createClient();
 }
 
-export async function getDoctors(filters?: {
-  specialty?: string;
-  location?: string;
-  financiador?: string;
-  search?: string;
-}): Promise<Doctor[]> {
+export async function getDoctors(
+  filters?: {
+    specialty?: string;
+    location?: string;
+    financiador?: string;
+    search?: string;
+  },
+  /** Optional server-side Supabase client (recommended from API routes) */
+  client?: unknown,
+): Promise<Doctor[]> {
   if (!isSupabaseConfigured()) {
     let result = mockDoctors;
     if (filters?.specialty && filters.specialty !== "Todas") {
@@ -233,7 +237,12 @@ export async function getDoctors(filters?: {
     return enrichWithGoogleMaps(result);
   }
   try {
-    const sb = await getSupabase();
+    // Use provided server client or fall back to browser client
+    const sb = (client ?? (await getSupabase())) as ReturnType<typeof getSupabase> extends Promise<
+      infer T
+    >
+      ? T
+      : never;
     let query = sb
       .from("doctors")
       .select("*")
@@ -249,10 +258,13 @@ export async function getDoctors(filters?: {
       query = query.or(`name.ilike.%${filters.search}%,specialty.ilike.%${filters.search}%`);
     }
     const { data, error } = await query;
-    if (error) throw error;
-    let doctors = (data || []).map(mapDoctor);
+    if (error) {
+      console.error("[directorio] getDoctors query failed:", error.message ?? error);
+      throw error;
+    }
+    let doctors: Doctor[] = (data || []).map((r: Record<string, unknown>) => mapDoctor(r));
     if (filters?.financiador && filters.financiador !== "Todos") {
-      doctors = doctors.filter((d) => d.financiadores.includes(filters.financiador!));
+      doctors = doctors.filter((d: Doctor) => d.financiadores.includes(filters.financiador!));
     }
 
     // ── Enrich with weekly schedule from doctor_availability ──
@@ -266,7 +278,8 @@ export async function getDoctors(filters?: {
     }
 
     return enrichWithGoogleMaps(doctors);
-  } catch {
+  } catch (err) {
+    console.error("[directorio] getDoctors failed:", err);
     return [];
   }
 }

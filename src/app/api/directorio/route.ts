@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDoctors, getDoctorReviews, getDirectorioKPIs } from "@/lib/services/directorio";
+import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 
@@ -19,7 +20,9 @@ export async function GET(req: NextRequest) {
           financiador: searchParams.get("financiador") || undefined,
           search: searchParams.get("search") || undefined,
         };
-        return NextResponse.json(await getDoctors(filters));
+        // Use server-side client with session cookies for proper auth
+        const sb = createClient();
+        return NextResponse.json(await getDoctors(filters, sb));
       }
       case "reviews": {
         const doctorId = searchParams.get("doctorId") || "";
