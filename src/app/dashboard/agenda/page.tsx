@@ -91,6 +91,200 @@ const profColors = [
   "bg-orange-100 text-orange-700",
 ];
 
+// ─── Centro Médico Roca — full doctor roster (fallback) ──────
+// Source: create-doctor-accounts.mjs (Mar 2026) + Francisco script
+const CMR_DOCTORS: Profesional[] = [
+  {
+    id: "cmr-francisco",
+    nombre: "Dr. Francisco Lopez",
+    especialidad: "Director Médico",
+    color: profColors[0]!,
+    horario: "Lun–Vie 10:00–17:00",
+  },
+  {
+    id: "cmr-vargas",
+    nombre: "Dr. Vargas Freddy",
+    especialidad: "Cirugía Dental",
+    color: profColors[1]!,
+    horario: "Lun 14:30–15:30",
+  },
+  {
+    id: "cmr-angela",
+    nombre: "Dra. Angela María González",
+    especialidad: "Gastroenterología",
+    color: profColors[2]!,
+    horario: "Lun 10:00–12:00",
+  },
+  {
+    id: "cmr-nigro",
+    nombre: "Dra. Clara Nigro",
+    especialidad: "Neurología",
+    color: profColors[3]!,
+    horario: "Lun 15:00–16:00",
+  },
+  {
+    id: "cmr-delgadillo",
+    nombre: "Dr. Gustavo Delgadillo",
+    especialidad: "Ecografía",
+    color: profColors[4]!,
+    horario: "Mar 10:00–12:00 · Jue 14:00–15:45",
+  },
+  {
+    id: "cmr-taboada",
+    nombre: "Dra. Yessica Taboada",
+    especialidad: "Odontología",
+    color: profColors[5]!,
+    horario: "Mar 14:00–17:00",
+  },
+  {
+    id: "cmr-rivero",
+    nombre: "Dr. Richard Rivero",
+    especialidad: "Traumatología",
+    color: profColors[6]!,
+    horario: "Mar 17:00–18:00",
+  },
+  {
+    id: "cmr-gibilbank",
+    nombre: "Dra. Martha Gibilbank",
+    especialidad: "Oftalmología",
+    color: profColors[7]!,
+    horario: "Mar 15:00–16:00",
+  },
+  {
+    id: "cmr-legal",
+    nombre: "Dra. Norma Legal",
+    especialidad: "Hematología",
+    color: profColors[8]!,
+    horario: "Mar 15:00–16:00 · Jue 16:00–17:00",
+  },
+  {
+    id: "cmr-rios",
+    nombre: "Dra. Mariana Ríos",
+    especialidad: "Terapia Alternativa",
+    color: profColors[9]!,
+    horario: "1 vez al mes (ella avisa)",
+  },
+  {
+    id: "cmr-acevedo",
+    nombre: "Lic. Cristina Acevedo",
+    especialidad: "Mamografía / Kinesiología",
+    color: profColors[0]!,
+    horario: "Mar 09:00–12:00 · Jue 09:00–12:00",
+  },
+  {
+    id: "cmr-vargasl",
+    nombre: "Dr. Rogelio Vargas Lopez",
+    especialidad: "Urología",
+    color: profColors[1]!,
+    horario: "Mié 11:30–12:30",
+  },
+  {
+    id: "cmr-urbieta",
+    nombre: "Dra. Alicia Urbieta",
+    especialidad: "Alergista",
+    color: profColors[2]!,
+    horario: "Mié 14:00–15:00 (cada 15 días)",
+  },
+  {
+    id: "cmr-espinoza",
+    nombre: "Dra. Sikiu Espinoza",
+    especialidad: "Odontología",
+    color: profColors[3]!,
+    horario: "Mié 14:00–17:00 · Vie 14:00–17:00",
+  },
+  {
+    id: "cmr-angelotti",
+    nombre: "Dra. Liliana Angelotti",
+    especialidad: "Endocrinología",
+    color: profColors[4]!,
+    horario: "Jue 10:00–12:00 (cada 15 días)",
+  },
+  {
+    id: "cmr-dalpiaz",
+    nombre: "Dr. Juan Manuel Dalpiaz",
+    especialidad: "Cirugía General",
+    color: profColors[5]!,
+    horario: "Jue 11:00–12:00",
+  },
+  {
+    id: "cmr-lezcano",
+    nombre: "Dr. Adrián Lezcano",
+    especialidad: "Infectología",
+    color: profColors[6]!,
+    horario: "Jue 13:00–14:00",
+  },
+  {
+    id: "cmr-jimenez",
+    nombre: "Dra. Susana Jiménez",
+    especialidad: "Dermatología",
+    color: profColors[7]!,
+    horario: "Jue 15:00–16:00 (cada 15 días)",
+  },
+  {
+    id: "cmr-lagos",
+    nombre: "Dr. Carlos Lagos",
+    especialidad: "Flebología",
+    color: profColors[8]!,
+    horario: "Jue 17:00–18:00",
+  },
+  {
+    id: "cmr-heit",
+    nombre: "Téc. Esteban Heit",
+    especialidad: "Radiografía",
+    color: profColors[9]!,
+    horario: "Lun–Vie 13:30–15:00",
+  },
+  {
+    id: "cmr-baied",
+    nombre: "Dra. María del Carmen Baied",
+    especialidad: "Reumatología",
+    color: profColors[0]!,
+    horario: "Vie 09:30–10:30",
+  },
+  {
+    id: "cmr-gutierrez",
+    nombre: "Dra. Irene Gutiérrez",
+    especialidad: "Diabetología",
+    color: profColors[1]!,
+    horario: "Vie 09:00–10:00",
+  },
+  {
+    id: "cmr-abdala",
+    nombre: "Dra. Alicia Abdala",
+    especialidad: "Gastroenterología",
+    color: profColors[2]!,
+    horario: "Vie 12:30–14:00",
+  },
+  {
+    id: "cmr-asz",
+    nombre: "Dr. José Asz",
+    especialidad: "Oftalmología",
+    color: profColors[3]!,
+    horario: "Vie 13:30–14:30 (cada 15 días)",
+  },
+  {
+    id: "cmr-diccea",
+    nombre: "Dr. Carlos Diccea",
+    especialidad: "Ginecología",
+    color: profColors[4]!,
+    horario: "Vie 14:00–15:00",
+  },
+  {
+    id: "cmr-molina",
+    nombre: "Lic. Oscar Molina",
+    especialidad: "Psicología",
+    color: profColors[5]!,
+    horario: "Confirmar horario",
+  },
+  {
+    id: "cmr-tottereaus",
+    nombre: "Dr. Julián Tottereaus",
+    especialidad: "Neumonología",
+    color: profColors[6]!,
+    horario: "Vie 15:00–16:00 (1 vez al mes)",
+  },
+];
+
 export type Profesional = {
   id: string;
   nombre: string;
@@ -151,18 +345,26 @@ export default function AgendaPage() {
   const { exportPDF, exportExcel, isExporting } = useExport();
   const { events: gCalEvents } = useGoogleCalendarEvents();
 
-  // Build profesionales list from real doctor data
-  const profesionales: Profesional[] = useMemo(
-    () =>
-      doctors.map((d, i) => ({
-        id: d.id,
-        nombre: d.name,
-        especialidad: d.specialty,
-        color: profColors[i % profColors.length] ?? "bg-blue-100 text-blue-700",
-        horario: formatDoctorSchedule(d.schedule),
-      })),
-    [doctors],
-  );
+  // Build profesionales list — merge API doctors with CMR fallback roster
+  const profesionales: Profesional[] = useMemo(() => {
+    // Start with real doctor data from API
+    const fromApi: Profesional[] = doctors.map((d, i) => ({
+      id: d.id,
+      nombre: d.name,
+      especialidad: d.specialty,
+      color: profColors[i % profColors.length] ?? "bg-blue-100 text-blue-700",
+      horario: formatDoctorSchedule(d.schedule),
+    }));
+
+    // If API returned doctors, use those; otherwise fall back to full CMR roster
+    if (fromApi.length > 0) {
+      // Merge: add any CMR doctors not already in the API response (by name match)
+      const apiNames = new Set(fromApi.map((p) => p.nombre.toLowerCase()));
+      const missing = CMR_DOCTORS.filter((c) => !apiNames.has(c.nombre.toLowerCase()));
+      return [...fromApi, ...missing];
+    }
+    return CMR_DOCTORS;
+  }, [doctors]);
 
   const localeDays = locale === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri"] : diasSemana;
   const [vista, setVista] = useState<"semana" | "lista">("semana");
