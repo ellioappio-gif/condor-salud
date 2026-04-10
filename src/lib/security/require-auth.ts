@@ -113,14 +113,40 @@ export async function requireAuth(req: NextRequest): Promise<AuthResult> {
 
       if (user && !error) {
         const meta = (user.user_metadata ?? {}) as Record<string, string>;
+
+        // Resolve clinic_id: prefer user_metadata, fall back to profiles table
+        let clinicId = meta.clinic_id;
+        let clinicName = meta.clinic_name ?? "Clínica";
+        let role = meta.role ?? "admin";
+
+        if (!clinicId || clinicId === "clinic-001") {
+          try {
+            const { getServiceClient } = await import("@/lib/supabase/service");
+            const sb = getServiceClient();
+            const { data: profile } = await sb
+              .from("profiles")
+              .select("clinic_id, role")
+              .eq("id", user.id)
+              .single();
+            if (profile?.clinic_id) {
+              clinicId = profile.clinic_id;
+            }
+            if (profile?.role) {
+              role = profile.role;
+            }
+          } catch {
+            // Service client not available — use metadata only
+          }
+        }
+
         return {
           user: {
             id: user.id,
             email: user.email ?? meta.email ?? "unknown",
             name: meta.full_name ?? meta.name ?? "Supabase User",
-            role: meta.role ?? "admin",
-            clinicId: meta.clinic_id ?? "clinic-001",
-            clinicName: meta.clinic_name ?? "Clínica",
+            role,
+            clinicId: clinicId ?? "clinic-001",
+            clinicName,
           },
         };
       }
