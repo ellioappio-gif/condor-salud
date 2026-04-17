@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
@@ -85,7 +85,10 @@ const PAYMENT_METHODS = [
 // (returned when isSupabaseConfigured() === false).
 
 export default function PacienteDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+  const [id, setId] = useState<string>("");
+  useEffect(() => {
+    params.then(({ id }) => setId(id));
+  }, [params]);
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
   const { t } = useLocale();
