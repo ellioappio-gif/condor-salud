@@ -613,7 +613,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
         {user?.role === "recepcion" && <ReceptionistOnboarding />}
         <WhatsAppFloat />
-        <Chatbot />
       </div>
     </div>
   );
