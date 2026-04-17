@@ -7,9 +7,13 @@ const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
 
 /** Renders Cora chatbot only on public pages — hidden on /dashboard and /paciente */
 export default function ChatbotGuard() {
-  const pathname = usePathname();
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/paciente")) {
+  try {
+    const pathname = usePathname();
+    if (!pathname || pathname.startsWith("/dashboard") || pathname.startsWith("/paciente")) {
+      return null;
+    }
+    return <Chatbot />;
+  } catch {
     return null;
   }
-  return <Chatbot />;
 }

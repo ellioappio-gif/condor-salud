@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
@@ -84,11 +85,8 @@ const PAYMENT_METHODS = [
 // Mock/demo data lives only in src/lib/services/data.ts
 // (returned when isSupabaseConfigured() === false).
 
-export default function PacienteDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const [id, setId] = useState<string>("");
-  useEffect(() => {
-    params.then(({ id }) => setId(id));
-  }, [params]);
+export default function PacienteDetailPage() {
+  const { id } = useParams<{ id: string }>();
   const { showDemo } = useDemoAction();
   const { showToast } = useToast();
   const { t } = useLocale();

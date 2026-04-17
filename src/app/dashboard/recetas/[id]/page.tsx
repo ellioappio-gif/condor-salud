@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -71,32 +72,31 @@ interface PrescriptionDetail {
 
 /* ── No demo data – real prescriptions come from API ── */
 
-export default function RecetaDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function RecetaDetailPage() {
+  const params = useParams<{ id: string }>();
   const { showToast } = useToast();
   const { locale } = useLocale();
   const [rx, setRx] = useState<PrescriptionDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [rxId, setRxId] = useState<string>("");
+  const rxId = params.id || "";
   const [cancelOpen, setCancelOpen] = useState(false);
 
   useEffect(() => {
-    params.then(({ id }) => {
-      setRxId(id);
-      fetch(`/api/prescriptions/${id}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data?.prescription) {
-            setRx(data.prescription);
-          } else {
-            setRx(null);
-          }
-        })
-        .catch(() => {
+    if (!rxId) return;
+    fetch(`/api/prescriptions/${rxId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.prescription) {
+          setRx(data.prescription);
+        } else {
           setRx(null);
-        })
-        .finally(() => setLoading(false));
-    });
-  }, [params]);
+        }
+      })
+      .catch(() => {
+        setRx(null);
+      })
+      .finally(() => setLoading(false));
+  }, [rxId]);
 
   function copyVerificationUrl() {
     if (!rx) return;
