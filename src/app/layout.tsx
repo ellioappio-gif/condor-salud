@@ -10,7 +10,7 @@ import { DemoProvider } from "@/hooks/useDemoConfig";
 import "./globals.css";
 
 // Lazy-load non-critical client components (not above the fold)
-const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
+const ChatbotGuard = dynamic(() => import("@/components/ChatbotGuard"), { ssr: false });
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -109,7 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <PlanProvider>
                   <AuthProvider>
                     <main id="main-content">{children}</main>
-                    <Chatbot />
+                    <ChatbotGuard />
                   </AuthProvider>
                 </PlanProvider>
               </DemoProvider>
