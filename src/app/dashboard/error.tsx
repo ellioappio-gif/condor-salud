@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import * as Sentry from "@sentry/nextjs";
-import { useLocale } from "@/lib/i18n/context";
-import { Button } from "@/components/ui/Button";
 
+/**
+ * Dashboard-level error boundary — catches errors from dashboard page content.
+ *
+ * IMPORTANT: Keep this self-contained. Do NOT import useLocale, Button, or Sentry
+ * at the top level. If this error boundary itself crashes, the error cascades up
+ * and the user sees a full-page "Algo salió mal" instead of a recoverable error.
+ */
 export default function DashboardError({
   error,
   reset,
@@ -12,21 +16,37 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const { t } = useLocale();
-
   useEffect(() => {
-    Sentry.captureException(error, {
-      tags: { boundary: "dashboard" },
-      extra: { digest: error.digest },
-    });
+    console.error("[DashboardError boundary]", error.message, error.stack);
+
+    // Best-effort Sentry capture via dynamic import
+    try {
+      import("@sentry/nextjs").then((Sentry) => {
+        Sentry.captureException(error, {
+          tags: { boundary: "dashboard" },
+          extra: { digest: error.digest },
+        });
+      });
+    } catch {
+      // Sentry unavailable — swallow
+    }
   }, [error]);
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh] px-6">
-      <div className="text-center max-w-md">
-        <div className="flex justify-center mb-4" aria-hidden="true">
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "60vh",
+        padding: "1.5rem",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <div style={{ textAlign: "center", maxWidth: "28rem" }}>
+        <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center" }}>
           <svg
-            className="w-12 h-12 text-gold"
+            style={{ width: "3rem", height: "3rem", color: "#F6B40E" }}
             fill="none"
             stroke="currentColor"
             strokeWidth={1.5}
@@ -39,15 +59,72 @@ export default function DashboardError({
             />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-ink mb-2">{t("error.moduleError")}</h2>
-        <p className="text-sm text-ink-muted mb-6">{t("error.sectionLoadFailed")}</p>
-        <div className="flex items-center justify-center gap-3">
-          <Button onClick={reset} variant="primary" size="sm">
-            {t("action.retry")}
-          </Button>
-          <Button onClick={() => (window.location.href = "/dashboard")} variant="outline" size="sm">
-            {t("action.goToDashboard")}
-          </Button>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#111", marginBottom: "0.5rem" }}>
+          Error en el módulo
+        </h2>
+        <p style={{ color: "#666", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+          Esta sección no pudo cargarse correctamente. Intentá de nuevo.
+        </p>
+        {error.digest && (
+          <p
+            style={{
+              color: "#999",
+              fontSize: "0.75rem",
+              fontFamily: "monospace",
+              marginBottom: "1rem",
+            }}
+          >
+            Código: {error.digest}
+          </p>
+        )}
+        {process.env.NODE_ENV !== "production" && (
+          <pre
+            style={{
+              fontSize: "0.75rem",
+              textAlign: "left",
+              color: "#dc2626",
+              background: "#fef2f2",
+              borderRadius: "0.375rem",
+              padding: "0.75rem",
+              marginBottom: "1rem",
+              overflow: "auto",
+              maxHeight: "10rem",
+            }}
+          >
+            {error.message}
+          </pre>
+        )}
+        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
+          <button
+            onClick={reset}
+            style={{
+              background: "#75AADB",
+              color: "white",
+              border: "none",
+              borderRadius: "0.375rem",
+              padding: "0.5rem 1rem",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Reintentar
+          </button>
+          <button
+            onClick={() => (window.location.href = "/dashboard")}
+            style={{
+              background: "white",
+              color: "#374151",
+              border: "1px solid #d1d5db",
+              borderRadius: "0.375rem",
+              padding: "0.5rem 1rem",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Ir al inicio
+          </button>
         </div>
       </div>
     </div>

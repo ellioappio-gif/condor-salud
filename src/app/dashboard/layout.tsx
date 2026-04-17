@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Component, type ReactNode, type ErrorInfo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -8,9 +8,85 @@ import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { DemoModalProvider } from "@/components/DemoModal";
 
+// ─── Layout-level error boundary ─────────────────────────────
+// Catches crashes inside the dashboard layout itself (hooks, JSX)
+// BEFORE they escalate to global-error.tsx which replaces the whole page.
+class LayoutErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[DashboardLayout crash]", error.message, error.stack, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "system-ui, sans-serif",
+            padding: "2rem",
+          }}
+        >
+          <div style={{ textAlign: "center", maxWidth: "28rem" }}>
+            <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+              Error en el panel
+            </h2>
+            <p style={{ color: "#666", fontSize: "0.875rem", marginBottom: "1rem" }}>
+              El panel no pudo cargarse. Intentá recargar la página.
+            </p>
+            {process.env.NODE_ENV !== "production" && this.state.error && (
+              <pre
+                style={{
+                  fontSize: "0.7rem",
+                  textAlign: "left",
+                  color: "#dc2626",
+                  background: "#fef2f2",
+                  borderRadius: "0.375rem",
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  overflow: "auto",
+                  maxHeight: "10rem",
+                }}
+              >
+                {this.state.error.message}
+              </pre>
+            )}
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                background: "#75AADB",
+                color: "white",
+                border: "none",
+                borderRadius: "0.375rem",
+                padding: "0.5rem 1rem",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Recargar
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Lazy-load non-critical UI that is not above the fold
 const WhatsAppFloat = dynamic(() => import("@/components/WhatsAppFloat"), { ssr: false });
-const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
 const ReceptionistOnboarding = dynamic(
   () =>
     import("@/components/receptionist-tour").then((m) => ({ default: m.ReceptionistOnboarding })),
@@ -324,167 +400,148 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     .toUpperCase();
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Skip to content */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-celeste-dark focus:text-white focus:rounded-[4px] focus:text-sm focus:font-semibold"
-      >
-        {t("aria.skipToContent")}
-      </a>
+    <LayoutErrorBoundary>
+      <div className="flex h-screen overflow-hidden">
+        {/* Skip to content */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-celeste-dark focus:text-white focus:rounded-[4px] focus:text-sm focus:font-semibold"
+        >
+          {t("aria.skipToContent")}
+        </a>
 
-      {/* Mobile backdrop */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-          role="button"
-          aria-label={t("aria.closeSidebar")}
-          tabIndex={0}
-          onKeyDown={(e) => e.key === "Escape" && setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-60 bg-white border-r border-gray-200 flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
-        role="navigation"
-        aria-label={t("aria.mainNav")}
-      >
-        {/* Brand */}
-        <div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5" aria-label={t("aria.goHome")}>
-            <Image
-              src="/condor.png"
-              alt="Cóndor Salud"
-              width={36}
-              height={36}
-              className="w-9 h-9 object-contain"
-            />
-            <div className="font-display font-bold text-base">
-              <span className="text-celeste-dark">CÓNDOR </span>
-              <span className="text-gold">SALUD</span>
-            </div>
-          </Link>
-          {/* Mobile close */}
-          <button
+        {/* Mobile backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1 text-gray-400 hover:text-gray-700 transition"
-            aria-label={t("aria.closeMenu")}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        {/* Demo badge in sidebar */}
-        {isDemo && (
-          <div className="mx-3 mt-2 flex items-center gap-1.5 rounded border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-            DEMO
-          </div>
+            role="button"
+            aria-label={t("aria.closeSidebar")}
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Escape" && setSidebarOpen(false)}
+          />
         )}
 
-        {/* Nav */}
-        <nav className="flex-1 py-3 px-3 overflow-y-auto" aria-label={t("aria.dashboardMenu")}>
-          {navSections.map((section, si) => {
-            const visibleItems = section.items.filter((item) => isNavVisible(item.href));
-            if (visibleItems.length === 0) return null;
-            return (
-              <div
-                key={si}
-                className={si > 0 ? "mt-5" : ""}
-                role="group"
-                aria-label={section.titleKey ? t(section.titleKey) : t("aria.mainSection")}
-              >
-                {section.title && (
-                  <div
-                    className="px-3 mb-2 text-[10px] font-bold tracking-[0.16em] text-gray-400 uppercase"
-                    aria-hidden="true"
-                  >
-                    {section.titleKey ? t(section.titleKey) : section.title}
-                  </div>
-                )}
-                <div className="space-y-0.5">
-                  {visibleItems.map((item) => {
-                    const active =
-                      pathname === item.href ||
-                      (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        aria-current={active ? "page" : undefined}
-                        data-tour={`nav-${item.href.replace("/dashboard/", "").replace("/dashboard", "panel") || "panel"}`}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition ${
-                          active
-                            ? "bg-celeste-50 text-celeste-dark font-semibold"
-                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                        }`}
-                      >
-                        {(() => {
-                          const IconComp = navIcons[item.href];
-                          return IconComp ? <IconComp className="w-4 h-4" /> : null;
-                        })()}
-                        <span className="flex-1">
-                          {(item as { tKey?: string }).tKey
-                            ? t((item as { tKey?: string }).tKey!)
-                            : item.label}
-                        </span>
-                        {"badge" in item && (item as { badge?: number }).badge ? (
-                          <span
-                            className="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
-                            aria-label={`${(item as { badge?: number }).badge} notificaciones`}
-                          >
-                            {(item as { badge?: number }).badge}
-                          </span>
-                        ) : null}
-                      </Link>
-                    );
-                  })}
-                </div>
+        {/* Sidebar */}
+        <aside
+          className={`fixed lg:static inset-y-0 left-0 z-50 w-60 bg-white border-r border-gray-200 flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
+          role="navigation"
+          aria-label={t("aria.mainNav")}
+        >
+          {/* Brand */}
+          <div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5" aria-label={t("aria.goHome")}>
+              <Image
+                src="/condor.png"
+                alt="Cóndor Salud"
+                width={36}
+                height={36}
+                className="w-9 h-9 object-contain"
+              />
+              <div className="font-display font-bold text-base">
+                <span className="text-celeste-dark">CÓNDOR </span>
+                <span className="text-gold">SALUD</span>
               </div>
-            );
-          })}
-          {/* Modificar plan link */}
-          <div className="mt-5 px-3">
-            <Link
-              href="/planes"
-              className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-celeste-dark hover:bg-celeste-pale rounded-lg transition"
+            </Link>
+            {/* Mobile close */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1 text-gray-400 hover:text-gray-700 transition"
+              aria-label={t("aria.closeMenu")}
             >
               <svg
-                className="w-3.5 h-3.5"
+                className="w-5 h-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={2}
+                aria-hidden="true"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
-              {t("action.modifyPlan")}
-            </Link>
+            </button>
           </div>
-          {/* Interactive guide launcher (recepcion only) */}
-          {user?.role === "recepcion" && (
-            <div className="mt-2 px-3">
-              <button
-                data-tour="tour-guide-btn"
-                onClick={() => window.dispatchEvent(new CustomEvent("trigger-tour"))}
-                className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-ink-muted hover:text-celeste-dark hover:bg-celeste-pale rounded-lg transition w-full text-left"
+
+          {/* Demo badge in sidebar */}
+          {isDemo && (
+            <div className="mx-3 mt-2 flex items-center gap-1.5 rounded border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
+              DEMO
+            </div>
+          )}
+
+          {/* Nav */}
+          <nav className="flex-1 py-3 px-3 overflow-y-auto" aria-label={t("aria.dashboardMenu")}>
+            {navSections.map((section, si) => {
+              const visibleItems = section.items.filter((item) => isNavVisible(item.href));
+              if (visibleItems.length === 0) return null;
+              return (
+                <div
+                  key={si}
+                  className={si > 0 ? "mt-5" : ""}
+                  role="group"
+                  aria-label={section.titleKey ? t(section.titleKey) : t("aria.mainSection")}
+                >
+                  {section.title && (
+                    <div
+                      className="px-3 mb-2 text-[10px] font-bold tracking-[0.16em] text-gray-400 uppercase"
+                      aria-hidden="true"
+                    >
+                      {section.titleKey ? t(section.titleKey) : section.title}
+                    </div>
+                  )}
+                  <div className="space-y-0.5">
+                    {visibleItems.map((item) => {
+                      const active =
+                        pathname === item.href ||
+                        (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          aria-current={active ? "page" : undefined}
+                          data-tour={`nav-${item.href.replace("/dashboard/", "").replace("/dashboard", "panel") || "panel"}`}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition ${
+                            active
+                              ? "bg-celeste-50 text-celeste-dark font-semibold"
+                              : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                          }`}
+                        >
+                          {(() => {
+                            const IconComp = navIcons[item.href];
+                            return IconComp ? <IconComp className="w-4 h-4" /> : null;
+                          })()}
+                          <span className="flex-1">
+                            {(item as { tKey?: string }).tKey
+                              ? t((item as { tKey?: string }).tKey!)
+                              : item.label}
+                          </span>
+                          {"badge" in item && (item as { badge?: number }).badge ? (
+                            <span
+                              className="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
+                              aria-label={`${(item as { badge?: number }).badge} notificaciones`}
+                            >
+                              {(item as { badge?: number }).badge}
+                            </span>
+                          ) : null}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+            {/* Modificar plan link */}
+            <div className="mt-5 px-3">
+              <Link
+                href="/planes"
+                className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-celeste-dark hover:bg-celeste-pale rounded-lg transition"
               >
                 <svg
                   className="w-3.5 h-3.5"
@@ -496,124 +553,155 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   />
                 </svg>
-                Guia interactiva
-              </button>
+                {t("action.modifyPlan")}
+              </Link>
             </div>
-          )}
-        </nav>
-
-        {/* Bottom user section */}
-        <div className="px-4 py-3 border-t border-gray-100">
-          <Link href="/dashboard/configuracion/equipo" className="flex items-center gap-2.5 group">
-            <div
-              className="w-8 h-8 rounded-full bg-celeste-100 flex items-center justify-center text-celeste-700 font-bold text-xs"
-              aria-hidden="true"
-            >
-              {initials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs text-gray-700 font-medium truncate group-hover:text-gray-900 transition">
-                {displayName}
+            {/* Interactive guide launcher (recepcion only) */}
+            {user?.role === "recepcion" && (
+              <div className="mt-2 px-3">
+                <button
+                  data-tour="tour-guide-btn"
+                  onClick={() => window.dispatchEvent(new CustomEvent("trigger-tour"))}
+                  className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-ink-muted hover:text-celeste-dark hover:bg-celeste-pale rounded-lg transition w-full text-left"
+                >
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+                    />
+                  </svg>
+                  Guia interactiva
+                </button>
               </div>
-              <div className="text-[10px] text-gray-400 truncate">{displayClinic}</div>
-            </div>
-          </Link>
-          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-            <Link href="/" className="text-[10px] text-gray-400 hover:text-celeste-dark transition">
-              {t("action.back")}
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="text-[10px] text-gray-400 hover:text-red-500 transition ml-auto"
-            >
-              {t("action.logout")}
-            </button>
-          </div>
-        </div>
-      </aside>
+            )}
+          </nav>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top bar */}
-        <header
-          className="h-14 border-b border-border bg-white flex items-center justify-between px-4 lg:px-6 shrink-0"
-          role="banner"
-        >
-          {/* Mobile hamburger */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 -ml-2 text-ink-light hover:text-ink transition"
-            aria-label={t("aria.openNavMenu")}
-            aria-expanded={sidebarOpen ? "true" : "false"}
-            aria-controls="sidebar"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
+          {/* Bottom user section */}
+          <div className="px-4 py-3 border-t border-gray-100">
+            <Link
+              href="/dashboard/configuracion/equipo"
+              className="flex items-center gap-2.5 group"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-
-          <div className="text-sm text-ink-light hidden sm:block">
-            {new Date().toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </div>
-          <div className="flex items-center gap-4 ml-auto">
-            <div className="h-5 w-px bg-border" aria-hidden="true" />
-            <Link href="/dashboard/configuracion" className="flex items-center gap-2.5 group">
-              <span className="text-xs text-ink-muted group-hover:text-ink transition hidden sm:inline">
-                {displayName}
-              </span>
               <div
-                className="w-8 h-8 rounded-full bg-celeste-pale flex items-center justify-center text-celeste-dark font-bold text-xs"
+                className="w-8 h-8 rounded-full bg-celeste-100 flex items-center justify-center text-celeste-700 font-bold text-xs"
                 aria-hidden="true"
               >
                 {initials}
               </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-gray-700 font-medium truncate group-hover:text-gray-900 transition">
+                  {displayName}
+                </div>
+                <div className="text-[10px] text-gray-400 truncate">{displayClinic}</div>
+              </div>
             </Link>
-          </div>
-        </header>
-
-        {/* Page content */}
-        <main
-          id="main-content"
-          className="flex-1 overflow-y-auto bg-surface p-4 lg:p-6"
-          role="main"
-          tabIndex={-1}
-        >
-          {isDemo && (
-            <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
-              <span className="inline-flex items-center rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
-                DEMO
-              </span>
-              {t("demo.banner") ?? "Estás viendo datos de demostración"}
+            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+              <Link
+                href="/"
+                className="text-[10px] text-gray-400 hover:text-celeste-dark transition"
+              >
+                {t("action.back")}
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-[10px] text-gray-400 hover:text-red-500 transition ml-auto"
+              >
+                {t("action.logout")}
+              </button>
             </div>
-          )}
-          <SWRProvider>
-            <ToastProvider>
-              <DemoModalProvider>{children}</DemoModalProvider>
-            </ToastProvider>
-          </SWRProvider>
-        </main>
-        {user?.role === "recepcion" && <ReceptionistOnboarding />}
-        <WhatsAppFloat />
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Top bar */}
+          <header
+            className="h-14 border-b border-border bg-white flex items-center justify-between px-4 lg:px-6 shrink-0"
+            role="banner"
+          >
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 -ml-2 text-ink-light hover:text-ink transition"
+              aria-label={t("aria.openNavMenu")}
+              aria-expanded={sidebarOpen ? "true" : "false"}
+              aria-controls="sidebar"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+
+            <div className="text-sm text-ink-light hidden sm:block">
+              {new Date().toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </div>
+            <div className="flex items-center gap-4 ml-auto">
+              <div className="h-5 w-px bg-border" aria-hidden="true" />
+              <Link href="/dashboard/configuracion" className="flex items-center gap-2.5 group">
+                <span className="text-xs text-ink-muted group-hover:text-ink transition hidden sm:inline">
+                  {displayName}
+                </span>
+                <div
+                  className="w-8 h-8 rounded-full bg-celeste-pale flex items-center justify-center text-celeste-dark font-bold text-xs"
+                  aria-hidden="true"
+                >
+                  {initials}
+                </div>
+              </Link>
+            </div>
+          </header>
+
+          {/* Page content */}
+          <main
+            id="main-content"
+            className="flex-1 overflow-y-auto bg-surface p-4 lg:p-6"
+            role="main"
+            tabIndex={-1}
+          >
+            {isDemo && (
+              <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+                <span className="inline-flex items-center rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                  DEMO
+                </span>
+                {t("demo.banner") ?? "Estás viendo datos de demostración"}
+              </div>
+            )}
+            <SWRProvider>
+              <ToastProvider>
+                <DemoModalProvider>{children}</DemoModalProvider>
+              </ToastProvider>
+            </SWRProvider>
+          </main>
+          {user?.role === "recepcion" && <ReceptionistOnboarding />}
+          <WhatsAppFloat />
+        </div>
       </div>
-    </div>
+    </LayoutErrorBoundary>
   );
 }
