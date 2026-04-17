@@ -133,10 +133,11 @@ export async function GET(req: NextRequest) {
       const { data: turnos } = await sb
         .from("turnos")
         .select(
-          "id, clinic_id, paciente, paciente_id, profesional, profesional_id, fecha, hora, tipo, estado",
+          "id, clinic_id, paciente, paciente_id, profesional, profesional_id, fecha, hora, tipo, estado, reminder_sent_at",
         )
         .eq("fecha", tomorrowStr)
-        .in("estado", ["confirmado", "pendiente"]);
+        .in("estado", ["confirmado", "pendiente"])
+        .is("reminder_sent_at", null);
 
       if (turnos && turnos.length > 0) {
         const { sendBookingReminder: sendTurnoReminder } =
@@ -198,6 +199,12 @@ export async function GET(req: NextRequest) {
               tipo: "presencial",
               templateName: "reminder-24h",
             });
+
+            // Mark turno as reminder sent to avoid duplicates
+            await sb
+              .from("turnos")
+              .update({ reminder_sent_at: new Date().toISOString() })
+              .eq("id", turno.id);
 
             turnoRemindersSent++;
           } catch (tErr) {
