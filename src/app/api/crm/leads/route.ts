@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { getLeads, createManualLead, type LeadFilters } from "@/lib/services/crm";
+import { crmLeadSchema } from "@/lib/validations/schemas";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -69,8 +70,18 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
 
-    if (!body.nombre || !body.telefono) {
-      return NextResponse.json({ error: "nombre and telefono are required" }, { status: 400 });
+    const parsed = crmLeadSchema.safeParse({
+      name: body.nombre,
+      phone: body.telefono,
+      email: body.email,
+      source: body.fuente,
+      notes: body.motivo,
+    });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
     }
 
     const lead = await createManualLead(clinicId, {

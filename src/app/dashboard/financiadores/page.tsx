@@ -11,6 +11,20 @@ import { useIsDemo } from "@/lib/auth/context";
 import { Download, Filter, Search, Mail, Loader2, X } from "lucide-react";
 import type { FinanciadorType } from "@/lib/types";
 import { useFinanciadoresExtended } from "@/hooks/use-data";
+import { BulkActionBar } from "@/components/ui/BulkActionBar";
+import { ColumnVisibility } from "@/components/ui/ColumnVisibility";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/services/export";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 const typeLabels: Record<FinanciadorType, { label: string; bg: string; text: string }> = {
   pami: { label: "PAMI", bg: "bg-celeste-pale", text: "text-celeste-dark" },
@@ -38,6 +52,38 @@ export default function FinanciadoresPage() {
   const [detalleFinanciador, setDetalleFinanciador] = useState<
     (typeof financiadores)[number] | null
   >(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const allColumns = [
+    { key: "type", label: "Tipo" },
+    { key: "facturado", label: "Facturado" },
+    { key: "cobrado", label: "Cobrado" },
+    { key: "pctCobro", label: "% Cobro" },
+    { key: "rechazo", label: "Rechazo" },
+    { key: "dias", label: "Días Pago" },
+    { key: "pendientes", label: "Pendientes" },
+    { key: "liquidacion", label: "Últ. Liquidación" },
+  ];
+  const [visibleCols, setVisibleCols] = useLocalStorage<string[]>(
+    "financiadores-columns",
+    allColumns.map((c) => c.key),
+  );
+  const isColVisible = (key: string) => visibleCols.includes(key);
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+  const toggleAll = () => {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((f) => f.id)));
+    }
+  };
 
   const handleVerDetalle = (f: (typeof financiadores)[number]) => {
     if (isDemo) {
@@ -177,6 +223,50 @@ export default function FinanciadoresPage() {
             </div>
           </div>
 
+          {/* ─── Recharts: Facturado vs Cobrado ────────────── */}
+          {filtered.length > 0 && (
+            <div className="bg-white border border-border rounded-lg p-5">
+              <h3 className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-4">
+                {t("insurers.billedVsCollected")}
+              </h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={filtered.map((f) => ({
+                    name: f.name.length > 15 ? f.name.slice(0, 15) + "…" : f.name,
+                    facturado: f.facturado,
+                    cobrado: f.cobrado,
+                    pendiente: f.facturado - f.cobrado,
+                  }))}
+                  margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                  <YAxis
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    formatter={(value) => formatMonto(Number(value))}
+                    contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar
+                    dataKey="cobrado"
+                    name={t("dashboard.collected")}
+                    fill="#75AADB"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="pendiente"
+                    name={t("status.pending")}
+                    fill="#f87171"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
           {/* Financiador cards */}
           {filtered.length === 0 ? (
             <EmptyState title={t("label.noResults")} description={t("insurers.noResultsDesc")} />
@@ -274,44 +364,96 @@ export default function FinanciadoresPage() {
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="text-xs text-ink-muted">{t("insurers.detailedComparison")}</div>
-              <button
-                onClick={() => exportExcel("facturacion")}
-                disabled={isExporting}
-                className="text-xs text-celeste-dark font-medium hover:underline flex items-center gap-1"
-              >
-                <Download className="w-3 h-3" /> Excel
-              </button>
+              <div className="flex items-center gap-2">
+                <ColumnVisibility
+                  columns={allColumns}
+                  visible={visibleCols}
+                  onChange={setVisibleCols}
+                />
+                <button
+                  onClick={() => {
+                    const rows = (
+                      selected.size > 0 ? filtered.filter((f) => selected.has(f.id)) : filtered
+                    ).map((f) => ({
+                      Financiador: f.name,
+                      Tipo: typeLabels[f.type]?.label,
+                      Facturado: f.facturado,
+                      Cobrado: f.cobrado,
+                      "% Cobro": formatPorcentaje(f.facturado, f.cobrado),
+                      "Tasa Rechazo": f.tasaRechazo,
+                      "Días Pago": f.diasPromedioPago,
+                      Pendientes: f.facturasPendientes,
+                    }));
+                    downloadCSV(rows, "financiadores");
+                  }}
+                  className="text-xs text-celeste-dark font-medium hover:underline flex items-center gap-1"
+                >
+                  <Download className="w-3 h-3" /> CSV
+                </button>
+                <button
+                  onClick={() => exportExcel("facturacion")}
+                  disabled={isExporting}
+                  className="text-xs text-celeste-dark font-medium hover:underline flex items-center gap-1"
+                >
+                  <Download className="w-3 h-3" /> Excel
+                </button>
+              </div>
             </div>
             <table className="w-full text-sm" aria-label="Obras sociales y prepagas">
               <thead>
                 <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                  <th scope="col" className="px-3 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={filtered.length > 0 && selected.size === filtered.length}
+                      onChange={toggleAll}
+                      aria-label="Seleccionar todos"
+                      className="rounded border-border"
+                    />
+                  </th>
                   <th scope="col" className="text-left px-5 py-2.5">
                     {t("billing.insurer")}
                   </th>
-                  <th scope="col" className="text-left px-5 py-2.5">
-                    {t("label.type")}
-                  </th>
-                  <th scope="col" className="text-right px-5 py-2.5">
-                    {t("dashboard.billed")}
-                  </th>
-                  <th scope="col" className="text-right px-5 py-2.5">
-                    {t("dashboard.collected")}
-                  </th>
-                  <th scope="col" className="text-right px-5 py-2.5">
-                    % {t("insurers.collected")}
-                  </th>
-                  <th scope="col" className="text-right px-5 py-2.5">
-                    {t("insurers.rejectionLabel")}
-                  </th>
-                  <th scope="col" className="text-right px-5 py-2.5">
-                    {t("insurers.paymentDaysLabel")}
-                  </th>
-                  <th scope="col" className="text-right px-5 py-2.5">
-                    {t("status.pending")}
-                  </th>
-                  <th scope="col" className="text-left px-5 py-2.5">
-                    {t("insurers.lastSettlement")}
-                  </th>
+                  {isColVisible("type") && (
+                    <th scope="col" className="text-left px-5 py-2.5">
+                      {t("label.type")}
+                    </th>
+                  )}
+                  {isColVisible("facturado") && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      {t("dashboard.billed")}
+                    </th>
+                  )}
+                  {isColVisible("cobrado") && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      {t("dashboard.collected")}
+                    </th>
+                  )}
+                  {isColVisible("pctCobro") && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      % {t("insurers.collected")}
+                    </th>
+                  )}
+                  {isColVisible("rechazo") && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      {t("insurers.rejectionLabel")}
+                    </th>
+                  )}
+                  {isColVisible("dias") && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      {t("insurers.paymentDaysLabel")}
+                    </th>
+                  )}
+                  {isColVisible("pendientes") && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      {t("status.pending")}
+                    </th>
+                  )}
+                  {isColVisible("liquidacion") && (
+                    <th scope="col" className="text-left px-5 py-2.5">
+                      {t("insurers.lastSettlement")}
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -320,45 +462,106 @@ export default function FinanciadoresPage() {
                   return (
                     <tr
                       key={f.id}
-                      className="border-t border-border-light hover:bg-celeste-pale/30 transition"
+                      className={`border-t border-border-light hover:bg-celeste-pale/30 transition ${selected.has(f.id) ? "bg-celeste-pale/20" : ""}`}
                     >
+                      <td className="px-3 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(f.id)}
+                          onChange={() => toggleSelect(f.id)}
+                          aria-label={`Seleccionar ${f.name}`}
+                          className="rounded border-border"
+                        />
+                      </td>
                       <td className="px-5 py-3 font-semibold text-ink">{f.name}</td>
-                      <td className="px-5 py-3">
-                        <span
-                          className={`text-[10px] font-semibold px-2 py-0.5 rounded ${tipo.bg} ${tipo.text}`}
+                      {isColVisible("type") && (
+                        <td className="px-5 py-3">
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded ${tipo.bg} ${tipo.text}`}
+                          >
+                            {tipo.label}
+                          </span>
+                        </td>
+                      )}
+                      {isColVisible("facturado") && (
+                        <td className="px-5 py-3 text-right text-ink-light">
+                          {formatMonto(f.facturado)}
+                        </td>
+                      )}
+                      {isColVisible("cobrado") && (
+                        <td className="px-5 py-3 text-right text-ink-light">
+                          {formatMonto(f.cobrado)}
+                        </td>
+                      )}
+                      {isColVisible("pctCobro") && (
+                        <td className="px-5 py-3 text-right font-semibold text-ink">
+                          {formatPorcentaje(f.facturado, f.cobrado)}%
+                        </td>
+                      )}
+                      {isColVisible("rechazo") && (
+                        <td
+                          className={`px-5 py-3 text-right font-semibold ${f.tasaRechazo > 10 ? "text-red-600" : f.tasaRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
                         >
-                          {tipo.label}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 text-right text-ink-light">
-                        {formatMonto(f.facturado)}
-                      </td>
-                      <td className="px-5 py-3 text-right text-ink-light">
-                        {formatMonto(f.cobrado)}
-                      </td>
-                      <td className="px-5 py-3 text-right font-semibold text-ink">
-                        {formatPorcentaje(f.facturado, f.cobrado)}%
-                      </td>
-                      <td
-                        className={`px-5 py-3 text-right font-semibold ${f.tasaRechazo > 10 ? "text-red-600" : f.tasaRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
-                      >
-                        {f.tasaRechazo}%
-                      </td>
-                      <td
-                        className={`px-5 py-3 text-right ${f.diasPromedioPago > 60 ? "text-red-600 font-semibold" : "text-ink-light"}`}
-                      >
-                        {f.diasPromedioPago}
-                      </td>
-                      <td className="px-5 py-3 text-right text-ink-light">
-                        {f.facturasPendientes}
-                      </td>
-                      <td className="px-5 py-3 text-ink-muted text-xs">{f.ultimaLiquidacion}</td>
+                          {f.tasaRechazo}%
+                        </td>
+                      )}
+                      {isColVisible("dias") && (
+                        <td
+                          className={`px-5 py-3 text-right ${f.diasPromedioPago > 60 ? "text-red-600 font-semibold" : "text-ink-light"}`}
+                        >
+                          {f.diasPromedioPago}
+                        </td>
+                      )}
+                      {isColVisible("pendientes") && (
+                        <td className="px-5 py-3 text-right text-ink-light">
+                          {f.facturasPendientes}
+                        </td>
+                      )}
+                      {isColVisible("liquidacion") && (
+                        <td className="px-5 py-3 text-ink-muted text-xs">{f.ultimaLiquidacion}</td>
+                      )}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
+
+          {/* Bulk Action Bar */}
+          {selected.size > 0 && (
+            <BulkActionBar
+              count={selected.size}
+              onClear={() => setSelected(new Set())}
+              actions={[
+                {
+                  label: "Exportar CSV",
+                  onClick: () => {
+                    const rows = filtered
+                      .filter((f) => selected.has(f.id))
+                      .map((f) => ({
+                        Financiador: f.name,
+                        Tipo: typeLabels[f.type]?.label,
+                        Facturado: f.facturado,
+                        Cobrado: f.cobrado,
+                        "Tasa Rechazo": f.tasaRechazo,
+                        "Días Pago": f.diasPromedioPago,
+                      }));
+                    downloadCSV(rows, "financiadores-seleccion");
+                  },
+                },
+                {
+                  label: "Enviar reclamo",
+                  onClick: () => {
+                    const names = filtered
+                      .filter((f) => selected.has(f.id))
+                      .map((f) => f.name)
+                      .join(", ");
+                    showDemo(`Enviar reclamo a: ${names}`);
+                  },
+                },
+              ]}
+            />
+          )}
         </>
       )}
 

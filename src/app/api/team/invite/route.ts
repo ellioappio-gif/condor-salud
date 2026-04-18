@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { logger } from "@/lib/logger";
 import { getServiceClient } from "@/lib/supabase/service";
 import { requireAuth } from "@/lib/security/require-auth";
+import { teamInviteSchema } from "@/lib/validations/schemas";
 
 /**
  * POST /api/team/invite
@@ -27,6 +28,15 @@ export async function POST(req: NextRequest) {
     const sb = getServiceClient();
 
     const body = (await req.json()) as { email?: string; role?: string };
+
+    // ── Zod validation ──
+    const parsed = teamInviteSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
 
     if (!body.email || !body.role) {
       return NextResponse.json({ error: "email y role son obligatorios" }, { status: 400 });

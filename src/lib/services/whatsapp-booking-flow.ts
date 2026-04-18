@@ -650,9 +650,11 @@ async function clearFlowState(sb: SB, conversationId: string): Promise<void> {
 
 function getNext5BusinessDays(): { label: string; value: string }[] {
   const result: { label: string; value: string }[] = [];
-  const d = new Date();
-  // Use ART timezone offset
-  d.setMinutes(d.getMinutes() + d.getTimezoneOffset() - 180);
+  // Use proper IANA timezone instead of hardcoded offset
+  const nowInBsAs = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }),
+  );
+  const d = new Date(nowInBsAs);
 
   while (result.length < 5) {
     d.setDate(d.getDate() + 1);

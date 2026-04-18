@@ -9,6 +9,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
+import { HelpTooltip } from "@/components/HelpTooltip";
 import { useTriages, useTriageKPIs } from "@/lib/hooks/useModules";
 import { usePacientes } from "@/hooks/use-data";
 import {
@@ -37,7 +38,16 @@ export default function TriagePage() {
   const [clinicalNotes, setClinicalNotes] = useState("");
   const [selectedICD, setSelectedICD] = useState<string[]>([]);
   const [treatmentPlan, setTreatmentPlan] = useState("");
+  const [selectedReferral, setSelectedReferral] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [aiAssessment, setAiAssessment] = useState<{
+    severity: string;
+    specialty: string;
+    icd10Code: string;
+    icd10Description: string;
+    recommendedAction: string;
+    requiresImmediateAttention: boolean;
+  } | null>(null);
 
   // ─── Patient selector ───────────────────────────────────────
   const [patientSearch, setPatientSearch] = useState("");
@@ -556,6 +566,10 @@ export default function TriagePage() {
                       }),
                     });
                     if (res.ok) {
+                      const result = await res.json();
+                      if (result.aiAssessment) {
+                        setAiAssessment(result.aiAssessment);
+                      }
                       showToast(t("triage.saveDetail"), "success");
                     } else {
                       showToast("Error al guardar", "error");
@@ -568,6 +582,59 @@ export default function TriagePage() {
               >
                 {t("triage.saveDetail")}
               </button>
+            </div>
+          )}
+
+          {/* AI Assessment Banner */}
+          {aiAssessment && (
+            <div
+              className={`border rounded-lg p-4 space-y-3 ${aiAssessment.requiresImmediateAttention ? "bg-red-50 border-red-300" : "bg-celeste-pale/30 border-celeste-light"}`}
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-bold text-ink flex items-center gap-2">
+                  🤖 Evaluación IA
+                  <span
+                    className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                      aiAssessment.severity === "emergencia"
+                        ? "bg-red-100 text-red-700"
+                        : aiAssessment.severity === "urgente"
+                          ? "bg-orange-100 text-orange-700"
+                          : aiAssessment.severity === "moderado"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {aiAssessment.severity.toUpperCase()}
+                  </span>
+                </h4>
+                <span className="px-2 py-0.5 bg-ink/10 text-ink text-xs font-mono rounded">
+                  {aiAssessment.icd10Code} — {aiAssessment.icd10Description}
+                </span>
+              </div>
+              <p className="text-sm text-ink-light">
+                <strong>Especialidad:</strong> {aiAssessment.specialty} · <strong>Acción:</strong>{" "}
+                {aiAssessment.recommendedAction}
+              </p>
+              {aiAssessment.requiresImmediateAttention && (
+                <div className="flex items-center gap-3 bg-red-100 border border-red-300 rounded-lg p-3">
+                  <span className="text-2xl">🚨</span>
+                  <div>
+                    <p className="text-sm font-bold text-red-700">ATENCIÓN INMEDIATA REQUERIDA</p>
+                    <p className="text-xs text-red-600">
+                      Llamar al 107 (SAME) o derivar a guardia de emergencias.
+                    </p>
+                  </div>
+                  <a
+                    href="tel:107"
+                    className="ml-auto px-4 py-2 bg-red-600 text-white text-sm font-bold rounded hover:bg-red-700 transition whitespace-nowrap"
+                  >
+                    📞 Llamar 107
+                  </a>
+                </div>
+              )}
+              <p className="text-[10px] text-ink-muted">
+                ⚠️ Esta evaluación es orientativa y no reemplaza una consulta médica profesional.
+              </p>
             </div>
           )}
         </div>
@@ -854,8 +921,9 @@ export default function TriagePage() {
           <div className="bg-white border border-border rounded-lg p-6 space-y-5">
             {/* ICD-10 selector */}
             <div>
-              <label className="text-xs text-ink-muted block mb-2">
+              <label className="text-xs text-ink-muted mb-2 flex items-center gap-1">
                 {t("triage.diagnosisIcd10")}
+                <HelpTooltip content={t("help.icd10")} position="right" />
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {icd10Codes.map((icd) => (
@@ -918,6 +986,8 @@ export default function TriagePage() {
               <div className="flex gap-2">
                 <select
                   aria-labelledby="lbl-derivaciones"
+                  value={selectedReferral}
+                  onChange={(e) => setSelectedReferral(e.target.value)}
                   className="flex-1 px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
                 >
                   <option value="">{t("triage.noReferral")}</option>
@@ -931,11 +1001,45 @@ export default function TriagePage() {
                   <option>Imágenes</option>
                 </select>
                 <button
-                  onClick={() =>
-                    !isDemo
-                      ? showToast(t("toast.triage.addReferral"), "success")
-                      : showDemo(t("triage.addReferralDemo"))
-                  }
+                  onClick={async () => {
+                    if (isDemo) {
+                      showDemo(t("triage.addReferralDemo"));
+                      return;
+                    }
+                    if (!selectedReferral) {
+                      showToast("Seleccione una especialidad", "error");
+                      return;
+                    }
+                    try {
+                      const res = await fetch("/api/triage", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          action: "save-clinical-note",
+                          data: {
+                            patientId: selectedPatient?.id ?? null,
+                            doctorName: "",
+                            patientName: patientDisplayName,
+                            icd10Codes: selectedICD,
+                            notes: `Derivación: ${selectedReferral}`,
+                            treatmentPlan: "",
+                            referrals: [selectedReferral],
+                          },
+                        }),
+                      });
+                      if (res.ok) {
+                        showToast(
+                          `${t("toast.triage.addReferral")}: ${selectedReferral}`,
+                          "success",
+                        );
+                        setSelectedReferral("");
+                      } else {
+                        showToast("Error al guardar derivación", "error");
+                      }
+                    } catch {
+                      showToast("Error de conexión", "error");
+                    }
+                  }}
                   className="px-4 py-2.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                 >
                   {t("triage.addReferral")}
@@ -945,16 +1049,39 @@ export default function TriagePage() {
 
             <div className="flex gap-3">
               <button
-                onClick={() =>
-                  !isDemo
-                    ? showToast(
-                        `${t("triage.saveClinicalNote")}: ICD-10 ${selectedICD.join(", ") || "N/A"} — ${t("triage.treatmentPlan")}: ${treatmentPlan.substring(0, 50) || "N/A"}`,
-                        "success",
-                      )
-                    : showDemo(
-                        `${t("triage.saveClinicalNote")}: ICD-10 ${selectedICD.join(", ") || "N/A"} — ${t("triage.treatmentPlan")}: ${treatmentPlan.substring(0, 50) || "N/A"}`,
-                      )
-                }
+                onClick={async () => {
+                  if (isDemo) {
+                    showDemo(
+                      `${t("triage.saveClinicalNote")}: ICD-10 ${selectedICD.join(", ") || "N/A"} — ${t("triage.treatmentPlan")}: ${treatmentPlan.substring(0, 50) || "N/A"}`,
+                    );
+                    return;
+                  }
+                  try {
+                    const res = await fetch("/api/triage", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        action: "save-clinical-note",
+                        data: {
+                          patientId: selectedPatient?.id ?? null,
+                          doctorName: "",
+                          patientName: patientDisplayName,
+                          icd10Codes: selectedICD,
+                          notes: clinicalNotes,
+                          treatmentPlan,
+                          referrals: [],
+                        },
+                      }),
+                    });
+                    if (res.ok) {
+                      showToast(t("triage.saveClinicalNote"), "success");
+                    } else {
+                      showToast("Error al guardar nota clínica", "error");
+                    }
+                  } catch {
+                    showToast("Error de conexión", "error");
+                  }
+                }}
                 className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
               >
                 {t("triage.saveClinicalNote")}

@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
+import { availabilitySchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -78,6 +79,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
+    const parsed = availabilitySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const { doctorId, date, timeSlots } = body as {
       doctorId: string;
       date: string;

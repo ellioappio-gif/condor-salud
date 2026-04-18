@@ -307,7 +307,7 @@ export default function FarmaciaPage() {
                               } catch {
                                 showToast(
                                   t("pharmacy.toast.addToCart").replace("{name}", med.name),
-                                  "success",
+                                  "error",
                                 );
                               }
                             }}
@@ -402,7 +402,7 @@ export default function FarmaciaPage() {
                           } catch {
                             showToast(
                               t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
-                              "success",
+                              "error",
                             );
                           }
                         }}
@@ -679,7 +679,7 @@ export default function FarmaciaPage() {
                       } catch {
                         showToast(
                           t("pharmacy.toast.editRecurring").replace("{id}", order.id),
-                          "success",
+                          "error",
                         );
                       }
                     }}
@@ -720,7 +720,7 @@ export default function FarmaciaPage() {
                           order.status === "Activo"
                             ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
                             : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
-                          "success",
+                          "error",
                         );
                       }
                     }}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { checkRateLimit } from "@/lib/security/api-guard";
+import { demoLoginSchema } from "@/lib/validations/schemas";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const DEMO_PASS = process.env.DEMO_ADMIN_PASSWORD || "demo1234";
@@ -16,6 +17,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
+    const parsed = demoLoginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const { password } = body as { password?: string };
 
     if (!password || password !== DEMO_PASS) {

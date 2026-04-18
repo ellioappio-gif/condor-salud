@@ -82,6 +82,10 @@ export default function TurnosPage() {
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | undefined>();
   const [bookingType, setBookingType] = useState<"presencial" | "teleconsulta">("presencial");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rescheduleApt, setRescheduleApt] = useState<PatientAppointment | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("");
+  const [isRescheduling, setIsRescheduling] = useState(false);
 
   // Fetch real available slots when specialty + date are chosen
   const { data: availableSlots, isLoading: slotsLoading } = useAvailableSlots(
@@ -125,6 +129,52 @@ export default function TurnosPage() {
     setSelectedDoctorId(undefined);
     setBookingType("presencial");
     setIsSubmitting(false);
+  };
+
+  /** Returns true if an appointment is within 2 hours from now */
+  const isWithin2Hours = (apt: PatientAppointment) => {
+    try {
+      const aptTime = new Date(`${apt.date}T${apt.time}`);
+      return aptTime.getTime() - Date.now() < 2 * 60 * 60 * 1000;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleReschedule = async () => {
+    if (!rescheduleApt || !rescheduleDate || !rescheduleTime) return;
+    setIsRescheduling(true);
+    // Optimistic update
+    setLocalAppointments((prev) =>
+      prev.map((a) =>
+        a.id === rescheduleApt.id
+          ? {
+              ...a,
+              date: rescheduleDate,
+              time: rescheduleTime,
+              status: "pendiente" as AppointmentStatus,
+            }
+          : a,
+      ),
+    );
+    showToast(t("patient.appointmentRescheduled"));
+    try {
+      await fetch(`/api/appointments/${rescheduleApt.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date: rescheduleDate, time: rescheduleTime, status: "pendiente" }),
+      });
+    } catch {
+      // Revert
+      setLocalAppointments((prev) =>
+        prev.map((a) => (a.id === rescheduleApt.id ? rescheduleApt : a)),
+      );
+      showToast(t("patient.rescheduleError"));
+    }
+    setRescheduleApt(null);
+    setRescheduleDate("");
+    setRescheduleTime("");
+    setIsRescheduling(false);
   };
 
   return (
@@ -242,6 +292,10 @@ export default function TurnosPage() {
                 )}
                 <button
                   onClick={async () => {
+                    if (isWithin2Hours(apt)) {
+                      showToast(t("patient.cannotCancelWithin2Hours"));
+                      return;
+                    }
                     // Optimistic: update local state immediately
                     setLocalAppointments((prev) =>
                       prev.map((a) =>
@@ -260,9 +314,29 @@ export default function TurnosPage() {
                       showToast(t("patient.cancelError"));
                     }
                   }}
-                  className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-[4px] hover:bg-red-100 transition"
+                  disabled={isWithin2Hours(apt)}
+                  title={isWithin2Hours(apt) ? t("patient.cannotCancelWithin2Hours") : undefined}
+                  className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-[4px] hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t("patient.cancelAppointment")}
+                </button>
+                <button
+                  onClick={() => {
+                    if (isWithin2Hours(apt)) {
+                      showToast(t("patient.cannotRescheduleWithin2Hours"));
+                      return;
+                    }
+                    setRescheduleApt(apt);
+                    setRescheduleDate("");
+                    setRescheduleTime("");
+                  }}
+                  disabled={isWithin2Hours(apt)}
+                  title={
+                    isWithin2Hours(apt) ? t("patient.cannotRescheduleWithin2Hours") : undefined
+                  }
+                  className="text-xs font-medium bg-celeste-50 text-celeste-dark px-3 py-1.5 rounded-[4px] hover:bg-celeste-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t("patient.reschedule")}
                 </button>
               </div>
             )}
@@ -581,6 +655,104 @@ export default function TurnosPage() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Reschedule modal ──────────────────────────────── */}
+      {rescheduleApt && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={(e) => e.target === e.currentTarget && setRescheduleApt(null)}
+          onKeyDown={(e) => e.key === "Escape" && setRescheduleApt(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("patient.rescheduleTitle")}
+            className="bg-white rounded-2xl max-w-md w-full shadow-xl overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
+              <h2 className="text-lg font-bold text-ink">{t("patient.rescheduleTitle")}</h2>
+              <button
+                onClick={() => setRescheduleApt(null)}
+                aria-label={t("patient.closeModal")}
+                className="p-1 text-ink-muted hover:text-ink"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-6 py-4 space-y-4">
+              {/* Doctor info (read-only) */}
+              <div className="bg-surface rounded-xl p-3">
+                <p className="text-sm font-semibold text-ink">{rescheduleApt.doctor}</p>
+                <p className="text-xs text-ink-muted">{rescheduleApt.specialty}</p>
+              </div>
+              {/* New date */}
+              <div>
+                <label className="text-xs font-medium text-ink-muted block mb-1">
+                  {t("patient.newDate")}
+                </label>
+                <input
+                  type="date"
+                  value={rescheduleDate}
+                  onChange={(e) => {
+                    setRescheduleDate(e.target.value);
+                    setRescheduleTime("");
+                  }}
+                  min={new Date().toISOString().split("T")[0]}
+                  className="w-full border border-border-light rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
+                />
+              </div>
+              {/* Time slots */}
+              {rescheduleDate && (
+                <div>
+                  <label className="text-xs font-medium text-ink-muted block mb-1">
+                    {t("patient.newTime")}
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      "08:00",
+                      "08:30",
+                      "09:00",
+                      "09:30",
+                      "10:00",
+                      "10:30",
+                      "11:00",
+                      "11:30",
+                      "14:00",
+                      "14:30",
+                      "15:00",
+                      "15:30",
+                      "16:00",
+                      "16:30",
+                      "17:00",
+                      "17:30",
+                    ].map((slot) => (
+                      <button
+                        key={slot}
+                        onClick={() => setRescheduleTime(slot)}
+                        className={`text-xs px-2 py-2 rounded-lg border transition ${
+                          rescheduleTime === slot
+                            ? "border-celeste-dark bg-celeste-50 text-celeste-dark font-semibold"
+                            : "border-border-light hover:border-celeste-200 text-ink-500"
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button
+                disabled={!rescheduleDate || !rescheduleTime || isRescheduling}
+                onClick={handleReschedule}
+                className="w-full bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isRescheduling && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t("patient.confirmReschedule")}
+              </button>
+            </div>
           </div>
         </div>
       )}

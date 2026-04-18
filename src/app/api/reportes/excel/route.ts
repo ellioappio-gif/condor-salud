@@ -31,6 +31,7 @@ import { getInflacionMensual, getFinanciadoresInflacion } from "@/lib/services/i
 import { logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { checkRateLimit } from "@/lib/security/api-guard";
+import { reportSchema } from "@/lib/validations/schemas";
 
 const REPORT_TYPES = [
   "facturacion",
@@ -55,6 +56,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    const parsed = reportSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const type = body.type as ExcelType;
     const meta: ExcelMeta = body.meta || {
       clinicName: "Clínica Demo",

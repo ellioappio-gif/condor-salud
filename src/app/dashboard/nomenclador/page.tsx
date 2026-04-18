@@ -7,6 +7,7 @@ import { useNomencladorEntries } from "@/hooks/use-data";
 import { useLocale } from "@/lib/i18n/context";
 import { formatCurrency } from "@/lib/utils";
 import { EmptyState } from "@/components/ui";
+import { HelpTooltip } from "@/components/HelpTooltip";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -97,7 +98,14 @@ export default function NomencladorPage() {
                   : "—",
                 color: "border-green-400",
               },
-              { label: t("nomenclator.lastUpdate"), value: "01/03/2026", color: "border-celeste" },
+              {
+                label: t("nomenclator.lastUpdate"),
+                value: new Date().toLocaleDateString("es-AR", {
+                  month: "2-digit",
+                  year: "numeric",
+                }),
+                color: "border-celeste",
+              },
             ].map((k) => (
               <div
                 key={k.label}
@@ -157,7 +165,10 @@ export default function NomencladorPage() {
                     {t("nomenclator.module")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    {t("nomenclator.valueSSSHeader")}
+                    <div className="flex items-center justify-end gap-1">
+                      {t("nomenclator.valueSSSHeader")}
+                      <HelpTooltip content={t("help.valorSSS")} />
+                    </div>
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
                     {t("nomenclator.valuePAMIHeader")}

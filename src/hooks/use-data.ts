@@ -229,7 +229,12 @@ export function useNomencladorEntries() {
       const { getNomencladorEntries } = await import("@/lib/services/nomenclador");
       return getNomencladorEntries();
     },
-    { revalidateOnFocus: false, dedupingInterval: 60000 },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 3600000,
+      refreshInterval: 0,
+    },
   );
 }
 

@@ -1,11 +1,25 @@
 // ─── CRUD /api/services — Clinic service pricing ─────────────
 // Uses service-role client for DB ops (RLS bypass) + requireAuth for auth.
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getServiceClient } from "@/lib/supabase/service";
 import { requireAuth } from "@/lib/security/require-auth";
+import { checkRateLimit } from "@/lib/security/api-guard";
 
 export const runtime = "nodejs";
+
+const CreateServiceSchema = z.object({
+  name: z.string().min(1, "Name is required").max(200),
+  description: z.string().max(1000).optional().nullable(),
+  category: z.string().default("consulta"),
+  price: z.number().min(0).default(0),
+  ef_price: z.number().min(0).optional().nullable(),
+  currency: z.string().default("ARS"),
+  duration_min: z.number().int().min(5).max(480).optional().nullable(),
+  notes: z.string().max(1000).optional().nullable(),
+  active: z.boolean().default(true),
+});
 
 /* ── Auth helper: get clinicId + role ─────────────────── */
 async function authorize(req: NextRequest, roles?: string[]) {
@@ -73,14 +87,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
+  const limited = checkRateLimit(req, "services-write", { limit: 20, windowSec: 60 });
+  if (limited) return limited;
+
   const auth = await authorize(req, ["admin", "recepcion"]);
   if ("error" in auth) return auth.error;
 
-  const body = await req.json();
-  const { name, description, category, price, ef_price, currency, duration_min, notes, active } =
-    body;
+  const rawBody = await req.json();
+  const parsed = CreateServiceSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Datos inválidos", details: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
 
-  if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+  const { name, description, category, price, ef_price, currency, duration_min, notes, active } =
+    parsed.data;
 
   const sb = getServiceClient();
   const { data, error } = await sb

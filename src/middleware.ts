@@ -96,6 +96,21 @@ function buildCspHeader(_nonce: string): string {
   ].join("; ");
 }
 
+/** SH-08: Apply all security headers to a response */
+function applySecurityHeaders(response: NextResponse, cspHeader: string): NextResponse {
+  response.headers.set("Content-Security-Policy", cspHeader);
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=()",
+  );
+  response.headers.set("X-DNS-Prefetch-Control", "on");
+  return response;
+}
+
 // ─── Middleware ───────────────────────────────────────────────
 // Dashboard is currently in DEMO MODE — publicly accessible with synthetic data.
 // When real clinics onboard, re-enable the 3 Supabase auth gates:
@@ -115,14 +130,14 @@ export async function middleware(request: NextRequest) {
   // Public API routes — skip auth checks, still apply CSP
   if (PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set("Content-Security-Policy", cspHeader);
+    applySecurityHeaders(response, cspHeader);
     return response;
   }
 
   // Public pages (landing, pricing, legal, patient portal) — no auth
   if (isPublicPage(pathname) && !pathname.startsWith("/dashboard")) {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set("Content-Security-Policy", cspHeader);
+    applySecurityHeaders(response, cspHeader);
     return response;
   }
 
@@ -137,7 +152,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith("/dashboard") && !isSupabaseReady) {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set("Content-Security-Policy", cspHeader);
+    applySecurityHeaders(response, cspHeader);
     return response;
   }
 
@@ -158,7 +173,7 @@ export async function middleware(request: NextRequest) {
 
       if (!user && isProtectedApi) {
         const r = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        r.headers.set("Content-Security-Policy", cspHeader);
+        applySecurityHeaders(r, cspHeader);
         return r;
       }
 
@@ -166,7 +181,7 @@ export async function middleware(request: NextRequest) {
         const loginUrl = new URL("/auth/login", request.url);
         loginUrl.searchParams.set("redirect", pathname);
         const r = NextResponse.redirect(loginUrl);
-        r.headers.set("Content-Security-Policy", cspHeader);
+        applySecurityHeaders(r, cspHeader);
         return r;
       }
 
@@ -174,7 +189,7 @@ export async function middleware(request: NextRequest) {
       if (user && AUTH_ROUTES.includes(pathname)) {
         const redirectTo = sanitizeRedirect(request.nextUrl.searchParams.get("redirect"));
         const r = NextResponse.redirect(new URL(redirectTo, request.url));
-        r.headers.set("Content-Security-Policy", cspHeader);
+        applySecurityHeaders(r, cspHeader);
         return r;
       }
 
@@ -189,7 +204,7 @@ export async function middleware(request: NextRequest) {
         if (!emailConfirmed && !isStaff && pathname !== AUTH_VERIFY_ROUTE) {
           // Allow access to /auth/verificar-email even while on dashboard routes
           const r = NextResponse.redirect(new URL(AUTH_VERIFY_ROUTE, request.url));
-          r.headers.set("Content-Security-Policy", cspHeader);
+          applySecurityHeaders(r, cspHeader);
           return r;
         }
       }
@@ -214,13 +229,13 @@ export async function middleware(request: NextRequest) {
 
             if (clinic && !clinic.onboarding_completed) {
               const r = NextResponse.redirect(new URL(ONBOARDING_ROUTE, request.url));
-              r.headers.set("Content-Security-Policy", cspHeader);
+              applySecurityHeaders(r, cspHeader);
               return r;
             }
           } else {
             // No clinic linked — force onboarding
             const r = NextResponse.redirect(new URL(ONBOARDING_ROUTE, request.url));
-            r.headers.set("Content-Security-Policy", cspHeader);
+            applySecurityHeaders(r, cspHeader);
             return r;
           }
         }
@@ -237,29 +252,29 @@ export async function middleware(request: NextRequest) {
             !canAccessRoute(userRole as "admin" | "medico" | "facturacion" | "recepcion", pathname)
           ) {
             const r = NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
-            r.headers.set("Content-Security-Policy", cspHeader);
+            applySecurityHeaders(r, cspHeader);
             return r;
           }
         }
       }
 
       // SH-07: Apply CSP header to the Supabase-refreshed response
-      response.headers.set("Content-Security-Policy", cspHeader);
+      applySecurityHeaders(response, cspHeader);
       return response;
     } catch {
       // If Supabase auth fails, redirect to login for dashboard, block APIs
       if (pathname.startsWith("/api/")) {
         const r = NextResponse.json({ error: "Auth service unavailable" }, { status: 503 });
-        r.headers.set("Content-Security-Policy", cspHeader);
+        applySecurityHeaders(r, cspHeader);
         return r;
       }
       if (pathname.startsWith("/dashboard")) {
         const r = NextResponse.redirect(new URL("/auth/login", request.url));
-        r.headers.set("Content-Security-Policy", cspHeader);
+        applySecurityHeaders(r, cspHeader);
         return r;
       }
       const r = NextResponse.next({ request: { headers: requestHeaders } });
-      r.headers.set("Content-Security-Policy", cspHeader);
+      applySecurityHeaders(r, cspHeader);
       return r;
     }
   }
@@ -270,18 +285,18 @@ export async function middleware(request: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     if (pathname.startsWith("/dashboard")) {
       const r = NextResponse.redirect(new URL("/auth/login?error=no_auth_backend", request.url));
-      r.headers.set("Content-Security-Policy", cspHeader);
+      applySecurityHeaders(r, cspHeader);
       return r;
     }
     if (pathname.startsWith("/api/") && !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p))) {
       const r = NextResponse.json({ error: "Auth backend not configured" }, { status: 503 });
-      r.headers.set("Content-Security-Policy", cspHeader);
+      applySecurityHeaders(r, cspHeader);
       return r;
     }
   }
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
-  response.headers.set("Content-Security-Policy", cspHeader);
+  applySecurityHeaders(response, cspHeader);
   return response;
 }
 

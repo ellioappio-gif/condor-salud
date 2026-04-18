@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { logger } from "@/lib/logger";
+import { bookingStatusSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -113,6 +114,14 @@ export async function PATCH(req: NextRequest, ctx: RouteCtx) {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const parsed = bookingStatusSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
   }
 
   if (!body.action || !["cancel", "reschedule"].includes(body.action)) {

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAnyAuth } from "@/lib/security/jwt-auth";
 import * as mpService from "@/lib/services/mercadopago";
 import { logger } from "@/lib/logger";
+import { paymentPreferenceSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    const parsed = paymentPreferenceSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const { bookingId, doctorId, doctorName, consultationFee, description } = body;
 
     if (!bookingId || !doctorId || !consultationFee) {

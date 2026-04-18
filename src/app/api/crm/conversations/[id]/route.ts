@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { getMessages, markConversationRead, sendMessage } from "@/lib/services/whatsapp";
+import { crmConversationMessageSchema } from "@/lib/validations/schemas";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -52,6 +53,13 @@ export async function POST(req: NextRequest, { params }: Params) {
 
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
+    const parsed = crmConversationMessageSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
 
     if (!body.body || !body.to) {
       return NextResponse.json({ error: "body and to are required" }, { status: 400 });

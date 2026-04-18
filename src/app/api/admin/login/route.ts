@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { signAccessToken } from "@/lib/security/jwt-auth";
 import { checkRateLimit } from "@/lib/security/api-guard";
 import { logger } from "@/lib/logger";
+import { adminLoginSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    const parsed = adminLoginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const { email, password } = body;
 
     if (!email || !password) {

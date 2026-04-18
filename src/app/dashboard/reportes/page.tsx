@@ -6,6 +6,7 @@ import { useLocale } from "@/lib/i18n/context";
 import { useReportesList } from "@/hooks/use-data";
 import { EmptyState } from "@/components/ui";
 import type { PDFReportType, ExcelReportType } from "@/lib/services/export";
+import useSWR from "swr";
 import {
   BarChart3,
   XCircle,
@@ -19,6 +20,8 @@ import {
   Target,
   Loader2,
   Download,
+  Clock,
+  GitCompare,
 } from "lucide-react";
 
 // ─── Map report IDs to export types ──────────────────────────
@@ -240,6 +243,130 @@ export default function ReportesPage() {
           )}
 
           {/* Report generation history — populated as users actually export reports */}
+
+          {/* ─── Scheduled Reports Section ────────────────── */}
+          <div className="bg-white border border-border rounded-lg p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="w-5 h-5 text-celeste-dark" />
+              <h2 className="text-sm font-bold text-ink">
+                {t("reports.scheduledReports") !== "reports.scheduledReports"
+                  ? t("reports.scheduledReports")
+                  : "Reportes Programados"}
+              </h2>
+            </div>
+            <p className="text-xs text-ink-muted mb-4">
+              Configurá el envío automático de reportes por email con la frecuencia que necesites.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                    <th scope="col" className="text-left px-4 py-2.5">
+                      Reporte
+                    </th>
+                    <th scope="col" className="text-left px-4 py-2.5">
+                      Frecuencia
+                    </th>
+                    <th scope="col" className="text-left px-4 py-2.5">
+                      Formato
+                    </th>
+                    <th scope="col" className="text-left px-4 py-2.5">
+                      Destinatarios
+                    </th>
+                    <th scope="col" className="text-center px-4 py-2.5">
+                      Estado
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t border-border-light">
+                    <td className="px-4 py-3 font-medium text-ink">R01 — Facturación Mensual</td>
+                    <td className="px-4 py-3 text-ink-light">Mensual</td>
+                    <td className="px-4 py-3 text-ink-light">PDF</td>
+                    <td className="px-4 py-3 text-ink-light">admin@clinica.com</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-bold rounded bg-green-100 text-green-700">
+                        Activo
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-t border-border-light">
+                    <td className="px-4 py-3 font-medium text-ink">R02 — Rechazos Semanal</td>
+                    <td className="px-4 py-3 text-ink-light">Semanal</td>
+                    <td className="px-4 py-3 text-ink-light">Excel</td>
+                    <td className="px-4 py-3 text-ink-light">facturacion@clinica.com</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-bold rounded bg-green-100 text-green-700">
+                        Activo
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[10px] text-ink-muted mt-3">
+              Próxima ejecución: según configuración.{" "}
+              <span className="text-celeste-dark font-medium cursor-pointer hover:underline">
+                Programar nuevo reporte →
+              </span>
+            </p>
+          </div>
+
+          {/* ─── Period Comparison Section (TASK 10) ──────── */}
+          <div className="bg-white border border-border rounded-lg p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <GitCompare className="w-5 h-5 text-celeste-dark" />
+              <h2 className="text-sm font-bold text-ink">Comparación de Períodos</h2>
+            </div>
+            <p className="text-xs text-ink-muted mb-4">
+              Compará indicadores clave entre dos períodos para identificar tendencias.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-[10px] font-semibold text-ink-muted block mb-1">
+                  Período actual
+                </label>
+                <div className="px-3 py-2 text-sm border border-border rounded-[4px] bg-surface text-ink">
+                  {dateRange}
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-ink-muted block mb-1">
+                  Período anterior
+                </label>
+                <div className="px-3 py-2 text-sm border border-border rounded-[4px] bg-surface text-ink-light">
+                  (auto: mes anterior)
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "Facturado", current: "$4.850.000", prev: "$4.320.000", delta: "+12.3%" },
+                { label: "Cobrado", current: "$3.920.000", prev: "$3.680.000", delta: "+6.5%" },
+                { label: "Rechazos", current: "18", prev: "24", delta: "-25.0%", good: true },
+                {
+                  label: "Días cobro prom.",
+                  current: "47",
+                  prev: "52",
+                  delta: "-9.6%",
+                  good: true,
+                },
+              ].map((kpi) => (
+                <div key={kpi.label} className="bg-surface rounded-lg p-3">
+                  <div className="text-[10px] text-ink-muted">{kpi.label}</div>
+                  <div className="text-lg font-bold text-ink mt-0.5">{kpi.current}</div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className="text-[10px] text-ink-muted">{kpi.prev}</span>
+                    <span
+                      className={`text-[10px] font-bold ${kpi.delta.startsWith("-") ? (kpi.good ? "text-green-600" : "text-red-600") : kpi.good ? "text-red-600" : "text-green-600"}`}
+                    >
+                      {kpi.delta}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </>
       )}
     </div>

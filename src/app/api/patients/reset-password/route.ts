@@ -4,27 +4,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as patientAuth from "@/lib/services/patient-auth";
 import { logger } from "@/lib/logger";
+import { passwordResetRequestSchema, passwordResetConfirmSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const url = new URL(request.url);
 
     // Determine if this is a request or confirm based on body fields
     if (body.token && body.password) {
-      // Confirm reset
+      const parsed = passwordResetConfirmSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json(
+          { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+          { status: 400 },
+        );
+      }
       const result = await patientAuth.resetPassword({
-        token: body.token,
-        password: body.password,
+        token: parsed.data.token,
+        password: parsed.data.password,
       });
       return NextResponse.json(result);
     }
 
     if (body.email) {
-      // Request reset
-      const result = await patientAuth.requestPasswordReset(body.email);
+      const parsed = passwordResetRequestSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json(
+          { error: "Email inválido", details: parsed.error.flatten().fieldErrors },
+          { status: 400 },
+        );
+      }
+      const result = await patientAuth.requestPasswordReset(parsed.data.email);
       return NextResponse.json(result);
     }
 

@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import * as club from "@/lib/services/club";
+import { clubJoinSchema } from "@/lib/validations/schemas";
 
 // POST /api/club/join — Join a club plan
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const parsed = clubJoinSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const { patientId, planSlug, mpSubscriptionId } = body;
 
     if (!patientId || !planSlug) {

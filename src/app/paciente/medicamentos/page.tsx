@@ -15,6 +15,7 @@ import {
   FileText,
   ShoppingCart,
   Calendar,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
@@ -65,6 +66,45 @@ export default function MedicamentosPage() {
   const { data: orders } = useMyMedOrders();
   const [tab, setTab] = useState<Tab>("activos");
   const [search, setSearch] = useState("");
+  const [takenToday, setTakenToday] = useState<Record<string, boolean>>({});
+  const [loggingDose, setLoggingDose] = useState<string | null>(null);
+  const isDemoMode = true;
+
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return {
+      date: d,
+      dateStr: d.toISOString().split("T")[0],
+      label: d.toLocaleDateString("es-AR", { weekday: "short" }).slice(0, 2),
+    };
+  });
+
+  // Demo adherence history (random for each med)
+  const demoAdherenceHistory: Record<string, string[]> = {};
+  for (const m of medications ?? []) {
+    demoAdherenceHistory[m.id] = last7Days
+      .filter((_, i) => i < 6 && Math.random() > 0.2)
+      .map((d) => d.dateStr!);
+  }
+
+  const logDose = (medicationId: string) => {
+    if (isDemoMode) {
+      setTakenToday((prev) => ({ ...prev, [medicationId]: true }));
+      showToast(t("adherence.logged"));
+      return;
+    }
+    setLoggingDose(medicationId);
+    fetch("/api/patients/medications/adherence", {
+      method: "POST",
+      body: JSON.stringify({ medicationId, takenAt: new Date().toISOString().split("T")[0] }),
+      headers: { "Content-Type": "application/json" },
+    }).then(() => {
+      setTakenToday((prev) => ({ ...prev, [medicationId]: true }));
+      setLoggingDose(null);
+      showToast(t("adherence.logged"));
+    });
+  };
 
   const allMeds = medications ?? [];
   const allOrders = orders ?? [];
@@ -223,6 +263,61 @@ export default function MedicamentosPage() {
                   )}
                 </div>
               </div>
+
+              {/* ─── Adherence tracker (active meds only) ───── */}
+              {med.status === "activo" && (
+                <div className="mt-4 pt-4 border-t border-border-light">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-bold text-ink-muted uppercase tracking-wider">
+                      {t("adherence.title")}
+                    </p>
+                  </div>
+                  <div className="flex gap-1.5 mb-3">
+                    {last7Days.map((day, i) => {
+                      const taken =
+                        takenToday[med.id] && day.dateStr === last7Days[6]?.dateStr
+                          ? true
+                          : (demoAdherenceHistory[med.id] ?? []).includes(day.dateStr!);
+                      const isFuture = day.date > new Date();
+                      return (
+                        <div key={i} className="flex flex-col items-center gap-1">
+                          <div
+                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                              isFuture
+                                ? "bg-surface border border-border text-ink-muted"
+                                : taken
+                                  ? "bg-green-500 text-white"
+                                  : "bg-red-100 border border-red-200 text-red-500"
+                            }`}
+                          >
+                            {isFuture ? "" : taken ? "✓" : "×"}
+                          </div>
+                          <span className="text-[10px] text-ink-muted">{day.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {!takenToday[med.id] ? (
+                    <button
+                      onClick={() => logDose(med.id)}
+                      disabled={loggingDose === med.id}
+                      className="w-full flex items-center justify-center gap-2 py-2 border-2 border-dashed border-celeste/40 rounded-lg text-sm text-celeste hover:border-celeste hover:bg-celeste/5 transition-colors"
+                    >
+                      {loggingDose === med.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4" />
+                      )}
+                      {t("adherence.takenToday")}
+                    </button>
+                  ) : (
+                    <div className="w-full flex items-center justify-center gap-2 py-2 bg-green-50 rounded-lg text-sm text-green-700">
+                      <CheckCircle2 className="w-4 h-4" />
+                      {t("adherence.alreadyTaken")}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
           {filtered.length === 0 && (

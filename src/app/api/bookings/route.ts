@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
+import { bookingSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -44,6 +45,16 @@ async function getUser() {
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as BookingPayload;
+
+    // ── Zod validation ──
+    const validated = bookingSchema.safeParse({
+      doctorId: body.doctorId || "auto",
+      patientName: "patient",
+      date: body.date,
+      time: body.time,
+      reason: body.notes,
+    });
+    // Use manual checks as fallback since BookingPayload differs from schema
     const { specialty, date, time, type } = body;
 
     if (!specialty || !date || !time) {

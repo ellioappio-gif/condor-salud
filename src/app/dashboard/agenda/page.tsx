@@ -11,6 +11,7 @@ import {
   cancelTurno,
   confirmTurno,
   attendTurno,
+  checkConflict,
   type CreateTurnoInput,
 } from "@/lib/services/turnos";
 import type { Turno, Paciente } from "@/lib/services/data";
@@ -483,6 +484,20 @@ export default function AgendaPage() {
 
   const handleCreate = useCallback(
     async (input: CreateTurnoInput) => {
+      // P1-1: Pre-save double-booking guard
+      if (input.profesionalId && input.fecha && input.hora) {
+        const conflict = await checkConflict(input.profesionalId, input.fecha, input.hora);
+        if (conflict.hasConflict) {
+          showToast(
+            t("schedule.conflictError") !== "schedule.conflictError"
+              ? t("schedule.conflictError")
+              : "El profesional ya tiene un turno en ese horario",
+            "error",
+          );
+          return { success: false, error: "Conflicto de horario" };
+        }
+      }
+
       const result = await createTurno(input);
       if (result.success) {
         analytics.track("turno_created");

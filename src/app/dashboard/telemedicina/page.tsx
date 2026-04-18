@@ -211,7 +211,7 @@ export default function TelemedicinPage() {
                         } catch {
                           showToast(
                             t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
-                            "success",
+                            "error",
                           );
                         }
                       }}
@@ -392,7 +392,7 @@ export default function TelemedicinPage() {
                     if (!res.ok) throw new Error();
                     showToast(t("toast.telemed.endCall"), "success");
                   } catch {
-                    showToast(t("toast.telemed.endCall"), "success");
+                    showToast(t("toast.telemed.endCallError"), "error");
                   }
                 }}
                 className="px-4 py-2 text-xs font-semibold border border-red-300 text-red-600 rounded hover:bg-red-50 transition"

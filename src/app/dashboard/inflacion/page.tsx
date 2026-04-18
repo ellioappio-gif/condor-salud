@@ -15,6 +15,17 @@ import {
   AlertTriangle,
   Loader2,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 type Period = "3m" | "6m";
 type FinFilter = "Todos" | string;
@@ -40,8 +51,13 @@ export default function InflacionPage() {
   const totalCobrado = meses.reduce((s, m) => s + m.cobrado, 0);
   const ipcPromedio = Math.round((meses.reduce((s, m) => s + m.ipc, 0) / meses.length) * 10) / 10;
   const diasPromedio = Math.round(meses.reduce((s, m) => s + m.diasDemora, 0) / meses.length);
-  const maxBarHeight = 160;
-  const maxPerdida = Math.max(...meses.map((m) => m.perdidaReal));
+
+  const chartData = meses.map((m) => ({
+    name: m.mes.slice(0, 3),
+    perdidaReal: m.perdidaReal,
+    cobrado: m.cobrado,
+    ipc: m.ipc,
+  }));
 
   return (
     <div className="space-y-5">
@@ -150,28 +166,71 @@ export default function InflacionPage() {
                 {t("inflation.realLossInflation")} — {t("inflation.lastMonths").toLowerCase()}{" "}
                 {period === "3m" ? "3" : "6"} {t("inflation.3months").split(" ")[1]}
               </div>
-              <div className="h-52 flex items-end gap-3 px-4">
-                {meses.map((m, i) => {
-                  const barHeight = Math.round((m.perdidaReal / maxPerdida) * maxBarHeight);
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="text-[10px] font-semibold text-red-600">
-                        {formatMonto(m.perdidaReal)}
-                      </div>
-                      <div
-                        className="w-full bg-celeste rounded-t transition-all"
-                        style={{ height: `${barHeight}px` }}
-                      />
-                      <span className="text-[10px] text-ink-muted">{m.mes.slice(0, 3)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex gap-4 mt-3 text-[10px] text-ink-muted">
-                <span className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 bg-celeste rounded-sm" />{" "}
-                  {t("inflation.realLossInflation")}
-                </span>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart
+                    data={chartData}
+                    margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis
+                      yAxisId="left"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v: number) => `${v}%`}
+                    />
+                    <Tooltip
+                      formatter={(value, name) =>
+                        name === "ipc"
+                          ? [`${value}%`, "IPC"]
+                          : [
+                              formatMonto(Number(value)),
+                              name === "perdidaReal" ? "Pérdida real" : "Cobrado",
+                            ]
+                      }
+                      labelStyle={{ fontSize: 12 }}
+                      contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                    />
+                    <Legend
+                      formatter={(value) =>
+                        value === "perdidaReal"
+                          ? "Pérdida real"
+                          : value === "cobrado"
+                            ? "Cobrado"
+                            : "IPC %"
+                      }
+                      wrapperStyle={{ fontSize: 11 }}
+                    />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="perdidaReal"
+                      fill="#ef4444"
+                      radius={[4, 4, 0, 0]}
+                      barSize={24}
+                    />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="cobrado"
+                      fill="#38bdf8"
+                      radius={[4, 4, 0, 0]}
+                      barSize={24}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="ipc"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
             </div>
             <div className="bg-white border border-border rounded-lg p-5">

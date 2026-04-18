@@ -1,11 +1,31 @@
 // ── CRUD /api/receipts — Billing receipts with line items ─────
 // Service-role client (RLS bypass) + requireAuth for authentication.
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getServiceClient } from "@/lib/supabase/service";
 import { requireAuth } from "@/lib/security/require-auth";
+import { checkRateLimit } from "@/lib/security/api-guard";
 
 export const runtime = "nodejs";
+
+const ReceiptItemSchema = z.object({
+  service_id: z.string().optional().nullable(),
+  service_name: z.string().min(1).default("Servicio"),
+  category: z.string().optional().nullable(),
+  unit_price: z.number().min(0),
+  quantity: z.number().int().min(1).default(1),
+  notes: z.string().max(500).optional().nullable(),
+});
+
+const CreateReceiptSchema = z.object({
+  patient_id: z.string().min(1, "patient_id is required"),
+  items: z.array(ReceiptItemSchema).min(1, "At least one item required"),
+  payment_method: z.string().optional().nullable(),
+  notes: z.string().max(1000).optional().nullable(),
+  discount: z.number().min(0).default(0),
+  status: z.string().optional(),
+});
 
 /* ── Auth helper ──────────────────────────────────────── */
 async function authorize(req: NextRequest, roles?: string[]) {
@@ -100,18 +120,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
+  const limited = checkRateLimit(req, "receipts-write", { limit: 20, windowSec: 60 });
+  if (limited) return limited;
+
   const auth = await authorize(req, ["admin", "recepcion", "medico"]);
   if ("error" in auth) return auth.error;
 
-  const body = await req.json();
-  const { patient_id, items, payment_method, notes, discount, status } = body;
+  const rawBody = await req.json();
+  const parsed = CreateReceiptSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Datos inválidos", details: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
 
-  if (!patient_id) {
-    return NextResponse.json({ error: "patient_id is required" }, { status: 400 });
-  }
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    return NextResponse.json({ error: "At least one service item is required" }, { status: 400 });
-  }
+  const { patient_id, items, payment_method, notes, discount, status } = parsed.data;
 
   // Calculate totals
   const lineItems = items.map((item: any) => ({

@@ -1,9 +1,13 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Allow: /medicos
+Allow: /planes
+Allow: /club
 Disallow: /dashboard/
 Disallow: /auth/
 Disallow: /api/
+Disallow: /paciente/
 Disallow: /sieczkowski/
 
 Sitemap: https://condorsalud.com/sitemap.xml

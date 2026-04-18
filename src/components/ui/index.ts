@@ -22,3 +22,6 @@ export {
   FilterBarSkeleton,
   PageSkeleton,
 } from "./Skeleton";
+export { BulkActionBar } from "./BulkActionBar";
+export { ColumnVisibility } from "./ColumnVisibility";
+export { HelpTooltip } from "../HelpTooltip";

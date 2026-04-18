@@ -13,6 +13,7 @@ import {
 } from "@/lib/services/health-tracker";
 import { requirePatientAuth } from "@/lib/security/jwt-auth";
 import { logger } from "@/lib/logger";
+import { healthTrackerSchema } from "@/lib/validations/schemas";
 
 async function getPatientId(req: NextRequest): Promise<string | NextResponse> {
   const auth = await requirePatientAuth(req);
@@ -64,6 +65,21 @@ export async function POST(req: NextRequest) {
     if (result instanceof NextResponse) return result;
     const patientId = result;
     const body = await req.json();
+
+    // ── Zod validation ──
+    const parsed = healthTrackerSchema.safeParse({
+      type: body.categoryId,
+      value: Number(body.value),
+      unit: body.unit,
+      date: body.measuredAt || new Date().toISOString(),
+      notes: body.notes,
+    });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
 
     if (!body.categoryId || body.value === undefined) {
       return NextResponse.json({ error: "categoryId and value are required" }, { status: 400 });

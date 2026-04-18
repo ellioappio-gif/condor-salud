@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as patientAuth from "@/lib/services/patient-auth";
 import { logger } from "@/lib/logger";
+import { patientRegisterSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -17,6 +18,15 @@ export async function POST(request: NextRequest) {
 
     if (action === "register") {
       const { email, password, name, phone } = body;
+
+      // ── Zod validation ──
+      const parsed = patientRegisterSchema.safeParse({ email, password, name, phone });
+      if (!parsed.success) {
+        return NextResponse.json(
+          { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+          { status: 400 },
+        );
+      }
 
       if (!email || !password || !name) {
         return NextResponse.json(

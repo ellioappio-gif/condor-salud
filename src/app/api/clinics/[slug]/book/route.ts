@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { checkRateLimit } from "@/lib/security/api-guard";
 import { logger } from "@/lib/logger";
+import { clinicBookingSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -30,23 +31,16 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
   if (limited) return limited;
 
   try {
-    const body = (await req.json()) as BookingBody;
+    const rawBody = await req.json();
+    const parsed = clinicBookingSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+    const body = parsed.data;
     const { slug } = params;
-
-    // Validate required fields
-    if (!body.patientName || !body.fecha || !body.hora || !body.doctorId) {
-      return NextResponse.json(
-        { error: "patientName, doctorId, fecha, and hora are required" },
-        { status: 400 },
-      );
-    }
-
-    if (!body.patientEmail && !body.patientPhone) {
-      return NextResponse.json(
-        { error: "At least patientEmail or patientPhone is required" },
-        { status: 400 },
-      );
-    }
 
     // ── Supabase path ──────────────────────────────
     if (isSupabaseConfigured()) {

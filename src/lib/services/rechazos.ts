@@ -35,14 +35,22 @@ export interface ReprocesarInput {
 
 // ─── Read Operations ─────────────────────────────────────────
 
-export async function getRechazosFiltered(filter?: RechazoFilter): Promise<Rechazo[]> {
+export async function getRechazosFiltered(
+  filter?: RechazoFilter,
+  clinicId?: string,
+): Promise<Rechazo[]> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
     let query = (sb as SupabaseClient)
       .from("rechazos")
       .select("*")
+      .is("deleted_at", null)
       .order("fecha_rechazo", { ascending: false });
+
+    if (clinicId) {
+      query = query.eq("clinic_id", clinicId);
+    }
 
     if (filter?.financiador && filter.financiador !== "Todos") {
       query = query.eq("financiador", filter.financiador);
@@ -79,15 +87,17 @@ export async function getRechazosFiltered(filter?: RechazoFilter): Promise<Recha
   return items;
 }
 
-export async function getRechazoById(id: string): Promise<Rechazo | null> {
+export async function getRechazoById(id: string, clinicId?: string): Promise<Rechazo | null> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as SupabaseClient)
+    let query = (sb as SupabaseClient)
       .from("rechazos")
       .select("*")
       .eq("id", id)
-      .single();
+      .is("deleted_at", null);
+    if (clinicId) query = query.eq("clinic_id", clinicId);
+    const { data, error } = await query.single();
     if (error) return null;
     return data ? mapRechazoFromDB(data) : null;
   }
@@ -99,19 +109,22 @@ export async function getRechazoById(id: string): Promise<Rechazo | null> {
 
 // ─── Write Operations ────────────────────────────────────────
 
-export async function reprocesarRechazo(input: ReprocesarInput): Promise<Rechazo> {
+export async function reprocesarRechazo(
+  input: ReprocesarInput,
+  clinicId?: string,
+): Promise<Rechazo> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as SupabaseClient)
+    let query = (sb as SupabaseClient)
       .from("rechazos")
       .update({
         estado: "reprocesado",
         fecha_resolucion: new Date().toISOString().split("T")[0],
       })
-      .eq("id", input.rechazoId)
-      .select()
-      .single();
+      .eq("id", input.rechazoId);
+    if (clinicId) query = query.eq("clinic_id", clinicId);
+    const { data, error } = await query.select().single();
     if (error) throw error;
     return mapRechazoFromDB(data);
   }
@@ -119,16 +132,16 @@ export async function reprocesarRechazo(input: ReprocesarInput): Promise<Rechazo
   throw new Error("Cannot reprocesar in demo mode");
 }
 
-export async function descartarRechazo(id: string): Promise<Rechazo> {
+export async function descartarRechazo(id: string, clinicId?: string): Promise<Rechazo> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as SupabaseClient)
+    let query = (sb as SupabaseClient)
       .from("rechazos")
       .update({ estado: "descartado" })
-      .eq("id", id)
-      .select()
-      .single();
+      .eq("id", id);
+    if (clinicId) query = query.eq("clinic_id", clinicId);
+    const { data, error } = await query.select().single();
     if (error) throw error;
     return mapRechazoFromDB(data);
   }
@@ -138,13 +151,16 @@ export async function descartarRechazo(id: string): Promise<Rechazo> {
 
 // ─── Stats ───────────────────────────────────────────────────
 
-export async function getRechazoStats(): Promise<RechazoStats> {
+export async function getRechazoStats(clinicId?: string): Promise<RechazoStats> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as SupabaseClient)
+    let query = (sb as SupabaseClient)
       .from("rechazos")
-      .select("monto,estado,reprocesable,motivo");
+      .select("monto,estado,reprocesable,motivo")
+      .is("deleted_at", null);
+    if (clinicId) query = query.eq("clinic_id", clinicId);
+    const { data } = await query;
 
     const items = data ?? [];
     const totalRechazado = items.reduce((s: number, r: DBRow) => s + Number(r.monto), 0);

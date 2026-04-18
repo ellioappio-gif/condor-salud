@@ -22,6 +22,9 @@ import { usePacientes, useTurnos } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
 import { analytics } from "@/lib/analytics";
 import { bodySystems, severityLabels, frequencyOptions } from "@/lib/services/triage";
+import { BulkActionBar } from "@/components/ui/BulkActionBar";
+import { ColumnVisibility } from "@/components/ui/ColumnVisibility";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 // ─── Patient display type ───────────────────────────────────
 interface PacienteDisplay {
@@ -582,6 +585,23 @@ function PacientesTabView({
   const { t, locale } = useLocale();
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedPatient, setExpandedPatient] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const patientColumns = [
+    { key: "nombre", label: t("patients.patientColumn") },
+    { key: "dni", label: t("patients.dni") },
+    { key: "financiador", label: t("patients.insurerColumn") },
+    { key: "edad", label: t("patients.ageColumn") },
+    { key: "ultimaVisita", label: t("patients.lastVisit") },
+    { key: "turnos", label: t("patients.appointmentsColumn") },
+    { key: "estado", label: t("patients.statusColumn") },
+    { key: "accion", label: t("patients.actionColumn") },
+  ];
+  const [visibleCols, setVisibleCols] = useLocalStorage<string[]>(
+    "pacientes-cols",
+    patientColumns.map((c) => c.key),
+  );
+  const isColVisible = (key: string) => visibleCols.includes(key);
 
   // Build patient → turnos lookup for medical history
   const patientTurnosMap = useMemo(() => {
@@ -690,6 +710,13 @@ function PacientesTabView({
           onChange={(e) => setFiltroEstado(e.target.value)}
           aria-label={t("patients.filterByStatus")}
         />
+        <div className="ml-auto">
+          <ColumnVisibility
+            columns={patientColumns}
+            visible={visibleCols}
+            onChange={setVisibleCols}
+          />
+        </div>
       </div>
 
       {/* Table */}
@@ -698,30 +725,59 @@ function PacientesTabView({
           <table className="w-full text-sm" aria-label={t("patients.patientList")}>
             <thead>
               <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th scope="col" className="text-left px-5 py-3">
-                  {t("patients.patientColumn")}
+                <th scope="col" className="px-3 py-3 w-8">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size > 0 && selectedIds.size === paginatedFiltered.length}
+                    onChange={(e) => {
+                      if (e.target.checked)
+                        setSelectedIds(new Set(paginatedFiltered.map((p) => p.id)));
+                      else setSelectedIds(new Set());
+                    }}
+                    className="rounded border-gray-300"
+                    aria-label="Seleccionar todos"
+                  />
                 </th>
-                <th scope="col" className="text-left px-5 py-3">
-                  {t("patients.dni")}
-                </th>
-                <th scope="col" className="text-left px-5 py-3">
-                  {t("patients.insurerColumn")}
-                </th>
-                <th scope="col" className="text-center px-5 py-3">
-                  {t("patients.ageColumn")}
-                </th>
-                <th scope="col" className="text-left px-5 py-3">
-                  {t("patients.lastVisit")}
-                </th>
-                <th scope="col" className="text-center px-5 py-3">
-                  {t("patients.appointmentsColumn")}
-                </th>
-                <th scope="col" className="text-center px-5 py-3">
-                  {t("patients.statusColumn")}
-                </th>
-                <th scope="col" className="text-center px-5 py-3">
-                  {t("patients.actionColumn")}
-                </th>
+                {isColVisible("nombre") && (
+                  <th scope="col" className="text-left px-5 py-3">
+                    {t("patients.patientColumn")}
+                  </th>
+                )}
+                {isColVisible("dni") && (
+                  <th scope="col" className="text-left px-5 py-3">
+                    {t("patients.dni")}
+                  </th>
+                )}
+                {isColVisible("financiador") && (
+                  <th scope="col" className="text-left px-5 py-3">
+                    {t("patients.insurerColumn")}
+                  </th>
+                )}
+                {isColVisible("edad") && (
+                  <th scope="col" className="text-center px-5 py-3">
+                    {t("patients.ageColumn")}
+                  </th>
+                )}
+                {isColVisible("ultimaVisita") && (
+                  <th scope="col" className="text-left px-5 py-3">
+                    {t("patients.lastVisit")}
+                  </th>
+                )}
+                {isColVisible("turnos") && (
+                  <th scope="col" className="text-center px-5 py-3">
+                    {t("patients.appointmentsColumn")}
+                  </th>
+                )}
+                {isColVisible("estado") && (
+                  <th scope="col" className="text-center px-5 py-3">
+                    {t("patients.statusColumn")}
+                  </th>
+                )}
+                {isColVisible("accion") && (
+                  <th scope="col" className="text-center px-5 py-3">
+                    {t("patients.actionColumn")}
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -735,57 +791,87 @@ function PacientesTabView({
                       className={`border-t border-border-light hover:bg-celeste-pale/30 transition cursor-pointer ${isExpanded ? "bg-celeste-pale/20" : ""}`}
                       onClick={() => setExpandedPatient(isExpanded ? null : p.id)}
                     >
-                      <td className="px-5 py-3 font-semibold text-ink">
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className={`w-3 h-3 text-ink-muted transition-transform ${isExpanded ? "rotate-90" : ""}`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
-                          {p.apellido}, {p.nombre}
-                        </div>
-                      </td>
-                      <td className="px-5 py-3 text-ink-light font-mono text-xs">{p.dni}</td>
-                      <td className="px-5 py-3 text-ink-light">{p.financiador}</td>
-                      <td className="px-5 py-3 text-center text-ink-light">{p.edad}</td>
-                      <td className="px-5 py-3 text-ink-light">{p.ultimaVisita}</td>
-                      <td className="px-5 py-3 text-center">
-                        {p.turnos > 0 ? (
-                          <span className="bg-celeste-pale text-celeste-dark text-[10px] font-bold px-2 py-0.5 rounded">
-                            {p.turnos}
-                          </span>
-                        ) : (
-                          <span className="text-ink-muted text-xs">—</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-3 text-center">
-                        <StatusBadge
-                          variant={p.estado}
-                          label={
-                            p.estado === "activo"
-                              ? t("patients.statusActive")
-                              : t("patients.statusInactive")
-                          }
+                      <td className="px-3 py-3 w-8" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(p.id)}
+                          onChange={(e) => {
+                            const next = new Set(selectedIds);
+                            if (e.target.checked) next.add(p.id);
+                            else next.delete(p.id);
+                            setSelectedIds(next);
+                          }}
+                          className="rounded border-gray-300"
+                          aria-label={`Seleccionar ${p.apellido}, ${p.nombre}`}
                         />
                       </td>
-                      <td className="px-5 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                        <Link
-                          href={`/dashboard/pacientes/${p.id}`}
-                          className="text-[10px] text-celeste-dark font-medium hover:underline"
-                          aria-label={`${t("patients.viewRecord")} - ${p.apellido}, ${p.nombre}`}
-                        >
-                          {t("patients.viewRecord")}
-                        </Link>
-                      </td>
+                      {isColVisible("nombre") && (
+                        <td className="px-5 py-3 font-semibold text-ink">
+                          <div className="flex items-center gap-2">
+                            <svg
+                              className={`w-3 h-3 text-ink-muted transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                            {p.apellido}, {p.nombre}
+                          </div>
+                        </td>
+                      )}
+                      {isColVisible("dni") && (
+                        <td className="px-5 py-3 text-ink-light font-mono text-xs">{p.dni}</td>
+                      )}
+                      {isColVisible("financiador") && (
+                        <td className="px-5 py-3 text-ink-light">{p.financiador}</td>
+                      )}
+                      {isColVisible("edad") && (
+                        <td className="px-5 py-3 text-center text-ink-light">{p.edad}</td>
+                      )}
+                      {isColVisible("ultimaVisita") && (
+                        <td className="px-5 py-3 text-ink-light">{p.ultimaVisita}</td>
+                      )}
+                      {isColVisible("turnos") && (
+                        <td className="px-5 py-3 text-center">
+                          {p.turnos > 0 ? (
+                            <span className="bg-celeste-pale text-celeste-dark text-[10px] font-bold px-2 py-0.5 rounded">
+                              {p.turnos}
+                            </span>
+                          ) : (
+                            <span className="text-ink-muted text-xs">—</span>
+                          )}
+                        </td>
+                      )}
+                      {isColVisible("estado") && (
+                        <td className="px-5 py-3 text-center">
+                          <StatusBadge
+                            variant={p.estado}
+                            label={
+                              p.estado === "activo"
+                                ? t("patients.statusActive")
+                                : t("patients.statusInactive")
+                            }
+                          />
+                        </td>
+                      )}
+                      {isColVisible("accion") && (
+                        <td className="px-5 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                          <Link
+                            href={`/dashboard/pacientes/${p.id}`}
+                            className="text-[10px] text-celeste-dark font-medium hover:underline"
+                            aria-label={`${t("patients.viewRecord")} - ${p.apellido}, ${p.nombre}`}
+                          >
+                            {t("patients.viewRecord")}
+                          </Link>
+                        </td>
+                      )}
                     </tr>
                     {/* ── Expanded: Medical History & Previous Appointments ── */}
                     {isExpanded && (
                       <tr key={`${p.id}-detail`}>
-                        <td colSpan={8} className="px-5 py-0 bg-surface/50">
+                        <td colSpan={visibleCols.length + 1} className="px-5 py-0 bg-surface/50">
                           <div className="py-4 space-y-4">
                             {/* Patient Summary Card */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -934,7 +1020,10 @@ function PacientesTabView({
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-ink-muted">
+                  <td
+                    colSpan={visibleCols.length + 1}
+                    className="px-5 py-12 text-center text-sm text-ink-muted"
+                  >
                     {t("patients.noResults")}
                   </td>
                 </tr>
@@ -945,6 +1034,21 @@ function PacientesTabView({
       </Card>
 
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+
+      <BulkActionBar
+        count={selectedIds.size}
+        onClear={() => setSelectedIds(new Set())}
+        actions={[
+          {
+            label: "Exportar selección",
+            onClick: () => alert(`Exportar ${selectedIds.size} pacientes`),
+          },
+          {
+            label: "Enviar WhatsApp",
+            onClick: () => alert(`WhatsApp a ${selectedIds.size} pacientes`),
+          },
+        ]}
+      />
     </div>
   );
 }

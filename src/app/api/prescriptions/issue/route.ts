@@ -10,6 +10,7 @@ import { requireAuth } from "@/lib/security/require-auth";
 import { logger } from "@/lib/logger";
 import { registerWithRCTA, isOSDECoverage } from "@/lib/services/rcta";
 import type { DigitalPrescription } from "@/lib/types";
+import { prescriptionIssueSchema } from "@/lib/validations/schemas";
 
 interface IssueRequestBody {
   prescriptionId: string;
@@ -58,6 +59,14 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const parsed = prescriptionIssueSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
   }
 
   // ── Validate required fields

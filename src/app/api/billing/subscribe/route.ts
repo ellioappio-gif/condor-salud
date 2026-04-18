@@ -4,6 +4,7 @@ import { getSeatPlan, upgradeToPlan, type SeatPlanId } from "@/lib/services/seat
 import { isMercadoPagoConfigured } from "@/lib/services/mercadopago";
 import { requireAuth } from "@/lib/security/require-auth";
 import { logger } from "@/lib/logger";
+import { billingSubscribeSchema } from "@/lib/validations/schemas";
 
 // ─── Plan ID mapping from env ────────────────────────────────
 
@@ -40,6 +41,13 @@ export async function POST(req: NextRequest) {
       billingCycle?: "monthly" | "annual";
       payerEmail?: string;
     };
+    const parsed = billingSubscribeSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
 
     if (!body.doctorId || !body.plan || !body.billingCycle || !body.payerEmail) {
       return NextResponse.json(

@@ -325,3 +325,346 @@ export const partnerSchema = z.object({
 });
 
 export type PartnerInput = z.infer<typeof partnerSchema>;
+
+// ─── Booking schema ──────────────────────────────────────────
+export const bookingSchema = z.object({
+  doctorId: z.string().min(1, "Seleccioná un profesional"),
+  patientName: z.string().min(2, "Nombre requerido").max(200),
+  patientEmail: z.string().email("Email inválido").optional().or(z.literal("")),
+  patientPhone: z.string().optional(),
+  date: z.string().min(1, "Fecha requerida"),
+  time: z.string().min(1, "Hora requerida"),
+  reason: z.string().max(500).optional(),
+  insurerCode: z.string().optional(),
+});
+
+export type BookingInput = z.infer<typeof bookingSchema>;
+
+// ─── CRM Lead schema ────────────────────────────────────────
+export const crmLeadSchema = z.object({
+  name: z.string().min(1, "Nombre requerido").max(200),
+  phone: z.string().min(8, "Teléfono inválido").max(20),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
+  source: z.enum(["whatsapp", "web", "telefono", "derivacion", "otro"]).default("web"),
+  notes: z.string().max(1000).optional(),
+  status: z.enum(["nuevo", "contactado", "calificado", "convertido", "perdido"]).optional(),
+});
+
+export type CrmLeadInput = z.infer<typeof crmLeadSchema>;
+
+// ─── Team invite schema ──────────────────────────────────────
+export const teamInviteSchema = z.object({
+  email: z.string().email("Email inválido"),
+  role: z.enum(["admin", "medico", "recepcion", "facturacion", "enfermeria"]),
+  name: z.string().min(2, "Nombre requerido").max(200).optional(),
+});
+
+export type TeamInviteInput = z.infer<typeof teamInviteSchema>;
+
+// ─── Availability schema ─────────────────────────────────────
+export const availabilitySchema = z.object({
+  doctorId: z.string().min(1),
+  dayOfWeek: z.number().min(0).max(6),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM"),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM"),
+  slotDuration: z.number().min(10).max(120).default(30),
+});
+
+export type AvailabilityInput = z.infer<typeof availabilitySchema>;
+
+// ─── Health tracker entry schema ─────────────────────────────
+export const healthTrackerSchema = z.object({
+  type: z.enum([
+    "blood_pressure",
+    "glucose",
+    "weight",
+    "heart_rate",
+    "temperature",
+    "oxygen",
+    "steps",
+    "sleep",
+  ]),
+  value: z.number().positive("Valor debe ser positivo"),
+  value2: z.number().optional(), // e.g. diastolic for BP
+  unit: z.string().max(20).optional(),
+  date: z.string().min(1),
+  notes: z.string().max(500).optional(),
+});
+
+export type HealthTrackerInput = z.infer<typeof healthTrackerSchema>;
+
+// ─── Patient registration schema ─────────────────────────────
+export const patientRegisterSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(8, "Mínimo 8 caracteres"),
+  name: z.string().min(2, "Nombre requerido").max(200),
+  dni: z
+    .string()
+    .regex(/^\d{7,8}$/, "DNI inválido")
+    .optional(),
+  phone: z.string().optional(),
+});
+
+export type PatientRegisterInput = z.infer<typeof patientRegisterSchema>;
+
+// ─── Report schedule schema ─────────────────────────────────
+export const reportScheduleSchema = z.object({
+  reportId: z.string().min(1),
+  frequency: z.enum(["daily", "weekly", "monthly"]),
+  format: z.enum(["pdf", "excel", "both"]).default("pdf"),
+  recipients: z.array(z.string().email()).min(1, "Al menos un destinatario"),
+  enabled: z.boolean().default(true),
+});
+
+export type ReportScheduleInput = z.infer<typeof reportScheduleSchema>;
+
+// ─── Password reset schema ───────────────────────────────────
+export const passwordResetRequestSchema = z.object({
+  email: z.string().email("Email inválido"),
+});
+
+export const passwordResetConfirmSchema = z.object({
+  token: z.string().min(1, "Token requerido"),
+  password: z.string().min(8, "Mínimo 8 caracteres"),
+});
+
+// ─── Recordatorio config PUT schema ──────────────────────────
+const reminderTemplateItemSchema = z.object({
+  id: z.string().min(1),
+  nombre: z.string().min(1),
+  mensaje: z.string().min(1),
+  tipo: z.string().min(1),
+  timing: z.string().min(1),
+  activo: z.boolean().default(true),
+});
+
+export const recordatorioConfigPutSchema = z.object({
+  config: z
+    .object({
+      auto_send: z.boolean().default(true),
+      send_24h: z.boolean().default(true),
+      send_2h: z.boolean().default(true),
+      send_post_visit: z.boolean().default(false),
+      whatsapp_enabled: z.boolean().default(true),
+      sms_enabled: z.boolean().default(false),
+      email_enabled: z.boolean().default(false),
+    })
+    .optional(),
+  templates: z.array(reminderTemplateItemSchema).optional(),
+});
+
+export type RecordatorioConfigPutInput = z.infer<typeof recordatorioConfigPutSchema>;
+
+// ─── Pago config PUT schema ──────────────────────────────────
+const billingRuleItemSchema = z.object({
+  financiador: z.string().min(1),
+  copago: z.boolean().default(false),
+  monto: z.union([z.string(), z.number()]).default("0"),
+  autoCharge: z.boolean().default(false),
+});
+
+export const pagoConfigPutSchema = z.object({
+  config: z
+    .object({
+      mp_connected: z.boolean().default(false),
+      mp_access_token: z.string().nullable().optional(),
+      auto_billing: z.boolean().default(false),
+      send_receipt: z.boolean().default(true),
+      payment_reminder: z.boolean().default(true),
+      accepted_methods: z.array(z.string()).optional(),
+      copay_enabled: z.boolean().default(false),
+      default_currency: z.string().default("ARS"),
+    })
+    .optional(),
+  billingRules: z.array(billingRuleItemSchema).optional(),
+});
+
+export type PagoConfigPutInput = z.infer<typeof pagoConfigPutSchema>;
+
+// ─── Clinic booking POST schema ──────────────────────────────
+export const clinicBookingSchema = z
+  .object({
+    doctorId: z.string().min(1, "doctorId requerido"),
+    patientName: z.string().min(1, "Nombre del paciente requerido").max(200),
+    patientEmail: z.string().email("Email inválido").optional().or(z.literal("")),
+    patientPhone: z.string().max(30).optional(),
+    patientLanguage: z.string().max(10).optional(),
+    fecha: z.string().min(1, "Fecha requerida"),
+    hora: z.string().min(1, "Hora requerida"),
+    specialty: z.string().max(100).optional(),
+    tipo: z.enum(["presencial", "teleconsulta"]).optional(),
+    notas: z.string().max(1000).optional(),
+    bookedVia: z.string().max(50).optional(),
+  })
+  .refine((d) => !!d.patientEmail || !!d.patientPhone, {
+    message: "Se requiere email o teléfono del paciente",
+    path: ["patientEmail"],
+  });
+
+export type ClinicBookingInput = z.infer<typeof clinicBookingSchema>;
+
+// ─── CRM lead conversion schema ─────────────────────────────
+export const leadConversionSchema = z.object({
+  nombre: z.string().min(2, "Nombre requerido").max(200),
+  dni: z.string().regex(/^\d{7,8}$/, "DNI inválido (7-8 dígitos)"),
+  telefono: z.string().min(8, "Teléfono inválido").max(20),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
+  fecha_nacimiento: z.string().optional(),
+  financiador: z.string().optional(),
+  plan: z.string().optional(),
+});
+
+// ─── v8: Additional schemas for remaining unvalidated routes ─
+
+// Chat message
+export const chatMessageSchema = z.object({
+  message: z.string().min(1, "Mensaje requerido").max(5000),
+  context: z.string().max(10000).optional(),
+  history: z
+    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() }))
+    .max(50)
+    .optional(),
+});
+
+// Club membership
+export const clubJoinSchema = z.object({
+  email: z.string().email("Email inválido"),
+  name: z.string().min(1, "Nombre requerido").max(200),
+  phone: z.string().max(20).optional(),
+  dni: z
+    .string()
+    .regex(/^\d{7,8}$/, "DNI inválido")
+    .optional(),
+});
+
+// Doctor profile update (PUT /doctors/profile/me)
+export const doctorProfileUpdateSchema = z.object({
+  displayName: z.string().min(2).max(200).optional(),
+  specialty: z.string().max(100).optional(),
+  bioEs: z.string().max(2000).optional(),
+  bioEn: z.string().max(2000).optional(),
+  phone: z.string().max(30).optional(),
+  address: z.string().max(300).optional(),
+  city: z.string().max(100).optional(),
+  province: z.string().max(100).optional(),
+  languages: z.array(z.string().max(10)).max(10).optional(),
+  teleconsultaAvailable: z.boolean().optional(),
+  consultationFeeArs: z.number().min(0).optional(),
+  insuranceAccepted: z.array(z.string()).optional(),
+});
+
+// Doctor verification request
+export const doctorVerificationSchema = z.object({
+  matriculaNacional: z.string().min(1, "Matrícula requerida").max(20),
+  matriculaProvincial: z.string().max(20).optional(),
+  specialty: z.string().min(1).max(100),
+  documentUrl: z.string().url().optional(),
+});
+
+// Payment preference creation
+export const paymentPreferenceSchema = z.object({
+  bookingId: z.string().min(1),
+  amount: z.number().positive(),
+  description: z.string().max(500).optional(),
+  payerEmail: z.string().email().optional(),
+});
+
+// Admin login
+export const adminLoginSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(1, "Contraseña requerida"),
+});
+
+// Patient login
+export const patientLoginSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(1, "Contraseña requerida"),
+});
+
+// Patient token refresh
+export const patientRefreshSchema = z.object({
+  refreshToken: z.string().min(1, "Token requerido"),
+});
+
+// CRM lead patch
+export const crmLeadPatchSchema = z.object({
+  status: z.enum(["nuevo", "contactado", "calificado", "convertido", "perdido"]).optional(),
+  notes: z.string().max(2000).optional(),
+  assignedTo: z.string().optional(),
+  phone: z.string().max(20).optional(),
+  email: z.string().email().optional().or(z.literal("")),
+});
+
+// CRM conversation message
+export const crmConversationMessageSchema = z.object({
+  message: z.string().min(1, "Mensaje requerido").max(2000),
+  channel: z.enum(["whatsapp", "email", "sms", "portal"]).optional(),
+});
+
+// Prescription issue
+export const prescriptionIssueSchema = z.object({
+  patientName: z.string().min(1).max(200),
+  patientDni: z
+    .string()
+    .regex(/^\d{7,8}$/)
+    .optional(),
+  diagnosis: z.string().max(500).optional(),
+  items: z
+    .array(
+      z.object({
+        medication: z.string().min(1),
+        dosage: z.string().min(1),
+        quantity: z.number().int().positive().optional(),
+        instructions: z.string().max(500).optional(),
+      }),
+    )
+    .min(1, "Al menos un medicamento"),
+  financiador: z.string().optional(),
+});
+
+// Billing subscribe
+export const billingSubscribeSchema = z.object({
+  planId: z.string().min(1),
+  paymentMethod: z.string().optional(),
+  coupon: z.string().optional(),
+});
+
+// Billing plan creation
+export const billingPlanSchema = z.object({
+  name: z.string().min(1).max(100),
+  price: z.number().min(0),
+  features: z.array(z.string()).optional(),
+  maxDoctors: z.number().int().positive().optional(),
+  maxLocations: z.number().int().positive().optional(),
+});
+
+// Demo login
+export const demoLoginSchema = z.object({
+  role: z.enum(["admin", "medico", "recepcion", "facturacion", "paciente"]).optional(),
+  clinicSlug: z.string().optional(),
+});
+
+// Vademecum interactions
+export const vademecumInteractionsSchema = z.object({
+  drugs: z.array(z.string().min(1)).min(2, "Al menos 2 medicamentos"),
+});
+
+// Photo upload base64
+export const photoBase64Schema = z.object({
+  image: z.string().min(1, "Imagen requerida"),
+  filename: z.string().max(255).optional(),
+});
+
+// Report generation
+export const reportSchema = z.object({
+  type: z.string().min(1),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  filters: z.record(z.string(), z.unknown()).optional(),
+});
+
+// Booking status update (PATCH)
+export const bookingStatusSchema = z.object({
+  status: z.enum(["confirmed", "cancelled", "completed", "no_show"]),
+  cancelReason: z.string().max(500).optional(),
+});

@@ -27,6 +27,7 @@ import {
   ChevronRight,
   MapPin,
   Wallet,
+  MessageSquare,
 } from "lucide-react";
 
 const navItems = [
@@ -69,6 +70,7 @@ const navItems = [
   { label: "Mapa", href: "/paciente/mapa", icon: MapPin, tKey: "nav.map" },
   { label: "Club Salud", href: "/paciente/club", icon: Heart, tKey: "nav.healthClub" },
   { label: "Seguimiento", href: "/paciente/salud", icon: Activity, tKey: "nav.healthTracker" },
+  { label: "Mensajes", href: "/paciente/mensajes", icon: MessageSquare, tKey: "nav.messages" },
 ];
 
 // Demo insurance info (mocked)

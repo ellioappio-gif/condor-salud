@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as patientAuth from "@/lib/services/patient-auth";
 import { checkRateLimit } from "@/lib/security/api-guard";
 import { logger } from "@/lib/logger";
+import { patientLoginSchema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -14,6 +15,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    const parsed = patientLoginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const { email, password } = body;
 
     if (!email || !password) {

@@ -493,6 +493,7 @@ export default function NuevaRecetaPage() {
                   value={med.medicationName}
                   onChange={(value) => updateMed(idx, "medicationName", value)}
                   placeholder="Buscar medicamento (ej: losartan, amoxicilina)..."
+                  aria-label="Buscar medicamento"
                 />
 
                 {/* Generic name display */}

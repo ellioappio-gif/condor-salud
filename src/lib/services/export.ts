@@ -118,6 +118,37 @@ function getFilename(type: string, ext: string, periodo?: string): string {
   return `${type}-${slug}.${ext}`;
 }
 
+// ─── CSV Export ──────────────────────────────────────────────
+
+/**
+ * Generate and download a CSV file from an array of objects.
+ * Handles quoting fields that contain commas, quotes, or newlines.
+ */
+export function downloadCSV<T extends Record<string, unknown>>(
+  rows: T[],
+  filename: string,
+  columns?: { key: keyof T; label: string }[],
+): void {
+  if (rows.length === 0) return;
+
+  const cols =
+    columns ?? Object.keys(rows[0]!).map((k) => ({ key: k as keyof T, label: String(k) }));
+  const header = cols.map((c) => escapeCSV(c.label)).join(",");
+  const body = rows
+    .map((row) => cols.map((c) => escapeCSV(String(row[c.key] ?? ""))).join(","))
+    .join("\n");
+  const csv = `\uFEFF${header}\n${body}`; // BOM for Excel UTF-8 compat
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  triggerDownload(blob, filename.endsWith(".csv") ? filename : `${filename}.csv`);
+}
+
+function escapeCSV(value: string): string {
+  if (/[",\n\r]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
 // ─── Hook for loading state ──────────────────────────────────
 import { useState, useCallback } from "react";
 

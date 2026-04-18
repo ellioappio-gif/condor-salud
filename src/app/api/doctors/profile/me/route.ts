@@ -8,6 +8,7 @@ import { upsertProfile, generateSlug } from "@/lib/services/doctor-profiles";
 import { getServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/logger";
 import { isSupabaseConfigured } from "@/lib/env";
+import { doctorProfileUpdateSchema } from "@/lib/validations/schemas";
 
 async function getProfileId(req: NextRequest): Promise<string> {
   // Extract from session header or cookie
@@ -74,6 +75,13 @@ export async function PUT(req: NextRequest) {
   try {
     const profileId = await getProfileId(req);
     const body = await req.json();
+    const parsed = doctorProfileUpdateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
 
     const slug = generateSlug(body.displayName || "doctor");
 

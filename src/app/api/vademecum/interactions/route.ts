@@ -4,10 +4,18 @@
 
 import { NextResponse } from "next/server";
 import { checkInteractions } from "@/lib/services/vademecum";
+import { vademecumInteractionsSchema } from "@/lib/validations/schemas";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const parsed = vademecumInteractionsSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const drugIds: string[] = body.drugIds || [];
 
     if (!Array.isArray(drugIds) || drugIds.length < 2) {

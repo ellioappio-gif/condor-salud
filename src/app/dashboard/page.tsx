@@ -32,6 +32,7 @@ import {
   Activity,
   MessageCircle,
   ArrowRight,
+  X,
 } from "lucide-react";
 import { useExport } from "@/lib/services/export";
 import { useLocale } from "@/lib/i18n/context";
@@ -45,6 +46,7 @@ import {
 import { useWhatsAppConfig } from "@/lib/hooks/useCRM";
 import { useRealtimeTurnoNotifications } from "@/lib/services/realtime";
 import { NotificationToastList, PatientSlideCard } from "@/components/TurnoNotifications";
+import { NPSWidget } from "@/components/dashboard/NPSWidget";
 
 // ─── Quick-link definitions (UI config — not mock data) ──────
 
@@ -81,6 +83,7 @@ export default function DashboardPage() {
 
   const [showWizardBanner, setShowWizardBanner] = useState(false);
   const [showMetaSetupBanner, setShowMetaSetupBanner] = useState(false);
+  const [setupDismissed, setSetupDismissed] = useState(false);
   const { config: whatsAppConfig } = useWhatsAppConfig();
 
   useEffect(() => {
@@ -367,6 +370,41 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Setup progress banner (demo mode: 60%) */}
+      {!setupDismissed &&
+        (() => {
+          const setupPct = 60; // demo default
+          return setupPct < 100 ? (
+            <div className="bg-celeste/10 border border-celeste/20 rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-celeste/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-celeste-dark">{setupPct}%</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-ink">{t("dashboard.setupIncomplete")}</p>
+                  <p className="text-xs text-ink-muted">{t("dashboard.setupIncompleteHint")}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/dashboard/wizard"
+                  className="text-xs px-3 py-1.5 bg-celeste text-white rounded-lg hover:bg-celeste-dark transition-colors"
+                >
+                  {t("dashboard.completeSetup")}
+                </Link>
+                <button
+                  onClick={() => setSetupDismissed(true)}
+                  className="p-1.5 hover:bg-surface rounded-lg transition-colors"
+                  aria-label={t("common.dismiss")}
+                >
+                  <X className="w-4 h-4 text-ink-muted" />
+                </button>
+              </div>
+            </div>
+          ) : null;
+        })()}
+
       {/* Page title */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -785,6 +823,13 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── NPS Widget ─────────────────────────────────────── */}
+      {isAdmin && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <NPSWidget />
+        </div>
+      )}
 
       {/* ── Realtime turno notifications overlay ───────────── */}
       {showNotifications && (

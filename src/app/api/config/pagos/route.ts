@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { pagoConfigPutSchema } from "@/lib/validations/schemas";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -128,26 +129,35 @@ export async function PUT(req: NextRequest) {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
 
+    const parsed = pagoConfigPutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
     const supabase = getServiceClient();
 
     // Upsert payment config
-    if (body.config) {
+    if (parsed.data.config) {
+      const cfg = parsed.data.config;
       const row = {
         clinic_id: clinicId,
-        mp_connected: body.config.mp_connected ?? false,
-        mp_access_token: body.config.mp_access_token ?? null,
-        auto_billing: body.config.auto_billing ?? false,
-        send_receipt: body.config.send_receipt ?? true,
-        payment_reminder: body.config.payment_reminder ?? true,
-        accepted_methods: body.config.accepted_methods ?? [
+        mp_connected: cfg.mp_connected,
+        mp_access_token: cfg.mp_access_token ?? null,
+        auto_billing: cfg.auto_billing,
+        send_receipt: cfg.send_receipt,
+        payment_reminder: cfg.payment_reminder,
+        accepted_methods: cfg.accepted_methods ?? [
           "efectivo",
           "debito",
           "credito",
           "transferencia",
           "mercadopago",
         ],
-        copay_enabled: body.config.copay_enabled ?? false,
-        default_currency: body.config.default_currency ?? "ARS",
+        copay_enabled: cfg.copay_enabled,
+        default_currency: cfg.default_currency,
         updated_at: new Date().toISOString(),
       };
 
@@ -162,8 +172,8 @@ export async function PUT(req: NextRequest) {
     }
 
     // Upsert billing rules
-    if (body.billingRules && Array.isArray(body.billingRules)) {
-      for (const rule of body.billingRules) {
+    if (parsed.data.billingRules && parsed.data.billingRules.length > 0) {
+      for (const rule of parsed.data.billingRules) {
         const row = {
           clinic_id: clinicId,
           financiador: rule.financiador,

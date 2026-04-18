@@ -961,6 +961,87 @@ function StepConfirmacion() {
           </>
         )}
       </button>
+
+      {/* ─── Próximos pasos checklist ──────────────────────── */}
+      <div className="mt-6 space-y-3 border-t border-border pt-6">
+        <h3 className="font-medium text-xs text-ink-muted uppercase tracking-wide">
+          Próximos pasos después de activar
+        </h3>
+        {[
+          { done: true, label: "Clínica configurada", href: null as string | null },
+          { done: !!formData.doctorNombre, label: "Profesional cargado", href: null },
+          {
+            done: formData.financiadores.length > 0,
+            label: "Obras sociales seleccionadas",
+            href: "/dashboard/configuracion",
+          },
+          {
+            done: !!formData.whatsappNumber,
+            label: "WhatsApp conectado",
+            href: "/dashboard/configuracion",
+          },
+          { done: false, label: "Agregar primer paciente", href: "/dashboard/pacientes" },
+          { done: false, label: "Configurar agenda", href: "/dashboard/agenda" },
+        ].map((step, i) => {
+          const doneCount = [
+            true,
+            !!formData.doctorNombre,
+            formData.financiadores.length > 0,
+            !!formData.whatsappNumber,
+            false,
+            false,
+          ].filter(Boolean).length;
+          return (
+            <div
+              key={i}
+              className={`flex items-center gap-3 p-3 rounded-xl border ${step.done ? "bg-green-50 border-green-200" : "bg-white border-border"}`}
+            >
+              <div
+                className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? "bg-green-500" : "bg-gray-200"}`}
+              >
+                {step.done ? (
+                  <CheckCircle2 className="w-3 h-3 text-white" />
+                ) : (
+                  <span className="w-2 h-2 rounded-full bg-gray-400" />
+                )}
+              </div>
+              <span
+                className={`text-sm flex-1 ${step.done ? "text-green-800 line-through" : "text-ink"}`}
+              >
+                {step.label}
+              </span>
+              {!step.done && step.href && (
+                <span className="text-xs text-celeste-dark">Configurar →</span>
+              )}
+            </div>
+          );
+        })}
+        {(() => {
+          const doneCount = [
+            true,
+            !!formData.doctorNombre,
+            formData.financiadores.length > 0,
+            !!formData.whatsappNumber,
+            false,
+            false,
+          ].filter(Boolean).length;
+          const pct = Math.round((doneCount / 6) * 100);
+          return (
+            <div className="mt-4">
+              <div className="flex justify-between text-xs text-ink-muted mb-1">
+                <span>Progreso de configuración</span>
+                <span>{pct}%</span>
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-celeste rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+      </div>
     </div>
   );
 }

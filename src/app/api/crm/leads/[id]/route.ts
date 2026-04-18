@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { crmLeadPatchSchema } from "@/lib/validations/schemas";
 import {
   getLead,
   updateLeadStatus,
@@ -49,6 +50,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     const { id } = await params;
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
+    const parsed = crmLeadPatchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
 
     // Update status
     if (body.estado) {

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireDoctorAuth } from "@/lib/security/jwt-auth";
 import * as photoService from "@/lib/services/photo-upload";
 import { logger } from "@/lib/logger";
+import { photoBase64Schema } from "@/lib/validations/schemas";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    const parsed = photoBase64Schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     const { imageData, mimeType } = body;
 
     if (!imageData || !mimeType) {

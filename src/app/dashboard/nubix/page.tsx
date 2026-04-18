@@ -11,6 +11,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
+import { HelpTooltip } from "@/components/HelpTooltip";
 import { useNubixStudies, useNubixKPIs } from "@/lib/hooks/useModules";
 import { getNubixViewerConfig } from "@/lib/services/nubix";
 import type { NubixStudy, NubixModality, NubixStudyStatus } from "@/lib/nubix/types";
@@ -317,6 +318,7 @@ export default function NubixPage() {
                     ? t("nubix.demoMode")
                     : t("nubix.pacsDisconnected")}
               </span>
+              <HelpTooltip content={t("help.pacs")} position="bottom" />
             </h1>
             <p className="text-sm text-ink-light mt-0.5">{t("nubix.subtitle")}</p>
           </div>

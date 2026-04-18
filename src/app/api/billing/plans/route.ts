@@ -5,6 +5,7 @@ import {
   upgradeToPlan,
   type SeatPlanId,
 } from "@/lib/services/seat-billing";
+import { billingPlanSchema } from "@/lib/validations/schemas";
 
 /**
  * GET /api/billing/plans
@@ -23,6 +24,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as { doctorId?: string };
+    const parsed = billingPlanSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
     if (!body.doctorId) {
       return NextResponse.json({ error: "doctorId is required" }, { status: 400 });
     }

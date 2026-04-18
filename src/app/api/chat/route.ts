@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { chatMessageSchema } from "@/lib/validations/schemas";
 
 interface ChatContext {
   doctorName?: string;
@@ -26,6 +27,14 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+  }
+
+  const parsed = chatMessageSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
   }
 
   const { message, system, context } = body;

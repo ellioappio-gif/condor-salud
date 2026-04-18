@@ -4,10 +4,17 @@
 // Uses service-role client for DB ops (RLS bypass).
 
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { getServiceClient } from "@/lib/supabase/service";
-import { logger } from "@/lib/logger";
+import { checkRateLimit, logger } from "@/lib/security/api-guard";
+import { logAuditEvent } from "@/lib/audit/audit-logger";
 
 export const runtime = "nodejs";
+
+const ModerationSchema = z.object({
+  reviewId: z.string().uuid("reviewId must be a UUID"),
+  action: z.enum(["approve", "reject"]),
+});
 
 // GET /api/admin/reviews?status=pending
 export async function GET(request: NextRequest) {
@@ -54,16 +61,20 @@ export async function GET(request: NextRequest) {
 
 // PATCH /api/admin/reviews — Body: { reviewId, action: "approve" | "reject" }
 export async function PATCH(request: NextRequest) {
+  const limited = checkRateLimit(request, "admin-reviews", { limit: 20, windowSec: 60 });
+  if (limited) return limited;
+
   try {
     const body = await request.json();
-    const { reviewId, action } = body as { reviewId: string; action: string };
-
-    if (!reviewId || !["approve", "reject"].includes(action)) {
+    const parsed = ModerationSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "reviewId and action (approve|reject) required" },
+        { error: "Datos inválidos", details: parsed.error.flatten() },
         { status: 400 },
       );
     }
+
+    const { reviewId, action } = parsed.data;
 
     const supabase = getServiceClient();
     const newStatus = action === "approve" ? "approved" : "rejected";

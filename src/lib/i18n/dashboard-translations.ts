@@ -237,7 +237,20 @@ export const dashboardTranslations: DashTranslation = {
   "nav.myPrescriptions": { es: "Mis Recetas", en: "My Prescriptions" },
   "nav.healthClub": { es: "Club Salud", en: "Club Salud" },
   "nav.healthTracker": { es: "Seguimiento", en: "Health Tracker" },
+  "nav.messages": { es: "Mensajes", en: "Messages" },
   "nav.professionalPortal": { es: "Portal profesional", en: "Professional portal" },
+
+  // ─── Command palette ────────────────────────────────────────
+  "commandPalette.placeholder": { es: "Buscar página o acción…", en: "Search pages or actions…" },
+
+  // ─── Notifications ──────────────────────────────────────────
+  "notifications.title": { es: "Notificaciones", en: "Notifications" },
+  "notifications.markAllRead": { es: "Marcar todo leído", en: "Mark all read" },
+  "aria.notifications": { es: "Notificaciones", en: "Notifications" },
+
+  // ─── Reports scheduling ─────────────────────────────────────
+  "reports.scheduledReports": { es: "Reportes Programados", en: "Scheduled Reports" },
+  "reports.periodComparison": { es: "Comparación de Períodos", en: "Period Comparison" },
 
   // ─── Dashboard main ────────────────────────────────────────
   "dashboard.title": { es: "Dashboard Clínico", en: "Clinical Dashboard" },
@@ -729,6 +742,10 @@ export const dashboardTranslations: DashTranslation = {
   "insurers.betweenInsurers": {
     es: "Promedio entre financiadores",
     en: "Average between insurers",
+  },
+  "insurers.billedVsCollected": {
+    es: "Facturado vs Cobrado",
+    en: "Billed vs Collected",
   },
 
   // ─── Auditoría ─────────────────────────────────────────────
@@ -4158,4 +4175,82 @@ export const dashboardTranslations: DashTranslation = {
   "clinicWizard.openTitle": { es: "Abrir", en: "Open" },
   "clinicWizard.createAnother": { es: "Dar de alta otra clínica", en: "Register another clinic" },
   "clinicWizard.goToBooking": { es: "Ir a Turnos Online", en: "Go to Online Booking" },
+
+  // ── Documents ──
+  "documents.myDocuments": { es: "Mis documentos", en: "My documents" },
+  "documents.upload": { es: "Subir archivo", en: "Upload file" },
+  "documents.uploading": { es: "Subiendo…", en: "Uploading…" },
+  "documents.uploadHint": {
+    es: "PDF, imágenes o documentos (máx. 20 MB)",
+    en: "PDF, images or documents (max 20 MB)",
+  },
+  "documents.download": { es: "Descargar", en: "Download" },
+  "documents.delete": { es: "Eliminar", en: "Delete" },
+  "documents.demoUploadHint": {
+    es: "En modo demo, los archivos no se almacenan.",
+    en: "In demo mode, files are not stored.",
+  },
+  "documents.fileTooLarge": { es: "El archivo supera los 20 MB", en: "File exceeds 20 MB" },
+  "documents.emptyTitle": { es: "Sin documentos", en: "No documents" },
+  "documents.emptyHint": {
+    es: "Suba estudios, recetas o informes para tenerlos siempre a mano.",
+    en: "Upload studies, prescriptions or reports to always have them handy.",
+  },
+  "documents.emptyDemoHint": {
+    es: "En modo demo puede probar la subida sin guardar archivos.",
+    en: "In demo mode you can test uploads without saving files.",
+  },
+
+  // ── Adherence ──
+  "adherence.title": { es: "Adherencia", en: "Adherence" },
+  "adherence.takenToday": { es: "Tomé la dosis", en: "Took my dose" },
+  "adherence.alreadyTaken": { es: "Ya registrada", en: "Already logged" },
+  "adherence.logged": { es: "Dosis registrada", en: "Dose logged" },
+  "adherence.last7Days": { es: "Últimos 7 días", en: "Last 7 days" },
+  "adherence.streak": { es: "Racha", en: "Streak" },
+
+  // ── Help Tooltips ──
+  "help.cae": {
+    es: "El CAE (Código de Autorización Electrónico) es emitido por AFIP y valida la factura.",
+    en: "The CAE (Electronic Authorization Code) is issued by AFIP and validates the invoice.",
+  },
+  "help.rejectionCodes": {
+    es: "Los códigos de rechazo indican el motivo por el que la obra social rechazó la prestación.",
+    en: "Rejection codes indicate the reason the insurer rejected the service.",
+  },
+  "help.icd10": {
+    es: "CIE-10 es la clasificación internacional de enfermedades de la OMS, usada para codificar diagnósticos.",
+    en: "ICD-10 is the WHO international classification of diseases, used to code diagnoses.",
+  },
+  "help.valorSSS": {
+    es: "Valor SSS es el monto que la Superintendencia de Servicios de Salud asigna a cada práctica.",
+    en: "SSS Value is the amount the Superintendency of Health Services assigns to each practice.",
+  },
+  "help.pacs": {
+    es: "PACS (Picture Archiving and Communication System) almacena y distribuye imágenes médicas digitales.",
+    en: "PACS (Picture Archiving and Communication System) stores and distributes digital medical images.",
+  },
+
+  // ── Dashboard Setup ──
+  "dashboard.setupIncomplete": { es: "Configuración incompleta", en: "Setup incomplete" },
+  "dashboard.setupIncompleteHint": {
+    es: "Complete los pasos pendientes para aprovechar al máximo su clínica.",
+    en: "Complete pending steps to get the most out of your clinic.",
+  },
+  "dashboard.completeSetup": { es: "Completar configuración", en: "Complete setup" },
+
+  // ── Common ──
+  "common.dismiss": { es: "Cerrar", en: "Dismiss" },
+
+  // ── Wizard Next Steps ──
+  "wizard.nextSteps": {
+    es: "Próximos pasos después de activar",
+    en: "Next steps after activation",
+  },
+  "wizard.clinicConfigured": { es: "Clínica configurada", en: "Clinic configured" },
+  "wizard.professionalAdded": { es: "Profesional cargado", en: "Professional added" },
+  "wizard.insurersConfigured": { es: "Obras sociales configuradas", en: "Insurers configured" },
+  "wizard.whatsappConnected": { es: "WhatsApp conectado", en: "WhatsApp connected" },
+  "wizard.addFirstPatient": { es: "Agregar primer paciente", en: "Add first patient" },
+  "wizard.configureSchedule": { es: "Configurar agenda", en: "Configure schedule" },
 };

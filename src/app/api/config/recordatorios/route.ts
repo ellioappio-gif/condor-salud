@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
+import { recordatorioConfigPutSchema } from "@/lib/validations/schemas";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -94,19 +95,28 @@ export async function PUT(req: NextRequest) {
     const rawBody = await req.json();
     const body = sanitizeBody(rawBody);
 
+    const parsed = recordatorioConfigPutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
     const supabase = getServiceClient();
 
     // Upsert config row
-    if (body.config) {
+    if (parsed.data.config) {
+      const cfg = parsed.data.config;
       const row = {
         clinic_id: clinicId,
-        auto_send: body.config.auto_send ?? true,
-        send_24h: body.config.send_24h ?? true,
-        send_2h: body.config.send_2h ?? true,
-        send_post_visit: body.config.send_post_visit ?? false,
-        whatsapp_enabled: body.config.whatsapp_enabled ?? true,
-        sms_enabled: body.config.sms_enabled ?? false,
-        email_enabled: body.config.email_enabled ?? false,
+        auto_send: cfg.auto_send,
+        send_24h: cfg.send_24h,
+        send_2h: cfg.send_2h,
+        send_post_visit: cfg.send_post_visit,
+        whatsapp_enabled: cfg.whatsapp_enabled,
+        sms_enabled: cfg.sms_enabled,
+        email_enabled: cfg.email_enabled,
         updated_at: new Date().toISOString(),
       };
 
@@ -121,8 +131,8 @@ export async function PUT(req: NextRequest) {
     }
 
     // Upsert template active states
-    if (body.templates && Array.isArray(body.templates)) {
-      for (const tpl of body.templates) {
+    if (parsed.data.templates && parsed.data.templates.length > 0) {
+      for (const tpl of parsed.data.templates) {
         const row = {
           clinic_id: clinicId,
           template_id: tpl.id,

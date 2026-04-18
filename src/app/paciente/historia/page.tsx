@@ -26,6 +26,8 @@ import {
   Loader2,
   ChevronDown,
   Calendar,
+  Upload,
+  Trash2,
 } from "lucide-react";
 
 // ─── Icon Map ────────────────────────────────────────────────
@@ -119,6 +121,62 @@ export default function HistoriaClinicaPage() {
   const [activeTab, setActiveTab] = useState("todo");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [showDocs, setShowDocs] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // ─── Document mock data (demo) ─────────────────────────
+  const isDemoMode = true;
+  const documents = [
+    {
+      id: "1",
+      filename: "Análisis_sangre_2026.pdf",
+      file_size_bytes: 245000,
+      created_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+      download_url: "#",
+    },
+    {
+      id: "2",
+      filename: "Radiografía_torax.jpg",
+      file_size_bytes: 1200000,
+      created_at: new Date(Date.now() - 30 * 86400000).toISOString(),
+      download_url: "#",
+    },
+  ];
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (isDemoMode) {
+      showToast(t("documents.demoUploadHint"));
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      showToast(t("documents.fileTooLarge"));
+      return;
+    }
+    setIsUploading(true);
+    setUploadProgress(0);
+    const interval = setInterval(() => setUploadProgress((p) => Math.min(p + 20, 100)), 300);
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsUploading(false);
+      setUploadProgress(0);
+    }, 1500);
+  };
+
+  const handleDeleteDoc = (docId: string) => {
+    if (isDemoMode) {
+      showToast(t("documents.demoUploadHint"));
+      return;
+    }
+  };
 
   const patientName = name || "Demo Paciente";
 
@@ -206,6 +264,102 @@ export default function HistoriaClinicaPage() {
             className="pl-9 pr-4 py-1.5 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-48"
           />
         </div>
+      </div>
+
+      {/* ─── Mis documentos (collapsible) ─────────────────── */}
+      <div className="bg-white border border-border rounded-lg overflow-hidden">
+        <button
+          onClick={() => setShowDocs((p) => !p)}
+          className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-ink-50/50 transition"
+        >
+          <div className="flex items-center gap-2">
+            <Upload className="w-4 h-4 text-celeste-dark" />
+            <span className="text-sm font-semibold text-ink">{t("documents.myDocuments")}</span>
+            <span className="text-xs text-ink-muted">({documents.length})</span>
+          </div>
+          <ChevronDown
+            className={`w-4 h-4 text-ink-muted transition-transform ${showDocs ? "rotate-180" : ""}`}
+          />
+        </button>
+        {showDocs && (
+          <div className="px-5 pb-4 space-y-3 border-t border-border">
+            <div className="flex items-center justify-between pt-3">
+              <p className="text-xs text-ink-muted">{t("documents.uploadHint")}</p>
+              <label
+                htmlFor="doc-upload"
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-celeste text-white rounded-lg cursor-pointer hover:bg-celeste-dark transition-colors"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                {t("documents.upload")}
+              </label>
+              <input
+                id="doc-upload"
+                type="file"
+                className="hidden"
+                accept=".pdf,.jpg,.jpeg,.png,.dcm"
+                onChange={handleFileUpload}
+                disabled={isUploading || isDemoMode}
+              />
+            </div>
+            {isUploading && (
+              <div className="p-3 bg-surface rounded-lg border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-celeste" />
+                  <span className="text-xs">{t("documents.uploading")}</span>
+                </div>
+                <div className="h-1.5 bg-border rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-celeste rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            {documents.length === 0 ? (
+              <div className="text-center py-6">
+                <FileText className="w-6 h-6 text-ink-muted mx-auto mb-2" />
+                <p className="text-xs text-ink-muted">{t("documents.emptyTitle")}</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="flex items-center gap-3 p-3 bg-surface rounded-xl border border-border hover:border-celeste/30 transition-colors"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-celeste/10 flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-4 h-4 text-celeste" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{doc.filename}</p>
+                      <p className="text-xs text-ink-muted">
+                        {formatFileSize(doc.file_size_bytes)} ·{" "}
+                        {new Date(doc.created_at).toLocaleDateString("es-AR")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <a
+                        href={doc.download_url}
+                        download
+                        className="p-1.5 hover:bg-white rounded-lg transition-colors"
+                        aria-label={t("documents.download")}
+                      >
+                        <Download className="w-4 h-4 text-ink-muted" />
+                      </a>
+                      <button
+                        onClick={() => handleDeleteDoc(doc.id)}
+                        className="p-1.5 hover:bg-white rounded-lg transition-colors"
+                        aria-label={t("documents.delete")}
+                      >
+                        <Trash2 className="w-4 h-4 text-ink-muted hover:text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Loading */}

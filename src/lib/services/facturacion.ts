@@ -48,14 +48,22 @@ export interface FacturacionStats {
 
 // ─── Read Operations ─────────────────────────────────────────
 
-export async function getFacturasFiltered(filter?: FacturaFilter): Promise<Factura[]> {
+export async function getFacturasFiltered(
+  filter?: FacturaFilter,
+  clinicId?: string,
+): Promise<Factura[]> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
     let query = (sb as SupabaseClient)
       .from("facturas")
       .select("*")
+      .is("deleted_at", null)
       .order("fecha", { ascending: false });
+
+    if (clinicId) {
+      query = query.eq("clinic_id", clinicId);
+    }
 
     if (filter?.financiador && filter.financiador !== "Todos") {
       query = query.eq("financiador", filter.financiador);
@@ -88,15 +96,17 @@ export async function getFacturasFiltered(filter?: FacturaFilter): Promise<Factu
   return items;
 }
 
-export async function getFacturaById(id: string): Promise<Factura | null> {
+export async function getFacturaById(id: string, clinicId?: string): Promise<Factura | null> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data, error } = await (sb as SupabaseClient)
+    let query = (sb as SupabaseClient)
       .from("facturas")
       .select("*")
       .eq("id", id)
-      .single();
+      .is("deleted_at", null);
+    if (clinicId) query = query.eq("clinic_id", clinicId);
+    const { data, error } = await query.single();
     if (error) return null;
     return data ? mapFacturaFromDB(data) : null;
   }
@@ -108,7 +118,10 @@ export async function getFacturaById(id: string): Promise<Factura | null> {
 
 // ─── Write Operations ────────────────────────────────────────
 
-export async function createFactura(input: CreateFacturaInput): Promise<Factura> {
+export async function createFactura(
+  input: CreateFacturaInput,
+  clinicId?: string,
+): Promise<Factura> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
@@ -124,6 +137,7 @@ export async function createFactura(input: CreateFacturaInput): Promise<Factura>
         codigo_nomenclador: input.codigoNomenclador,
         monto: input.monto,
         estado: input.estado ?? "pendiente",
+        ...(clinicId ? { clinic_id: clinicId } : {}),
       })
       .select()
       .single();
@@ -134,7 +148,11 @@ export async function createFactura(input: CreateFacturaInput): Promise<Factura>
   throw new Error("Cannot create factura in demo mode");
 }
 
-export async function updateFactura(id: string, input: UpdateFacturaInput): Promise<Factura> {
+export async function updateFactura(
+  id: string,
+  input: UpdateFacturaInput,
+  clinicId?: string,
+): Promise<Factura> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
@@ -145,12 +163,9 @@ export async function updateFactura(id: string, input: UpdateFacturaInput): Prom
     if (input.cae) updates.cae = input.cae;
     if (input.notas !== undefined) updates.notas = input.notas;
 
-    const { data, error } = await (sb as SupabaseClient)
-      .from("facturas")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
+    let query = (sb as SupabaseClient).from("facturas").update(updates).eq("id", id);
+    if (clinicId) query = query.eq("clinic_id", clinicId);
+    const { data, error } = await query.select().single();
     if (error) throw error;
     return mapFacturaFromDB(data);
   }
@@ -160,11 +175,16 @@ export async function updateFactura(id: string, input: UpdateFacturaInput): Prom
 
 // ─── Stats ───────────────────────────────────────────────────
 
-export async function getFacturacionStats(): Promise<FacturacionStats> {
+export async function getFacturacionStats(clinicId?: string): Promise<FacturacionStats> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
-    const { data } = await (sb as SupabaseClient).from("facturas").select("monto,estado");
+    let query = (sb as SupabaseClient)
+      .from("facturas")
+      .select("monto,estado")
+      .is("deleted_at", null);
+    if (clinicId) query = query.eq("clinic_id", clinicId);
+    const { data } = await query;
 
     const items = data ?? [];
     const totalFacturado = items.reduce((s: number, f: DBRow) => s + Number(f.monto), 0);
