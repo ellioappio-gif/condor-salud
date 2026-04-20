@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS patient_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   clinic_id UUID NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
-  patient_id UUID NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  patient_id UUID NOT NULL REFERENCES pacientes(id) ON DELETE CASCADE,
   uploaded_by UUID REFERENCES profiles(id),
   filename TEXT NOT NULL,
   file_path TEXT NOT NULL,
