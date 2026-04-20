@@ -3421,6 +3421,7 @@ export const dashboardTranslations: DashTranslation = {
   // ─── Dashboard Nav (new sections) ─────────────────────────
   "nav.myAccount": { es: "MI CUENTA", en: "MY ACCOUNT" },
   "nav.digitalPrescriptions": { es: "Recetas Digitales", en: "Digital Prescriptions" },
+  "nav.rctaPortal": { es: "Portal RCTA", en: "RCTA Portal" },
   "nav.verifyAccount": { es: "Verificar Cuenta", en: "Verify Account" },
   "nav.publicProfile": { es: "Mi Perfil Público", en: "My Public Profile" },
   "nav.verifications": { es: "Verificaciones", en: "Verifications" },

@@ -7,6 +7,9 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { DemoModalProvider } from "@/components/DemoModal";
+import NotificationBell from "@/components/NotificationBell";
+import CommandPalette from "@/components/CommandPalette";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 // ─── Layout-level error boundary ─────────────────────────────
 // Catches crashes inside the dashboard layout itself (hooks, JSX)
@@ -133,6 +136,9 @@ import {
   CirclePlus,
   DollarSign,
   Receipt,
+  MessageSquare,
+  Globe,
+  ArrowLeftRight,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -169,6 +175,8 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/nubix": ScanLine,
   "/dashboard/cobros": Receipt,
   "/dashboard/alta-clinica": CirclePlus,
+  "/dashboard/mensajes": MessageSquare,
+  "/dashboard/recetas/rcta": Globe,
 };
 
 const navSections = [
@@ -189,6 +197,7 @@ const navSections = [
       { label: "Cobros", href: "/dashboard/cobros", tKey: "nav.billing" },
       { label: "Verificacion", href: "/dashboard/verificacion", tKey: "nav.verification" },
       { label: "Inventario", href: "/dashboard/inventario", tKey: "nav.inventory" },
+      { label: "Mensajes", href: "/dashboard/mensajes", tKey: "nav.messages" },
     ],
   },
   {
@@ -233,6 +242,7 @@ const navSections = [
     items: [
       { label: "Prescribir Receta", href: "/dashboard/recetas/nueva", tKey: "nav.prescribeReceta" },
       { label: "Historial Recetas", href: "/dashboard/recetas", tKey: "nav.digitalPrescriptions" },
+      { label: "Portal RCTA", href: "/dashboard/recetas/rcta", tKey: "nav.rctaPortal" },
     ],
   },
   {
@@ -292,6 +302,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/cobros": "agenda",
   "/dashboard/recetas": "recetas-digitales",
   "/dashboard/recetas/nueva": "recetas-digitales",
+  "/dashboard/recetas/rcta": "recetas-digitales",
   "/dashboard/verificaciones": "verificacion-medica",
   "/dashboard/verificar-cuenta": "verificacion-medica",
   "/dashboard/mi-perfil-publico": "perfiles-publicos",
@@ -306,6 +317,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { t, locale } = useLocale();
   const isDemo = useIsDemo();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage("sidebar-collapsed", false);
+  const [dashboardView, setDashboardView] = useLocalStorage<"director" | "medico">(
+    "dashboard-view",
+    "director",
+  );
 
   // Routes hidden for specific clinics
   const CLINIC_HIDDEN_ROUTES: Record<string, string[]> = {
@@ -316,11 +332,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     ],
   };
 
+  // Sections hidden in "medico" view for admin users toggling to doctor mode
+  const DOCTOR_VIEW_HIDDEN_SECTIONS = ["FINANZAS", "INTELIGENCIA", "SISTEMA"];
+  const DOCTOR_VIEW_HIDDEN_ROUTES = [
+    "/dashboard/facturacion",
+    "/dashboard/rechazos",
+    "/dashboard/financiadores",
+    "/dashboard/inflacion",
+    "/dashboard/pagos",
+    "/dashboard/auditoria",
+    "/dashboard/nomenclador",
+    "/dashboard/reportes",
+    "/dashboard/alertas",
+    "/dashboard/configuracion",
+    "/dashboard/wizard",
+    "/dashboard/alta-clinica",
+    "/dashboard/nubix",
+    "/dashboard/verificacion",
+  ];
+
   const isNavVisible = (href: string): boolean => {
     // Always show: dashboard home
     if (href === "/dashboard") return true;
     // While user is loading, only show the home link (avoid flash of full sidebar)
     if (isLoading || !user?.role) return false;
+    // Admin in "medico" view — hide admin-only sections
+    if (
+      user.role === "admin" &&
+      dashboardView === "medico" &&
+      DOCTOR_VIEW_HIDDEN_ROUTES.includes(href)
+    )
+      return false;
     // Clinic-specific hidden routes (e.g. CMR doesn't use farmacia/telemedicina)
     const hidden = CLINIC_HIDDEN_ROUTES[user.clinicName ?? ""];
     if (hidden?.includes(href)) return false;
@@ -424,7 +466,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Sidebar */}
         <aside
-          className={`fixed lg:static inset-y-0 left-0 z-50 w-60 bg-white border-r border-gray-200 flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
+          className={`fixed lg:static inset-y-0 left-0 z-50 ${sidebarCollapsed ? "w-[68px]" : "w-60"} bg-white border-r border-gray-200 flex flex-col shrink-0 transform transition-all duration-200 ease-in-out ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
           role="navigation"
@@ -432,7 +474,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         >
           {/* Brand */}
           <div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5" aria-label={t("aria.goHome")}>
+            <Link
+              href="/"
+              className={`flex items-center gap-2.5 ${sidebarCollapsed ? "justify-center w-full" : ""}`}
+              aria-label={t("aria.goHome")}
+            >
               <Image
                 src="/condor.png"
                 alt="Cóndor Salud"
@@ -440,11 +486,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 height={36}
                 className="w-9 h-9 object-contain"
               />
-              <div className="font-display font-bold text-base">
-                <span className="text-celeste-dark">CÓNDOR </span>
-                <span className="text-gold">SALUD</span>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="font-display font-bold text-base">
+                  <span className="text-celeste-dark">CÓNDOR </span>
+                  <span className="text-gold">SALUD</span>
+                </div>
+              )}
             </Link>
+            {/* Desktop collapse toggle */}
+            {!sidebarCollapsed && (
+              <button
+                onClick={() => setSidebarCollapsed(true)}
+                className="hidden lg:block p-1 text-gray-400 hover:text-gray-700 transition"
+                aria-label="Colapsar barra lateral"
+                title="Colapsar barra lateral"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+            )}
             {/* Mobile close */}
             <button
               onClick={() => setSidebarOpen(false)}
@@ -470,15 +542,80 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Demo badge in sidebar */}
           {isDemo && (
-            <div className="mx-3 mt-2 flex items-center gap-1.5 rounded border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+            <div
+              className={`mx-3 mt-2 flex items-center ${sidebarCollapsed ? "justify-center" : "gap-1.5"} rounded border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800`}
+            >
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500" />
-              DEMO
+              {!sidebarCollapsed && "DEMO"}
+            </div>
+          )}
+
+          {/* Admin/Doctor view toggle */}
+          {user?.role === "admin" && !sidebarCollapsed && (
+            <div className="mx-3 mt-2 mb-1">
+              <div
+                className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg"
+                role="radiogroup"
+                aria-label="Vista del panel"
+              >
+                <button
+                  role="radio"
+                  aria-checked={dashboardView === "director"}
+                  onClick={() => setDashboardView("director")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold rounded-md transition ${
+                    dashboardView === "director"
+                      ? "bg-white text-celeste-dark shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  <Shield className="w-3 h-3" />
+                  Director
+                </button>
+                <button
+                  role="radio"
+                  aria-checked={dashboardView === "medico"}
+                  onClick={() => setDashboardView("medico")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold rounded-md transition ${
+                    dashboardView === "medico"
+                      ? "bg-white text-celeste-dark shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  <Stethoscope className="w-3 h-3" />
+                  Médico
+                </button>
+              </div>
+            </div>
+          )}
+          {user?.role === "admin" && sidebarCollapsed && (
+            <div className="mx-2 mt-2 flex justify-center">
+              <button
+                onClick={() =>
+                  setDashboardView(dashboardView === "director" ? "medico" : "director")
+                }
+                className="p-1.5 rounded-lg text-gray-400 hover:text-celeste-dark hover:bg-celeste-pale transition"
+                title={
+                  dashboardView === "director"
+                    ? "Cambiar a vista Médico"
+                    : "Cambiar a vista Director"
+                }
+              >
+                <ArrowLeftRight className="w-4 h-4" />
+              </button>
             </div>
           )}
 
           {/* Nav */}
           <nav className="flex-1 py-3 px-3 overflow-y-auto" aria-label={t("aria.dashboardMenu")}>
             {navSections.map((section, si) => {
+              // Hide entire section in medico view
+              if (
+                user?.role === "admin" &&
+                dashboardView === "medico" &&
+                section.title &&
+                DOCTOR_VIEW_HIDDEN_SECTIONS.includes(section.title)
+              )
+                return null;
               const visibleItems = section.items.filter((item) => isNavVisible(item.href));
               if (visibleItems.length === 0) return null;
               return (
@@ -488,7 +625,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   role="group"
                   aria-label={section.titleKey ? t(section.titleKey) : t("aria.mainSection")}
                 >
-                  {section.title && (
+                  {section.title && !sidebarCollapsed && (
                     <div
                       className="px-3 mb-2 text-[10px] font-bold tracking-[0.16em] text-gray-400 uppercase"
                       aria-hidden="true"
@@ -507,7 +644,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           href={item.href}
                           aria-current={active ? "page" : undefined}
                           data-tour={`nav-${item.href.replace("/dashboard/", "").replace("/dashboard", "panel") || "panel"}`}
-                          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition ${
+                          title={
+                            sidebarCollapsed
+                              ? (item as { tKey?: string }).tKey
+                                ? t((item as { tKey?: string }).tKey!)
+                                : item.label
+                              : undefined
+                          }
+                          className={`flex items-center ${sidebarCollapsed ? "justify-center" : "gap-3"} px-3 py-2 rounded-lg text-[13px] transition ${
                             active
                               ? "bg-celeste-50 text-celeste-dark font-semibold"
                               : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -517,12 +661,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             const IconComp = navIcons[item.href];
                             return IconComp ? <IconComp className="w-4 h-4" /> : null;
                           })()}
-                          <span className="flex-1">
-                            {(item as { tKey?: string }).tKey
-                              ? t((item as { tKey?: string }).tKey!)
-                              : item.label}
-                          </span>
-                          {"badge" in item && (item as { badge?: number }).badge ? (
+                          {!sidebarCollapsed && (
+                            <span className="flex-1">
+                              {(item as { tKey?: string }).tKey
+                                ? t((item as { tKey?: string }).tKey!)
+                                : item.label}
+                            </span>
+                          )}
+                          {!sidebarCollapsed &&
+                          "badge" in item &&
+                          (item as { badge?: number }).badge ? (
                             <span
                               className="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none"
                               aria-label={`${(item as { badge?: number }).badge} notificaciones`}
@@ -538,27 +686,55 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               );
             })}
             {/* Modificar plan link */}
-            <div className="mt-5 px-3">
-              <Link
-                href="/planes"
-                className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-celeste-dark hover:bg-celeste-pale rounded-lg transition"
-              >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
+            {!sidebarCollapsed && (
+              <div className="mt-5 px-3">
+                <Link
+                  href="/planes"
+                  className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-celeste-dark hover:bg-celeste-pale rounded-lg transition"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-                {t("action.modifyPlan")}
-              </Link>
-            </div>
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  {t("action.modifyPlan")}
+                </Link>
+              </div>
+            )}
+            {/* Desktop expand toggle (shown when collapsed) */}
+            {sidebarCollapsed && (
+              <div className="mt-5 flex justify-center">
+                <button
+                  onClick={() => setSidebarCollapsed(false)}
+                  className="p-2 text-gray-400 hover:text-celeste-dark hover:bg-celeste-pale rounded-lg transition"
+                  aria-label="Expandir barra lateral"
+                  title="Expandir barra lateral"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
             {/* Interactive guide launcher (recepcion only) */}
             {user?.role === "recepcion" && (
               <div className="mt-2 px-3">
@@ -590,7 +766,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="px-4 py-3 border-t border-gray-100">
             <Link
               href="/dashboard/configuracion/equipo"
-              className="flex items-center gap-2.5 group"
+              className={`flex items-center ${sidebarCollapsed ? "justify-center" : "gap-2.5"} group`}
             >
               <div
                 className="w-8 h-8 rounded-full bg-celeste-100 flex items-center justify-center text-celeste-700 font-bold text-xs"
@@ -598,27 +774,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               >
                 {initials}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-700 font-medium truncate group-hover:text-gray-900 transition">
-                  {displayName}
+              {!sidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-gray-700 font-medium truncate group-hover:text-gray-900 transition">
+                    {displayName}
+                  </div>
+                  <div className="text-[10px] text-gray-400 truncate">{displayClinic}</div>
                 </div>
-                <div className="text-[10px] text-gray-400 truncate">{displayClinic}</div>
-              </div>
+              )}
             </Link>
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
-              <Link
-                href="/"
-                className="text-[10px] text-gray-400 hover:text-celeste-dark transition"
-              >
-                {t("action.back")}
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-[10px] text-gray-400 hover:text-red-500 transition ml-auto"
-              >
-                {t("action.logout")}
-              </button>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+                <Link
+                  href="/"
+                  className="text-[10px] text-gray-400 hover:text-celeste-dark transition"
+                >
+                  {t("action.back")}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-[10px] text-gray-400 hover:text-red-500 transition ml-auto"
+                >
+                  {t("action.logout")}
+                </button>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -662,6 +842,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               })}
             </div>
             <div className="flex items-center gap-4 ml-auto">
+              {/* ⌘K badge */}
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
+                }}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-[10px] text-ink-muted border border-border rounded-md hover:border-celeste-dark hover:text-celeste-dark transition"
+                aria-label="Buscar (⌘K)"
+              >
+                <span>Buscar</span>
+                <kbd className="font-mono text-[9px] bg-surface px-1 rounded">⌘K</kbd>
+              </button>
+              <NotificationBell />
               <div className="h-5 w-px bg-border" aria-hidden="true" />
               <Link href="/dashboard/configuracion" className="flex items-center gap-2.5 group">
                 <span className="text-xs text-ink-muted group-hover:text-ink transition hidden sm:inline">
@@ -701,6 +893,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {user?.role === "recepcion" && <ReceptionistOnboarding />}
           <WhatsAppFloat />
         </div>
+        <CommandPalette />
       </div>
     </LayoutErrorBoundary>
   );
