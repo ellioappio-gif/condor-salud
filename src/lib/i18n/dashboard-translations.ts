@@ -3591,6 +3591,18 @@ export const dashboardTranslations: DashTranslation = {
   },
   // Coverage in expanded
   "prescriptions.coverageInline": { es: "Cobertura:", en: "Coverage:" },
+  "prescriptions.tabRecetas": { es: "Recetas", en: "Prescriptions" },
+  "prescriptions.tabRcta": { es: "Portal RCTA", en: "RCTA Portal" },
+  "prescriptions.rctaPortalTitle": {
+    es: "Receta Digital — RCTA",
+    en: "Digital Prescription — RCTA",
+  },
+  "prescriptions.rctaPortalDesc": {
+    es: "Emitir recetas digitales a través del portal oficial de RCTA (app.rcta.me)",
+    en: "Issue digital prescriptions through the official RCTA portal (app.rcta.me)",
+  },
+  "prescriptions.rctaDoctorSlug": { es: "Perfil del médico:", en: "Doctor profile:" },
+  "prescriptions.rctaOpenExternal": { es: "Abrir en nueva pestaña", en: "Open in new tab" },
 
   // ─── Doctor Verification (Feature 4) ──────────────────────
   "doctorVerify.title": { es: "Verificar mi cuenta", en: "Verify my account" },
