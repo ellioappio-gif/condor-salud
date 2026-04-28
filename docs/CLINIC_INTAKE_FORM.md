@@ -33,7 +33,7 @@
 | Campo                   | Dato                                                                                                                                                                   | Estado |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | **Descripción corta**   | "Centro médico de múltiples especialidades en Caballito. Más de 27 especialidades, 30+ profesionales y 15 años de experiencia. Precisión y calidez para tu bienestar." | ✅     |
-| **Sitio web**           | https://www.cmrocasalud.com.ar/                                                                                                                                        | ✅     |
+| **Sitio web**           |                                                                                                                                                                        | ✅     |
 | **Logo**                | Disponible en web (header) — descargar                                                                                                                                 | ✅     |
 | **Idiomas de atención** | Español                                                                                                                                                                | ✅     |
 | **Slogan**              | "Precisión y calidez para tu bienestar"                                                                                                                                | ✅     |
@@ -65,7 +65,7 @@
 - [ ] Unión Personal
 - [ ] OSDEPYM
 - [ ] Medicus
-- [ ] Otra: ******\_\_\_******
+- [ ] Otra: **\*\***\_\_\_**\*\***
 
 **→ Se completará en una segunda etapa.**
 

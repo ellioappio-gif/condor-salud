@@ -209,6 +209,21 @@ export async function middleware(request: NextRequest) {
         }
       }
 
+      // ── Gate 2b: Receptionist first-run WhatsApp setup ────
+      // New receptionists are redirected to a lightweight onboarding page
+      // the first time they log in so they can connect their WhatsApp Business
+      // account. Once complete, wa_setup_complete is set in user_metadata.
+      const RECEPCION_SETUP_ROUTE = "/dashboard/bienvenida-recepcion";
+      if (user && isDashboard && pathname !== RECEPCION_SETUP_ROUTE) {
+        const userRole = user.user_metadata?.role as string | undefined;
+        const waSetupComplete = user.user_metadata?.wa_setup_complete as boolean | undefined;
+        if (userRole === "recepcion" && !waSetupComplete) {
+          const r = NextResponse.redirect(new URL(RECEPCION_SETUP_ROUTE, request.url));
+          applySecurityHeaders(r, cspHeader);
+          return r;
+        }
+      }
+
       // ── Gate 3: Onboarding completion required for dashboard ──
       if (user && isDashboard && pathname !== ONBOARDING_ROUTE) {
         const emailConfirmed = user.email_confirmed_at != null;

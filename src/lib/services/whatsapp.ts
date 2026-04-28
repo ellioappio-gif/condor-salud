@@ -725,13 +725,12 @@ export async function sendMessage(params: SendMessageParams): Promise<{
   }
 
   const supabase = getServiceClient();
-  const meta = getMetaConfig();
   const to = normalizePhone(params.to);
 
-  // Get clinic's WhatsApp number
+  // Get clinic's WhatsApp config
   const { data: config } = await supabase
     .from("whatsapp_config")
-    .select("whatsapp_number")
+    .select("whatsapp_number, provider, meta_phone_number_id, meta_access_token")
     .eq("clinic_id", params.clinicId)
     .single();
 
@@ -739,8 +738,16 @@ export async function sendMessage(params: SendMessageParams): Promise<{
     return { success: false, error: "No WhatsApp config for this clinic" };
   }
 
+  // Per-clinic Meta credentials override global env vars
+  const clinicMeta: MetaConfig | null =
+    config.meta_phone_number_id && config.meta_access_token
+      ? { phoneNumberId: config.meta_phone_number_id, accessToken: config.meta_access_token }
+      : null;
+
+  const meta = clinicMeta ?? getMetaConfig();
+
   // ── Try Meta Cloud API first ───────────────────────────────
-  if (meta) {
+  if (meta && (config.provider === "meta" || (!config.provider && meta))) {
     try {
       const { messageId } = await sendMetaTextMessage(meta, to, params.body, params.mediaUrl);
 

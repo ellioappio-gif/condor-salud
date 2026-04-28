@@ -15,6 +15,7 @@ import type {
   OSDEPrescriptionData,
 } from "@/lib/types";
 import { isOSDECoverage, registerWithOSDE, isOSDEConfigured } from "@/lib/services/osde";
+import { notifyPharmacyRosmar } from "@/lib/services/pharmacy-notify";
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -277,7 +278,14 @@ export async function issuePrescription(prescriptionId: string): Promise<Digital
     throw new Error("Failed to issue prescription");
   }
 
-  return { ...rx, status: "active", osde: osdeData };
+  const issuedRx: DigitalPrescription = { ...rx, status: "active", osde: osdeData };
+
+  // Notify partner pharmacy (Farmacia Rosmar) — fire-and-forget, never blocks issuance
+  notifyPharmacyRosmar(issuedRx).catch((err) =>
+    logger.error({ err, prescriptionId }, "Pharmacy notification failed"),
+  );
+
+  return issuedRx;
 }
 
 // ─── Send Prescription (active → sent) ──────────────────────
