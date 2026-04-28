@@ -65,11 +65,12 @@ const EMPTY_FORM: ServiceForm = {
 
 const CATEGORIES = [
   { value: "consulta", label: "Consulta" },
-  { value: "estudio", label: "Estudio / Practica" },
+  { value: "estudio", label: "Estudio / Práctica" },
+  { value: "procedimiento", label: "Procedimiento" },
   { value: "laboratorio", label: "Laboratorio" },
-  { value: "rehabilitacion", label: "Rehabilitacion" },
-  { value: "cirugia", label: "Cirugia" },
-  { value: "internacion", label: "Internacion" },
+  { value: "rehabilitacion", label: "Rehabilitación" },
+  { value: "cirugia", label: "Cirugía" },
+  { value: "internacion", label: "Internación" },
   { value: "otro", label: "Otro" },
 ];
 
@@ -87,7 +88,7 @@ export default function PreciosPage() {
   const { showToast } = useToast();
   const { locale } = useLocale();
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === "admin" || user?.role === "recepcion";
 
   const [services, setServices] = useState<ClinicService[]>([]);
   const [loading, setLoading] = useState(true);

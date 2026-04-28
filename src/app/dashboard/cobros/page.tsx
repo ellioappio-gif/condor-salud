@@ -129,6 +129,13 @@ export default function CobrosPage() {
   const [receiptNotes, setReceiptNotes] = useState("");
   const [expandedReceipt, setExpandedReceipt] = useState<string | null>(null);
 
+  // Custom item form (for unlisted services)
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+  const [customCategory, setCustomCategory] = useState("consulta");
+  const [savingCustom, setSavingCustom] = useState(false);
+
   const patientInputRef = useRef<HTMLInputElement>(null);
   const patientDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -282,7 +289,59 @@ export default function CobrosPage() {
     setLineItems((prev) => prev.filter((li) => li.key !== key));
   }
 
-  // Save receipt
+  // Add a custom unlisted service — adds to cart AND saves to catalog
+  async function addCustomItem() {
+    const name = customName.trim();
+    const price = parseFloat(customPrice);
+    if (!name) {
+      showToast("Ingresá el nombre del servicio", "error");
+      return;
+    }
+    if (!price || price <= 0) {
+      showToast("Ingresá un precio válido", "error");
+      return;
+    }
+
+    setSavingCustom(true);
+    let serviceId: string | null = null;
+    try {
+      // Persist to catalog so it appears in Precios and future cobros
+      const res = await fetch("/api/services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, price, category: customCategory, active: true }),
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        serviceId = saved.service?.id ?? null;
+        // Refresh service list
+        fetchServices();
+        showToast(`"${name}" guardado en el catálogo`, "success");
+      }
+    } catch {
+      /* non-fatal — still add to cart */
+    } finally {
+      setSavingCustom(false);
+    }
+
+    setLineItems((prev) => [
+      ...prev,
+      {
+        key: generateKey(),
+        service_id: serviceId,
+        service_name: name,
+        category: customCategory,
+        unit_price: price,
+        quantity: 1,
+        subtotal: price,
+        notes: "Ítem personalizado",
+      },
+    ]);
+    setCustomName("");
+    setCustomPrice("");
+    setCustomCategory("consulta");
+    setShowCustomForm(false);
+  }
   async function handleSave() {
     if (!selectedPatient) {
       showToast("Selecciona un paciente", "error");
@@ -603,6 +662,87 @@ export default function CobrosPage() {
                   ))}
                 </div>
               )}
+
+              {/* ── Custom / unlisted service ── */}
+              <div className="mt-3 border-t border-border/50 pt-3">
+                {!showCustomForm ? (
+                  <button
+                    onClick={() => setShowCustomForm(true)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-ink/50 hover:text-celeste-dark hover:bg-celeste-pale/40 rounded-lg transition border border-dashed border-border"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Agregar servicio no listado…
+                  </button>
+                ) : (
+                  <div className="space-y-2 bg-celeste-pale/30 rounded-lg p-3 border border-celeste/20">
+                    <p className="text-[10px] font-bold text-celeste-dark uppercase tracking-wider">
+                      Ítem personalizado
+                    </p>
+                    <input
+                      type="text"
+                      placeholder="Nombre del servicio *"
+                      value={customName}
+                      onChange={(e) => setCustomName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && addCustomItem()}
+                      className="w-full px-3 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink/30" />
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Precio (ARS) *"
+                          value={customPrice}
+                          onChange={(e) => setCustomPrice(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && addCustomItem()}
+                          className="w-full pl-8 pr-3 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
+                        />
+                      </div>
+                      <select
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        className="px-2 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40 bg-white"
+                      >
+                        <option value="consulta">Consulta</option>
+                        <option value="estudio">Estudio</option>
+                        <option value="procedimiento">Procedimiento</option>
+                        <option value="laboratorio">Laboratorio</option>
+                        <option value="rehabilitacion">Rehabilitación</option>
+                        <option value="otro">Otro</option>
+                      </select>
+                    </div>
+                    <p className="text-[10px] text-ink/40">
+                      Se guardará automáticamente en el catálogo de Precios.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={addCustomItem}
+                        disabled={savingCustom || !customName.trim() || !customPrice}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-lg hover:bg-celeste transition disabled:opacity-50"
+                      >
+                        {savingCustom ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Plus className="w-3.5 h-3.5" />
+                        )}
+                        Agregar al cobro
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowCustomForm(false);
+                          setCustomName("");
+                          setCustomPrice("");
+                        }}
+                        className="px-3 py-1.5 text-xs text-ink/50 hover:text-ink border border-border rounded-lg transition"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

@@ -70,6 +70,77 @@ const SERVICES = [
   { name: "Aplicación Inyectable (Insumo Paciente)", category: "otro", price: 5000, ef_price: null, duration_min: 10, notes: "Paciente trae insumo" },
   { name: "Espirometría Simple", category: "estudio", price: 55000, ef_price: 52000, duration_min: 20 },
   { name: "Espirometría con Broncodilatador", category: "estudio", price: 65000, ef_price: 62000, duration_min: 30 },
+
+  // ── Especialidades faltantes ────────────────────────────────
+  // Traumatología
+  { name: "Consulta Traumatología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dr. Rivero" },
+
+  // Endocrinología / Diabetología
+  { name: "Consulta Endocrinología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dra. Angelotti — quincenal" },
+  { name: "Consulta Diabetología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dra. Gutiérrez" },
+
+  // Dermatología
+  { name: "Consulta Dermatología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dra. Jiménez — quincenal" },
+
+  // Gastroenterología
+  { name: "Consulta Gastroenterología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dra. Abdala" },
+  { name: "Videocolonoscopía", category: "estudio", price: 180000, ef_price: 165000, duration_min: 60, notes: "Con sedación" },
+  { name: "Videoendoscopía Digestiva Alta", category: "estudio", price: 150000, ef_price: 138000, duration_min: 45, notes: "Con sedación" },
+
+  // Ginecología
+  { name: "Consulta Ginecología", category: "consulta", price: 55000, ef_price: null, duration_min: 20, notes: "Dr. Diccea / Dra. Parraga" },
+  { name: "Colocación DIU", category: "procedimiento", price: 80000, ef_price: null, duration_min: 30 },
+  { name: "Extracción DIU", category: "procedimiento", price: 50000, ef_price: null, duration_min: 20 },
+
+  // Otorrinolaringología
+  { name: "Consulta Otorrinolaringología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dra. Castro — por fecha" },
+  { name: "Audiometría", category: "estudio", price: 45000, ef_price: null, duration_min: 20 },
+  { name: "Impedanciometría", category: "estudio", price: 40000, ef_price: null, duration_min: 15 },
+
+  // Psicología
+  { name: "Consulta Psicología", category: "consulta", price: 55000, ef_price: null, duration_min: 50, notes: "Lic. Molina" },
+
+  // Fonoaudiología
+  { name: "Consulta Fonoaudiología", category: "consulta", price: 55000, ef_price: null, duration_min: 40, notes: "Lic. Safar — mensual" },
+
+  // Alergología
+  { name: "Consulta Alergología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dra. Urbieta — quincenal" },
+  { name: "Test Cutáneo Alérgico", category: "estudio", price: 45000, ef_price: null, duration_min: 30 },
+
+  // Flebología
+  { name: "Consulta Flebología", category: "consulta", price: 60000, ef_price: null, duration_min: 20, notes: "Dr. Lagos" },
+  { name: "Escleroterapia (por sesión)", category: "procedimiento", price: 70000, ef_price: null, duration_min: 30 },
+  { name: "Eco-Doppler Venoso Miembros Inferiores", category: "estudio", price: 75000, ef_price: 70000, duration_min: 30 },
+
+  // Nutrición
+  { name: "Consulta Nutrición", category: "consulta", price: 50000, ef_price: null, duration_min: 30, notes: "Lunes con turno" },
+
+  // Laboratorio
+  { name: "Laboratorio — Hemograma Completo", category: "laboratorio", price: 15000, ef_price: null, duration_min: 10 },
+  { name: "Laboratorio — Glucemia", category: "laboratorio", price: 8000, ef_price: null, duration_min: 5 },
+  { name: "Laboratorio — Lipidograma Completo", category: "laboratorio", price: 20000, ef_price: null, duration_min: 10 },
+  { name: "Laboratorio — TSH / T4", category: "laboratorio", price: 18000, ef_price: null, duration_min: 10 },
+  { name: "Laboratorio — Orina Completa", category: "laboratorio", price: 10000, ef_price: null, duration_min: 5 },
+  { name: "Laboratorio — Coagulograma", category: "laboratorio", price: 15000, ef_price: null, duration_min: 10 },
+  { name: "Laboratorio — Hepatograma", category: "laboratorio", price: 18000, ef_price: null, duration_min: 10 },
+  { name: "Laboratorio — Perfil Renal (Urea/Creatinina)", category: "laboratorio", price: 15000, ef_price: null, duration_min: 10 },
+  { name: "Laboratorio — Pack Chequeo Completo", category: "laboratorio", price: 65000, ef_price: 58000, duration_min: 15, description: "Hemograma + glucemia + lipidograma + hepatograma + renal + orina" },
+
+  // Cirugía Dental (Dr. Vargas Freddy)
+  { name: "Consulta Cirugía Dental", category: "consulta", price: 50000, ef_price: null, duration_min: 30, notes: "Dr. Vargas Freddy — Lunes" },
+  { name: "Extracción Dental Simple", category: "procedimiento", price: 60000, ef_price: null, duration_min: 30 },
+  { name: "Extracción Muela de Juicio", category: "procedimiento", price: 120000, ef_price: null, duration_min: 60 },
+
+  // Odontología Pediátrica
+  { name: "Consulta Odontología Pediátrica", category: "consulta", price: 35000, ef_price: null, duration_min: 30, notes: "Ver disponibilidad" },
+
+  // Radiografía (Téc. Heit)
+  { name: "Radiografía + Informe", category: "estudio", price: 23000, ef_price: null, duration_min: 15, notes: "Téc. Heit — incluye informe" },
+  { name: "Radiografía Panorámica Dental", category: "estudio", price: 28000, ef_price: null, duration_min: 10 },
+
+  // Chequeos / Packs preventivos
+  { name: "Chequeo Ejecutivo Completo", category: "otro", price: 250000, ef_price: 220000, duration_min: 120, description: "Clínico + ECG + laboratorio completo + ecografía abdominal + RX tórax" },
+  { name: "Chequeo Cardiológico Completo", category: "otro", price: 180000, ef_price: 165000, duration_min: 90, description: "Consulta cardio + ECG + Ecocardiograma + Ergometría" },
 ];
 
 // ─── Main ────────────────────────────────────────────────────
