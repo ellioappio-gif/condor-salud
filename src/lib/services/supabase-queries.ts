@@ -268,7 +268,38 @@ export async function fetchAlertas(): Promise<Alerta[]> {
 
 export async function fetchTurnos(): Promise<Turno[]> {
   const supabase = createClient();
-  const { data, error } = await supabase.from("turnos").select("*").order("hora");
+
+  // Fetch authenticated user's clinic_id from the session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const clinicId: string | null =
+    (session?.user?.user_metadata as Record<string, string>)?.clinic_id ?? null;
+
+  // Wide date window: 30 days back → 90 days forward
+  // so the schedule never loses recent or upcoming appointments
+  const past = new Date();
+  past.setDate(past.getDate() - 30);
+  const future = new Date();
+  future.setDate(future.getDate() + 90);
+  const startDate = past.toISOString().split("T")[0];
+  const endDate = future.toISOString().split("T")[0];
+
+  let query = supabase
+    .from("turnos")
+    .select("*")
+    .gte("fecha", startDate)
+    .lte("fecha", endDate)
+    .order("fecha", { ascending: true })
+    .order("hora", { ascending: true })
+    .limit(1000);
+
+  // Scope to clinic when we have it (RLS handles this too, but be explicit)
+  if (clinicId) {
+    query = query.eq("clinic_id", clinicId);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []).map(mapTurno);
 }
