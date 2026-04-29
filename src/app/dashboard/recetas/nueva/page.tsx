@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   FileText,
@@ -91,7 +92,15 @@ export default function NuevaRecetaPage() {
   const { showToast } = useToast();
   const { t } = useLocale();
   const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const interactionCheck = useInteractionCheck();
+
+  // Pre-fill from patient profile link
+  const urlPatientId = searchParams.get("patient_id") ?? "";
+  const urlPatientName = searchParams.get("patient_name") ?? "";
+  const urlPatientDni = searchParams.get("patient_dni") ?? "";
+  const fromPatient = !!urlPatientId;
 
   const [creating, setCreating] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("");
@@ -109,8 +118,8 @@ export default function NuevaRecetaPage() {
   } | null>(null);
 
   // Form state
-  const [patientName, setPatientName] = useState("");
-  const [patientDNI, setPatientDNI] = useState("");
+  const [patientName, setPatientName] = useState(urlPatientName);
+  const [patientDNI, setPatientDNI] = useState(urlPatientDni);
   const [diagnosis, setDiagnosis] = useState("");
   const [diagnosisCode, setDiagnosisCode] = useState("");
   const [notes, setNotes] = useState("");
@@ -243,7 +252,7 @@ export default function NuevaRecetaPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          patientId: patientDNI.trim() || "clinic-patient-" + Date.now(),
+          patientId: urlPatientId || patientDNI.trim() || "clinic-patient-" + Date.now(),
           patientName: patientName.trim(),
           patientDni: patientDNI.trim() || undefined,
           doctorName: user?.name || "Doctor",
@@ -288,9 +297,21 @@ export default function NuevaRecetaPage() {
       return;
     }
 
-    showToast(asDraft ? "Borrador guardado" : "Receta digital creada con exito");
+    showToast(asDraft ? "Borrador guardado" : "Receta guardada — abriendo portal RCTA...");
     setCreating(false);
     setLoadingLabel("");
+
+    // Redirect to RCTA portal so doctor can issue the prescription
+    if (!asDraft) {
+      router.push("/dashboard/recetas/rcta");
+    } else {
+      // For drafts, go back to patient profile or recetas list
+      if (fromPatient) {
+        router.push(`/dashboard/pacientes/${urlPatientId}?tab=recetas`);
+      } else {
+        router.push("/dashboard/recetas");
+      }
+    }
   }
 
   function resetForm() {
@@ -306,33 +327,15 @@ export default function NuevaRecetaPage() {
     setPosdatedMonths(1);
   }
 
-  // ── Success state ──
-  if (created) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <PrescriptionSuccessModal
-          prescription={{
-            id: created.id,
-            patientName: created.patientName,
-            medications: created.medications,
-            verificationToken: created.verificationToken,
-            status: created.status,
-          }}
-          verificationUrl={created.verificationUrl}
-          registrations={created.registrations}
-          onNewPrescription={resetForm}
-        />
-      </div>
-    );
-  }
-
   // ── Form state ──
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link
-          href="/dashboard/recetas"
+          href={
+            fromPatient ? `/dashboard/pacientes/${urlPatientId}?tab=recetas` : "/dashboard/recetas"
+          }
           className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-border transition"
         >
           <ArrowLeft className="w-4 h-4 text-ink/50" />
@@ -357,6 +360,20 @@ export default function NuevaRecetaPage() {
           {routeLabel}
         </div>
       </div>
+
+      {/* Patient context banner */}
+      {fromPatient && (
+        <div className="flex items-center gap-2 bg-celeste-pale border border-celeste/30 rounded-xl px-4 py-2.5 text-sm text-celeste-dark font-medium">
+          <FileText className="w-4 h-4 shrink-0" />
+          Receta para <strong className="ml-1">{urlPatientName}</strong>
+          {urlPatientDni && (
+            <span className="text-celeste-dark/60 font-normal ml-1">· DNI {urlPatientDni}</span>
+          )}
+          <span className="ml-auto text-xs text-celeste-dark/60">
+            Al guardar se abrirá el portal RCTA
+          </span>
+        </div>
+      )}
 
       {/* Interaction Warnings */}
       {interactionCheck.interactions.length > 0 && (
