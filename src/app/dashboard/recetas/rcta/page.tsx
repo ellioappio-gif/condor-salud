@@ -1,65 +1,110 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink, Globe } from "lucide-react";
-import { useLocale } from "@/lib/i18n/context";
+import { ExternalLink, Globe, Copy, CheckCheck, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-const PROXY = "/api/rcta-proxy?url=";
-const rctaUrl = (slug: string) => `${PROXY}${encodeURIComponent(`https://app.rcta.me/p/${slug}`)}`;
+const RCTA_URL = "https://app.rcta.me";
+const DOCTOR_EMAIL = "flopezmd@gmail.com";
 
 export default function RctaPortalPage() {
-  const { t } = useLocale();
-  const [rctaDoctorSlug, setRctaDoctorSlug] = useState("francisco-azael-lopez-10");
+  const [copiedEmail, setCopiedEmail] = useState(false);
+
+  function copy(text: string, setCopied: (v: boolean) => void) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   return (
-    <div className="space-y-4">
+    <div className="max-w-xl mx-auto space-y-5 py-4">
       <div className="flex items-center gap-3">
-        <Globe className="w-6 h-6 text-celeste-dark" />
+        <Link
+          href="/dashboard/recetas"
+          className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-border transition"
+        >
+          <ArrowLeft className="w-4 h-4 text-ink/50" />
+        </Link>
         <div>
-          <h1 className="text-xl font-bold text-ink">
-            {t("prescriptions.rctaPortalTitle") || "Receta Digital — RCTA"}
+          <h1 className="text-xl font-bold text-ink flex items-center gap-2">
+            <Globe className="w-5 h-5 text-celeste-dark" />
+            Portal RCTA — Receta Digital
           </h1>
-          <p className="text-sm text-ink/60">
-            {t("prescriptions.rctaPortalDesc") ||
-              "Emitir recetas digitales a través del portal oficial de RCTA (app.rcta.me)"}
+          <p className="text-sm text-ink/50">app.rcta.me — Emitir recetas digitales oficiales</p>
+        </div>
+      </div>
+
+      <div className="bg-white border border-border rounded-2xl overflow-hidden">
+        <div className="p-6 flex flex-col items-center gap-4 border-b border-border bg-gradient-to-b from-celeste-pale/40 to-white">
+          <div className="w-16 h-16 rounded-2xl bg-celeste-dark/10 flex items-center justify-center">
+            <Globe className="w-8 h-8 text-celeste-dark" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-ink/60 mb-3">
+              Haga clic para abrir el portal oficial de RCTA en una nueva pestaña
+            </p>
+            <a
+              href={RCTA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-celeste-dark text-white font-semibold rounded-xl hover:bg-celeste transition text-sm shadow"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir rcta.me
+            </a>
+          </div>
+        </div>
+
+        <div className="p-5 space-y-3">
+          <p className="text-xs font-bold text-ink/40 uppercase tracking-wider">
+            Datos de acceso — Dr. Francisco López
+          </p>
+          <div className="flex items-center justify-between bg-surface rounded-xl px-4 py-3">
+            <div>
+              <p className="text-[10px] text-ink/40 uppercase tracking-wide font-semibold">
+                Usuario
+              </p>
+              <p className="text-sm font-mono text-ink font-medium">{DOCTOR_EMAIL}</p>
+            </div>
+            <button
+              onClick={() => copy(DOCTOR_EMAIL, setCopiedEmail)}
+              className="p-2 rounded-lg hover:bg-border/40 transition text-ink/40 hover:text-celeste-dark"
+              title="Copiar email"
+            >
+              {copiedEmail ? (
+                <CheckCheck className="w-4 h-4 text-green-500" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+          <p className="text-xs text-ink/40 text-center pt-1">
+            La contraseña está guardada en el gestor de contraseñas del navegador
           </p>
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-xl p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-ink/50 whitespace-nowrap">
-              {t("prescriptions.rctaDoctorSlug") || "Perfil del médico:"}
-            </label>
-            <input
-              type="text"
-              value={rctaDoctorSlug}
-              onChange={(e) => setRctaDoctorSlug(e.target.value)}
-              className="text-sm border border-border rounded-md px-3 py-1.5 w-64 focus:outline-none focus:ring-2 focus:ring-celeste/50"
-              placeholder="francisco-azael-lopez-10"
-            />
-          </div>
-          <a
-            href={`https://app.rcta.me/p/${rctaDoctorSlug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline font-medium"
-          >
-            <ExternalLink className="w-4 h-4" />
-            {t("prescriptions.rctaOpenExternal") || "Abrir en nueva pestaña"}
-          </a>
-        </div>
-        <div className="rounded-lg overflow-hidden border border-border bg-gray-50">
-          <iframe
-            src={rctaUrl(rctaDoctorSlug)}
-            title="Portal RCTA — Receta Digital"
-            className="w-full border-0"
-            style={{ height: "calc(100vh - 260px)", minHeight: "600px" }}
-            allow="clipboard-write; clipboard-read"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation"
-          />
-        </div>
+      <div className="bg-white border border-border rounded-2xl p-5 space-y-3">
+        <p className="text-xs font-bold text-ink/40 uppercase tracking-wider">
+          Pasos para emitir receta
+        </p>
+        <ol className="space-y-2">
+          {[
+            "Completar el formulario de receta en Condor Salud",
+            "La receta se guarda en el historial del paciente",
+            "Abrir rcta.me con el botón de arriba",
+            "Iniciar sesión con flopezmd@gmail.com",
+            "Completar y firmar la receta digital en RCTA",
+          ].map((step, i) => (
+            <li key={i} className="flex items-start gap-3 text-sm text-ink/70">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-celeste-pale text-celeste-dark text-[11px] font-bold flex items-center justify-center mt-0.5">
+                {i + 1}
+              </span>
+              {step}
+            </li>
+          ))}
+        </ol>
       </div>
     </div>
   );

@@ -297,20 +297,20 @@ export default function NuevaRecetaPage() {
       return;
     }
 
-    showToast(asDraft ? "Borrador guardado" : "Receta guardada — abriendo portal RCTA...");
+    showToast(asDraft ? "Borrador guardado" : "Receta guardada — abriendo rcta.me...");
     setCreating(false);
     setLoadingLabel("");
 
-    // Redirect to RCTA portal so doctor can issue the prescription
     if (!asDraft) {
-      router.push("/dashboard/recetas/rcta");
+      // Open rcta.me directly in a new tab
+      window.open("https://app.rcta.me", "_blank", "noopener");
+    }
+
+    // Return to patient profile or recetas list
+    if (fromPatient) {
+      router.push(`/dashboard/pacientes/${urlPatientId}?tab=recetas`);
     } else {
-      // For drafts, go back to patient profile or recetas list
-      if (fromPatient) {
-        router.push(`/dashboard/pacientes/${urlPatientId}?tab=recetas`);
-      } else {
-        router.push("/dashboard/recetas");
-      }
+      router.push("/dashboard/recetas");
     }
   }
 
@@ -370,7 +370,7 @@ export default function NuevaRecetaPage() {
             <span className="text-celeste-dark/60 font-normal ml-1">· DNI {urlPatientDni}</span>
           )}
           <span className="ml-auto text-xs text-celeste-dark/60">
-            Al guardar se abrirá el portal RCTA
+            Al guardar se abrirá rcta.me en nueva pestaña
           </span>
         </div>
       )}
