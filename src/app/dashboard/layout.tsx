@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { DemoModalProvider } from "@/components/DemoModal";
 import NotificationBell from "@/components/NotificationBell";
+import MessagesButton from "@/components/MessagesButton";
 import CommandPalette from "@/components/CommandPalette";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
@@ -852,6 +853,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span>Buscar</span>
                 <kbd className="font-mono text-[9px] bg-surface px-1 rounded">⌘K</kbd>
               </button>
+              <MessagesButton />
               <NotificationBell />
               <div className="h-5 w-px bg-border" aria-hidden="true" />
               <Link href="/dashboard/configuracion" className="flex items-center gap-2.5 group">
