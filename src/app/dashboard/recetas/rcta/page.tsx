@@ -4,6 +4,9 @@ import { useState } from "react";
 import { ExternalLink, Globe } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
+const PROXY = "/api/rcta-proxy?url=";
+const rctaUrl = (slug: string) => `${PROXY}${encodeURIComponent(`https://app.rcta.me/p/${slug}`)}`;
+
 export default function RctaPortalPage() {
   const { t } = useLocale();
   const [rctaDoctorSlug, setRctaDoctorSlug] = useState("francisco-azael-lopez-10");
@@ -49,12 +52,12 @@ export default function RctaPortalPage() {
         </div>
         <div className="rounded-lg overflow-hidden border border-border bg-gray-50">
           <iframe
-            src={`https://app.rcta.me/p/${rctaDoctorSlug}`}
+            src={rctaUrl(rctaDoctorSlug)}
             title="Portal RCTA — Receta Digital"
             className="w-full border-0"
             style={{ height: "calc(100vh - 260px)", minHeight: "600px" }}
-            allow="clipboard-write"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+            allow="clipboard-write; clipboard-read"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation"
           />
         </div>
       </div>
