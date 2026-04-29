@@ -19,105 +19,47 @@ function getServiceClient() {
   );
 }
 
-// ─── Demo fallback ───────────────────────────────────────────
-const DEMO_ALERTAS = [
-  {
-    id: "ALR-001",
-    tipo: "pago",
-    titulo: "Pago recibido — OSDE",
-    detalle: "Se acreditó el pago de OSDE correspondiente al período enero 2026 por $1.245.800.",
-    fecha: "2026-03-07",
-    acento: "celeste",
-    read: false,
-  },
-  {
-    id: "ALR-002",
-    tipo: "rechazo",
-    titulo: "3 rechazos nuevos — PAMI",
-    detalle:
-      "Se detectaron 3 nuevos rechazos en la última presentación de PAMI. Motivo principal: documentación faltante.",
-    fecha: "2026-03-07",
-    acento: "gold",
-    read: false,
-  },
-  {
-    id: "ALR-003",
-    tipo: "nomenclador",
-    titulo: "Actualización arancelaria — Swiss Medical",
-    detalle:
-      "Swiss Medical publicó nuevos aranceles vigentes desde 01/03/2026. Incremento promedio: 12.5%.",
-    fecha: "2026-03-06",
-    acento: "celeste",
-    read: false,
-  },
-  {
-    id: "ALR-004",
-    tipo: "vencimiento",
-    titulo: "Stock crítico — Guantes nitrilo M",
-    detalle:
-      "El stock de guantes nitrilo talle M está por debajo del mínimo (5 cajas de 15 requeridas).",
-    fecha: "2026-03-06",
-    acento: "gold",
-    read: false,
-  },
-  {
-    id: "ALR-005",
-    tipo: "vencimiento",
-    titulo: "Stock crítico — Tiras reactivas glucemia",
-    detalle: "Solo quedan 3 cajas de tiras reactivas (mínimo: 10). Vencimiento cercano: 06/2026.",
-    fecha: "2026-03-06",
-    acento: "celeste",
-    read: true,
-  },
-  {
-    id: "ALR-006",
-    tipo: "vencimiento",
-    titulo: "Vencimiento de autorización — Holter (Ramírez)",
-    detalle:
-      "La autorización de Swiss Medical para Holter 24hs de Sofía Ramírez vence el 28/02. Renovar antes de presentar.",
-    fecha: "2026-03-05",
-    acento: "gold",
-    read: true,
-  },
-  {
-    id: "ALR-007",
-    tipo: "inflacion",
-    titulo: "Backup del sistema completado",
-    detalle: "El backup diario del sistema se completó exitosamente a las 03:00. Tamaño: 2.4GB.",
-    fecha: "2026-03-07",
-    acento: "celeste",
-    read: true,
-  },
-  {
-    id: "ALR-008",
-    tipo: "nomenclador",
-    titulo: "Nuevo arancel PAMI — Resolución 2024/2026",
-    detalle:
-      "Se publicó la Resolución 2024/2026 con actualización de aranceles PAMI vigente desde 01/03/2026.",
-    fecha: "2026-03-04",
-    acento: "gold",
-    read: true,
-  },
-  {
-    id: "ALR-009",
-    tipo: "pago",
-    titulo: "Demora en pago — Galeno",
-    detalle:
-      "El pago de Galeno correspondiente a enero 2026 supera los 90 días. Monto pendiente: $342.600.",
-    fecha: "2026-03-03",
-    acento: "gold",
-    read: true,
-  },
-  {
-    id: "ALR-010",
-    tipo: "vencimiento",
-    titulo: "Presentación vence mañana — IOMA",
-    detalle: "La fecha límite de presentación del período febrero 2026 para IOMA es el 10/03/2026.",
-    fecha: "2026-03-09",
-    acento: "gold",
-    read: false,
-  },
-];
+// ─── Build live alerts from upcoming appointments ────────────
+async function buildAppointmentAlerts(
+  clinicId: string,
+  supabase: ReturnType<typeof getServiceClient>,
+) {
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+  const tomorrowStr = new Date(now.getTime() + 86_400_000).toISOString().split("T")[0];
+  const nextWeekStr = new Date(now.getTime() + 7 * 86_400_000).toISOString().split("T")[0];
+
+  const { data: turnos } = await supabase
+    .from("turnos")
+    .select("id, fecha, hora, paciente_nombre, estado, motivo, doctor_nombre")
+    .eq("clinic_id", clinicId)
+    .gte("fecha", todayStr)
+    .lte("fecha", nextWeekStr)
+    .not("estado", "eq", "cancelado")
+    .order("fecha", { ascending: true })
+    .order("hora", { ascending: true })
+    .limit(30);
+
+  if (!turnos || turnos.length === 0) return [];
+
+  return (turnos as Record<string, string>[]).map((t) => {
+    const isToday = t.fecha === todayStr;
+    const isTomorrow = t.fecha === tomorrowStr;
+    const label = isToday ? "hoy" : isTomorrow ? "mañana" : t.fecha;
+    const hora = t.hora ? t.hora.slice(0, 5) : "";
+    const doctor = t.doctor_nombre ? ` — ${t.doctor_nombre}` : "";
+    const motivo = t.motivo ? ` · ${t.motivo}` : "";
+    return {
+      id: `turno-${t.id}`,
+      tipo: "turno",
+      titulo: `Turno ${label} a las ${hora}${doctor}`,
+      detalle: `${t.paciente_nombre}${motivo}`,
+      fecha: t.fecha,
+      acento: isToday ? "gold" : "celeste",
+      read: false,
+    };
+  });
+}
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -129,6 +71,8 @@ export async function GET(request: NextRequest) {
   try {
     if (isSupabaseConfigured()) {
       const supabase = getServiceClient();
+
+      // First try the alertas table
       const { data, error } = await supabase
         .from("alertas")
         .select("*")
@@ -136,17 +80,19 @@ export async function GET(request: NextRequest) {
         .order("fecha", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
-      if (data && data.length > 0) {
+      if (!error && data && data.length > 0) {
         return NextResponse.json({ alertas: data });
       }
+
+      // Fall back to live upcoming appointments
+      const appointmentAlerts = await buildAppointmentAlerts(auth.user.clinicId, supabase);
+      return NextResponse.json({ alertas: appointmentAlerts });
     }
 
-    // Demo fallback
-    return NextResponse.json({ alertas: DEMO_ALERTAS });
+    return NextResponse.json({ alertas: [] });
   } catch (err) {
     logger.error({ err, route: "alertas" }, "Failed to fetch alerts");
-    return NextResponse.json({ alertas: DEMO_ALERTAS });
+    return NextResponse.json({ alertas: [] });
   }
 }
 
