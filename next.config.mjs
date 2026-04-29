@@ -20,6 +20,13 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Proxy route must NOT have X-Frame-Options so it can render in iframes
+        source: "/api/rcta-proxy",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },
