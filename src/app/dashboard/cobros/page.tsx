@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import Link from "next/link";
 import {
   Plus,
   Trash2,
@@ -21,6 +22,7 @@ import {
   Banknote,
   Building2,
   ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
@@ -457,6 +459,14 @@ export default function CobrosPage() {
   // ─── Render ─────────────────────────────────────────────
   return (
     <div className="space-y-5">
+      {/* Back */}
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1.5 text-sm text-ink/50 hover:text-celeste-dark transition font-medium"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Inicio
+      </Link>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import {
   Plus,
   Pencil,
@@ -17,6 +18,7 @@ import {
   Info,
   ChevronDown,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
@@ -264,6 +266,14 @@ export default function PreciosPage() {
 
   return (
     <div className="space-y-5" data-tour="precios-page">
+      {/* Back */}
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1.5 text-sm text-ink/50 hover:text-celeste-dark transition font-medium"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Inicio
+      </Link>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>

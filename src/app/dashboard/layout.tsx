@@ -232,7 +232,6 @@ const navSections = [
         href: "/dashboard/interconsultas",
         tKey: "nav.interconsultas",
       },
-      { label: "Triage", href: "/dashboard/triage", tKey: "nav.triage" },
       { label: "PACS", href: "/dashboard/nubix", tKey: "nav.nubix" },
     ],
   },

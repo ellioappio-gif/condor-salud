@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
@@ -10,6 +10,9 @@ import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
 import { usePacientes, useTurnos, useFacturas } from "@/hooks/use-data";
 import { EmptyState, TableSkeleton } from "@/components/ui";
+import PatientChatTab from "@/components/patients/PatientChatTab";
+import PatientTriageTab from "@/components/patients/PatientTriageTab";
+import PatientRecetasTab from "@/components/patients/PatientRecetasTab";
 import {
   Users,
   Calendar,
@@ -23,6 +26,10 @@ import {
   Plus,
   ChevronDown,
   ChevronRight,
+  ArrowLeft,
+  MessageSquare,
+  Pill,
+  Activity,
 } from "lucide-react";
 import type { Paciente } from "@/lib/services/data";
 import { formatCurrency } from "@/lib/utils";
@@ -118,7 +125,9 @@ export default function PacienteDetailPage() {
   const isLoading = loadingPacientes || loadingTurnos || loadingFacturas;
 
   const [showEditModal, setShowEditModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "services" | "billing">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "services" | "billing" | "triage" | "recetas" | "chat"
+  >("overview");
 
   /* ── Services & Receipts ──────────────────────────────── */
   const [services, setServices] = useState<ClinicService[]>([]);
@@ -318,9 +327,13 @@ export default function PacienteDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
+      {/* Back + Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-ink-muted">
-        <Link href="/dashboard/pacientes" className="hover:text-celeste-dark transition">
+        <Link
+          href="/dashboard/pacientes"
+          className="flex items-center gap-1 hover:text-celeste-dark transition font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
           Pacientes
         </Link>
         <span>/</span>
@@ -470,18 +483,21 @@ export default function PacienteDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-border">
+      <div className="flex gap-1 border-b border-border overflow-x-auto">
         {(
           [
             { key: "overview", label: "Resumen", icon: Users },
-            { key: "services", label: "Servicios Prestados", icon: Stethoscope },
-            { key: "billing", label: "Historial de Cobros", icon: Receipt },
+            { key: "services", label: "Servicios", icon: Stethoscope },
+            { key: "billing", label: "Cobros", icon: Receipt },
+            { key: "triage", label: "Triaje", icon: Activity },
+            { key: "recetas", label: "Recetas", icon: Pill },
+            { key: "chat", label: "Chat Interno", icon: MessageSquare },
           ] as const
         ).map((tb) => (
           <button
             key={tb.key}
             onClick={() => setActiveTab(tb.key)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition ${
+            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition whitespace-nowrap ${
               activeTab === tb.key
                 ? "border-celeste-dark text-celeste-dark"
                 : "border-transparent text-ink-muted hover:text-ink hover:border-border"
@@ -936,6 +952,23 @@ export default function PacienteDetailPage() {
           )}
         </div>
       )}
+
+      {/* ── Triage Tab ──────────────────────────────────── */}
+      {activeTab === "triage" && (
+        <PatientTriageTab patientId={id} patientName={paciente.nombre ?? "Paciente"} />
+      )}
+
+      {/* ── Recetas Tab ─────────────────────────────────── */}
+      {activeTab === "recetas" && (
+        <PatientRecetasTab
+          patientId={id}
+          patientName={paciente.nombre ?? "Paciente"}
+          patientDni={paciente.dni}
+        />
+      )}
+
+      {/* ── Chat Tab ────────────────────────────────────── */}
+      {activeTab === "chat" && <PatientChatTab patientId={id} />}
 
       {/* Edit Patient Modal */}
       {showEditModal && paciente && (
